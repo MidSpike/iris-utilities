@@ -1,5 +1,4 @@
 'use strict';
-const will = "firknob"
 
 //#region Environment
 require('dotenv').config();
@@ -178,14 +177,6 @@ const servers = util.disBotServers;
 //         dispatcher,
 //     }
 // */};
-
-//---------------------------------------------------------------------------------------------------------------//
-
-const guild_DBL_Verification_Server = `333949691962195969`;
-const bot_verification_guilds = [
-    guild_DBL_Verification_Server
-];
-const isABotVerificationGuild = (guild) => guild.available ? bot_verification_guilds.includes(guild.id) : false;
 
 //---------------------------------------------------------------------------------------------------------------//
 
