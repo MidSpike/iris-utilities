@@ -1,0 +1,7 @@
+*.bat
+*.cmd
+*.env
+.vscode
+private
+root
+node_modules
