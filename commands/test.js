@@ -9,5 +9,4 @@ const TEST_COMMAND = new DisBotCommand('TEST', 'this is a test of the new comman
 
 module.exports = {
     TEST_COMMAND,
-    //This area is where the events of the command will be.
 };
