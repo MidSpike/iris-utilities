@@ -7,9 +7,6 @@ const request = require('request');
 const express = require('express');
 const router = express.Router();
 
-// const Discord = require('discord.js');
-// const client = new Discord.Client();
-
 const translate = require('translate-google');
 
 const spmock = require('spmock');
@@ -20,7 +17,6 @@ const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 
 const youtubeSearch = require('youtube-search');
-const youtube_api_token = JSON.parse(fs.readFileSync('./private/private-keys.json')).youtube_api_token;
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -56,7 +52,6 @@ router.get('/speech', (req, res) => {
     if (speak_type === 'google') {
         gtts(speak_lang).stream(speak_msg).pipe(res);
     } else if (speak_type === 'ibm') {
-        // request.get(`https://text-to-speech-demo.ng.bluemix.net/api/v1/synthesize?voice=${encodeURI(speak_lang)}&text=${encodeURI(speak_msg)}&download=true&accept=audio%2Fmp3`).pipe(res);
         request.get(`https://text-to-speech-demo.ng.bluemix.net/api/v3/synthesize?voice=${encodeURI(speak_lang)}&text=${encodeURI(speak_msg)}&download=true&accept=audio%2Fmp3`).pipe(res);
     }
 });
@@ -66,7 +61,7 @@ router.get('/speech', (req, res) => {
 router.get('/ytsearch', (req, res) => {
     res.set({'Content-Type':'application/json'});
     if (req.query.search) {
-        youtubeSearch(req.query.search, {maxResults:(req.query.max ?? 5), type:'video', regionCode:'US', key:youtube_api_token}, (error, results) => {
+        youtubeSearch(req.query.search, {maxResults:(req.query.max ?? 5), type:'video', regionCode:'US', key:process.env.YOUTUBE_API_TOKEN}, (error, results) => {
             if (error) {
                 console.error(error);
                 res.send(JSON.stringify({
@@ -206,7 +201,6 @@ router.get('/bot', (req, res) => {
         'public-config',
         'blacklisted-users',
         'blacklisted-guilds',
-        // 'guild-configs',
     ];
     res.send([
         `<html>`,
@@ -235,46 +229,10 @@ router.get('/bot/blacklisted-guilds', (req, res) => {
     const blacklisted_guilds = JSON.parse(fs.readFileSync('./root/database/blacklisted-guilds.json'));
     res.send(JSON.stringify(blacklisted_guilds, null, 4));
 });
-// router.get('/bot/guild-configs', (req, res) => {
-//     res.set({'Content-Type':'application/json'});
-//     const guild_configs = JSON.parse(fs.readFileSync('./root/database/guild-configs.json'));
-//     res.send(JSON.stringify(guild_configs, null, 4));
-// });
-
-//---------------------------------------------------------------------------------------------------------------//
-
-// router.post('/bot/guild/:guild_id', (req, res) => {
-//     res.set({'Content-Type':'application/json'});
-//     if (req.body.dashboard_api_token === JSON.parse(fs.readFileSync('./private/private-keys.json')).dashboard_api_token) {
-//         res.send(JSON.stringify({
-//             'status':'200',
-//             'message':'Success'
-//         }, null, 4));
-//         // const guild_id = req.params['guild_id'];
-//         // const guild = client.guilds.cache.get(guild_id);
-//         // if (guild) {
-//         //     res.send(JSON.stringify(guild, null, 4));
-//         // } else {
-//         //     res.send(JSON.stringify({
-//         //         'status':'400',
-//         //         'message':'Invalid guild id after \'/guild/\''
-//         //     }, null, 4));
-//         // }
-//     } else {
-//         res.send(JSON.stringify({
-//             'status':'403',
-//             'message':'Forbidden - Invalid API key'
-//         }, null, 4));
-//     }
-// });
 
 //---------------------------------------------------------------------------------------------------------------//
     
 app.use('/', router);
-
-//---------------------------------------------------------------------------------------------------------------//
-
-// client.login(JSON.parse(fs.readFileSync('./private/private-keys.json')).discord_client_token);
 
 //---------------------------------------------------------------------------------------------------------------//
 

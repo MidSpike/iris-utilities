@@ -1040,7 +1040,7 @@ function playYouTube(old_message, search_query, playnext=false) {
         console.log(`potentialPlaylistId:`, potentialPlaylistId);
         if (potentialPlaylistId) {
             const playlist_id_to_lookup = potentialPlaylistId;
-            const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlist_id_to_lookup}&key=${JSON.parse(fs.readFileSync('./private/private-keys.json')).youtube_api_token}`
+            const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlist_id_to_lookup}&key=${process.env.YOUTUBE_API_TOKEN}`
             const yt_playlist_response = await axios.get(yt_playlist_api_url);
             const playlist_items = yt_playlist_response.data.items;
             
