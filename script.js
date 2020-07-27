@@ -188,19 +188,7 @@ function botHasPerms(user_message, required_perms=['ADMINISTRATOR']) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-class CustomRichEmbed {
-    constructor(options={}, old_message=undefined) {
-        this.color = options.color ?? 0xFF5500;
-        this.author = old_message ? (options.author !== undefined ? options.author : {iconURL:old_message.author.displayAvatarURL({dynamic:true}), name:`@${old_message.author.tag}`}) : (options.author ?? null);
-        this.title = options.title ?? null;
-        this.description = options.description ?? null;
-        this.fields = options.fields ?? null;
-        this.image = options.image ? {url:options.image} : null;
-        this.thumbnail = options.thumbnail ? {url:options.thumbnail} : null;
-        this.footer = old_message ? (options.footer !== undefined ? options.footer : {iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${old_message.cleanContent}`}) : (options.footer ?? null);
-        return new Discord.MessageEmbed({...this});
-    }
-}
+const CustomRichEmbed = util.CustomRichEmbed;
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -4704,7 +4692,7 @@ client.on('message', async message => {
             } else if ([`${cp}invokeban`].includes(discord_command)) {
                 if (isThisBotsOwner(old_message.author.id) && old_message?.member?.voice?.channel) {
                     await old_message.channel.send(new CustomRichEmbed({
-                        description:`Banning ${old_message.mentions.users.first()}`,
+                        description:`Banning ${old_message.mentions.users.first() ?? old_message.author}`,
                         image:`https://media.giphy.com/media/Jre4oRAHsyl3y/giphy.gif`
                     }));
                     playStream(await createConnection(old_message.member.voice.channel, true), `./root/files/mp3s/fairy_law.mp3`, 200);
