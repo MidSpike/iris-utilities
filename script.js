@@ -4,9 +4,9 @@
 require('dotenv').config();
 //#endregion Environment
 
-//#region Bot Web Server
+//#region Start The Bot Web Server
 require('./server.js')();
-//#endregion Bot Web Server
+//#endregion Start The Bot Web Server
 
 //#region Bot Config
 const bot_config = require('./config.json');
@@ -38,8 +38,6 @@ const moment = require('moment-timezone');
 const Sugar = require('sugar');
 const schedule = require('node-schedule');
 
-// const Discord = require('discord.js');
-// const client = new Discord.Client({partials:['MESSAGE', 'CHANNEL', 'REACTION']});
 const { Discord, client } = require('./bot.js');
 
 const emoji = require('node-emoji');
@@ -66,7 +64,6 @@ const validUrl = require('valid-url');
 const getVideoId = require('get-video-id');
 //#endregion
 
-
 //#region Utility Functions
 const random_range_inclusive = util.random_range_inclusive;
 const array_make = util.array_make;
@@ -78,16 +75,14 @@ const object_sort = util.object_sort;
 const getReadableTime = util.getReadableTime;
 //#endregion
 
-
-
 //#region Bot Files
-const bot_error_log_file = './root/logs/errors/error_log.txt';
-const bot_command_log_file = `./root/logs/commands/command_log_${moment().format(`YYYY_MM`)}.json`;
-const bot_update_log_file = `./root/logs/updates/update-logs.json`;
-const bot_guild_configs_file = './root/database/guild-configs.json';
-const bot_reminder_configs_file = './root/database/reminder-configs.json';
-const bot_blacklisted_guilds_file = './root/database/blacklisted-guilds.json';
-const bot_blacklisted_users_file = './root/database/blacklisted-users.json';
+const bot_error_log_file = process.env.BOT_ERROR_LOG_FILE;
+const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE;
+const bot_update_log_file = process.env.BOT_UPDATE_LOG_FILE;
+const bot_guild_configs_file = process.env.BOT_GUILD_CONFIGS_FILE;
+const bot_reminder_configs_file = process.env.BOT_REMINDER_CONFIGS_FILE;
+const bot_blacklisted_guilds_file = process.env.BOT_BLACKLISTED_GUILDS_FILE;
+const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
 //#endregion
 
 //#region Bot Globals
@@ -95,11 +90,11 @@ const bot_short_name = bot_config.short_name;
 const bot_common_name = bot_config.common_name;
 const bot_long_name = bot_config.long_name;
 const bot_id = bot_config.client_id;
-const bot_version = bot_config.version;
+const bot_version = bot_config.public_version;
 const bot_permissions_bits = bot_config.permissions;
 const bot_website = bot_config.website;
-const bot_cdn_url = bot_config.cdn_url;
-const bot_api_url = bot_config.api_url;
+const bot_cdn_url = process.env.BOT_CDN_URL;
+const bot_api_url = process.env.BOT_API_URL;
 const bot_invite_link = `https://discordapp.com/oauth2/authorize?&client_id=${bot_id}&scope=bot&permissions=${bot_permissions_bits}`;
 const bot_support_guild_invite_url = 'https://discord.gg/BXJpS6g';
 const bot_emoji_guild_id = bot_config.emoji_guild_id;
@@ -109,23 +104,23 @@ const bot_appeals_guild_id = bot_config.appeals_guild_id;
 const bot_default_guild_config = bot_config.default_guild_config;
 //#endregion
 
-
-
-/** @TODO */
 //#region Bot Channels
-const bot_restarts_channel_name = 'iris-restart-log';
-const bot_update_log_channel_name = 'iris-update-log';
-const bot_command_log_channel_name = 'iris-command-log';
-const bot_moderation_log_channel_name = 'iris-moderation-log';
-const bot_invite_log_channel_name = 'iris-invite-log';
-const bot_appeals_log_channel_name = 'iris-appeals-log';
-const bot_members_log_channel_name = 'iris-member-log';
-const bot_reaction_log_channel_name = 'iris-reaction-log';
+const bot_special_channels = bot_config.special_channels;
+const bot_special_channels_category_name = bot_special_channels.SPECIAL_CHANNELS_CATEGORY.public_name;
 
+const bot_backup_commands_channel_name = bot_special_channels.BOT_COMMANDS.public_name;
 
-const bot_special_channels_category_name = `${bot_common_name}`;
+const bot_restart_log_channel_name = bot_special_channels.BOT_RESTARTS.public_name;
+const bot_command_log_channel_name = bot_special_channels.GUILD_COMMANDS.public_name;
+const bot_update_log_channel_name = bot_special_channels.BOT_UPDATES.public_name;
+const bot_members_log_channel_name = bot_special_channels.GUILD_MEMBERS.public_name;
+const bot_invite_log_channel_name = bot_special_channels.GUILD_INVITES.public_name;
+const bot_moderation_log_channel_name = bot_special_channels.GUILD_MODERATION.public_name;;
+const bot_reaction_log_channel_name = bot_special_channels.GUILD_REACTIONS.public_name;;
+const bot_appeals_log_channel_name = bot_special_channels.GUILD_APPEALS.public_name;;
+
 const bot_special_text_channels = [
-    bot_restarts_channel_name,
+    bot_restart_log_channel_name,
     bot_update_log_channel_name,
     bot_command_log_channel_name,
     bot_moderation_log_channel_name,
@@ -134,25 +129,24 @@ const bot_special_text_channels = [
     bot_members_log_channel_name,
     bot_reaction_log_channel_name
 ];
-const bot_backup_commands_channel_name = 'iris-bot-commands';
 
-const bot_archived_channels_category_name = `iris-archived-channels`;
+const bot_archived_channels_category_name = bot_special_channels.ARCHIVED_CHANNELS_CATEGORY.public_name;
 
-const bot_central_history_deletion_requests_channel_id = '663139932776169493';
-const bot_central_feedback_channel_id = '602149481827401739';
-const bot_central_command_log_channel_id = '709065615184232458';
-const bot_central_guild_history_channel_id = '704408349055385650';
-const bot_central_errors_channel_id = '664598581302394922';
-//#endregion
-
+const bot_central_logging_channels = bot_config.logging_guild_channels;
+const bot_central_errors_channel_id = bot_central_logging_channels.ERRORS.id;
+const bot_central_guild_history_channel_id = bot_central_logging_channels.GUILD_HISTORY.id;
+const bot_central_feedback_channel_id = bot_central_logging_channels.COMMUNITY_FEEDBACK.id;
+const bot_central_command_log_channel_id = bot_central_logging_channels.ANONYMOUS_COMMAND_LOG.id;
+const bot_central_history_deletion_requests_channel_id = bot_central_logging_channels.HISTORY_DELETION_REQUESTS.id;
+//#endregion Bot Channels
 
 //#region Bot Controllers
-const midspike_discord_id = bot_config.owner_id;
+const bot_owner_discord_id = bot_config.owner_id;
 const super_perms = bot_config.super_perms;
 const super_people = bot_config.super_people;
-const fetch_midspike_tag = () => `@${client.users.cache.get(midspike_discord_id).tag}`;
+const fetch_bot_owner_tag = () => `@${client.users.cache.get(bot_owner_discord_id).tag}`;
 const isThisBot = (user_id) => user_id === client.user.id;
-const isThisBotsOwner = (user_id) => user_id === midspike_discord_id;
+const isThisBotsOwner = (user_id) => user_id === bot_owner_discord_id;
 const isSuperPerson = (user_id) => super_people.find(super_person => user_id === super_person.id) ?? false;
 const isSuperPersonAllowed = (super_person, permission_flag) => {
     if (super_person) {
@@ -165,7 +159,7 @@ const isSuperPersonAllowed = (super_person, permission_flag) => {
         return false;
     }
 };
-//#endregion
+//#endregion Bot Controllers
 
 /* Servers Using Music */
 const servers = util.disBotServers;
@@ -1251,7 +1245,6 @@ function updateGuildConfig(guild) {
     // The methodology used below will remove a property from all guild configs
     // delete old_guild_config['PROPERTY_NAME'];
     
-
     const new_guild_config = {
         ...{// Only write this info upon first addition to the config
             '_added_on':`${moment()}`
@@ -1264,7 +1257,7 @@ function updateGuildConfig(guild) {
             '_name':guild.name,
             '_region':guild.region,
             '_features':`${guild.features}`,
-            '_owner':`@${guild.owner.user.tag} (${guild.owner.id})`,
+            '_owner':`@${guild.owner?.user?.tag} (${guild.owner?.id})`,
             // '_has_admin':guild.me.hasPermission('ADMINISTRATOR'), // Deprecated
             '_has_permissions':`${guild.me.hasPermission('ADMINISTRATOR') ? 'ADMINISTRATOR' : guild.me.permissions.toArray()}`,
             '_member_count':guild.members.cache.filter(member => !member.user.bot).size,
@@ -1384,7 +1377,7 @@ client.on('error', console.error);
 // });
 
 client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
-    if (old_voice_state.member.id === bot_id && new_voice_state.member.id === bot_id) {
+    if (old_voice_state.member.id === client.user.id && new_voice_state.member.id === client.user.id) {
         if (new_voice_state.connection && new_voice_state.channel) {// Run if connected to a voice channel
             client.setTimeout(() => {
                 if (new_voice_state.serverMute) new_voice_state.setMute(false, `Don't mute me!`);
@@ -1394,7 +1387,8 @@ client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
     }
 });
 
-client.on('guildUpdate', (old_guild, new_guild) => {
+client.on('guildUpdate', async (old_guild, new_guild) => {
+    if (new_guild.partial) await new_guild.fetch();
     if (new_guild.available) {
         updateGuildConfig(new_guild);
     }
@@ -1413,7 +1407,7 @@ client.on('invalidated', () => {
     process.exit(1);
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
     const ready_timestamp = moment();
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     console.log(`${bot_common_name} Logged in as ${client.user.tag} on ${ready_timestamp} in ${client.guilds.cache.size} servers!`);
@@ -1421,7 +1415,7 @@ client.on('ready', () => {
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     
     client.user.setPresence({type:4, activity:{name:`Just restarted!`}});
-    client.channels.cache.filter(channel => channel.name === bot_restarts_channel_name).forEach(channel => {
+    client.channels.cache.filter(channel => channel.name === bot_restart_log_channel_name).forEach(channel => {
         if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
             channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
         } else {
@@ -1439,7 +1433,7 @@ client.on('ready', () => {
                 client.user.setPresence({type:4, activity:{name:`Uptime: ${getReadableTime(client.uptime / 1000)}`}});
                 presenceMode = 'creator';
             } else if (presenceMode === 'creator') {
-                client.user.setPresence({type:4, activity:{name:`👨‍💻${client.users.cache.get(midspike_discord_id).tag}👑`}});
+                client.user.setPresence({type:4, activity:{name:`👨‍💻${client.users.cache.get(bot_owner_discord_id).tag}👑`}});
                 presenceMode = 'mention_me';
             } else if (presenceMode === 'mention_me') {
                 client.user.setPresence({type:4, activity:{name:`@mention me for help!`}});
@@ -1471,7 +1465,7 @@ client.on('ready', () => {
     });
     //#endregion
 
-    client.guilds.cache.forEach(guild => {
+    client.guilds.cache.forEach(async guild => {
         if (!guild) return;
         if (checkForBlacklistedGuild(guild)) return;
         updateGuildConfig(guild);
@@ -1571,7 +1565,7 @@ client.on('channelCreate', async channel => {
                 description:`This feature is in BETA!`
             }));
         break;
-        case bot_restarts_channel_name:
+        case bot_restart_log_channel_name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
@@ -1903,7 +1897,7 @@ client.on('message', async message => {
     const cp = guild_config.command_prefix || bot_default_guild_config.command_prefix;
 
     /* Handle guild messages that start with a mention of the bot */
-    if (message.content.startsWith(`<@!${bot_id}>`)) {
+    if (message.content.startsWith(`<@!${client.user.id}>`)) {
         const quick_help_embed = new CustomRichEmbed({
             title:`Hi there ${message.author.username}`,
             description:`My command prefix is \`${cp}\` in the server **${message.guild.name}**.\n\nUse \`${cp}help\` in that server to get started!`
@@ -2448,7 +2442,7 @@ client.on('message', async message => {
                 }, old_message));
             } else if ([`${cp}invite_developer`].includes(discord_command)) {
                 const confirmEmbed = new CustomRichEmbed({
-                    title:`Are you sure you want to summon my developer ${fetch_midspike_tag()}?`,
+                    title:`Are you sure you want to summon my developer ${fetch_bot_owner_tag()}?`,
                     description:`\`\`\`fix\nWarning: Check with your server's staff to see if you are allowed to do this!\n\`\`\``
                 }, old_message);
                 sendOptionsMessage(old_message.channel.id, confirmEmbed, [{
@@ -2459,18 +2453,18 @@ client.on('message', async message => {
                         const guild_invite_channel = guild_invite.channel;
                         const guild_invite_guild = guild_invite_channel.guild;
                         if (guild_invite) {
-                            const bot_owner = await client.users.fetch(midspike_discord_id);
+                            const bot_owner = await client.users.fetch(bot_owner_discord_id);
                             const bot_owner_dms = await bot_owner.createDM();
                             bot_owner_dms.send(new CustomRichEmbed({
                                 title:`You have been summoned by @${old_message.author.tag} (${old_message.author.id})`,
                                 description:`${guild_invite_guild.name || null} > ${guild_invite_channel.name || null} <${guild_invite_url}>`
                             }));
                             options_message.edit(new CustomRichEmbed({
-                                title:`My developer (${fetch_midspike_tag()}) was invited to this server by @${old_message.author.tag}!`
+                                title:`My developer (${fetch_bot_owner_tag()}) was invited to this server by @${old_message.author.tag}!`
                             }, old_message));
                         } else {
                             options_message.edit(new CustomRichEmbed({
-                                title:`Failed to Invite My Developer (${fetch_midspike_tag()})!`
+                                title:`Failed to Invite My Developer (${fetch_bot_owner_tag()})!`
                             }, old_message));
                         }
                     }
@@ -2490,7 +2484,7 @@ client.on('message', async message => {
                     description:`I'm **${bot_common_name}**, the *${bot_long_name}*, a general purpose music & utility discord bot that is here to help.`,
                     fields:[
                         {name:'Me', value:`${bot_emoji} @${client.user.tag}`},
-                        {name:'My Developer', value:`${midspike_emoji} ${fetch_midspike_tag()}`},
+                        {name:'My Developer', value:`${midspike_emoji} ${fetch_bot_owner_tag()}`},
                         {name:'My Admins', value:`${super_people.filter(super_person => super_person.public).map(super_person => super_person.name).join('\n')}`},
                         {name:'My Website', value:`${bot_website}`},
                         {name:'My Version', value:`${bot_version}`},
