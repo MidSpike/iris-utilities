@@ -61,6 +61,7 @@ const urlParser = require('url-parameter-parser');
 const validUrl = require('valid-url');
 
 const getVideoId = require('get-video-id');
+const { require } = require('window-or-global');
 //#endregion
 
 //#region Utility Functions
@@ -4698,11 +4699,8 @@ client.on('message', async message => {
                     playStream(await createConnection(old_message.member.voice.channel, true), `./root/files/mp3s/fairy_law.mp3`, 200);
                 }
             } else if ([`${cp}ibmtts`, `${cp}googletts`].includes(discord_command)) {
-                old_message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:'Uh Oh! This command no longer exists!',
-                    description:`Check out \`${cp}tts\``
-                }, old_message));
+                const { ibmgoogletts_cmd } = require('./commands/ibmgoogletts')
+                ibmgoogletts_cmd.execute(client, old_message, {});
             } else if ([`${cp}test`].includes(discord_command)) {
                 if ([`566340180831633429`, `679693642168008820`].includes(old_message.guild.id)) {
                     const { TEST_COMMAND } = require('./commands/test.js');
