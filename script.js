@@ -77,7 +77,7 @@ const getReadableTime = util.getReadableTime;
 
 //#region Bot Files
 const bot_error_log_file = process.env.BOT_ERROR_LOG_FILE;
-const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE;
+const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE.replace('#{date}', `${moment().format(`YYYY_MM`)}`);
 const bot_update_log_file = process.env.BOT_UPDATE_LOG_FILE;
 const bot_guild_configs_file = process.env.BOT_GUILD_CONFIGS_FILE;
 const bot_reminder_configs_file = process.env.BOT_REMINDER_CONFIGS_FILE;
