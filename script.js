@@ -47,7 +47,6 @@ const htmlEntitiesParser = new HtmlEntitiesParser();
 
 const LanguageDetect = require('languagedetect');
 const languageDetector = new LanguageDetect();
-//const gtts = require('node-gtts');
 const google_languages = require('./root/files/google_languages.json');
 const ibm_languages = require('./root/files/ibm_languages.json');
 
@@ -362,17 +361,6 @@ function removeUserReactionsFromMessage(message) {
             });
         });
     }
-    // else if (!isABotVerificationGuild(message.guild)) {
-    //     message.channel.send(new CustomRichEmbed({
-    //         color:0xFFFF00,
-    //         title:`I'm not able to unclick the button!`,
-    //         description:[
-    //             `I wasn't able to unclick the button for you. (remove a reaction added by you to one of my messages)`,
-    //             `Some features of ${bot_common_name} work better with this functionality.`,
-    //             `You can fix this by giving me the permission \`MANAGE_MESSAGES\`.`
-    //         ].join('\n')
-    //     }))
-    // }
 }
 
 async function removeMessageFromChannel(channel_id, message_id) {
@@ -1327,16 +1315,6 @@ function checkForUserInGuildTimeout(message) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-// function sendBotRequiresElevatedPermissions(channel_id, missing_permissions=['ADMINISTRATOR']) {
-//     client.channels.cache.get(channel_id).send(new CustomRichEmbed({
-//         color:0xFF00FF,
-//         title:`I'm missing necessary permissions to perform this action!`,
-//         description:`You MUST give me ${'```'}\n${missing_permissions.join('\n')}\n${'```'} so that I can do that!\nGiving me \`ADMINISTRATOR\` perms will ensure that all commands can function properly!`
-//     }));
-// }
-
-//---------------------------------------------------------------------------------------------------------------//
-
 function sendNotAllowedCommand(message) {
     const embed = new CustomRichEmbed({
         color:0xFF00FF,
@@ -2265,23 +2243,6 @@ client.on('message', async message => {
     }
     //#endregion
 
-
-    /** @TODO */
-    //#region check for guild allowed commands
-    // const guild_blacklisted_commands = guild_config?.blacklisted_commands?.map(c => `${cp}${c}`);
-    // const is_blacklisted_command = guild_blacklisted_commands?.includes(discord_command);
-    // const is_essential_command = [...helpCommands, ...adminCommands, ...serverSettingsCommands].includes(discord_command);
-    // const is_not_admin = !message.member.hasPermission('ADMINISTRATOR');
-    // if (is_not_admin && is_blacklisted_command && !is_essential_command) {
-    //     message.channel.send(new CustomRichEmbed({
-    //         color:0xFF00FF,
-    //         title:`I'm sorry about this!`,
-    //         description:`This server's staff has disabled the \`${discord_command}\` command.`
-    //     }, message));
-    //     return;
-    // }
-    //#endregion check for guild allowed commands
-
     if (checkForBlacklistedUser(message)) return;
     if (checkForBlacklistedGuild(message.guild)) return;
     if (checkForUserInGuildTimeout(message)) return;
@@ -2402,6 +2363,7 @@ client.on('message', async message => {
                     fields:Object.keys(structuredCommandList).map(key => ({name:key, value:`${'```'}\n${structuredCommandList[key].join('\n')}${'```'}`}))
                 }, old_message));
             }
+            /** @TODO make new command help system */
             // else if ([`${cp}about_command`].includes(discord_command)) {
             //     const command_to_lookup = command_args[0];
             //     if (command_to_lookup) {
@@ -2472,7 +2434,6 @@ client.on('message', async message => {
             } else if ([`${cp}info`].includes(discord_command)) {
                 const bot_emoji = findCustomEmoji('bot_emoji_bot');
                 const midspike_emoji = findCustomEmoji('bot_emoji_midspike');
-                // const music_listeners = client?.voice?.connections?.size ?? 0;
                 const music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => !member.user.bot).size).reduce((a, b) => a + b, 0) ?? 0;
                 old_message.channel.send(new CustomRichEmbed({
                     title:`Hi There!`,
@@ -2497,7 +2458,7 @@ client.on('message', async message => {
                 const support_guild = client.guilds.cache.get(bot_support_guild_id);
                 const support_guild_invite = await support_guild.channels.cache.first().createInvite({
                     unique:true,
-                    maxAge:60 * 60 * 24, // 24 hours
+                    maxAge:60 * 60 * 24, // 24 hours in seconds
                     reason:`@${old_message.author.tag} (${old_message.author.id}) used ${discord_command} in ${old_message.guild.name} ${old_message.guild.id}`
                 });
                 old_message.channel.send(new CustomRichEmbed({
@@ -2595,7 +2556,6 @@ client.on('message', async message => {
                         title:`That's just not how you use this command!`,
                         description:`Take a look below to see how you should have done it!`,
                         fields:[
-                            // {name:'\u200b', value:'\u200b'},
                             {name:'Playing Videos From YouTube:', value:`${'```'}\n${discord_command} ussr national anthem\n${'```'}${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`},
                             {name:'Playing Playlists From YouTube:', value:`${'```'}\n${discord_command} https://www.youtube.com/watch?v=CJHJAzVXvgk&list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI&index=1\n${'```'}${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`},
                             {name:'Playing Broadcastify URLs:', value:`${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`},
@@ -3269,7 +3229,6 @@ client.on('message', async message => {
                 old_message.channel.send(new CustomRichEmbed({
                     title:`Don't go wild with this guild information!`,
                     fields:[
-                        // {name:'\u200b', value:'\u200b'},
                         {name:'Discord Id', value:`${guild.id}`},
                         {name:'Name', value:`${guild.name}`},
                         {name:'Region', value:`${guild.region}`},
@@ -3351,7 +3310,6 @@ client.on('message', async message => {
             } else if ([`${cp}roleinfo`].includes(discord_command)) {
                 const role = old_message.guild.roles.cache.get(command_args[0]) || old_message.mentions.roles.first();
                 if (role) {
-                    // const role_permissions = role.permissions.toArray().filter(permission => !(new Discord.Permissions(Discord.Permissions.DEFAULT).toArray().includes(permission))).join('\n');
                     const role_permissions = role.permissions.toArray().join('\n');
                     old_message.channel.send(new CustomRichEmbed({
                         title:`Don't go wild with this role information!`,
@@ -3442,7 +3400,7 @@ client.on('message', async message => {
                 const tts_source = (message.attachments.size > 0 ? (await axios.get(message.attachments.first().url)).data : (tts_input ?? '').replace(regex_tts_command_args, ``)).trim();
                 const tts_short = `${tts_source.slice(0, 50)}...`; // Limit the tts_short to 50 characters
                 const tts_chunks = array_chunks(tts_source.split(/\s/g), 50).map(chunk => chunk.join(' '));
-                for (const chunk_index in tts_chunks) { // chunk_index is NOT a Number (it is a String... WHY, JUST WHY JS?)
+                for (const chunk_index in tts_chunks) { // chunk_index is NOT a Number (it is a String... WHY, JUST WHY JavaScript?)
                     if (chunk_index > 0 && !old_message.guild.me.voice?.connection) break;
                     const tts_chunk = tts_chunks[chunk_index];
                     playTTS(old_message.member.voice.channel, tts_chunk, {
@@ -3616,7 +3574,6 @@ client.on('message', async message => {
                     });
                 } else if ([`${cp}afk`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['MOVE_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -3640,7 +3597,6 @@ client.on('message', async message => {
                     }).catch(error => logUserError(old_message, error));
                 } else if ([`${cp}move`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['MOVE_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -3664,7 +3620,6 @@ client.on('message', async message => {
                     }).catch(error => logUserError(old_message, error));
                 } else if ([`${cp}yoink`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['MOVE_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     if (!old_message.member.voice?.channel) {
                         old_message.channel.send(new CustomRichEmbed({
                             color:0xFFFF00,
@@ -3797,7 +3752,6 @@ client.on('message', async message => {
                     ]);
                 } else if ([`${cp}mute`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['MUTE_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -3823,7 +3777,6 @@ client.on('message', async message => {
                     }).catch(error => logUserError(old_message, error));
                 } else if ([`${cp}deafen`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['DEAFEN_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -3849,7 +3802,6 @@ client.on('message', async message => {
                     }).catch(error => logUserError(old_message, error));
                 } else if ([`${cp}flextape`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['MUTE_MEMBERS', 'DEAFEN_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -3877,7 +3829,6 @@ client.on('message', async message => {
                 } else if ([`${cp}giverole`].includes(discord_command)) {
                     if (!isWorthyOfAdminCommands) {sendNotAllowedCommand(old_message); return;}
                     if (!botHasPerms(old_message, ['MANAGE_ROLES'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     const guildMember = await old_message.guild.members.fetch(user);
                     const role_to_add = old_message.guild.roles.cache.get(command_args[1]) ?? old_message.mentions.roles.first();
@@ -3902,7 +3853,6 @@ client.on('message', async message => {
                 } else if ([`${cp}takerole`].includes(discord_command)) {
                     if (!isWorthyOfAdminCommands) {sendNotAllowedCommand(old_message); return;}
                     if (!botHasPerms(old_message, ['MANAGE_ROLES'])) return;
-                    // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     const guildMember = await old_message.guild.members.fetch(user);
                     const role_to_remove = old_message.guild.roles.cache.get(command_args[1]) ?? old_message.mentions.roles.first();
@@ -3935,7 +3885,6 @@ client.on('message', async message => {
                             description:`${'```'}\n${members_in_timeout.length > 0 ? members_in_timeout.join('\n') : 'Nobody is in timeout'}${'```'}`
                         }, old_message));
                     } else {
-                        // const user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                         const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                         if (!user) {
                             old_message.channel.send(new CustomRichEmbed({
@@ -3974,7 +3923,6 @@ client.on('message', async message => {
                     }
                 } else if ([`${cp}disconnect`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['MOVE_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) || [...old_message.mentions.users.values()][0];
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -3993,7 +3941,6 @@ client.on('message', async message => {
                     }).catch(error => logUserError(old_message, error));
                 } else if ([`${cp}kick`].includes(discord_command)) {
                     if (!botHasPerms(old_message, ['KICK_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) || [...old_message.mentions.users.values()][0];
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
@@ -4025,7 +3972,6 @@ client.on('message', async message => {
                 } else if ([`${cp}ban`].includes(discord_command)) {
                     if (!isWorthyOfAdminCommands) {sendNotAllowedCommand(old_message); return;}
                     if (!botHasPerms(old_message, ['BAN_MEMBERS'])) return;
-                    // const user = client.users.cache.get(command_args[0]) || [...old_message.mentions.users.values()][0];
                     const user = client.users.resolve(command_args[0]) ?? old_message.mentions.users.first();
                     if (!user) {
                         old_message.channel.send(new CustomRichEmbed({
