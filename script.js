@@ -2301,27 +2301,22 @@ client.on('message', async message => {
     }
 
     async function handleCommands(old_message) {
-        //#region LEGACY Command Logging
-        // fs.appendFile(bot_command_log_file, [
-        //     `\nCommand Used In [${old_message.guild.name}] (${old_message.guild.id}) by [@${old_message.author.tag}] (${old_message.author.id}) <${command_timestamp}>:`,
-        //     `${old_message}`,
-        //     `------------------------------------------------------------------------------------------------------------------------------------------------------------`
-        // ].join('\n'), (errorWhileLoggingToFile) => {if (errorWhileLoggingToFile) throw errorWhileLoggingToFile;});
-        //#endregion
-
         //#region central command logging
-        const current_command_log = JSON.parse(fs.readFileSync(bot_command_log_file));
-        const command_log_entry = {
-            guild:`[${old_message.guild.name}] (${old_message.guild.id})`,
-            user:`[@${old_message.author.tag}] (${old_message.author.id})`,
-            channel:`[#${old_message.channel.name}] (${old_message.channel.id})`,
-            timestamp:`${command_timestamp}`,
-            command:`${old_message.content}`
-        };
-        console.info({command_log_entry});
-        
-        const updated_command_log = [...current_command_log, command_log_entry];
-        fs.writeFileSync(bot_command_log_file, JSON.stringify(updated_command_log, null, 2));
+        try {
+            const current_command_log = JSON.parse(fs.readFileSync(bot_command_log_file));
+            const command_log_entry = {
+                guild:`[${old_message.guild.name}] (${old_message.guild.id})`,
+                user:`[@${old_message.author.tag}] (${old_message.author.id})`,
+                channel:`[#${old_message.channel.name}] (${old_message.channel.id})`,
+                timestamp:`${command_timestamp}`,
+                command:`${old_message.content}`
+            };
+            console.info({command_log_entry});
+            const updated_command_log = [...current_command_log, command_log_entry];
+            fs.writeFileSync(bot_command_log_file, JSON.stringify(updated_command_log, null, 2));
+        } catch (error) {
+            console.trace(`Unable to save to command log file!`, error);
+        }
 
         const anonymous_command_log_entry = {
             timestamp:`${command_timestamp}`,
