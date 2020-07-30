@@ -140,63 +140,66 @@ const disBotServers = {/*
 //---------------------------------------------------------------------------------------------------------------//
 
 class QueueManager {
-    constructor() {
-        this._queue = [];
-        this._last_removed = undefined;
-        this._loop_enabled = false;
-        this._loop_type = 'single'; // Can be [ single | multiple | shuffle ]
-        this._autoplay_enabled = false;
-    }
+    #allowed_loop_types = ['single', 'multiple', 'shuffle'];
+    #queue = [];
+    #last_removed = undefined;
+    #loop_enabled = false;
+    #loop_type = 'single'; // Can be any of this.#allowed_loop_types
+    #autoplay_enabled = false;
+    constructor() {}
     get queue() {
-        return this._queue;
+        return this.#queue;
     }
     get last_removed() {
-        return this._last_removed;
+        return this.#last_removed;
     }
     get loop_enabled() {
-        return this._loop_enabled;
+        return this.#loop_enabled;
     }
     get loop_type() {
-        return this._loop_type;
+        return this.#loop_type;
     }
     get autoplay_enabled() {
-        return this._autoplay_enabled;
+        return this.#autoplay_enabled;
     }
-    async addItem(item, insert_index=this.queue.length+1) {
-        if (item) {// Don't Allow falsey items into queue
-            this._queue = array_insert(this._queue, insert_index-1, item);
-        }
+    async addItem(item, insertion_index=this.queue.length+1) {
+        if (!item) throw new Error('Item is undefined and cannot be added to the queue!');
+        this.#queue = array_insert(this.queue, insertion_index-1, item);
         if (this.queue.length === 1 && this.queue[0].player) {
-            this._queue[0].player();
+            this.queue[0].player();
         }
         return this;
     }
-    async removeItem(item_index=1) {
-        this._last_removed = this._queue[0] ?? this.last_removed;
-        this._queue.splice(item_index - 1, 1);
+    async removeItem(removal_index=1) {
+        this.#last_removed = this.queue[0] ?? this.last_removed;
+        this.#queue.splice(removal_index - 1, 1);
         return this;
     }
     async shuffleItems() {
-        this._queue = [this.queue[0], ...(array_shuffle(this._queue.slice(1, this._queue.length)))];
+        this.#queue = [this.queue[0], ...(array_shuffle(this.queue.slice(1, this.queue.length)))];
         return this;
     }
     async clearItems(all=false) {
         this.toggleLoop(false);
         this.toggleAutoplay(false);
-        this._last_removed = this._queue[0] ?? this.last_removed;
-        this._queue = all ? [] : (this.queue[0] ? [this.queue[0]] : []);
+        this.#last_removed = this.queue[0] ?? this.last_removed;
+        this.#queue = all ? [] : (this.queue[0] ? [this.queue[0]] : []);
         return this;
     }
     async toggleLoop(override=undefined) {
-        this._loop_enabled = override !== undefined ? override : !this.loop_enabled;
+        this.#loop_enabled = override !== undefined ? override : !this.loop_enabled;
         return this;
     }
-    async setLoopType(new_loop_type) {
-        this._loop_type = new_loop_type;
+    async setLoopType(new_loop_type='single') {
+        if (this.#allowed_loop_types.includes(new_loop_type)) {
+            this.#loop_type = new_loop_type;
+        } else {
+            throw new Error('Invalid loop type was passed!');
+        }
         return this;
     }
     async toggleAutoplay(override=undefined) {
-        this._autoplay_enabled = override !== undefined ? override : !this.autoplay_enabled;
+        this.#autoplay_enabled = override !== undefined ? override : !this.autoplay_enabled;
         return this;
     }
 }
@@ -268,32 +271,27 @@ class AudioController {
         return this._guild.voice;
     }
     get timestamp() {
-        if (!this.voice?.connection?.dispatcher) return;
-        return getReadableTime(Math.trunc(this.voice.connection.dispatcher.streamTime / 1000));
+        const dispatcher_stream_time = this.voice?.connection?.dispatcher?.streamTime;
+        return dispatcher_stream_time ? getReadableTime(Math.trunc(dispatcher_stream_time / 1000)) : undefined;
     }
     get paused() {
-        if (!this.voice?.connection?.dispatcher) return;
-        return this.voice.connection.dispatcher.paused ? true : false;
+        return this.voice?.connection?.dispatcher?.paused;
     }
     async pause() {
-        if (!this.voice?.connection?.dispatcher) return;
-        this.voice.connection.dispatcher.pause();
+        this.voice?.connection?.dispatcher?.pause();
         return this;
     }
     async resume() {
-        if (!this.voice?.connection?.dispatcher) return;
-        this.voice.connection.dispatcher.resume();
+        this.voice?.connection?.dispatcher?.resume();
         return this;
     }
     async skip() {
-        if (!this.voice?.connection?.dispatcher) return;
-        this.voice.connection.dispatcher.end();
+        this.voice?.connection?.dispatcher?.end();
         return this;
     }
     async disconnect() {
-        if (!this.voice?.channel) return;
         disBotServers[this._guild.id].queue_manager.clearItems(true);
-        this.voice.channel.leave();
+        this.voice?.channel?.leave();
         return this;
     }
 }
@@ -308,8 +306,8 @@ async function createConnection(voice_channel, force_new=false) {
         const server = disBotServers[voice_channel.guild.id];
 
         if (force_new) server.audio_controller.disconnect();
-
         await Timer(force_new ? 500 : 0);
+
         server.queue_manager.toggleLoop(false);
         server.queue_manager.toggleAutoplay(false);
         server.queue_manager.clearItems(true);
@@ -318,6 +316,7 @@ async function createConnection(voice_channel, force_new=false) {
         try {
             voice_connection = await voice_channel.join();
         } catch (error) {
+            console.trace(`Unable to join voice_channel:`, voice_channel);
             throw new Error(`Unable to create voice connection!\n${error}`);
         }
         return voice_connection;
