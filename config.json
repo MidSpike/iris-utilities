@@ -1,10 +1,10 @@
 {
-    "public_version":"vS_2020-07-27_0",
+    "public_version":"vS_2020-07-31_0",
 
     "short_name":"IRIS",
     "common_name":"I.R.I.S. Utilities",
     "long_name":"Interactive Reconnaissance Information Service Utilities",
-    
+
     "client_id":"550423785795223627",
     "owner_id":"163646957783482370",
     "permissions":8,

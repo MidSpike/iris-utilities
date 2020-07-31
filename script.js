@@ -107,9 +107,9 @@ const bot_command_log_channel_name = bot_special_channels.GUILD_COMMANDS.public_
 const bot_update_log_channel_name = bot_special_channels.BOT_UPDATES.public_name;
 const bot_members_log_channel_name = bot_special_channels.GUILD_MEMBERS.public_name;
 const bot_invite_log_channel_name = bot_special_channels.GUILD_INVITES.public_name;
-const bot_moderation_log_channel_name = bot_special_channels.GUILD_MODERATION.public_name;;
-const bot_reaction_log_channel_name = bot_special_channels.GUILD_REACTIONS.public_name;;
-const bot_appeals_log_channel_name = bot_special_channels.GUILD_APPEALS.public_name;;
+const bot_moderation_log_channel_name = bot_special_channels.GUILD_MODERATION.public_name;
+const bot_reaction_log_channel_name = bot_special_channels.GUILD_REACTIONS.public_name;
+const bot_appeals_log_channel_name = bot_special_channels.GUILD_APPEALS.public_name;
 
 const bot_special_text_channels = [
     bot_restart_log_channel_name,
@@ -1469,7 +1469,7 @@ client.on('guildMemberAdd', async member => {
             const bot_purgatory_channel = potential_purgatory_channel ?? await bot_appeals_guild.channels.create(`${guild_with_banned_member.id}-${banned_guild_member.id}`, {
                 type:'text',
                 topic:`Welcome to purgatory @${banned_guild_member.user.tag} for the server ${guild_with_banned_member.name}`,
-                parent:'715271148656525382',
+                parent:process.env.APPEALS_GUILD_PURGATORY_CHANNELS_CATEGORY_ID,
                 permissionOverwrites:[
                     {id:bot_appeals_guild.roles.everyone.id, deny:['VIEW_CHANNEL']},
                     {id:banned_guild_member.id, allow:['VIEW_CHANNEL']}
@@ -1480,7 +1480,7 @@ client.on('guildMemberAdd', async member => {
                 title:`You did something to piss off ${guild_with_banned_member.name}!`,
                 description:[
                     `As such, you have been sent here by ${bot_common_name}.`,
-                    `If you haven't looked at <#715382727330889789> yet, then go look at it!`,
+                    `If you haven't looked at <#${process.env.APPEALS_GUILD_ABOUT_CHANNEL_ID}> yet, then go look at it!`,
                     `You may send **ONE** message here, to *possibly* be viewed by the staff from the server you were banned in.`
                 ].join('\n')
             }));
@@ -1539,7 +1539,7 @@ client.on('message', async message => {
     if (util.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
     
     /* Handle DMs */
-    if (!checkForBots(message) && message.channel.type === 'text' && message.channel.parentID === '683379289147834462') {
+    if (!checkForBots(message) && message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID) {
         const dmUser = client.users.cache.get(`${message.channel.name.replace('dm-', '')}`);
         if (dmUser) {
             const dmEmbed = new CustomRichEmbed({
@@ -1578,20 +1578,17 @@ client.on('message', async message => {
         if (potentialCentralDMChannel) {
             potentialCentralDMChannel.send(dmEmbed);
         } else {
-            message.channel.send(new CustomRichEmbed({
+            await message.channel.send(new CustomRichEmbed({
                 title:`Opening Chat With ${bot_common_name} Staff`,
                 description:`My staff will answer any questions as soon as they see it!\n\nRemember that you can request for your history to be deleted at any time!`
-            })).then(() => {
-                client.guilds.cache.get(bot_logging_guild_id).channels.create(`dm-${message.author.id}`, {type:'text', topic:`${message.author.tag} (${message.author.id}) | ${moment()}`}).then(createdChannel => {
-                    createdChannel.setParent('683379289147834462').then(updatedChannel => {
-                        updatedChannel.lockPermissions().then(updatedChannel => {// This will sync perms with parent
-                            updatedChannel.send(new CustomRichEmbed({title:`Opened DM with: ${message.author.tag} (${message.author.id})`})).then(() => {
-                                updatedChannel.send(dmEmbed);
-                            });
-                        });
-                    });
-                });
-            });
+            }));
+            const central_dm_channel_with_user = client.guilds.cache.get(bot_logging_guild_id).channels.create(`dm-${message.author.id}`, {type:'text', topic:`${message.author.tag} (${message.author.id}) | ${moment()}`});
+            await central_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID);
+            await central_dm_channel_with_user.lockPermissions();
+            await central_dm_channel_with_user.send(new CustomRichEmbed({
+                title:`Opened DM with: ${message.author.tag} (${message.author.id})`
+            }));
+            await central_dm_channel_with_user.send(dmEmbed);
         }
     }
 
@@ -2013,13 +2010,15 @@ client.on('message', async message => {
         } catch (error) {
             console.trace(`Unable to save to command log file!`, error);
         }
-
+        //#endregion central command logging
+        
+        //#region central anonymous command logging
         const anonymous_command_log_entry = {
             timestamp:`${command_timestamp}`,
             command:`${old_message.content}`
         };
-        client.channels.cache.get(bot_central_command_log_channel_id).send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`);
-        //#endregion central command logging
+        client.channels.cache.get(bot_central_command_log_channel_id)?.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`);
+        //#endregion central anonymous command logging
 
         //#region guild command logging
         old_message.guild.channels.cache.filter(channel => channel.name === bot_command_log_channel_name).forEach(channel => {
@@ -2035,7 +2034,6 @@ client.on('message', async message => {
         if (helpCommands.includes(discord_command)) {
             if ([`${cp}help`].includes(discord_command)) {
                 const help_pages = Object.entries(structuredCommandList);
-                // const help_pages_names = help_pages.map(help_page => `${constructNumberUsingEmoji(Object.keys(Object.fromEntries(help_pages)).indexOf(help_page[0]) + 1)} — **${help_page[0]}**`).join('\n');
                 const help_pages_names = help_pages.map(help_page => `${Object.keys(Object.fromEntries(help_pages)).indexOf(help_page[0]) + 1} — ${help_page[0]}`).join('\n');
                 const page_numbers_as_words = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
                 let page_index = parseInt(command_args[0])-1 || 0; // Do not use ??
@@ -2043,13 +2041,9 @@ client.on('message', async message => {
                 function makeHelpEmbed() {
                     const page_emoji = util.findCustomEmoji(`bot_emoji_${page_numbers_as_words[page_index]}`);
                     return new CustomRichEmbed({
-                        // title:`Here are the possible commands one page at a time!`,
                         title:`Hi! I'm here to help! Let's start by navigating the help menu's pages!`,
-                        // description:`The numbers displayed underneath can be used to navigate the menu!\n\n**There is a bit more to know about on page 2!**`,
                         fields:[
-                            // {name:'\u200b', value:'\u200b'},
                             {name:`Help Pages`, value:`${'```'}\n${help_pages_names}${'```'}`},
-                            // {name:`Help Pages`, value:`${help_pages_names}`},
                             {name:'\u200b', value:'\u200b'},
                             {name:`${page_emoji} — ${help_pages[page_index][0]}`, value:`${'```'}\n${help_pages[page_index][1].join('\n')}\n${'```'}`},
                             ...(!old_message.guild.me.hasPermission('MANAGE_MESSAGES') ? [
@@ -2723,7 +2717,7 @@ client.on('message', async message => {
                     title:`Cards Against ${bot_common_name}`,
                     description:'Fetching random card set!\nPlease wait...'
                 })).then(bot_message => {
-                    axios.get(`https://cards-against-humanity-api.herokuapp.com/sets/Base`).then(res => {
+                    axios.get(process.env.CARDS_AGAINST_HUMANITY_API_URL).then(res => {
                         client.setTimeout(() => {
                             const black_card = array_random(res.data.blackCards.filter(card => card.pick === 2));
                             const white_cards = array_make(black_card.pick).map(() => array_random(res.data.whiteCards));
@@ -4400,7 +4394,7 @@ client.on('message', async message => {
                 if (isThisBotsOwner(old_message.author.id) && old_message?.member?.voice?.channel) {
                     await old_message.channel.send(new CustomRichEmbed({
                         description:`Banning ${old_message.mentions.users.first() ?? old_message.author}`,
-                        image:`https://media.giphy.com/media/Jre4oRAHsyl3y/giphy.gif`
+                        image:`${bot_cdn_url}/Invoke-ban_Fairy-Tail.gif`
                     }));
                     playStream(await createConnection(old_message.member.voice.channel, true), `./files/__mp3s/fairy_law.mp3`, 200);
                 }
@@ -4408,8 +4402,10 @@ client.on('message', async message => {
                 const command = util.DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
                 command.execute(client, old_message, {command_prefix:`${cp}`});
             } else if ([`${cp}test`].includes(discord_command)) {
-                const command = util.DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
-                command.execute(client, old_message, {command_prefix:`${cp}`});
+                if (isSuperPerson(old_message.author.id)) {
+                    const command = util.DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                    command.execute(client, old_message, {command_prefix:`${cp}`});
+                }
             } else {
                 old_message.channel.send(new CustomRichEmbed({
                     title:`That command doesn't exist!`,
