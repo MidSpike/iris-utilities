@@ -185,7 +185,8 @@ const CustomRichEmbed = util.CustomRichEmbed;
 
 //---------------------------------------------------------------------------------------------------------------//
 
-function logUserError(user_message, error='Something went horribly wrong! There is no error information!') {
+const fallback_user_error = new Error('Something went horribly wrong! There is no error information!');
+function logUserError(user_message, error=fallback_user_error) {
     const error_id = util.uniqueId();
     const error_timestamp = moment();
     const error_message = new CustomRichEmbed({
@@ -3670,37 +3671,37 @@ client.on('message', async message => {
                         return;
                     }
                     if (isThisBotsOwner(user.id) || isThisBot(user.id) || user.id === old_message.author.id) {return;}
-                    sendConfirmationEmbed(old_message.author.id, old_message.channel.id, true, new CustomRichEmbed({title:`Are you sure you want to ban @${user.tag}?`}), () => {
-                        const _banMember = () => {
-                            old_message.guild.members.ban(user.id, {reason:`@${old_message.author.username} used ${discord_command}`}).then(() => {
+                    sendConfirmationEmbed(old_message.author.id, old_message.channel.id, true, new CustomRichEmbed({title:`Are you sure you want to ban @${user.tag}?`}), async () => {
+                        function _banMember() {
+                            let user_was_banned = true;
+                            try {
+                                if (isSuperPerson(user.id)) throw new Error(`Unable to ban an ${bot_common_name} Super Person!`);
+                                old_message.guild.members.ban(user.id, {reason:`@${old_message.author.tag} used ${discord_command}`});
+                            } catch (error) {
+                                user_was_banned = false;
+                                logUserError(old_message, error);
+                            } finally {
+                                if (!user_was_banned) return;
                                 old_message.channel.send(new CustomRichEmbed({title:`@${user.tag} has been banned!`}));
                                 logAdminCommandsToGuild(old_message, new CustomRichEmbed({title:`@${old_message.author.tag} (${old_message.author.id}) banned @${user.tag} (${user.id}) from the server!`}));
-                            });
-                        };
-                        if (old_message.guild.members.resolve(user.id)) { // The user can still be DM'd by the bot
-                            user.createDM().then(async dmChannel => {
-                                const appeals_guild_invite = await generateInviteToGuild(bot_appeals_guild_id, `Generated using ${discord_command} in ${old_message.guild.name} (${old_message.guild.id})`);
-                                const dm_ban_embed = new CustomRichEmbed({
-                                    color:0xFF00FF,
-                                    title:`You have been banned from ${old_message.guild.name}`,
-                                    description:[
-                                        `You may have a second chance via the [${bot_common_name} Appeals Server](${appeals_guild_invite.url})`,
-                                        `If **${old_message.guild.name}** has ${bot_short_name} Appeals enabled, then you can send an apology to them using the **${bot_common_name} Appeals Server**.`
-                                    ].join('\n')
-                                });
-                                dmChannel.send(dm_ban_embed).then(() => {
-                                    if (isSuperPerson(user.id)) return;
-                                    _banMember();
-                                }).catch(() => { // Failed to send dm
-                                    if (isSuperPerson(user.id)) return;
-                                    _banMember();
-                                });
-                            }).catch(() => { // Failed to create dm channel
-                                if (isSuperPerson(user.id)) return;
-                                _banMember();
-                            });
-                        } else { // Make sure they get banned... Even if they aren't a part of the guild
-                            if (isSuperPerson(user.id)) return;
+                            }
+                        }
+                        try {
+                            if (!old_message.guild.members.resolve(user.id)) throw new Error('User does not exist in Guild!');
+                            const dm_channel = await user.createDM();
+                            const appeals_guild_invite = await generateInviteToGuild(bot_appeals_guild_id, `Generated using ${discord_command} in ${old_message.guild.name} (${old_message.guild.id})`);
+                            dm_channel.send(new CustomRichEmbed({
+                                color:0xFF00FF,
+                                title:`You have been banned from ${old_message.guild.name}`,
+                                description:[
+                                    `You may have a second chance via the [${bot_common_name} Appeals Server](${appeals_guild_invite.url})`,
+                                    `If **${old_message.guild.name}** has ${bot_short_name} Appeals enabled, then you can send an apology to them using the **${bot_common_name} Appeals Server**.`
+                                ].join('\n')
+                            }));
+                        } catch (error) {
+                            console.error(error);
+                            logUserError(old_message, error);
+                        } finally {
                             _banMember();
                         }
                     }, () => {});
