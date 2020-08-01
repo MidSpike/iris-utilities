@@ -71,7 +71,6 @@ const getReadableTime = util.getReadableTime;
 const bot_error_log_file = process.env.BOT_ERROR_LOG_FILE;
 const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE;
 const bot_update_log_file = process.env.BOT_UPDATE_LOG_FILE;
-const bot_guild_configs_file = process.env.BOT_GUILD_CONFIGS_FILE;
 const bot_reminder_configs_file = process.env.BOT_REMINDER_CONFIGS_FILE;
 const bot_blacklisted_guilds_file = process.env.BOT_BLACKLISTED_GUILDS_FILE;
 const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
@@ -556,28 +555,7 @@ function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-class GuildConfigManipulator {
-    #configs_file = bot_guild_configs_file;
-    constructor(guild_id) {
-        this.guild_id = guild_id;
-    }
-    get configs() {
-        return JSON.parse(fs.readFileSync(this.#configs_file)) || {};
-    }
-    get config() {
-        return this.configs[this.guild_id] || {};
-    }
-    async modifyConfig(new_config_data={}) {// This will make a new config if none is found
-        fs.writeFileSync(this.#configs_file, JSON.stringify({
-            ...this.configs,
-            [this.guild_id]: object_sort({
-                ...this.config,
-                ...new_config_data
-            })
-        }, null, 4));
-        return this;
-    }
-}
+const { GuildConfigManipulator } = require('./src/GuildConfigManipulator.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
