@@ -2225,7 +2225,8 @@ client.on('message', async message => {
                     }, old_message));
                 }
             } else if ([`${cp}disclaimer`].includes(discord_command)) {
-                const legal_disclaimer = fs.readFileSync('./files/disclaimer.txt').toString();
+                const legal_usage_disclaimer_file = './files/disclaimer.txt';
+                const legal_disclaimer = fs.readFileSync(legal_usage_disclaimer_file).toString();
                 const legal_disclaimer_chunks = legal_disclaimer.split('\r\n\r\n');
 
                 if (command_args[0] === 'no_attachments') {
@@ -2236,10 +2237,10 @@ client.on('message', async message => {
                         }, old_message));
                     });
                 } else {
-                    const attachment = new Discord.MessageAttachment('./disclaimer.txt');
+                    const attachment = new Discord.MessageAttachment(legal_usage_disclaimer_file);
                     old_message.channel.send(new CustomRichEmbed({
                         title:'Legal Disclaimer Inbound!',
-                        description:`You can also do \`${discord_command} no_attachments\` to see the disclaimer from discord!`,
+                        description:`You can also do \`${discord_command} no_attachments\` to see the disclaimer without downloading it!`,
                         image:`${bot_cdn_url}/law-and-justice.jpg`
                     }, old_message)).then(() => {
                         old_message.channel.send({files:[attachment]});
