@@ -1,7 +1,8 @@
+const { random_range_inclusive, array_insert, array_shuffle } = require('../utilities.js');
+
 const { disBotServers } = require('./disBotServers.js');
 const { createConnection } = require('./createConnection.js');
 const { playStream } = require('./playStream.js');
-const { random_range_inclusive, array_insert, array_shuffle } = require('../utilities.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 

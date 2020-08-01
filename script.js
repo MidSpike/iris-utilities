@@ -56,27 +56,22 @@ const magic8ball_json = fs.readFileSync('./files/8ball.json');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region Utility Functions
-const random_range_inclusive = util.random_range_inclusive;
-const array_make = util.array_make;
-const array_random = util.array_random;
-const array_insert = util.array_insert;
-const array_shuffle = util.array_shuffle;
-const array_chunks = util.array_chunks;
-const object_sort = util.object_sort;
-const getReadableTime = util.getReadableTime;
-//#endregion
+//#region utility functions
+const { random_range_inclusive, array_make, array_random,
+        array_insert, array_shuffle, array_chunks,
+        object_sort, getReadableTime, pseudoUniqueId } = require('./utilities.js')
+//#endregion utility functions
 
-//#region Bot Files
+//#region bot files
 const bot_error_log_file = process.env.BOT_ERROR_LOG_FILE;
 const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE;
 const bot_update_log_file = process.env.BOT_UPDATE_LOG_FILE;
 const bot_reminder_configs_file = process.env.BOT_REMINDER_CONFIGS_FILE;
 const bot_blacklisted_guilds_file = process.env.BOT_BLACKLISTED_GUILDS_FILE;
 const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
-//#endregion
+//#endregion bot files
 
-//#region Bot Globals
+//#region bot globals
 const bot_short_name = bot_config.short_name;
 const bot_common_name = bot_config.common_name;
 const bot_long_name = bot_config.long_name;
@@ -92,9 +87,9 @@ const bot_support_guild_id = bot_config.support_guild_id;
 const bot_logging_guild_id = bot_config.logging_guild_id;
 const bot_appeals_guild_id = bot_config.appeals_guild_id;
 const bot_default_guild_config = bot_config.default_guild_config;
-//#endregion
+//#endregion bot globals
 
-//#region Bot Channels
+//#region bot channels
 const bot_special_channels = bot_config.special_channels;
 const bot_special_channels_category_name = bot_special_channels.SPECIAL_CHANNELS_CATEGORY.public_name;
 
@@ -128,9 +123,9 @@ const bot_central_guild_history_channel_id = bot_central_logging_channels.GUILD_
 const bot_central_feedback_channel_id = bot_central_logging_channels.COMMUNITY_FEEDBACK.id;
 const bot_central_command_log_channel_id = bot_central_logging_channels.ANONYMOUS_COMMAND_LOG.id;
 const bot_central_history_deletion_requests_channel_id = bot_central_logging_channels.HISTORY_DELETION_REQUESTS.id;
-//#endregion Bot Channels
+//#endregion bot channels
 
-//#region Bot Controllers
+//#region bot controllers
 const bot_owner_discord_id = bot_config.owner_id;
 const super_perms = bot_config.super_perms;
 const super_people = bot_config.super_people;
@@ -149,19 +144,11 @@ const isSuperPersonAllowed = (super_person, permission_flag) => {
         return false;
     }
 };
-//#endregion Bot Controllers
+//#endregion bot controllers
 
 /* Servers Using Music */
-const { disBotServers } = require('./src/disBotServers.js')
-const servers = disBotServers;
-// const servers = {/*
-//     'guild_id':{
-//         queue_manager,
-//         volume_manager,
-//         audio_controller,
-//         dispatcher,
-//     }
-// */};
+const { disBotServers } = require('./src/disBotServers.js');
+const servers = disBotServers; /** @TODO Replace `servers` with `disBotServers` */
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -186,7 +173,7 @@ const { CustomRichEmbed } = require('./src/CustomRichEmbed.js');
 
 const fallback_user_error = new Error('Something went horribly wrong! There is no error information!');
 function logUserError(user_message, error=fallback_user_error) {
-    const error_id = util.uniqueId();
+    const error_id = pseudoUniqueId();
     const error_timestamp = moment();
     const error_message = new CustomRichEmbed({
         color:0xFF0000,
@@ -559,6 +546,7 @@ const { GuildConfigManipulator } = require('./src/GuildConfigManipulator.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/** @TODO Port ReminderManager to a seperate file */
 class ReminderManager {
     constructor() {
         this._reminders = {};
@@ -593,7 +581,7 @@ const reminderManager = new ReminderManager();
 
 class Reminder {
     constructor(user_id, date_time, message) {
-        this.id = util.uniqueId();
+        this.id = pseudoUniqueId();
         this.user_id = user_id;
         this.date_time = date_time;
         this.message = message;
@@ -610,63 +598,7 @@ const { AudioController } = require('./src/AudioController.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-/** @TODO Move this to `./src/VolumeManager.js` after moving `GuildConfigManipulator` */
-class VolumeManager {
-    constructor(guild) {
-        this._guild = guild;
-        this._muted = false;
-        this._volume = 50;
-        this._safety_multiplier = 0.0040;
-        this._last_volume = 50;
-        this._fallback_volume = 50;
-        this._fallback_guild_volume_multiplier = 0.0040;
-        this._fallback_guild_volume_maximum = 100;
-    }
-    get muted() {
-        return this._muted;
-    }
-    get volume() {
-        return this._volume;
-    }
-    get last_volume() {
-        return this._last_volume;
-    }
-    get multiplier() {
-        const guild_volume_multiplier = new GuildConfigManipulator(this._guild.id).config.volume_multiplier ?? this._fallback_guild_volume_multiplier;
-        return guild_volume_multiplier * this._safety_multiplier;
-    }
-    get maximum() {
-        const guild_volume_maximum = new GuildConfigManipulator(this._guild.id).config.volume_maximum ?? this._fallback_guild_volume_maximum;
-        return guild_volume_maximum;
-    }
-    async decreaseVolume(decrease_amount=10, clamp_volume=true) {
-        this.setVolume(this.volume - decrease_amount, undefined, clamp_volume);
-        return [this, decrease_amount];
-    }
-    async increaseVolume(increase_amount=10, clamp_volume=true) {
-        this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
-        return [this, increase_amount];
-    }
-    async setVolume(volume_input=this._fallback_volume, update_last_volume=true, clamp_volume=true) {
-        if (this._guild.voice?.connection?.dispatcher?.setVolume) {
-            this._last_volume = update_last_volume ? this.volume : this.last_volume;
-
-            this._volume = util.math_clamp(volume_input, 0, clamp_volume ? this.maximum : Number.MAX_SAFE_INTEGER);
-
-            this._guild.voice.connection.dispatcher.setVolume(this.multiplier * this.volume);
-            if (typeof this.volume !== 'number' || isNaN(this.volume)) {
-                console.trace('ERROR: Volume is somehow not a number!');
-                this._volume = this._fallback_volume;
-            }
-        }
-        return this;
-    }
-    async toggleMute(override=undefined) {
-        this._muted = override ?? !this.muted;
-        this.setVolume(this.muted ? 0 : this.last_volume, false);
-        return this;
-    }
-}
+const { VolumeManager } = require('./src/VolumeManager.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -1647,7 +1579,6 @@ client.on('message', async message => {
         `${cp}spongebobmock`,
         `${cp}google`,
         `${cp}reddit`
-        // `${cp}d2memes`,
     ];
     const utilityCommands = [
         `${cp}embed`,
@@ -1751,7 +1682,7 @@ client.on('message', async message => {
     const command_descriptions = {
         'help':`Shows commands in ${bot_common_name} one category at a time.`,
         'all_commands':`Shows all commands in ${bot_common_name} at once.`,
-        // 'about_command':`Shows a description for each command.`,
+        'about_command':`Shows a description for each command.`,
         'invite':`Generates an invite for ${bot_common_name}.`,
         'invite_developer':`Generates an invite for ${bot_common_name}'s developer to assist any user that requests it.`,
         'info':`Shows information about ${bot_common_name}.`,
@@ -1848,7 +1779,7 @@ client.on('message', async message => {
     //#endregion
 
 
-    /** @TODO */
+    /** @TODO ensure full compatibility */
     //#region guild invite blocking
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
     const contains_invite_link = message.cleanContent.includes(`discord.gg/`) || message.cleanContent.includes('discord.com/invite/') || message.cleanContent.includes(`discord.io/`) || message.cleanContent.includes(`invite.gg/`);
@@ -1880,6 +1811,7 @@ client.on('message', async message => {
     }
     //#endregion guild invite blocking
 
+    /** @TODO ensure full compatibility */
     //#region guild url blocking
     const guild_url_blocking_enabled = guild_config.url_blocking === 'enabled';
     const contains_url = new RegExp('([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?').test(message.cleanContent);
@@ -3316,7 +3248,7 @@ client.on('message', async message => {
                 } else if ([`${cp}warn`].includes(discord_command)) {
                     const guild_config_manipulator = new GuildConfigManipulator(old_message.guild.id);
                     const user_warnings = guild_config_manipulator.config.user_warnings;
-                    const warning_id = util.uniqueId();
+                    const warning_id = pseudoUniqueId();
                     const warning_user = client.users.cache.get(command_args[0]) ?? old_message.mentions.users.first();
                     const warning_reason = command_args.slice(1).join(' ');
                     const warning_timestamp = moment();

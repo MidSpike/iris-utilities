@@ -1,5 +1,6 @@
-const { disBotServers } = require('./disBotServers.js');
 const { getReadableTime } = require('../utilities.js');
+
+const { disBotServers } = require('./disBotServers.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
