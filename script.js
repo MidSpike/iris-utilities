@@ -154,7 +154,8 @@ const isSuperPersonAllowed = (super_person, permission_flag) => {
 //#endregion Bot Controllers
 
 /* Servers Using Music */
-const servers = util.disBotServers;
+const { disBotServers } = require('./src/disBotServers.js')
+const servers = disBotServers;
 // const servers = {/*
 //     'guild_id':{
 //         queue_manager,
@@ -181,7 +182,7 @@ function botHasPerms(user_message, required_perms=['ADMINISTRATOR']) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const CustomRichEmbed = util.CustomRichEmbed;
+const { CustomRichEmbed } = require('./src/CustomRichEmbed.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -624,16 +625,15 @@ class Reminder {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const QueueManager = util.QueueManager;
-const QueueItem = util.QueueItem;
-const QueueItemPlayer = util.QueueItemPlayer;
+const { QueueManager, QueueItem, QueueItemPlayer } = require('./src/QueueManager.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const AudioController = util.AudioController;
+const { AudioController } = require('./src/AudioController.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/** @TODO Move this to `./src/VolumeManager.js` after moving `GuildConfigManipulator` */
 class VolumeManager {
     constructor(guild) {
         this._guild = guild;
@@ -670,11 +670,11 @@ class VolumeManager {
         this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
         return [this, increase_amount];
     }
-    async setVolume(volume_input, update_last_volume=true, clamp_volume=true) {
+    async setVolume(volume_input=this._fallback_volume, update_last_volume=true, clamp_volume=true) {
         if (this._guild.voice?.connection?.dispatcher?.setVolume) {
             this._last_volume = update_last_volume ? this.volume : this.last_volume;
 
-            this._volume = util.math_clamp(volume_input ?? this._fallback_volume, 0, clamp_volume ? this.maximum : Number.MAX_SAFE_INTEGER);
+            this._volume = util.math_clamp(volume_input, 0, clamp_volume ? this.maximum : Number.MAX_SAFE_INTEGER);
 
             this._guild.voice.connection.dispatcher.setVolume(this.multiplier * this.volume);
             if (typeof this.volume !== 'number' || isNaN(this.volume)) {
@@ -693,8 +693,13 @@ class VolumeManager {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const createConnection = util.createConnection;
-const playStream = util.playStream;
+const { getDiscordCommand, getDiscordCommandArgs, getDiscordCleanCommandArgs } = require('./src/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('./src/DisBotCommander.js');
+
+//---------------------------------------------------------------------------------------------------------------//
+
+const { createConnection } = require('./src/createConnection.js');
+const { playStream } = require('./src/playStream.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -1940,9 +1945,9 @@ client.on('message', async message => {
         return;
     }
     const command_timestamp = moment();
-    const discord_command = util.getDiscordCommand(message);
-    const command_args =  util.getDiscordCommandArgs(message);
-    const clean_command_args = util.getDiscordCleanCommandArgs(message);
+    const discord_command = getDiscordCommand(message.content);
+    const command_args =  getDiscordCommandArgs(message.content);
+    const clean_command_args = getDiscordCleanCommandArgs(message.cleanContent);
     const discord_command_without_prefix = discord_command.replace(`${cp}`, '');
     if (discord_command_without_prefix.match(/^\d/)) return; // Don't allow commands that start with numbers (aka $50 is not a command)
     //#endregion setup important constants
@@ -3107,7 +3112,7 @@ client.on('message', async message => {
                     }, old_message));
                 }
             } if ([`${cp}tts`].includes(discord_command)) {
-                const command = util.DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
                 command.execute(client, old_message, {
                     command_prefix:cp,
                     clean_command_args:clean_command_args,
@@ -4400,11 +4405,11 @@ client.on('message', async message => {
                     playStream(await createConnection(old_message.member.voice.channel, true), `./files/__mp3s/fairy_law.mp3`, 200);
                 }
             } else if ([`${cp}ibmtts`, `${cp}googletts`].includes(discord_command)) {
-                const command = util.DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
                 command.execute(client, old_message, {command_prefix:`${cp}`});
             } else if ([`${cp}test`].includes(discord_command)) {
                 if (isSuperPerson(old_message.author.id)) {
-                    const command = util.DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                    const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
                     command.execute(client, old_message, {command_prefix:`${cp}`});
                 }
             } else {
@@ -4428,7 +4433,7 @@ try {
     const command_files = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
     for (const command_file of command_files) {
         const command_to_register = require(`./commands/${command_file}`);
-        util.DisBotCommander.registerCommand(command_to_register);
+        DisBotCommander.registerCommand(command_to_register);
     }
 } catch (error) {
     console.trace(error);

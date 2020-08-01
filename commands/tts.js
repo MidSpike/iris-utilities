@@ -1,15 +1,19 @@
-//#region other dependencies
+//#region remote dependencies
 const axios = require('axios');
-//#endregion other dependencies
+//#endregion remote dependencies
 
-//#region Local Dependencies
+//#region local dependencies
 const bot_config = require('../config.json');
 const util = require('../utilities.js');
+const { QueueItem, QueueItemPlayer } = require('../src/QueueManager.js');
+const { CustomRichEmbed } = require('../src/CustomRichEmbed.js');
+const { createConnection } = require('../src/createConnection.js');
+const { disBotServers } = require('../src/disBotServers.js');
+const { DisBotCommand } = require('../src/DisBotCommander.js');
 const google_languages_json = require('../files/google_languages.json');
 const ibm_languages_json = require('../files/ibm_languages.json');
-const DisBotCommand = util.DisBotCommand;
 const bot_api_url = process.env.BOT_API_URL;
-//#endregion
+//#endregion local dependencies
 
 const tts_opts_template = {
     provider:'',
@@ -23,14 +27,14 @@ const tts_opts_template = {
 async function playTTS(voice_channel, tts_text='Hello World! This Is The Default Text!', options=tts_opts_template) {
     const _options = {...tts_opts_template, ...options};
 
-    const server = util.disBotServers[voice_channel.guild.id];
+    const server = disBotServers[voice_channel.guild.id];
 
     const provider = _options.provider ?? 'ibm';
     const voice = _options.voice ?? (provider === 'google' ? 'en-us' : 'en-US_EmilyV3Voice');
 
     let voice_connection;
     try {
-        voice_connection = await util.createConnection(voice_channel);
+        voice_connection = await createConnection(voice_channel);
     } catch (error) {
         console.error(error);
         return error;
@@ -40,8 +44,8 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
     const streamMaker = async () => await stream;
 
     const {start_callback, end_callback, error_callback} = _options.callbacks;
-    const player = new util.QueueItemPlayer(server.queue_manager, voice_connection, streamMaker, 250, start_callback, end_callback, error_callback);
-    return await server.queue_manager.addItem(new util.QueueItem('tts', player, `TTS Message`, {
+    const player = new QueueItemPlayer(server.queue_manager, voice_connection, streamMaker, 250, start_callback, end_callback, error_callback);
+    return await server.queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
         text:`${tts_text}`,
         provider:`${provider}`,
         voice:`${voice}`
@@ -51,7 +55,7 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
 module.exports = new DisBotCommand('TTS', ['tts'], async (client, message, opts) => {
     const tts_input = opts.clean_command_args.join(' ').trim();
     if (tts_input.length === 0) {
-        message.channel.send(new util.CustomRichEmbed({
+        message.channel.send(new CustomRichEmbed({
             title:'TTS Time!',
             description:`There are a few ways that you can use TTS with ${bot_config.bot_common_name}...\nCheck out the following examples:`,
             fields:[
@@ -103,7 +107,7 @@ module.exports = new DisBotCommand('TTS', ['tts'], async (client, message, opts)
             voice:tts_voice,
             callbacks:{
                 start_callback:() => {
-                    message.channel.send(new util.CustomRichEmbed({
+                    message.channel.send(new CustomRichEmbed({
                         title:'Playing TTS',
                         description:`**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`
                     }, message));
@@ -114,13 +118,13 @@ module.exports = new DisBotCommand('TTS', ['tts'], async (client, message, opts)
         }).then((queue_manager) => { // Item was added to queue
             if (tts_chunks.length > 1) {
                 if (chunk_index === 0) {
-                    message.channel.send(new util.CustomRichEmbed({
+                    message.channel.send(new CustomRichEmbed({
                         title:'Started Adding TTS Chunks',
                         description:`You told ${bot_config.bot_common_name} to play something large via TTS...\nEach TTS chunk might take a little bit to load before playing!`
                     }, message));
                 }
             }
-            message.channel.send(new util.CustomRichEmbed({
+            message.channel.send(new CustomRichEmbed({
                 title:'Added TTS',
                 description:`**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`
             }, message));

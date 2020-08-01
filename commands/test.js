@@ -1,10 +1,10 @@
 //#region Local Dependencies
-const util = require('../utilities.js');
-const DisBotCommand = util.DisBotCommand;
+const { CustomRichEmbed } = require('../src/CustomRichEmbed.js');
+const { DisBotCommand } = require('../src/DisBotCommander.js');
 //#endregion
 
 module.exports = new DisBotCommand('TEST', ['test'], (client, message, opts) => {
-    message.channel.send(new util.CustomRichEmbed({
+    message.channel.send(new CustomRichEmbed({
         title:`Hello World! I'm ${client.user.username}!`
     }));
 });
