@@ -1,6 +1,6 @@
-Copyright (c) 2020 - Tyler S. Resch, MidSpike.Com;
+Copyright (c) 2020 - Tyler S. Resch, midspike.com, iris-utilities.com;
 
-Lastest document modification: 2020-07-27
+Lastest document modification: 2020-08-01 5:00 PM EST  
 This document can and will be updated in the future by Tyler S. Resch
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -11,7 +11,11 @@ the Software is furnished to do so, are subject to the following conditions:
   The author, Tyler S. Resch, is the ultimate holder of copyright for this
   Software; therefore no other party may use, copy, modify, merge, publish,
   distribute, sublicense, and/or sell copies of said software without explicit
-  permission from Tyler S. Resch.
+  permission from Tyler S. Resch. except as follows:
+  
+    The limitations above are not meant to prevent the collaboration with the Authors via GitHub.
+    Due to the nature of open-source software development, these restrictions are only in this
+    license to prevent "Spin-Offs", "Rip-Offs", and other non-permissive usage from being allowed.
 
   Any person(s) and/or entities attempting to make and/or receive an exception to
   this license must recieve explicit verbal AND writen permission from Tyler S. Resch AND the
@@ -20,27 +24,27 @@ the Software is furnished to do so, are subject to the following conditions:
   Any exceptions given to individuals/entities CAN be revoked at ANY time by Tyler S. Resch
 
 
-  [START SECTION: Agreement/License in simple English]
+    [Start: License/Agreement in simple English]
 
-  The following definitions hold true for this document:
-  - Author(s) = Tyler S. Resch
-  - Copyright Holder(s) = Tyler S. Resch & MidSpike.Com
-  - Software = ANYTHING produced/created by the Author(s) and/or by the Software
-    itself; relating to this grouping of files/code/software.
+    The following definitions hold true for this document:
+    - Author(s) = Tyler S. Resch
+    - Copyright Holder(s) = Tyler S. Resch & MidSpike.Com
+    - Software = ANYTHING produced/created by the Author(s) and/or by the Software
+      itself; relating to this grouping of files/code/software.
 
-  Anyone with access to this Software, apart from the Author(s) & Copyright
-  holder(s), may NOT do the following:
-  - use said software
-  - distribute said software
-  - sell said software
-  - modify said software (apart from collaborations on GitHub with the Authors)
-  - profit from said software
-  - claim ownership of said software
+    Anyone with access to this Software, apart from the Author(s) & Copyright
+    holder(s), may NOT do the following:
+    - use said software
+    - distribute said software
+    - sell said software
+    - modify said software (apart from collaborations on GitHub with the Authors)
+    - profit from said software
+    - claim ownership of said software
 
-  Tyler S. Resch and is the ultimate copyright holder, therefore his property, the
-  Software, and rights to own said property shall not be infringed.
+    Tyler S. Resch and is the ultimate copyright holder, therefore his property, the
+    Software, and rights to own said property shall not be infringed.
 
-  [END SECTION: Agreement/License in simple English]
+    [End: License/Agreement in simple English]
 
 
 The above copyright notice and this permission notice shall be included in all
