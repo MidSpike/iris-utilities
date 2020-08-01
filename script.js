@@ -41,7 +41,6 @@ const dogeify = require('dogeify-js');
 const Akinator_API = require('aki-api').Aki;
 
 const urlParser = require('url-parameter-parser');
-const validUrl = require('valid-url');
 
 const getVideoId = require('get-video-id');
 
@@ -794,7 +793,7 @@ function playYouTube(old_message, search_query, playnext=false) {
                 }, old_message));
             }
         }
-        const potentialPlaylistId = validUrl.isUri(search_query) ? urlParser(search_query).list ?? undefined : undefined;
+        const potentialPlaylistId = validator.isURL(search_query) ? urlParser(search_query).list ?? undefined : undefined;
         if (potentialPlaylistId) {
             const playlist_id_to_lookup = potentialPlaylistId;
             const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlist_id_to_lookup}&key=${process.env.YOUTUBE_API_TOKEN}`
