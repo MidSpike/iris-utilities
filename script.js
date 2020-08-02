@@ -4337,7 +4337,7 @@ client.on('message', async message => {
 
 //------------------------------------------------------------------------------//
 
-/** @todo make all commands work like this */
+/** @TODO make all commands work like this */
 //#region Register all commands
 try {
     const command_files = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));

@@ -44,7 +44,7 @@ router.get('/speech', (req, res) => {
 router.get('/ytsearch', async (req, res) => {
     res.set({'Content-Type':'application/json'});
     if (req.query.search) {
-        /** @todo Add error handling */
+        /** @TODO Add error handling */
         const yt_results = await util.forceYouTubeSearch(req.query.search);
         res.send(JSON.stringify(yt_results, null, 4));
     } else {
