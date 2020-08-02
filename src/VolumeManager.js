@@ -1,3 +1,5 @@
+'use strict';
+
 const { math_clamp } = require('../utilities.js');
 
 const { GuildConfigManipulator } = require('./GuildConfigManipulator.js');

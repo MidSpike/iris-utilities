@@ -1,3 +1,5 @@
+'use strict';
+
 const { Timer } = require('../utilities.js');
 
 const { disBotServers } = require('./disBotServers.js');

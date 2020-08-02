@@ -48,6 +48,7 @@ const getVideoId = require('get-video-id');
 
 const bot_config = require('./config.json');
 const util = require('./utilities.js');
+const { forceYouTubeSearch } = require('./src/youtube.js');
 
 const google_languages_json = require('./files/google_languages.json');
 const ibm_languages_json = require('./files/ibm_languages.json');
@@ -658,7 +659,7 @@ function playYouTube(old_message, search_query, playnext=false) {
     }
     old_message.channel.send(new CustomRichEmbed({title:'Searching YouTube For:', description:`${'```'}\n${search_query}${'```'}`})).then(async search_message => {
         async function _playYT(searchString, send_embed=true) {
-            const potentialVideoId = getVideoId(searchString)?.id ?? (await util.forcePromise(util.forceYouTubeSearch(searchString, 1), 7500, undefined))?.[0]?.id;
+            const potentialVideoId = getVideoId(searchString)?.id ?? (await util.forcePromise(forceYouTubeSearch(searchString, 1), 7500, undefined))?.[0]?.id;
             if (potentialVideoId) {
                 const videoInfo = (await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(potentialVideoId)}`))?.data;
                 if (!videoInfo) {
@@ -2213,7 +2214,7 @@ client.on('message', async message => {
             } else if ([`${cp}search`].includes(discord_command)) {
                 const search_query = command_args.join(' ').trim();
                 if (search_query.length > 0) {
-                    const search_results = await util.forceYouTubeSearch(search_query, 9);
+                    const search_results = await forceYouTubeSearch(search_query, 9);
                     const reactions = search_results.map((search_result, index) => ({
                         emoji_name:`bot_emoji_${numberToWord(index+1)}`,
                         callback:(options_message, collected_reaction, user) => {

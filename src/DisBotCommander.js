@@ -1,9 +1,13 @@
+'use strict';
+
 function getDiscordCommand(message_content) {
     return message_content.split(/\s/g).filter(item => item !== '')[0].toLowerCase();
 }
+
 function getDiscordCommandArgs(message_content) {
     return message_content.split(/\s/g).filter(item => item !== '').slice(1);
 }
+
 function getDiscordCleanCommandArgs(message_clean_content) {
     return message_clean_content.split(/\s/g).filter(item => item !== '').slice(1);
 }

@@ -1,3 +1,5 @@
+'use strict';
+
 //#region local dependencies
 const { CustomRichEmbed } = require('../src/CustomRichEmbed.js');
 const { DisBotCommand } = require('../src/DisBotCommander.js');

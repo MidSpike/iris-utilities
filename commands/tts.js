@@ -1,3 +1,5 @@
+'use strict';
+
 //#region remote dependencies
 const axios = require('axios');
 //#endregion remote dependencies

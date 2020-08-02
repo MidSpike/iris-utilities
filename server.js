@@ -18,7 +18,7 @@ const ytdl = require('ytdl-core');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const util = require('./utilities.js');
+const { forceYouTubeSearch } = require('./src/youtube.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -45,7 +45,7 @@ router.get('/ytsearch', async (req, res) => {
     res.set({'Content-Type':'application/json'});
     if (req.query.search) {
         /** @TODO Add error handling */
-        const yt_results = await util.forceYouTubeSearch(req.query.search);
+        const yt_results = await forceYouTubeSearch(req.query.search);
         res.send(JSON.stringify(yt_results, null, 4));
     } else {
         res.send(JSON.stringify({
@@ -114,7 +114,7 @@ router.get('/ytdl', async (req, res) => {
             console.trace(`Failed to stream: ${req.query.url}`, error);
         }
     } else if (req.query.search) {
-        const yt_video_id = await util.forceYouTubeSearch(req.query.search);
+        const yt_video_id = await forceYouTubeSearch(req.query.search);
         if (yt_video_id) {
             ytdl(`https://www.youtube.com/watch?v=${encodeURI(yt_video_id)}`, {filter:'audioonly', highWaterMark:highWaterMark}).pipe(res);
         }

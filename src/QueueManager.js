@@ -1,3 +1,5 @@
+'use strict';
+
 const { random_range_inclusive, array_insert, array_shuffle } = require('../utilities.js');
 
 const { disBotServers } = require('./disBotServers.js');

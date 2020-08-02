@@ -1,3 +1,5 @@
+'use strict';
+
 const disBotServers = {/*
     'guild_id':{
         queue_manager,
