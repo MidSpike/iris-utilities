@@ -1,3 +1,5 @@
+'use strict';
+
 const bot_config = require('./config.json');
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -12,6 +14,26 @@ const { Discord, client } = require('./bot.js');
 
 let restarting_bot = false;
 let lockdown_mode = false;
+
+//---------------------------------------------------------------------------------------------------------------//
+
+/**
+ * Checks to see if the specified value is an Object literal `{}` or a `new Object`
+ * @param {*} value 
+ * @returns {Boolean}
+ */
+function isObject(value) {
+    return Object.is(value?.constructor, Object);
+}
+
+/**
+ * Checks for a promise / thenable instance
+ * @param {*} value 
+ * @returns {Boolean}
+ */
+function isThenable(value) {
+    return typeof value?.then === 'function';
+}
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -32,6 +54,8 @@ function Timer(time_in_milliseconds) {
  * @returns {Promise|undefined} forced promise return or a fallback value
  */
 async function forcePromise(promise_to_race, time_in_milliseconds=5000, fallback_return_value=undefined) {
+    if (!isThenable(promise_to_race)) throw new TypeError('`promise_to_race` must be a promise or thenable!');
+    if (isNaN(time_in_milliseconds)) throw new TypeError('`time_in_milliseconds` must be a number!');
     const forcedOutput = await Promise.race([promise_to_race, Timer(time_in_milliseconds)]);
     return forcedOutput ?? fallback_return_value;
 }
@@ -42,6 +66,7 @@ async function forcePromise(promise_to_race, time_in_milliseconds=5000, fallback
  * @returns {String}
  */
 function pseudoUniqueId(salt_size=5) {
+    if (isNaN(salt_size)) throw new TypeError('`salt_size` must be a number!');
     return `${Date.now()}${Math.floor((1 * 10 ** salt_size) + Math.random() * (9 * 10 ** salt_size))}`;
 }
 
@@ -53,6 +78,9 @@ function pseudoUniqueId(salt_size=5) {
  * @returns {Number}
  */
 function math_clamp(num, min, max) {
+    if (isNaN(num)) throw new TypeError('`num` must be a number!');
+    if (isNaN(min)) throw new TypeError('`min` must be a number!');
+    if (isNaN(max)) throw new TypeError('`max` must be a number!');
     return Math.min(max, Math.max(min, num));
 }
 
@@ -63,6 +91,8 @@ function math_clamp(num, min, max) {
  * @returns {Number}
  */
 function random_range_inclusive(min, max) {
+    if (isNaN(min)) throw new TypeError('`min` must be a number!');
+    if (isNaN(max)) throw new TypeError('`max` must be a number!');
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -73,6 +103,7 @@ function random_range_inclusive(min, max) {
  * @returns {Array<undefined>|Array<*>}
  */
 function array_make(size, fill_value=undefined) {
+    if (isNaN(size)) throw new TypeError('`size` must be a number!');
     return Array(size).fill(fill_value);
 }
 
@@ -82,6 +113,7 @@ function array_make(size, fill_value=undefined) {
  * @returns {*}
  */
 function array_random(array_of_things) {
+    if (!Array.isArray(array_of_things)) throw new TypeError('`array_of_things` must be an array!');
     return array_of_things[random_range_inclusive(0, array_of_things.length - 1)];
 }
 
@@ -92,7 +124,9 @@ function array_random(array_of_things) {
  * @param {*} item_to_be_inserted 
  * @returns {Array<*>}
  */
-function array_insert(array_of_things, insertion_index, item_to_be_inserted) {
+function array_insert(array_of_things, insertion_index, item_to_be_inserted=undefined) {
+    if (!Array.isArray(array_of_things)) throw new TypeError('`array_of_things` must be an array!');
+    if (isNaN(insertion_index)) throw new TypeError('`insertion_index` must be a number!');
     return [...array_of_things.slice(0, insertion_index), item_to_be_inserted, ...array_of_things.slice(insertion_index)];
 }
 
@@ -102,6 +136,7 @@ function array_insert(array_of_things, insertion_index, item_to_be_inserted) {
  * @returns {Array<*>}
  */
 function array_shuffle(array_to_shuffle) {
+    if (!Array.isArray(array_to_shuffle)) throw new TypeError('`array_to_shuffle` must be an array!');
     for (let i = array_to_shuffle.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array_to_shuffle[i], array_to_shuffle[j]] = [array_to_shuffle[j], array_to_shuffle[i]];
@@ -116,6 +151,8 @@ function array_shuffle(array_to_shuffle) {
  * @returns {Array<Array<*>>}
  */
 function array_chunks(array_of_things, chunk_size) {
+    if (!Array.isArray(array_of_things)) throw new TypeError('`array_of_things` must be an array!');
+    if (isNaN(chunk_size)) throw new TypeError('`chunk_size` must be a number!');
     let chunks = [];
     while (array_of_things.length) {
         chunks.push(array_of_things.splice(0, chunk_size));
@@ -129,16 +166,17 @@ function array_chunks(array_of_things, chunk_size) {
  * @returns {Object}
  */
 function object_sort(object_of_things) {
+    if (!isObject(object_of_things)) throw new TypeError('`object_of_things` must be an object literal!');
     return Object.keys(object_of_things).sort().reduce((r, k) => (r[k] = object_of_things[k], r), {});
 }
 
 /**
  * Converts seconds into a human readable format: HH:MM:SS
  * @param {Number} seconds 
- * @returns {String} HH:MM:SS
+ * @returns {String} HH:MM:SS (Hours : Minutes : Seconds)
  */
 function getReadableTime(seconds) {
-    if (isNaN(seconds)) throw new Error('`seconds` was not a Number!');
+    if (isNaN(seconds)) throw new TypeError('`seconds` must be a Number!');
     return [(seconds / 3600), (seconds % 3600 / 60), (seconds % 60)].map(t => `0${Math.floor(t)}`).join(':').replace(/(0(?=\d{2,}))+/g, '');
 }
 
@@ -148,15 +186,27 @@ function getReadableTime(seconds) {
  * Searches YouTube using the YT API and returns an array of search results
  * @param {String} search_query video, url, etc to look up on youtube
  * @param {Number} max_results 
- * @param {Number} allowed_retry_attempts 
+ * @param {Number} retry_attempts 
  * @returns {Array<Object>|undefined}
  */
-async function forceYouTubeSearch(search_query='', max_results=5, allowed_retry_attempts=3) {
+async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=3) {
+    if (typeof search_query !== 'string') throw new TypeError('`search_query` must be a string!');
+    if (isNaN(max_results)) throw new TypeError('`max_results` must be a number!');
+    if (Math.floor(max_results) !== max_results || max_results < 1) throw RangeError('`max_results` must be a whole number and at least `1`!');
+    if (isNaN(retry_attempts)) throw new TypeError('`retry_attempts` must be positive whole number above zero!');
+    if (Math.floor(retry_attempts) !== retry_attempts || retry_attempts < 1) throw RangeError('`retry_attempts` must be a whole number and at least `1`!');
+
     let current_search_attempt = 1;
     let search_results;
-    while (current_search_attempt <= allowed_retry_attempts) {
+    while (current_search_attempt <= retry_attempts) {
         try {
-            search_results = (await youtubeSearch(search_query, {maxResults:max_results, type:'video', regionCode:'US', key:process.env.YOUTUBE_API_TOKEN}))?.results;
+            const { results } = await youtubeSearch(search_query, {
+                maxResults: max_results,
+                type: 'video',
+                regionCode: 'US',
+                key: process.env.YOUTUBE_API_TOKEN
+            });
+            search_results = results;
         } catch (error) {
             throw error;
         } finally {
@@ -176,6 +226,7 @@ async function forceYouTubeSearch(search_query='', max_results=5, allowed_retry_
  * @returns {GuildEmoji|undefined}
  */
 function findCustomEmoji(custom_emoji_name) {
+    if (typeof custom_emoji_name !== 'string') throw new TypeError('`custom_emoji_name` must be a string!');
     const bot_custom_emojis = client.guilds.cache.get(bot_config.emoji_guild_id).emojis.cache;
     return bot_custom_emojis.find(emoji => emoji.name === custom_emoji_name) ?? undefined;
 }
@@ -185,6 +236,9 @@ function findCustomEmoji(custom_emoji_name) {
 module.exports = {
     restarting_bot,
     lockdown_mode,
+
+    isObject,
+    isThenable,
 
     Timer,
     forcePromise,
