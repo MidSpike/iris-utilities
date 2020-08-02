@@ -1,6 +1,6 @@
 'use strict';
 
-const { disBotServers } = require('./disBotServers.js');
+const { disBotServers } = require('./sharedVariables.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 

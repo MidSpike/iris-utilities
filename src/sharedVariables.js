@@ -1,5 +1,8 @@
 'use strict';
 
+const restarting_bot = false;
+const lockdown_mode = false;
+
 const disBotServers = {/*
     'guild_id':{
         queue_manager,
@@ -10,5 +13,7 @@ const disBotServers = {/*
 */};
 
 module.exports = {
+    restarting_bot,
+    lockdown_mode,
     disBotServers,
 };

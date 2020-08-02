@@ -2,7 +2,7 @@
 
 const { getReadableTime } = require('../utilities.js');
 
-const { disBotServers } = require('./disBotServers.js');
+const { disBotServers } = require('./sharedVariables.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 

@@ -48,6 +48,7 @@ const getVideoId = require('get-video-id');
 
 const bot_config = require('./config.json');
 const util = require('./utilities.js');
+const sharedVariables = require('./src/sharedVariables.js')
 const { forceYouTubeSearch } = require('./src/youtube.js');
 
 const google_languages_json = require('./files/google_languages.json');
@@ -148,8 +149,7 @@ const isSuperPersonAllowed = (super_person, permission_flag) => {
 //#endregion bot controllers
 
 /* Servers Using Music */
-const { disBotServers } = require('./src/disBotServers.js');
-const servers = disBotServers; /** @TODO Replace `servers` with `disBotServers` */
+const servers = sharedVariables.disBotServers;
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -222,6 +222,14 @@ async function generateInviteToGuild(guild_id, invite_reason='created invite via
 
 //---------------------------------------------------------------------------------------------------------------//
 
+function numberToWord(num) {
+    return ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][num];
+}
+
+const { findCustomEmoji, constructNumberUsingEmoji } = require('./src/emoji.js');
+
+//---------------------------------------------------------------------------------------------------------------//
+
 async function sendLargeMessage(channel_id, large_message, code_block_lang='') {
     const message_chunks = `${large_message}`.match(/[^]{1,1500}/g); // Split the message into 1500 character long chunks
     for (const message_chunk of message_chunks) {
@@ -230,31 +238,11 @@ async function sendLargeMessage(channel_id, large_message, code_block_lang='') {
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------//
-
-const zero_to_nine_as_words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-function numberToWord(num) {
-    return zero_to_nine_as_words[num];
-}
-
-function numberToEmoji(num) {
-    return util.findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[num]}`);
-}
-
-function constructNumberUsingEmoji(num) {
-    const num_as_digits = `${num}`.split('');
-    const arr_of_emojis = num_as_digits.map((value, index) => util.findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[parseInt(value)]}`));
-    const constructed_emojis_from_number = arr_of_emojis.join('');
-    return constructed_emojis_from_number;
-}
-
-//---------------------------------------------------------------------------------------------------------------//
-
 function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selection=true, embed_contents='Default Embed', yes_callback=(discord_embed)=>{}, no_callback=(discord_embed)=>{}) {
     client.channels.cache.get(channel_id).send(embed_contents).then(async discord_embed => {
         if (!discord_embed) {return;}
-        const bot_emoji_checkmark = util.findCustomEmoji('bot_emoji_checkmark');
-        const bot_emoji_close = util.findCustomEmoji('bot_emoji_close');
+        const bot_emoji_checkmark = findCustomEmoji('bot_emoji_checkmark');
+        const bot_emoji_close = findCustomEmoji('bot_emoji_close');
         await discord_embed.react(bot_emoji_checkmark);
         await discord_embed.react(bot_emoji_close);
         discord_embed.createReactionCollector(filter => true).on('collect', reaction => {
@@ -275,7 +263,7 @@ const options_message_reactions_template = [{emoji_name:'white_check_mark', cool
 async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
     const options_message = await client.channels.cache.get(channel_id).send(embed);
     const reaction_promises = reaction_options.map(reaction_option => async () => { // This needs to be a synchronous lambda returning an asynchronous lambda
-        const reaction_option_emoji = util.findCustomEmoji(reaction_option.emoji_name) ?? emoji.get(reaction_option.emoji_name);
+        const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? emoji.get(reaction_option.emoji_name);
         if (!reaction_option_emoji) return;
         if (options_message.deleted) return; // Don't add reactions to deleted messages
         const bot_reaction = await options_message.react(reaction_option_emoji);
@@ -714,7 +702,7 @@ function playYouTube(old_message, search_query, playnext=false) {
             if (!search_message.deleted) search_message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
             const confirmEmbed = new CustomRichEmbed({
                 title:`Are you sure that you want this to play as a playlist?`,
-                description:`\`\`\`fix\nWARNING! YOU CAN NOT STOP A PLAYLIST FROM ADDING ITEMS!\n\`\`\`If you don't want this to play as a playlist, then click on the ${util.findCustomEmoji('bot_emoji_close')}.`
+                description:`\`\`\`fix\nWARNING! YOU CAN NOT STOP A PLAYLIST FROM ADDING ITEMS!\n\`\`\`If you don't want this to play as a playlist, then click on the ${findCustomEmoji('bot_emoji_close')}.`
             }, old_message);
             sendOptionsMessage(old_message.channel.id, confirmEmbed, [
                 {
@@ -1452,7 +1440,7 @@ client.on('message', async message => {
 
     if (message.content.trim() === '' && message.cleanContent.trim() === '') return; // Don't allow empty messages
     if (checkForBots(message)) return;
-    if (util.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
+    if (sharedVariables.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
     
     /* Handle DMs */
     if (!checkForBots(message) && message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID) {
@@ -1846,7 +1834,7 @@ client.on('message', async message => {
 
     //#region setup important constants
     if (!message.content.startsWith(cp)) return;
-    if (util.restarting_bot) {
+    if (sharedVariables.restarting_bot) {
         message.channel.send(new CustomRichEmbed({
             color:0xFF00FF,
             title:`You currently can't use ${bot_common_name}!`,
@@ -1955,7 +1943,7 @@ client.on('message', async message => {
                 let page_index = parseInt(command_args[0])-1 || 0; // Do not use ??
                 
                 function makeHelpEmbed() {
-                    const page_emoji = util.findCustomEmoji(`bot_emoji_${page_numbers_as_words[page_index]}`);
+                    const page_emoji = findCustomEmoji(`bot_emoji_${page_numbers_as_words[page_index]}`);
                     return new CustomRichEmbed({
                         title:`Hi! I'm here to help! Let's start by navigating the help menu's pages!`,
                         fields:[
@@ -2077,8 +2065,8 @@ client.on('message', async message => {
                     }
                 }], old_message.author.id);
             } else if ([`${cp}info`].includes(discord_command)) {
-                const bot_emoji = util.findCustomEmoji('bot_emoji_bot');
-                const midspike_emoji = util.findCustomEmoji('bot_emoji_midspike');
+                const bot_emoji = findCustomEmoji('bot_emoji_bot');
+                const midspike_emoji = findCustomEmoji('bot_emoji_midspike');
                 const music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => !member.user.bot).size).reduce((a, b) => a + b, 0) ?? 0;
                 old_message.channel.send(new CustomRichEmbed({
                     title:`Hi There!`,
@@ -2232,7 +2220,7 @@ client.on('message', async message => {
                             const video_title = small_video_title_needed ? `${small_video_title}...` : full_video_title;
                             const channel_section = `[${result.channelTitle}](https://youtube.com/channel/${result.channelId})`;
                             const title_section = `[${video_title}](https://youtu.be/${result.id})`;
-                            return `${numberToEmoji(index+1)} — ${channel_section}\n${title_section}`
+                            return `${constructNumberUsingEmoji(index+1)} — ${channel_section}\n${title_section}`
                         }).join('\n\n')
                     }, old_message);
                     const bot_message = await sendOptionsMessage(old_message.channel.id, embed, reactions, old_message.author.id);
@@ -2456,7 +2444,7 @@ client.on('message', async message => {
                     const poll_choices = poll_args.slice(1);
                     function findBotNumberEmoji(num) {
                         const emoji_numbers_as_words = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-                        return util.findCustomEmoji(`bot_emoji_${emoji_numbers_as_words[num]}`);
+                        return findCustomEmoji(`bot_emoji_${emoji_numbers_as_words[num]}`);
                     }
                     if (poll_question && poll_choices.length > 0) {
                         if (poll_choices.length < 10) {
@@ -2567,7 +2555,7 @@ client.on('message', async message => {
                             }
                         }] : []),
                         ...akinator_api.answers.map((value, index) => ({
-                            emoji_name:`${numberToEmoji(index+1).name}`,
+                            emoji_name:`${constructNumberUsingEmoji(index+1).name}`,
                             callback:async (options_message, collected_reaction, user) => {
                                 _proceed_with_game(options_message, index);
                             }
@@ -4167,7 +4155,7 @@ client.on('message', async message => {
                             {name:'Affected Guilds', value:(active_voice_guilds.length > 0 ? `${'```'}\n${active_voice_guilds.map(guild => `${guild.me.voice.channel.members.filter(member => !member.user.bot).size} - ${guild.name}`).join('\n')}\n${'```'}` : 'N/A')}
                         ]
                     }), async (bot_message) => {
-                        util.restarting_bot = true;
+                        sharedVariables.restarting_bot = true;
                         console.warn(`@${old_message.author.tag} (${old_message.author.id}) restarted ${bot_common_name}!`);
                         const voice_channels = client.voice.connections?.map(c => c.channel) ?? [];
                         if (voice_channels.length > 0) {
@@ -4266,8 +4254,8 @@ client.on('message', async message => {
                     server.lockdown_mode = !server.lockdown_mode;
                     old_message.channel.send(new CustomRichEmbed({title:`Guild ${guild.name} (${guild.id}) Lockdown Mode: ${server.lockdown_mode ? 'Enabled' : 'Disabled'}`}));
                 } else {
-                    util.lockdown_mode = !util.lockdown_mode;
-                    old_message.channel.send(new CustomRichEmbed({title:`Lockdown Mode: ${util.lockdown_mode ? 'Enabled' : 'Disabled'}`}));
+                    sharedVariables.lockdown_mode = !sharedVariables.lockdown_mode;
+                    old_message.channel.send(new CustomRichEmbed({title:`Lockdown Mode: ${sharedVariables.lockdown_mode ? 'Enabled' : 'Disabled'}`}));
                 }
             } else if ([`${cp}leaveguild`].includes(discord_command)) {
                 client.guilds.cache.get(command_args[0])?.leave();

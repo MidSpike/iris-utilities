@@ -1,14 +1,5 @@
 'use strict';
 
-const bot_config = require('./config.json');
-
-const { Discord, client } = require('./bot.js');
-
-//---------------------------------------------------------------------------------------------------------------//
-
-let restarting_bot = false;
-let lockdown_mode = false;
-
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
@@ -176,23 +167,7 @@ function getReadableTime(seconds) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-/**
- * Searches for an emoji located in the Bot's Emoji Server
- * @param {String} custom_emoji_name 
- * @returns {GuildEmoji|undefined}
- */
-function findCustomEmoji(custom_emoji_name) {
-    if (typeof custom_emoji_name !== 'string') throw new TypeError('`custom_emoji_name` must be a string!');
-    const bot_custom_emojis = client.guilds.cache.get(bot_config.emoji_guild_id).emojis.cache;
-    return bot_custom_emojis.find(emoji => emoji.name === custom_emoji_name) ?? undefined;
-}
-
-//---------------------------------------------------------------------------------------------------------------//
-
 module.exports = {
-    restarting_bot,
-    lockdown_mode,
-
     isObject,
     isThenable,
 
@@ -208,6 +183,4 @@ module.exports = {
     array_chunks,
     object_sort,
     getReadableTime,
-
-    findCustomEmoji,
 };
