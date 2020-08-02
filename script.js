@@ -60,8 +60,7 @@ const magic8ball_json = fs.readFileSync('./files/8ball.json');
 
 //#region utility functions
 const { random_range_inclusive, array_make, array_random,
-        array_insert, array_shuffle, array_chunks,
-        object_sort, getReadableTime, pseudoUniqueId } = require('./utilities.js')
+        array_chunks, getReadableTime, pseudoUniqueId } = require('./utilities.js')
 //#endregion utility functions
 
 //#region bot files
@@ -230,98 +229,10 @@ const { findCustomEmoji, constructNumberUsingEmoji } = require('./src/emoji.js')
 
 //---------------------------------------------------------------------------------------------------------------//
 
-async function sendLargeMessage(channel_id, large_message, code_block_lang='') {
-    const message_chunks = `${large_message}`.match(/[^]{1,1500}/g); // Split the message into 1500 character long chunks
-    for (const message_chunk of message_chunks) {
-        client.channels.cache.get(channel_id).send(`${'```'}${code_block_lang}\n${message_chunk}\n${'```'}`);
-        await util.Timer(1000);
-    }
-}
+const { sendLargeMessage, sendConfirmationEmbed, sendOptionsMessage,
+        removeUserReactionsFromMessage, removeMessageFromChannel } = require('./src/messages.js');
 
-function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selection=true, embed_contents='Default Embed', yes_callback=(discord_embed)=>{}, no_callback=(discord_embed)=>{}) {
-    client.channels.cache.get(channel_id).send(embed_contents).then(async discord_embed => {
-        if (!discord_embed) {return;}
-        const bot_emoji_checkmark = findCustomEmoji('bot_emoji_checkmark');
-        const bot_emoji_close = findCustomEmoji('bot_emoji_close');
-        await discord_embed.react(bot_emoji_checkmark);
-        await discord_embed.react(bot_emoji_close);
-        discord_embed.createReactionCollector(filter => true).on('collect', reaction => {
-            if (reaction.users.cache.get(confirm_user_id) && reaction.users.cache.filter(user => user.bot === false).size > 0) {
-                if (reaction.emoji.name === 'bot_emoji_checkmark') {
-                    if (delete_after_selection) discord_embed.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
-                    yes_callback(discord_embed);
-                } else if (reaction.emoji.name === 'bot_emoji_close') {
-                    if (delete_after_selection) discord_embed.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
-                    no_callback(discord_embed);
-                }
-            }
-        });
-    });
-}
-
-const options_message_reactions_template = [{emoji_name:'white_check_mark', cooldown:undefined, callback:(options_message, collected_reaction, user)=>{}}, {emoji_name:'x', cooldown:undefined, callback:(options_message, collected_reaction, user)=>{}}];
-async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
-    const options_message = await client.channels.cache.get(channel_id).send(embed);
-    const reaction_promises = reaction_options.map(reaction_option => async () => { // This needs to be a synchronous lambda returning an asynchronous lambda
-        const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? emoji.get(reaction_option.emoji_name);
-        if (!reaction_option_emoji) return;
-        if (options_message.deleted) return; // Don't add reactions to deleted messages
-        const bot_reaction = await options_message.react(reaction_option_emoji);
-        const filter = (user_reaction, user) => {
-            const isNotBot = user.bot === false;
-            const emojiMatches = bot_reaction.emoji.name === user_reaction.emoji.name;
-            const confirmationUserMatches = confirmation_user_id ? confirmation_user_id === user.id : true;
-            return (isNotBot && emojiMatches && confirmationUserMatches);
-        };
-        const cooldown_time_ms = reaction_option.cooldown ?? 1500;
-        let last_time_of_action = Date.now() - cooldown_time_ms; // subtract the cooldown so that the button can be pressed immediately after it shows up
-        function _isLastTimeOfActionRecent() {
-            const recent_time_of_action = Date.now();
-            if (recent_time_of_action - last_time_of_action < cooldown_time_ms) {
-                last_time_of_action = Date.now();
-                return true;
-            } else {
-                last_time_of_action = Date.now();
-                return false;
-            }
-        }
-        options_message.createReactionCollector(filter).on('collect', (collected_reaction, user) => {
-            if (_isLastTimeOfActionRecent()) return; // Force the user to wait before clicking again
-            reaction_option.callback(options_message, collected_reaction, user);
-        });
-        return;
-    });
-    for (let reaction_promise of reaction_promises) {// Execute Each Reaction Sequentially
-        await reaction_promise();
-    }
-    return options_message;
-}
-
-function removeUserReactionsFromMessage(message) {
-    if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-        message.reactions.cache.forEach(reaction => {
-            reaction.users.cache.filter(user => !user.bot).forEach(nonBotUser => {
-                reaction.users.remove(nonBotUser);
-            });
-        });
-    }
-}
-
-async function removeMessageFromChannel(channel_id, message_id) {
-    const channel_containing_message = client.channels.cache.get(channel_id);
-    if (channel_containing_message) {
-        const recent_100_messages_in_channel = await channel_containing_message.messages.fetch({limit:100});
-        const message_to_delete = recent_100_messages_in_channel.find(m => m.id === message_id);
-        if (message_to_delete) {
-            const removed_message = await message_to_delete.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
-            return removed_message;
-        } else {
-            throw new Error('Message Not Found!');
-        }
-    } else {
-        throw new Error('Channel Not Found!');
-    }
-}
+//---------------------------------------------------------------------------------------------------------------//
 
 function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
     const guild = client.channels.cache.get(channel_id).guild;
@@ -370,6 +281,7 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
         }
     ]);
 }
+
 function sendMusicControllerEmbed(channel_id, old_message=undefined) {
     const embed_title = 'Audio Controller';
     const server = servers[client.channels.cache.get(channel_id).guild.id];
@@ -3992,7 +3904,9 @@ client.on('message', async message => {
                     const channel_id_hosting_message = potential_channel?.id ?? old_message.channel.id;
                     const message_id_to_delete = potential_channel ? command_args[1] : command_args[0];
                     if (channel_id_hosting_message && message_id_to_delete) {
-                        removeMessageFromChannel(channel_id_hosting_message, message_id_to_delete);
+                        try {
+                            removeMessageFromChannel(channel_id_hosting_message, message_id_to_delete);
+                        } catch {} // Silently ignore any errors deleting the potential message
                     } else {
                         old_message.channel.send(`Please do \`${discord_command} channel_id message_id\` for this command!`);
                     }
