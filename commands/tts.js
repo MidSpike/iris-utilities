@@ -14,7 +14,6 @@ const { disBotServers } = require('../src/sharedVariables.js');
 const { DisBotCommand } = require('../src/DisBotCommander.js');
 const google_languages_json = require('../files/google_languages.json');
 const ibm_languages_json = require('../files/ibm_languages.json');
-const bot_api_url = process.env.BOT_API_URL;
 //#endregion local dependencies
 
 const tts_opts_template = {
@@ -42,7 +41,7 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
         return error;
     }
 
-    const stream = `${bot_api_url}/speech?type=${provider}&lang=${encodeURI(voice)}&text=${encodeURI(tts_text)}`;
+    const stream = `${process.env.BOT_API_SERVER_URL}/speech?type=${provider}&lang=${encodeURI(voice)}&text=${encodeURI(tts_text)}`;
     const streamMaker = async () => await stream;
 
     const {start_callback, end_callback, error_callback} = _options.callbacks;

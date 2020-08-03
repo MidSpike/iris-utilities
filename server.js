@@ -7,6 +7,7 @@ const os = require('os'); os.setPriority(0, os.constants.priority.PRIORITY_HIGH)
 
 const request = require('request');
 const express = require('express');
+const bodyParser = require('body-parser');
 const router = express.Router();
 
 const translate = require('translate-google');
@@ -23,7 +24,7 @@ const { forceYouTubeSearch } = require('./src/youtube.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 const app = express();
-app.set('port', process.env.BOT_SERVER_PORT);
+app.set('port', process.env.BOT_API_SERVER_PORT);
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -156,15 +157,36 @@ router.get('/spmock', (req, res) => {
 });
 
 //---------------------------------------------------------------------------------------------------------------//
-    
+
+let bot_status = {
+    'state':'online',
+    'exceptions_encounterd_since_last_login':0,
+};
+router.get('/status', (req, res) => {
+    res.set({'Content-Type':'application/json'});
+    res.send(JSON.stringify(bot_status, null, 4));
+});
+router.post('/status', (req, res) => {
+    res.set({'Content-Type':'application/json'});
+    if (req.body.token === process.env.BOT_API_SERVER_TOKEN) {
+        bot_status = {
+            ...bot_status,
+            ...JSON.parse(req.body.new_status)
+        };
+    }
+    res.send(JSON.stringify(bot_status, null, 4));
+});
+
+//---------------------------------------------------------------------------------------------------------------//
+
+app.use(bodyParser.urlencoded({extended:false})); // parse application/x-www-form-urlencoded
+app.use(bodyParser.json()); // parse application/json
 app.use('/', router);
 
 //---------------------------------------------------------------------------------------------------------------//
 
-module.exports = () => {
-    app.listen(app.get('port'), () => {
-        console.log(`----------------------------------------------------------------------------------------------------------------`);
-        console.log(`Started Bot Server On Port ${app.get('port')}`);
-        console.log(`----------------------------------------------------------------------------------------------------------------`);
-    });
-};
+app.listen(app.get('port'), () => {
+    console.log(`----------------------------------------------------------------------------------------------------------------`);
+    console.log(`Started Bot Server On Port: ${app.get('port')}`);
+    console.log(`----------------------------------------------------------------------------------------------------------------`);
+});

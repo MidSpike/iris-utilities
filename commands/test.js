@@ -1,9 +1,9 @@
 'use strict';
 
-//#region Local Dependencies
+//#region local dependencies
 const { CustomRichEmbed } = require('../src/CustomRichEmbed.js');
 const { DisBotCommand } = require('../src/DisBotCommander.js');
-//#endregion
+//#endregion local dependencies
 
 module.exports = new DisBotCommand('TEST', ['test'], (client, message, opts) => {
     message.channel.send(new CustomRichEmbed({

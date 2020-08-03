@@ -2,7 +2,6 @@
 
 require('dotenv').config(); // process.env.*
 require('manakin').global; // colors for Console.*
-require('./server.js')(); // start the bots web server
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -81,7 +80,7 @@ const bot_version = bot_config.public_version;
 const bot_permissions_bits = bot_config.permissions;
 const bot_website = bot_config.website;
 const bot_cdn_url = process.env.BOT_CDN_URL;
-const bot_api_url = process.env.BOT_API_URL;
+const bot_api_url = process.env.BOT_API_SERVER_URL;
 const bot_invite_link = `https://discordapp.com/oauth2/authorize?&client_id=${bot_id}&scope=bot&permissions=${bot_permissions_bits}`;
 const bot_support_guild_invite_url = 'https://discord.gg/BXJpS6g';
 const bot_support_guild_id = bot_config.support_guild_id;
@@ -1570,7 +1569,8 @@ client.on('message', async message => {
         `${cp}getguilds`,
         `${cp}getguild`,
         `${cp}blacklist`,
-        `${cp}restart`
+        `${cp}restart`,
+        `${cp}reload`
     ];
     const botOwnerCommands = [
         `${cp}updatelog`,
@@ -4124,6 +4124,12 @@ client.on('message', async message => {
                 } else {
                     sendNotAllowedCommand(old_message);
                 }
+            } else if ([`${cp}reload`].includes(discord_command)) {
+                const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                command.execute(client, old_message, {
+                    command_prefix:`${cp}`,
+                    command_args:command_args
+                });
             }
         } else if ([...botOwnerCommands].includes(discord_command) && isThisBotsOwner(old_message.member.id)) {// Only allow the bot owner to use
             if ([`${cp}updatelog`].includes(discord_command)) {
@@ -4223,7 +4229,10 @@ client.on('message', async message => {
             } else if ([`${cp}test`].includes(discord_command)) {
                 if (isSuperPerson(old_message.author.id)) {
                     const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
-                    command.execute(client, old_message, {command_prefix:`${cp}`});
+                    command.execute(client, old_message, {
+                        command_prefix:`${cp}`,
+                        command_args:command_args
+                    });
                 }
             } else {
                 old_message.channel.send(new CustomRichEmbed({

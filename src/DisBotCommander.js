@@ -34,6 +34,7 @@ class DisBotCommander {
     }
     static registerCommand(command) {
         if (command instanceof DisBotCommand) {
+            this.#commands = this.commands.filter(cmd => cmd.name !== command.name); // Allow commands to be replaced
             this.#commands.push(command);
         } else {
             throw new TypeError(`'command' should be an instance of the DisBotCommand type!`);
