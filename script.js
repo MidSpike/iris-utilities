@@ -502,7 +502,7 @@ const { VolumeManager } = require('./src/VolumeManager.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const { getDiscordCommand, getDiscordCommandArgs, getDiscordCleanCommandArgs } = require('./src/DisBotCommander.js');
+const { getDiscordCommand, getDiscordCommandArgs } = require('./src/DisBotCommander.js');
 const { DisBotCommand, DisBotCommander } = require('./src/DisBotCommander.js');
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -1757,7 +1757,7 @@ client.on('message', async message => {
     const command_timestamp = moment();
     const discord_command = getDiscordCommand(message.content);
     const command_args =  getDiscordCommandArgs(message.content);
-    const clean_command_args = getDiscordCleanCommandArgs(message.cleanContent);
+    const clean_command_args = getDiscordCommandArgs(message.cleanContent);
     const discord_command_without_prefix = discord_command.replace(`${cp}`, '');
     if (discord_command_without_prefix.match(/^\d/)) return; // Don't allow commands that start with numbers (aka $50 is not a command)
     //#endregion setup important constants
