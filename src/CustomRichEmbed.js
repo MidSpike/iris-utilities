@@ -4,6 +4,12 @@ const { Discord, client } = require('../bot.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/**
+ * Creates an auto-filled Discord.MessageEmbed for common usage scenarios that this bot may need
+ * @param {Object} options 
+ * @param {Message} message 
+ * @returns {Discord.MessageEmbed} A discord message embed
+ */
 class CustomRichEmbed {
     constructor(options={}, message=undefined) {
         this.color = options.color ?? 0xFF5500;

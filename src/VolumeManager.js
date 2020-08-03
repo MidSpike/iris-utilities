@@ -6,6 +6,11 @@ const { GuildConfigManipulator } = require('./GuildConfigManipulator.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/**
+ * Creates an interface for controlling and interacting with the Volume of a Guild Audio Dispatcher
+ * @param {Guild} guild 
+ * @returns {VolumeManager} 
+ */
 class VolumeManager {
     constructor(guild) {
         this._guild = guild;
@@ -42,6 +47,13 @@ class VolumeManager {
         this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
         return [this, increase_amount];
     }
+    /**
+     * Sets the volume for a Guild Audio Dispatcher
+     * @param {Number} volume_input the volume being passed
+     * @param {Boolean} update_last_volume changed the recorded last volume set
+     * @param {Boolean} clamp_volume keep the volume within the guild's preferred maximum volume
+     * @returns {VolumeManager} 
+     */
     async setVolume(volume_input=this._fallback_volume, update_last_volume=true, clamp_volume=true) {
         if (this._guild.voice?.connection?.dispatcher?.setVolume) {
             this._last_volume = update_last_volume ? this.volume : this.last_volume;

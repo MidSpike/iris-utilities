@@ -4,6 +4,15 @@ const { disBotServers } = require('./sharedVariables.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/**
+ * 
+ * @param {VoiceConnection} voice_connection A discord.js VoiceState.VoiceConnection
+ * @param {*} stream A recognizable stream by discord.js
+ * @param {Number} volume A number to be passed as the set volume for the item to be played
+ * @param {Function} startCallback A callback to fire after the stream has started playing
+ * @param {Function} endCallback A callback to fire after the stream has finished playing
+ * @param {Function} errorCallback A callback to fire when an error with the stream has occurred
+ */
 function playStream(voice_connection, stream, volume=undefined, startCallback=(voice_connection, dispatcher)=>{}, endCallback=(voice_connection, dispatcher)=>{}, errorCallback=(error)=>{}) {
     const server = disBotServers[voice_connection.channel.guild.id];
 

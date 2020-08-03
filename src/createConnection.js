@@ -6,6 +6,12 @@ const { disBotServers } = require('./sharedVariables.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/**
+ * Creates a VoiceConnection to a VoiceChannel
+ * @param {VoiceChannel} voice_channel A discord.js voice channel to join
+ * @param {Boolean} force_new whether or not to disconnect the bot from the voice channel before making the new connection
+ * @returns {VoiceConnection|undefined}
+ */
 async function createConnection(voice_channel, force_new=false) {
     if (!voice_channel) throw new Error(`voice_channel is not defined!`);
     if (voice_channel.guild.voice?.connection && !force_new) {// Return the current voice connection
@@ -27,7 +33,7 @@ async function createConnection(voice_channel, force_new=false) {
             console.trace(`Unable to join voice_channel:`, voice_channel);
             throw new Error(`Unable to create voice connection!\n${error}`);
         }
-        return voice_connection;
+        return voice_connection ?? undefined;
     }
 }
 
