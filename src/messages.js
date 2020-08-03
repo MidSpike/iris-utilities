@@ -1,5 +1,7 @@
 'use strict';
 
+const nodeEmoji = require('node-emoji');
+
 const { Timer } = require('../utilities.js');
 
 const { Discord, client } = require('../bot.js');
@@ -70,7 +72,7 @@ const options_message_reactions_template = [
 async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
     const options_message = await client.channels.cache.get(channel_id).send(embed);
     const reaction_promises = reaction_options.map(reaction_option => async () => { // This needs to be a synchronous lambda returning an asynchronous lambda
-        const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? emoji.get(reaction_option.emoji_name);
+        const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? nodeEmoji.get(reaction_option.emoji_name);
         if (!reaction_option_emoji) return;
         if (options_message.deleted) return; // Don't add reactions to deleted messages
         const bot_reaction = await options_message.react(reaction_option_emoji);

@@ -39,7 +39,7 @@
         "ARCHIVED_CHANNELS_CATEGORY":{"type":"category", "public_name":"iris-archived-channels", "description":"Used for organizing archived channels."}
     },
 
-    "super_perms":["*", "evaluate_code", "restart", "blacklist", "guild_admin", "get_guild", "delete_messages", "dm", "echo", "super_volume"],
+    "super_perms":["*", "evaluate_code", "restart", "reload", "blacklist", "guild_admin", "get_guild", "delete_messages", "dm", "echo", "super_volume"],
     "super_people":[
         {"id":"163646957783482370", "name":"MidSpike", "public":false, "allowed_permissions":["*"], "denied_permissions":[]},
         {"id":"255071492801429504", "name":"QuackAttack", "public":true, "allowed_permissions":["*"], "denied_permissions":[]},

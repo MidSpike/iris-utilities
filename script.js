@@ -24,8 +24,6 @@ const schedule = require('node-schedule');
 
 const { Discord, client } = require('./bot.js');
 
-const emoji = require('node-emoji');
-
 const HtmlEntitiesParser = require('html-entities').AllHtmlEntities;
 const htmlEntitiesParser = new HtmlEntitiesParser();
 
@@ -502,8 +500,8 @@ const { VolumeManager } = require('./src/VolumeManager.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const { getDiscordCommand, getDiscordCommandArgs } = require('./src/DisBotCommander.js');
-const { DisBotCommand, DisBotCommander } = require('./src/DisBotCommander.js');
+const { getDiscordCommand, getDiscordCommandArgs, DisBotCommand,
+        DisBotCommander } = require('./src/DisBotCommander.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -558,7 +556,12 @@ function playYouTube(old_message, search_query, playnext=false) {
     }
     old_message.channel.send(new CustomRichEmbed({title:'Searching YouTube For:', description:`${'```'}\n${search_query}${'```'}`})).then(async search_message => {
         async function _playYT(searchString, send_embed=true) {
-            const potentialVideoId = getVideoId(searchString)?.id ?? (await util.forcePromise(forceYouTubeSearch(searchString, 1), 7500, undefined))?.[0]?.id;
+            /**
+             * Although it may seem better to route all searches for video_ids through the YT_API,
+             * this is not the case... Offloading any amount from the API will help prevent exceeding quotas.
+             * In short, do not remove the getVideoId function to make the code more 'elegant'.
+             */
+            const potentialVideoId = getVideoId(searchString)?.id ?? (await forceYouTubeSearch(searchString, 1, 3))?.[0]?.id;
             if (potentialVideoId) {
                 const videoInfo = (await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(potentialVideoId)}`))?.data;
                 if (!videoInfo) {
@@ -566,7 +569,7 @@ function playYouTube(old_message, search_query, playnext=false) {
                     return;
                 }
                 const voice_connection = await createConnection(voice_channel); // Do not locally declare `voice_channel` for edge cases such as recursive _playYT()
-                const streamMaker = async () => await `${bot_api_url}/ytdl?url=${encodeURI(videoInfo.video_url)}`;
+                const streamMaker = async () => await `${bot_api_url}/ytdl?url=${encodeURIComponent(videoInfo.video_url)}`;
                 if (!search_message.deleted) search_message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
                 if (parseInt(videoInfo.length_seconds) === 0) {
                     old_message.channel.send(new CustomRichEmbed({
@@ -603,7 +606,7 @@ function playYouTube(old_message, search_query, playnext=false) {
                 }, old_message));
             }
         }
-        const potentialPlaylistId = validator.isURL(search_query) ? urlParser(search_query).list ?? undefined : undefined;
+        const potentialPlaylistId = validator.isURL(search_query) ? urlParser(search_query)?.list : undefined;
         if (potentialPlaylistId) {
             const playlist_id_to_lookup = potentialPlaylistId;
             const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlist_id_to_lookup}&key=${process.env.YOUTUBE_API_TOKEN}`
@@ -1023,8 +1026,8 @@ client.on('guildCreate', async guild => {
             `My command prefix is \`${bot_default_guild_config.command_prefix}\` by default!`,
             `You can use \`${bot_default_guild_config.command_prefix}help\` to see a list of commands that you can use.`,
             `You can **directly message** me to get in touch with my [Support Staff](${bot_support_guild_invite_url})!`,
-            `I function most optimally with **ADMINISTRATOR** permissions given to me, however this is not required!`,
-            `There are **special channels** that I can provide to you, use \`${bot_default_guild_config.command_prefix}create_special_channels\` to create them!`,
+            `I function most optimally with the **ADMINISTRATOR** permission given to me, **however ADMINISTRATOR is not required for me to work!**`,
+            `There are *special channels* that I can provide to you, use \`${bot_default_guild_config.command_prefix}create_special_channels\` to have me make them for you!`,
             `There might be [additional information on the website](${bot_website}) that may be useful to you!`
         ].join(`\n\n`),
         image:`${bot_cdn_url}/new_guild_information_2020-06-27_1.png`
@@ -1767,11 +1770,12 @@ client.on('message', async message => {
     const fetched_allowed_channels = await Promise.all(guild_config_allowed_channels.map(async channel_id => await message.guild.channels.resolve(channel_id)?.fetch()));
     const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel_name;
     const is_guild_allowed_channel = guild_config_allowed_channels.includes(message.channel.id);
-    if (guild_config_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel && !message.member.hasPermission('ADMINISTRATOR')) {
+    const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR');
+    if (guild_config_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel && !member_is_immune_from_channel_exclusions) {
         const dmChannel = await message.author.createDM();
         dmChannel.send(new CustomRichEmbed({
-            title:`Sorry you aren't allowed to use ${bot_common_name} commands in that channel`,
-            description:`The server you tried using me in has setup special channels for me to be used in.`,
+            title:`Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
+            description:`The server you tried using me in has setup special channels for me to be used in!`,
             fields:[
                 {
                     name:'Allowed Channels',
@@ -1787,7 +1791,7 @@ client.on('message', async message => {
         }));
         return;
     }
-    //#endregion
+    //#endregion check for guild allowed channels
 
     if (checkForBlacklistedUser(message)) return;
     if (checkForBlacklistedGuild(message.guild)) return;
@@ -2060,7 +2064,7 @@ client.on('message', async message => {
                 client.channels.cache.get(bot_central_history_deletion_requests_channel_id).send(`@${old_message.author.tag} (${old_message.author.id}) Requested to have their history deleted!`).then(() => {
                     old_message.reply(new CustomRichEmbed({
                         title:'Success! Your command history will be deleted within 24 hours!',
-                        description:`Keep in mind that essential data such as ban records will not be deleted!`
+                        description:`Keep in mind that essential data (such as ban records) will not be deleted!`
                     }, old_message));
                 });
             }
@@ -2068,13 +2072,13 @@ client.on('message', async message => {
             if ([`${cp}`, `${cp}play`, `${cp}p`, `${cp}playnext`, `${cp}pn`].includes(discord_command)) {
                 const playnext = [`${cp}playnext`, `${cp}pn`].includes(discord_command);
                 function detect_unsupported_play_input(search_query) {
-                    if (search_query.includes('spotify.com')) {
+                    if (search_query.includes('spotify.com/')) {
                         return true;
-                    } else if (search_query.includes('soundcloud.com')) {
+                    } else if (search_query.includes('soundcloud.com/')) {
                         return true;
-                    } else if (search_query.includes('twitter.com')) {
+                    } else if (search_query.includes('twitter.com/')) {
                         return true;
-                    } else if (search_query.includes('facebook.com')) {
+                    } else if (search_query.includes('facebook.com/')) {
                         return true;
                     } else {
                         return false;
@@ -2588,7 +2592,7 @@ client.on('message', async message => {
                         description:`\`\`\`${user_text}\`\`\``,
                         image:`${bot_cdn_url}/spongebob-mocking-animated.gif`
                     }, old_message)).then(bot_message => {
-                        axios.get(`${bot_api_url}/spmock?text=${encodeURI(user_text)}`).then(res => {
+                        axios.get(`${bot_api_url}/spmock?text=${encodeURIComponent(user_text)}`).then(res => {
                             if (res.data) {
                                 client.setTimeout(() => {
                                     bot_message.edit(new CustomRichEmbed({
@@ -3773,7 +3777,7 @@ client.on('message', async message => {
                         fields:[
                             {name:'Example', value:`${'```'}\n${discord_command} @role1 @role2 @role3\n${'```'}`},
                             {name:'Resetting back to default', value:`You can always run \`${discord_command} reset\` to reset this setting!`},
-                            {name:'Information', value:`When setting auto roles, make sure that ${bot_common_name} has \`ADMINISTRATOR\` perms and it's role is dragged above the roles you want it to add to the user.`}
+                            {name:'Information', value:`When setting auto roles, make sure that ${bot_common_name} has \`ADMINISTRATOR\` perms and it's role is placed above the roles you want it to add to the user.`}
                         ]
                     }));
                 }
@@ -3973,7 +3977,7 @@ client.on('message', async message => {
                                 if (guild_bots.size >= 100) {
                                     sendConfirmationEmbed(old_message.author.id, old_message.channel.id, true, new CustomRichEmbed({
                                         title:'There are a lot of bots in that guild!',
-                                        description:`Do you wish to print out ${guild_bots.size} members?`
+                                        description:`Do you wish to print out ${guild_bots.size} bots?`
                                     }, old_message), () => {
                                         _output_bots();
                                     });
@@ -4075,7 +4079,7 @@ client.on('message', async message => {
                         if (voice_channels.length > 0) {
                             await bot_message.edit(new CustomRichEmbed({title:`${bot_common_name}: SENDING RESTART TTS`}));
                             const tts_text_english = `My developer told me to restart for updates... Check back in 5 minutes to see if I'm finished updating.`;
-                            const tts_url_english = `${bot_api_url}/speech?type=ibm&lang=en-GB_KateV3Voice&text=${encodeURI(tts_text_english)}`;
+                            const tts_url_english = `${bot_api_url}/speech?type=ibm&lang=en-GB_KateV3Voice&text=${encodeURIComponent(tts_text_english)}`;
                             const tts_broadcast_english = client.voice.createBroadcast();
                             tts_broadcast_english.play(tts_url_english);
                             for (let vc of voice_channels) {
@@ -4085,7 +4089,7 @@ client.on('message', async message => {
                             await util.Timer(10000); // Let TTS do its thing first
 
                             const tts_text_spanish = `Mi desarrollador me dijo que reiniciara las actualizaciones ... Vuelva en 5 minutos para ver si he terminado de actualizar.`;
-                            const tts_url_spanish = `${bot_api_url}/speech?type=ibm&lang=es-LA_SofiaV3Voice&text=${encodeURI(tts_text_spanish)}`;
+                            const tts_url_spanish = `${bot_api_url}/speech?type=ibm&lang=es-LA_SofiaV3Voice&text=${encodeURIComponent(tts_text_spanish)}`;
                             const tts_broadcast_spanish = client.voice.createBroadcast();
                             tts_broadcast_spanish.play(tts_url_spanish);
                             for (let vc of voice_channels) {
@@ -4095,7 +4099,7 @@ client.on('message', async message => {
                             await util.Timer(15000); // Let TTS do its thing first
 
                             const tts_text_german = `Mein Entwickler sagte mir, ich solle für Updates neu starten ... Überprüfen Sie in 5 Minuten erneut, ob ich mit dem Update fertig bin.`;
-                            const tts_url_german = `${bot_api_url}/speech?type=ibm&lang=de-DE_DieterV3Voice&text=${encodeURI(tts_text_german)}`;
+                            const tts_url_german = `${bot_api_url}/speech?type=ibm&lang=de-DE_DieterV3Voice&text=${encodeURIComponent(tts_text_german)}`;
                             const tts_broadcast_german = client.voice.createBroadcast();
                             tts_broadcast_german.play(tts_url_german);
                             for (let vc of voice_channels) {
@@ -4105,7 +4109,7 @@ client.on('message', async message => {
                             await util.Timer(13000); // Let TTS do its thing first
 
                             const tts_text_japanese = `開発者からアップデートを再開するように言われました... 5分後にもう一度チェックして、アップデートが終了したかどうかを確認してください。`;
-                            const tts_url_japanese = `${bot_api_url}/speech?type=ibm&lang=ja-JP_EmiV3Voice&text=${encodeURI(tts_text_japanese)}`;
+                            const tts_url_japanese = `${bot_api_url}/speech?type=ibm&lang=ja-JP_EmiV3Voice&text=${encodeURIComponent(tts_text_japanese)}`;
                             const tts_broadcast_japanese = client.voice.createBroadcast();
                             tts_broadcast_japanese.play(tts_url_japanese);
                             for (let vc of voice_channels) {
@@ -4125,11 +4129,15 @@ client.on('message', async message => {
                     sendNotAllowedCommand(old_message);
                 }
             } else if ([`${cp}reload`].includes(discord_command)) {
-                const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
-                command.execute(client, old_message, {
-                    command_prefix:`${cp}`,
-                    command_args:command_args
-                });
+                if (isSuperPersonAllowed(isSuperPerson(old_message.member.id), 'reload') || isThisBotsOwner(old_message.member.id)) {
+                    const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                    command.execute(client, old_message, {
+                        command_prefix:`${cp}`,
+                        command_args:command_args
+                    });
+                } else {
+                    sendNotAllowedCommand(old_message);
+                }
             }
         } else if ([...botOwnerCommands].includes(discord_command) && isThisBotsOwner(old_message.member.id)) {// Only allow the bot owner to use
             if ([`${cp}updatelog`].includes(discord_command)) {
