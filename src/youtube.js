@@ -42,7 +42,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=3)
             await Timer(1000 + current_search_attempt * 250);
         }
     }
-    return search_results ?? undefined;
+    return search_results ?? []; // Force an empty array if nullish
 }
 
 

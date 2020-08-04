@@ -40,6 +40,7 @@ const Akinator_API = require('aki-api').Aki;
 const urlParser = require('url-parameter-parser');
 
 const getVideoId = require('get-video-id');
+const videoIdFromYouTubeURL = require(`parse-video-id-from-yt-url`);
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -561,7 +562,16 @@ function playYouTube(old_message, search_query, playnext=false) {
              * this is not the case... Offloading any amount from the API will help prevent exceeding quotas.
              * In short, do not remove the getVideoId function to make the code more 'elegant'.
              */
-            const potentialVideoId = getVideoId(searchString)?.id ?? (await forceYouTubeSearch(searchString, 1, 3))?.[0]?.id;
+            // const potentialVideoId = getVideoId(searchString)?.id ?? (await forceYouTubeSearch(searchString, 1, 3))?.[0]?.id;
+            let potentialVideoId;
+            if (validator.isURL(searchString ?? '')) {// parse the id from the YT url
+                try {
+                    potentialVideoId = videoIdFromYouTubeURL(searchString);
+                } catch {} // Exceptions are thrown for non-youtube URLs, so just ignore them
+            } else {// search for the video via the youtube api as a fallback
+                const youtube_search_results = await forceYouTubeSearch(searchString, 1, 3);
+                potentialVideoId = youtube_search_results[0]?.id;
+            }
             if (potentialVideoId) {
                 const videoInfo = (await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(potentialVideoId)}`))?.data;
                 if (!videoInfo) {
@@ -4177,7 +4187,7 @@ client.on('message', async message => {
                 });
             } else if ([`${cp}lockdown`].includes(discord_command)) {
                 if (['guild', 'server'].includes(command_args[0])) {
-                    const guild = client.guilds.cache.get(command_args[0]) ?? old_message.guild;
+                    const guild = client.guilds.cache.get(command_args[1]) ?? old_message.guild;
                     const server = servers[guild.id];
                     server.lockdown_mode = !server.lockdown_mode;
                     old_message.channel.send(new CustomRichEmbed({title:`Guild ${guild.name} (${guild.id}) Lockdown Mode: ${server.lockdown_mode ? 'Enabled' : 'Disabled'}`}));
