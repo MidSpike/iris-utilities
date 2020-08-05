@@ -1744,10 +1744,10 @@ client.on('message', async message => {
             // }
         } else if (botinfoCommands.includes(discord_command)) {
             if ([`${cp}invite`].includes(discord_command)) {
-                old_message.channel.send(new CustomRichEmbed({
-                    title:`Hi ${old_message.author.username}!`,
-                    description:`If you want to invite me to your server, then click below:\n[Add ${bot_common_name} to discord server](${bot_invite_link})`
-                }, old_message));
+                const command = DisBotCommander.commands.find(cmd => cmd.aliases.includes(discord_command_without_prefix));
+                command.execute(client, old_message, {
+                    command_prefix:`${cp}`,
+                });
             } else if ([`${cp}invite_developer`].includes(discord_command)) {
                 const confirmEmbed = new CustomRichEmbed({
                     title:`Are you sure you want to summon my developer ${fetch_bot_owner_tag()}?`,
