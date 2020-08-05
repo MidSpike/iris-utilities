@@ -82,6 +82,15 @@ module.exports = new DisBotCommand('TTS', ['tts'], async (client, message, opts)
         return;
     }
 
+    if (!message.member.voice?.channel) {
+        message.channel.send(new CustomRichEmbed({
+            color:0xFFFF00,
+            title:'Uh Oh!',
+            description:'You need to join a voice channel first!'
+        }, message));
+        return;
+    }
+
     const regex_tts_command_args = /\{(.*?)\}/g;
     const regex_tts_command_args_bounds = /(\{|\})/g;
     const tts_command_args = tts_input.match(regex_tts_command_args);
