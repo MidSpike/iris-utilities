@@ -1,0 +1,25 @@
+# environment variables
+*.env
+
+# batch scripts
+*.bat
+*.cmd
+
+# bash scripts
+*.sh
+
+# git stuff
+.git
+
+# vscode configs
+.vscode
+
+# node stuff
+node_modules
+npm
+
+# bot-related sensitive stuff
+private
+
+# wildcard for any file / directory starting with '__'
+__*

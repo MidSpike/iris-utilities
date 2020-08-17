@@ -1,0 +1,52 @@
+'use strict';
+
+//#region local dependencies
+const bot_config = require('../../config.json');
+
+const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
+const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
+//#endregion local dependencies
+
+const bot_backup_commands_channel_name = bot_config.special_channels.BOT_COMMANDS.public_name;
+
+module.exports = new DisBotCommand({
+    name:'SET_ALLOWED_CHANNELS',
+    category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    description:'sets allowed channels',
+    aliases:['set_allowed_channels'],
+    access_level:DisBotCommand.access_levels.GUILD_ADMIN,
+    async executor(Discord, client, message, opts={}) {
+        const { discord_command, command_args, guild_config_manipulator } = opts;
+        const mentioned_channels = message.mentions.channels;
+        if (mentioned_channels.size > 0) {
+            message.channel.send(new CustomRichEmbed({
+                title:`Setting New Allowed Channels`,
+                description:`New Server Allowed Channels: ${'```'}\n${mentioned_channels.map(channel => channel.name).join('\n')}\n${'```'}`,
+                fields:[
+                    {name:'Notice', value:`You can always run my commands from \`#${bot_backup_commands_channel_name}\``},
+                    {name:'Resetting back to default', value:`You can run \`${discord_command} reset\` in \`#${bot_backup_commands_channel_name}\` to reset this setting!`}
+                ]
+            }, message));
+            guild_config_manipulator.modifyConfig({
+                allowed_channels:mentioned_channels.map(channel => channel.id)
+            });
+        } else if (command_args[0] === 'reset') {
+            message.channel.send(new CustomRichEmbed({
+                title:`Success: removed all limitations on where I can be used!`
+            }, message));
+            guild_config_manipulator.modifyConfig({
+                allowed_channels:[]
+            });
+        } else {
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:'Improper Command Usage!',
+                description:`Please provide text-channel mentions after the command next time!`,
+                fields:[
+                    {name:'Example', value:`${'```'}\n${discord_command} #bot-commands #staff-commands #some-other-channel\n${'```'}`},
+                    {name:'Resetting Back To Default', value:`${'```'}\n${discord_command} reset\n${'```'}`}
+                ]
+            }, message));
+        }
+    },
+});

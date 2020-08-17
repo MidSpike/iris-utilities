@@ -1,0 +1,59 @@
+{
+    "public_version":"vS_2020-08-14_1",
+
+    "short_name":"IRIS",
+    "common_name":"I.R.I.S. Utilities",
+    "long_name":"Interactive Reconnaissance Information Service Utilities",
+
+    "client_id":"550423785795223627",
+    "owner_id":"163646957783482370",
+    "permissions":8,
+    "website":"https://iris-utilities.com/",
+
+    "support_guild_invite_url":"https://discord.gg/BXJpS6g",
+    "support_guild_info_channel_id":"709222758948536402",
+
+    "special_channels":{
+        "SPECIAL_CHANNELS_CATEGORY":{"type":"category", "public_name":"I.R.I.S. Utilities", "description":"Used for organizing the special channels."},
+        "BOT_COMMANDS":{"type":"text", "public_name":"iris-bot-commands", "description":"Used as a backup-method for using the bot if you incorrectly use the 'set_allowed_channels' command and lock yourself out."},
+        "BOT_RESTARTS":{"type":"text", "public_name":"iris-restart-log", "description":"Useful for keeping track of bot restarts."},
+        "BOT_UPDATES":{"type":"text", "public_name":"iris-update-log", "description":"Sends out update messages and announcements of new features for the bot to your server!"},
+        "GUILD_COMMANDS":{"type":"text", "public_name":"iris-command-log", "description":"Logs all of the bot's commands entered by members in this server."},
+        "GUILD_MEMBERS":{"type":"text", "public_name":"iris-member-log", "description":"Sends join/leave messages like the default 'System Channel' for servers."},
+        "GUILD_INVITES":{"type":"text", "public_name":"iris-invite-log", "description":"Used for logging invites created/destroyed by members in the server."},
+        "GUILD_MODERATION":{"type":"text", "public_name":"iris-moderation-log", "description":"Used to log when the bot's moderation features have been used."},
+        "GUILD_REACTIONS":{"type":"text", "public_name":"iris-reaction-log", "description":"Shows when reactions are added to a message by users."},
+        "GUILD_APPEALS":{"type":"text", "public_name":"iris-appeals-log", "description":"This channel will allow your server to receive a single 'apology' message from a user that has been banned via the bot."},
+        "ARCHIVED_CHANNELS_CATEGORY":{"type":"category", "public_name":"iris-archived-channels", "description":"Used for organizing archived channels."}
+    },
+
+    "super_perms":["*", "evaluate_code", "restart", "reload", "blacklist", "guild_admin", "get_guild", "delete_messages", "dm", "echo", "super_volume"],
+    "super_people":[
+        {"id":"163646957783482370", "name":"MidSpike", "public":false, "allowed_permissions":["*"], "denied_permissions":[]},
+        {"id":"255071492801429504", "name":"QuackAttack", "public":true, "allowed_permissions":["*"], "denied_permissions":[]},
+        {"id":"557744032621658123", "name":"ThreeShot", "public":true, "allowed_permissions":["*"], "denied_permissions":[]},
+        {"id":"686385736269824062", "name":"A.Baker", "public":true, "allowed_permissions":["*"], "denied_permissions":[]},
+        {"id":"196254672418373632", "name":"Will F.", "public":true, "allowed_permissions":["*"], "denied_permissions":[]},
+        {"id":"286671881870901269", "name":"GatheringRays", "public":false, "allowed_permissions":["*"], "denied_permissions":[]}
+    ],
+
+    "default_guild_config":{
+        "command_prefix":"%",
+        "command_message_removal":"enabled",
+        "clear_message":"enabled",
+        "player_description":"disabled",
+        "url_blocking":"disabled",
+        "invite_blocking":"disabled",
+        "admin_roles":[],
+        "moderator_roles":[],
+        "new_member_roles":[],
+        "allowed_channels":[],
+        "users_in_timeout":[],
+        "user_warnings":[],
+        "volume_multiplier":1,
+        "volume_maximum":200,
+        "tts_provider":"ibm",
+        "tts_voice_ibm":"en-US_EmilyV3Voice",
+        "tts_voice_google":"en-us"
+    }
+}
