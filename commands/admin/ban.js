@@ -3,6 +3,8 @@
 //#region local dependencies
 const bot_config = require('../../config.json');
 
+const { Timer } = require('../../utilities.js');
+
 const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
 const { generateInviteToGuild } = require('../../src/invites.js');
@@ -22,52 +24,68 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
+
         if (!botHasPermissionsInGuild(message, ['BAN_MEMBERS'])) return;
-        const user = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
-        if (!user) {
+
+        const user_to_ban = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
+
+        if (!user_to_ban) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:'Provide a @user next time!'
-            }, message));
+                title:'Provide a @user or user_id next time!',
+                fields:[
+                    {name:'Example Usage', value:`${'```'}\n${discord_command} @user#0001\n${'```'}`},
+                    {name:'Example Usage', value:`${'```'}\n${discord_command} 000000000000000001\n${'```'}`},
+                ]
+            }, message)).catch(console.warn);
             return;
         }
-        if (isThisBotsOwner(user.id) || isThisBot(user.id) || user.id === message.author.id) {return;}
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, new CustomRichEmbed({title:`Are you sure you want to ban @${user.tag}?`}), async () => {
-            function _banMember() {
-                let user_was_banned = true;
-                try {
-                    if (isSuperPerson(user.id)) throw new Error(`Unable to ban a Super Person!`);
-                    message.guild.members.ban(user.id, {reason:`@${message.author.tag} used ${discord_command}`});
-                } catch (error) {
-                    user_was_banned = false;
-                    logUserError(message, error);
-                } finally {
-                    if (!user_was_banned) return;
-                    message.channel.send(new CustomRichEmbed({
-                        title:`@${user.tag} has been banned!`
-                    }));
-                    logAdminCommandsToGuild(message, new CustomRichEmbed({
-                        title:`@${message.author.tag} (${message.author.id}) banned @${user.tag} (${user.id}) from the server!`
-                    }));
-                }
-            }
-            try {
-                if (!message.guild.members.resolve(user.id)) throw new Error('User does not exist in Guild!');
-                const dm_channel = await user.createDM();
+
+        const not_a_bannable_user = (
+            isThisBot(user_to_ban.id) || 
+            isThisBotsOwner(user_to_ban.id) || 
+            isSuperPerson(user_to_ban.id) || 
+            message.author.id === user_to_ban.id
+        );
+
+        if (not_a_bannable_user) {
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:`You aren't allowed to ban this user!`
+            }, message)).catch(console.warn);
+            return;
+        }
+
+        sendConfirmationEmbed(message.author.id, message.channel.id, true, new CustomRichEmbed({title:`Are you sure you want to ban @${user_to_ban.tag}?`}), async () => {
+            const guild_member_to_ban = message.guild.members.resolve(user_to_ban.id);
+            if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
+                const dm_channel = await user_to_ban.createDM();
                 const appeals_guild_invite = await generateInviteToGuild(bot_appeals_guild_id, `Generated using ${discord_command} in ${message.guild.name} (${message.guild.id})`);
-                dm_channel.send(new CustomRichEmbed({
+
+                await dm_channel.send(new CustomRichEmbed({
                     color:0xFF00FF,
                     title:`You have been banned from ${message.guild.name}`,
                     description:[
                         `You may have a second chance via the [${bot_common_name} Appeals Server](${appeals_guild_invite.url})`,
                         `If **${message.guild.name}** has ${bot_common_name} Appeals enabled, then you can send an apology to them using the **${bot_common_name} Appeals Server**.`
                     ].join('\n')
-                }));
-            } catch (error) {
-                console.trace(error);
-            } finally {
-                _banMember();
+                })).catch(console.warn);
+
+                await Timer(1000); // Make sure to send the message before banning them
             }
+
+            message.guild.members.ban(user_to_ban.id, {
+                reason:`@${message.author.tag} used ${discord_command}`
+            }).then(() => {
+                message.channel.send(new CustomRichEmbed({
+                    title:`@${user_to_ban.tag} has been banned!`
+                })).catch(console.warn);
+                logAdminCommandsToGuild(message, new CustomRichEmbed({
+                    title:`@${message.author.tag} (${message.author.id}) banned @${user_to_ban.tag} (${user_to_ban.id}) from the server!`
+                }));
+            }).catch(() => {
+                logUserError(message, error);
+            });
         }, () => {});
     },
 });
