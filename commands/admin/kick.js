@@ -14,7 +14,7 @@ module.exports = new DisBotCommand({
     aliases:['kick'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
-        const { command_args } = opts;
+        const { discord_command, command_args } = opts;
         if (!botHasPermissionsInGuild(message, ['KICK_MEMBERS'])) return;
         const user = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
         if (!user) {
