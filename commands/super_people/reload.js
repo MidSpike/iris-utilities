@@ -22,8 +22,8 @@ module.exports = new DisBotCommand({
             sendNotAllowedCommand(message);
             return;
         }
-        const command_to_search_for = opts.command_args[0];
-        const command_to_reload = DisBotCommander.commands.find(cmd => cmd.name === `${command_to_search_for}`);
+        const command_to_search_for = `${opts.command_args[0]}`;
+        const command_to_reload = DisBotCommander.commands.find(cmd => cmd.name.toLowerCase() === command_to_search_for.toLowerCase());
         if (command_to_reload) {
             const command_files_directory_path = path.join(process.cwd(), './commands/');
             const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
