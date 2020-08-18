@@ -54,7 +54,7 @@ class DisBotCommand {
         if (typeof _cmd.executor !== 'function') throw new Error('`executor` must be a valid function!');
         this.name = _cmd.name;
         this.category = _cmd.category;
-        this.desciption = _cmd.description;
+        this.description = _cmd.description;
         this.aliases = _cmd.aliases;
         this.access_level = _cmd.access_level;
         this.executor = _cmd.executor;
