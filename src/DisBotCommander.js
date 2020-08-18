@@ -39,19 +39,25 @@ class DisBotCommand {
     };
     /**
      * Arguments is an object to allow for easy future expansion
-     * @param {Object} cmd an object containing the properties of this.#cmd_template
+     * @param {Object} cmd an object that must contain the properties of this.#cmd_template
      */
     constructor(cmd={}) {
         const _cmd = {
             ...this.#cmd_template,
             ...cmd
         };
+
+        // type checks
         if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new Error('`name` must be a valid string!');
         if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new Error('`category` must be a valid string!');
         if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new Error('`description` must be a valid string!');
         if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new Error('`aliases` must be a valid array!');
         if (isNaN(_cmd.access_level)) throw new Error('`access_level` must be a valid number!');
         if (typeof _cmd.executor !== 'function') throw new Error('`executor` must be a valid function!');
+
+        // validation checks
+        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new Error('`access_level` must be from DisBotCommand.access_levels!');
+
         this.name = _cmd.name;
         this.category = _cmd.category;
         this.description = _cmd.description;
