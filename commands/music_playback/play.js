@@ -147,7 +147,7 @@ module.exports = new DisBotCommand({
     name:'PLAY',
     category:`${DisBotCommander.categories.MUSIC_PLAYBACK}`,
     description:'play music from youtube and more',
-    aliases:[``, `play`, `p`, `playnext`, `pn`],
+    aliases:[`play`, `p`, `playnext`, `pn`, ``],
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
         const playnext = [`${command_prefix}playnext`, `${command_prefix}pn`].includes(discord_command);
