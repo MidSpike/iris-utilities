@@ -68,6 +68,7 @@
     },
     "super_perms": [
         "*",
+        "shell",
         "evaluate_code",
         "restart",
         "reload",
