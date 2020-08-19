@@ -703,8 +703,14 @@ client.on('message', async message => {
         const dm_embed = new CustomRichEmbed({
             author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
             description:`${message.cleanContent}`,
-            fields:(message.attachments.size > 0 ? message.attachments.map(attachment => ({name:`'${attachment.name}' [${attachment.size} Bytes] (${attachment.id})`, value:attachment.url})) : null),
-            footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`Support Staff: ${moment()}`}
+            fields:(message.attachments.size > 0 ? message.attachments.map(attachment => ({
+                name:`Message Attachment:`,
+                value:`[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`
+            })) : null),
+            footer:{
+                iconURL:`${client.user.displayAvatarURL({dynamic:true})}`,
+                text:`Support Staff: ${moment()}`
+            }
         });
         await message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
         try {
@@ -723,10 +729,20 @@ client.on('message', async message => {
             color:0xBBBBBB,
             author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
             description:`${message.cleanContent}`,
-            fields:(message.attachments.size > 0 ? message.attachments.map(attachment => ({name:`'${attachment.name}' [${attachment.size} Bytes] (${attachment.id})`, value:attachment.url})) : null),
-            footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`Direct Message: ${moment()}`}
+            fields:[
+                {name:`Link`, value:`[Direct Message Link](${message.url.replace('@me', client.user.id)})`},
+                ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
+                    name:`Message Attachment:`,
+                    value:`[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`
+                })) : [])
+            ],
+            footer:{
+                iconURL:`${client.user.displayAvatarURL({dynamic:true})}`,
+                text:`[Direct Message]: ${moment()}`
+            }
         });
-        const potential_central_dm_channel_with_user = client.guilds.cache.get(bot_logging_guild_id).channels.cache.find(channel => channel.name === `dm-${message.author.id}`);
+        const bot_logging_guild = client.guilds.cache.get(bot_logging_guild_id);
+        const potential_central_dm_channel_with_user = bot_logging_guild.channels.cache.find(channel => channel.name === `dm-${message.author.id}`);
         if (potential_central_dm_channel_with_user) {
             potential_central_dm_channel_with_user.send(dmEmbed);
         } else {
@@ -734,11 +750,16 @@ client.on('message', async message => {
                 title:`Opening Chat With ${bot_common_name} Staff`,
                 description:`My staff will answer any questions as soon as they see it!\n\nRemember that you can request for your history to be deleted at any time!`
             }));
-            const central_dm_channel_with_user = await client.guilds.cache.get(bot_logging_guild_id).channels.create(`dm-${message.author.id}`, {type:'text', topic:`${message.author.tag} (${message.author.id}) | ${moment()}`}).catch(console.trace);
+            const central_dm_channel_with_user = await bot_logging_guild.channels.create(`dm-${message.author.id}`, {
+                type:'text',
+                topic:`${message.author.tag} (${message.author.id}) | ${moment()}`
+            }).catch(console.trace);
             await central_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID).catch(console.trace);
             await Timer(500); // For some reason Discord.js needs a little bit to recognise the new parent of the channel, therefore this delay exists
             await central_dm_channel_with_user.lockPermissions().catch(console.trace);
-            await central_dm_channel_with_user.send(new CustomRichEmbed({title:`Opened DM with: ${message.author.tag} (${message.author.id})`}));
+            await central_dm_channel_with_user.send(new CustomRichEmbed({
+                title:`Opened DM with: ${message.author.tag} (${message.author.id})`
+            }));
             await central_dm_channel_with_user.send(dmEmbed);
         }
     }
