@@ -4,18 +4,19 @@
 const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
 const { disBotServers } = require('../../src/SHARED_VARIABLES.js');
-const { sendMusicControllerEmbed } = require('../../src/messages.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'CONTROLS',
-    category:`${DisBotCommander.categories.MUSIC_CONTROLS}`,
-    description:'Opens the music controls menu',
-    aliases:['controls', 'c'],
+    name:'TIMESTAMP',
+    category:`${DisBotCommander.categories.MUSIC}`,
+    description:'Tells the user the timestamp of what is currently playing',
+    aliases:['timestamp', 'ts'],
     async executor(Discord, client, message, opts={}) {
         const server = disBotServers[message.guild.id];
         if (server.queue_manager.queue.length > 0) {
-            sendMusicControllerEmbed(message.channel.id, message);
+            message.channel.send(new CustomRichEmbed({
+                title:`The Current Queue Item Timestamp Is: ${server.audio_controller.timestamp}`
+            }, message));
         } else {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,

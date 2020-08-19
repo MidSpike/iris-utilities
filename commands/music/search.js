@@ -13,8 +13,8 @@ const { forceYouTubeSearch, playYouTube } = require('../../src/youtube.js');
 
 module.exports = new DisBotCommand({
     name:'SEARCH',
-    category:`${DisBotCommander.categories.MUSIC_PLAYBACK}`,
-    description:'Allows the user to request their history to be deleted',
+    category:`${DisBotCommander.categories.MUSIC}`,
+    description:'Searches YouTube for music to play and displays a list of playable things',
     aliases:['search'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;

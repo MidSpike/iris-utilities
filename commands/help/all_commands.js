@@ -17,8 +17,7 @@ module.exports = new DisBotCommand({
         const command_categories = [
             DisBotCommander.categories.HELP,
             DisBotCommander.categories.INFO,
-            DisBotCommander.categories.MUSIC_PLAYBACK,
-            DisBotCommander.categories.MUSIC_CONTROLS,
+            DisBotCommander.categories.MUSIC,
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
             DisBotCommander.categories.ADMINISTRATOR,

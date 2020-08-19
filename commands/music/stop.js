@@ -11,16 +11,17 @@ const bot_config = require('../../config.json');
 const bot_common_name = bot_config.common_name;
 
 module.exports = new DisBotCommand({
-    name:'SKIP',
-    category:`${DisBotCommander.categories.MUSIC_CONTROLS}`,
-    description:'Allows skipping a song',
-    aliases:['skip', 's', 'next', 'n'],
+    name:'STOP',
+    // category:`${DisBotCommander.categories.MUSIC_LEAVE}`,
+    category:`${DisBotCommander.categories.MUSIC}`,
+    description:'Stops music playback and disconnects the bot from the voice channel',
+    aliases:['stop', 'bye', 'fuckoff', '#{cp}'],
     async executor(Discord, client, message, opts={}) {
         const server = disBotServers[message.guild.id];
         message.channel.send(new CustomRichEmbed({
             title:`Controlling ${bot_common_name}`,
-            description:`Skipped the current song!`
+            description:`Told ${bot_common_name} to leave their voice channel.`
         }, message));
-        server.audio_controller.skip();
+        server.audio_controller.disconnect();
     },
 });

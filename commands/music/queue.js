@@ -11,7 +11,7 @@ const { removeUserReactionsFromMessage, sendOptionsMessage } = require('../../sr
 
 module.exports = new DisBotCommand({
     name:'QUEUE',
-    category:`${DisBotCommander.categories.MUSIC_CONTROLS}`,
+    category:`${DisBotCommander.categories.MUSIC}`,
     description:'used for controlling the queue',
     aliases:['queue', 'q'],
     async executor(Discord, client, message, opts={}) {

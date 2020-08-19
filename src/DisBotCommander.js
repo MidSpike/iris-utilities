@@ -88,8 +88,7 @@ class DisBotCommander {
     static categories = {
         HELP:'Help Commands',
         INFO:'Bot Info',
-        MUSIC_PLAYBACK:'YouTube Music And More',
-        MUSIC_CONTROLS:'Music Controls',
+        MUSIC:'YouTube, Music Controls, And More',
         FUN:'Fun Stuff',
         UTILITIES:'Utilities',
         ADMINISTRATOR:'Administrative Powers',
