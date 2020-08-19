@@ -16,10 +16,12 @@ const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
 const axios = require('axios');
 const moment = require('moment-timezone');
-const { Timer } = require('../../utilities.js');
-const { logUserError } = require('../../src/errors.js');
 
 const bot_config = require('../../config.json');
+
+const { Timer } = require('../../utilities.js');
+const { logUserError } = require('../../src/errors.js');
+const { generateInviteToGuild } = require(`../../src/invites.js`);
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 const bot_api_url = process.env.BOT_API_SERVER_URL;
@@ -40,16 +42,17 @@ module.exports = new DisBotCommand({
         const code_input = message.content.replace(discord_command, ``).trim(); // Removes the discord_command and trims
         console.info(`----------------------------------------------------------------------------------------------------------------`);
         try {
-            const code_to_run = `'use strict'; ${code_input.replace(/\r?\n|\r/g, '').trim()}`; // Removes line-breaks and trims
-            console.info(`Running Code:`, code_to_run);
-            const eval_output = await eval(`${code_to_run.indexOf('await') > -1 ? (`(async function() {${code_to_run.startsWith('await') ? `return ${code_to_run};` : `${code_to_run}`}})();`) : code_to_run}`);
-            console.info(`Output:`, eval_output);
-            const eval_output_string = `${safe_stringify(eval_output, null, 2)}`;
+            console.info(`Running Code:`, code_input);
+            const code_to_run = `${code_input.replace(/\r?\n|\r/g, '').trim()}`; // Removes line-breaks and trims
+            const eval_output = await eval(`${code_to_run.indexOf('await') > -1 ? (`(async function() {${code_to_run.match(/^(\(await|await)/g) ? `return ${code_to_run}` : `${code_to_run}`}})();`) : code_to_run}`);
+            console.info(`Output:\n`, eval_output);
+            const eval_output_string = typeof eval_output === 'string' ? eval_output : `${safe_stringify(eval_output, null, 2)}`;
+            console.log(eval_output_string);
             message.reply(new CustomRichEmbed({
                 title:'Evaluated Code',
                 fields:[
-                    {name:'Input', value:`${'```'}js\n${discord_command}\n${code_input}\n${'```'}`},
-                    {name:'Output', value:`${'```'}js\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`}
+                    {name:'Input', value:`${'```'}\n${discord_command}\n${code_input}\n${'```'}`},
+                    {name:'Output', value:`${'```'}\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`}
                 ]
             }));
         } catch (error) {
@@ -58,8 +61,8 @@ module.exports = new DisBotCommand({
                 color:0xFF0000,
                 title:'Evaluated Code Resulted In Error',
                 fields:[
-                    {name:'Input', value:`${'```'}js\n${discord_command}\n${code_input}\n${'```'}`},
-                    {name:'Error', value:`${'```'}js\n${error}\n${'```'}\nCheck the console for more information!`}
+                    {name:'Input', value:`${'```'}\n${discord_command}\n${code_input}\n${'```'}`},
+                    {name:'Error', value:`${'```'}\n${error}\n${'```'}\nCheck the console for more information!`}
                 ]
             }));
         }
