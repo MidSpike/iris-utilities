@@ -10,7 +10,7 @@ module.exports = new DisBotCommand({
     category:`${DisBotCommander.categories.HIDDEN}`,
     description:'used for testing purposes',
     aliases:['test'],
-    access_level:DisBotCommand.access_levels.GLOBAL_USER,
+    access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         message.channel.send(new CustomRichEmbed({
             title:`Hello World! I'm ${client.user.username}!`
