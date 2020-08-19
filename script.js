@@ -808,7 +808,7 @@ client.on('message', async message => {
         if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
             const _member_is_immune = message.member.hasPermission('ADMINISTRATOR');
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
+                color:(_member_is_immune ? 0x00FF00 : 0xFFFF00),
                 author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
                 title:'Woah there!',
                 description:`Sending discord invites is not allowed in this guild${_member_is_immune ? ', but you are immune!' : '!'}`
@@ -833,7 +833,7 @@ client.on('message', async message => {
         if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
             const _member_is_immune = message.member.hasPermission('ADMINISTRATOR');
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
+                color:(_member_is_immune ? 0x00FF00 : 0xFFFF00),
                 author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
                 title:'Woah there!',
                 description:`Sending links is not allowed in this guild${_member_is_immune ? ', but you are immune!' : '!'}`
