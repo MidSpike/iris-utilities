@@ -41,14 +41,27 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        const not_a_bannable_user = (
-            isThisBot(user_to_ban.id) || 
-            isThisBotsOwner(user_to_ban.id) || 
-            isSuperPerson(user_to_ban.id) || 
-            message.author.id === user_to_ban.id
-        );
+        function staffMemberCanBanUser(staff_id, user_id) {
+            if (isThisBot(user_id)) return false;
+            if (isThisBotsOwner(user_id)) return false;
+            if (isSuperPerson(user_id)) return false;
 
-        if (not_a_bannable_user) {
+            if (staff_id === user_id) return false; // Don't allow the staff member to ban themselves
+
+            const staff_member = message.guild.members.resolve(staff_id);
+            if (!staff_member) throw new Error('`staff_id` must belong to a member in this guild!');
+
+            const staff_member_can_ban = staff_member.hasPermission('BAN_MEMBERS');
+            if (!staff_member_can_ban) return false; // They can't ban anyone
+
+            const member_being_banned = message.guild.members.resolve(user_id);
+            if (!member_being_banned) return true; // No need to check role hierarchy if the user isn't in this guild
+
+            const staff_member_can_ban_member = staff_member.roles.highest.comparePositionTo(member_being_banned.roles.highest) > 0;
+            return staff_member_can_ban_member;
+        }
+
+        if (!staffMemberCanBanUser(message.author.id, user_to_ban.id)) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
                 title:`You aren't allowed to ban this user!`
