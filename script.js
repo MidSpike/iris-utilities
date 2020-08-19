@@ -864,38 +864,23 @@ client.on('message', async message => {
         });
         return;
     }
-    
-    //#region setup important constants
+
+    /******************************************************
+     *         Start handling commands after here         *
+     ******************************************************/
     if (!message.content.startsWith(command_prefix)) return;
-    if (SHARED_VARIABLES.restarting_bot) {
-        message.channel.send(new CustomRichEmbed({
-            color:0xFF00FF,
-            title:`You currently can't use ${bot_common_name}!`,
-            description:`${bot_common_name} is restarting for updates right now!\nCheck back in 5 minutes to see if the updates are done.`
-        }, message));
-        return;
-    }
+
+    //#region setup command constants
     const command_timestamp = moment();
     const discord_command = getDiscordCommand(message.content);
     const command_args =  getDiscordCommandArgs(message.content);
     const clean_command_args = getDiscordCommandArgs(message.cleanContent);
     const discord_command_without_prefix = discord_command.replace(`${command_prefix}`, '');
-    if (discord_command_without_prefix.match(/^\d/)) return; // Don't allow commands that start with numbers (aka $50 is not a command)
-    //#endregion setup important constants
+    //#endregion setup command constants
 
-    //#region check for valid command
-    const command = DisBotCommander.commands.find(cmd => cmd.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`).includes(discord_command));
-    if (!command) {
-        message.channel.send(new CustomRichEmbed({
-            title:`That command doesn't exist!`,
-            description:`Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
-            fields:[
-                {name:`How to change ${bot_common_name} command prefix`, value:`\`\`\`${command_prefix}set_prefix NEW_PREFIX_HERE\`\`\``}
-            ]
-        }, message));
-        return;
-    }
-    //#region check for valid command
+    //#region prevent false positives for non-command matches
+    if (discord_command_without_prefix.match(/^\d/)) return; // Don't allow commands that start with numbers (aka $50 is not a command)
+    //#endregion prevent false positives for non-command matches
 
     //#region check for guild allowed channels
     const guild_config_allowed_channels = new GuildConfigManipulator(message.guild.id).config.allowed_channels;
@@ -904,8 +889,8 @@ client.on('message', async message => {
     const is_guild_allowed_channel = guild_config_allowed_channels.includes(message.channel.id);
     const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR');
     if (guild_config_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel && !member_is_immune_from_channel_exclusions) {
-        const dmChannel = await message.author.createDM();
-        dmChannel.send(new CustomRichEmbed({
+        const dm_channel = await message.author.createDM();
+        dm_channel.send(new CustomRichEmbed({
             title:`Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
             description:`The server you tried using me in has setup special channels for me to be used in!`,
             fields:[
@@ -924,6 +909,31 @@ client.on('message', async message => {
         return;
     }
     //#endregion check for guild allowed channels
+
+    //#region check for valid command
+    const command = DisBotCommander.commands.find(cmd => cmd.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`).includes(discord_command));
+    if (!command) {
+        message.channel.send(new CustomRichEmbed({
+            title:`That command doesn't exist!`,
+            description:`Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
+            fields:[
+                {name:`How to change ${bot_common_name} command prefix`, value:`\`\`\`${command_prefix}set_prefix NEW_PREFIX_HERE\`\`\``}
+            ]
+        }, message));
+        return;
+    }
+    //#region check for valid command
+
+    //#region block commands when restarting
+    if (SHARED_VARIABLES.restarting_bot) {
+        message.channel.send(new CustomRichEmbed({
+            color:0xFF00FF,
+            title:`You currently can't use ${bot_common_name}!`,
+            description:`${bot_common_name} is restarting for updates right now!\nCheck back in 5 minutes to see if the updates are done.`
+        }, message));
+        return;
+    }
+    //#endregion block commands when restarting
 
     //#region command message removal
     if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
@@ -955,7 +965,7 @@ client.on('message', async message => {
     }
     //#endregion central command logging
     
-    //#region central anonymous command logging
+    //#region central anonymous command logging for bot staff
     const anonymous_command_log_entry = {
         timestamp:`${command_timestamp}`,
         command:`${message.content}`
@@ -966,7 +976,7 @@ client.on('message', async message => {
     } catch (error) {
         console.trace(error);
     }
-    //#endregion central anonymous command logging
+    //#endregion central anonymous command logging for bot staff
 
     //#region guild command logging
     const guild_command_logging_channels = message.guild.channels.cache.filter(channel => channel.name === bot_command_log_channel_name);
@@ -987,12 +997,12 @@ client.on('message', async message => {
     const hasGuildAdminRole = message.member.roles.cache.filter(role => guild_admin_roles.includes(role.id)).size > 0;
     const hasGuildModeratorRole = message.member.roles.cache.filter(role => guild_moderator_roles.includes(role.id)).size > 0;
 
-    const hasBotGuildAdmin = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
+    const hasBotSuperGuildAdmin = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
     const hasBotOwner = isThisBotsOwner(message.member.id);
 
     const isGuildModeratorWorthy = hasGuildModeratorRole;
     const isGuildAdminWorthy = hasGuildAdminPerm || hasGuildAdminRole;
-    const isSuperWorthy = hasBotGuildAdmin;
+    const isSuperWorthy = hasBotSuperGuildAdmin;
     const isOwnerWorthy = hasBotOwner;
 
     let user_access_level = DisBotCommand.access_levels.GLOBAL_USER;
@@ -1002,7 +1012,7 @@ client.on('message', async message => {
     if (isOwnerWorthy) user_access_level = DisBotCommand.access_levels.BOT_OWNER;
 
     if (user_access_level < command.access_level) {
-        // The user doesn't have permission to use this command
+        // the user doesn't have permission to use this command
         message.channel.send(new CustomRichEmbed({
             color:0xFF00FF,
             title:'Sorry but you do not have permission to use this command!',
@@ -1013,9 +1023,9 @@ client.on('message', async message => {
             ]
         }, message));
     } else {
-        // The user has permission to use this command
+        // the user has permission to use this command
         if ([DisBotCommander.categories.ADMINISTRATOR, DisBotCommander.categories.GUILD_SETTINGS].includes(command.category)) {
-            // log the admin commands for admin commands
+            // log admin commands used in the guild
             logAdminCommandsToGuild(message);
         }
         try {
@@ -1036,7 +1046,7 @@ client.on('message', async message => {
 
 //------------------------------------------------------------------------------//
 
-//#region Register all commands
+//#region register all commands
 try {
     const command_files_directory_path = path.join(process.cwd(), './commands/');
     const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
@@ -1048,7 +1058,7 @@ try {
 } catch (error) {
     console.trace(error);
 }
-//#endregion Register all commands
+//#endregion register all commands
 
 //------------------------------------------------------------------------------//
 
