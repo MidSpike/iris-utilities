@@ -13,10 +13,10 @@ const eval_shell = util.promisify(child_process.exec);
 
 module.exports = new DisBotCommand({
     name:'SHELL',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
+    category:`${DisBotCommander.categories.BOT_OWNER}`,
     description:'shell',
     aliases:['shell'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    access_level:DisBotCommand.access_levels.BOT_OWNER,
     async executor(Discord, client, message, opts={}) {
         const { discord_command } = opts;
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'shell')) {
