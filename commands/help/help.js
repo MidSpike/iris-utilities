@@ -1,6 +1,8 @@
 'use strict';
 
 //#region local dependencies
+const { math_clamp } = require('../../utilities.js');
+
 const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
 const { removeUserReactionsFromMessage, sendOptionsMessage } = require('../../src/messages.js');
@@ -21,7 +23,7 @@ module.exports = new DisBotCommand({
             DisBotCommander.categories.INFO,
             DisBotCommander.categories.MUSIC_PLAYBACK,
             DisBotCommander.categories.MUSIC_CONTROLS,
-            DisBotCommander.categories.MUSIC_LEAVE,
+            // DisBotCommander.categories.MUSIC_LEAVE,
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
             DisBotCommander.categories.ADMINISTRATOR,
@@ -56,7 +58,7 @@ module.exports = new DisBotCommand({
             current_page_number = page_number;
             const help_page_commands_field = all_commands_fields[page_number-1];
             return new CustomRichEmbed({
-                title:`Hi! I'm here to help! Let's start by navigating the help menu's pages!`,
+                title:`I'm here to help! Let's start by navigating the help menu's pages!`,
                 fields:[
                     {name:`Help Pages`, value:`${'```'}\n${command_categories.map((command_category, index) => `${index+1} — ${command_category}`).join('\n')}\n${'```'}`},
                     {name:'\u200b', value:'\u200b'},
@@ -70,16 +72,17 @@ module.exports = new DisBotCommand({
         }
 
         const page_number_input = parseInt(command_args[0]) || 1; // Do not use ??
+        const proccessed_number_input = math_clamp(page_number_input, 1, command_categories.length)
 
         if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-            message.channel.send(makeHelpEmbed(page_number_input));
+            message.channel.send(makeHelpEmbed(proccessed_number_input));
         } else {
             function navigate_page(options_message, page_number=1) {
                 options_message.edit(makeHelpEmbed(page_number));
                 removeUserReactionsFromMessage(options_message);
             }
-            sendOptionsMessage(message.channel.id, makeHelpEmbed(page_number_input), [
-                {emoji_name:'bot_emoji_angle_left', callback:(options_message) => navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : 9)},
+            sendOptionsMessage(message.channel.id, makeHelpEmbed(proccessed_number_input), [
+                {emoji_name:'bot_emoji_angle_left', callback:(options_message) => navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length)},
                 {emoji_name:'bot_emoji_one', callback:(options_message) => navigate_page(options_message, 1)},
                 {emoji_name:'bot_emoji_two', callback:(options_message) => navigate_page(options_message, 2)},
                 {emoji_name:'bot_emoji_three', callback:(options_message) => navigate_page(options_message, 3)},
@@ -88,8 +91,8 @@ module.exports = new DisBotCommand({
                 {emoji_name:'bot_emoji_six', callback:(options_message) => navigate_page(options_message, 6)},
                 {emoji_name:'bot_emoji_seven', callback:(options_message) => navigate_page(options_message, 7)},
                 {emoji_name:'bot_emoji_eight', callback:(options_message) => navigate_page(options_message, 8)},
-                {emoji_name:'bot_emoji_nine', callback:(options_message) => navigate_page(options_message, 9)},
-                {emoji_name:'bot_emoji_angle_right', callback:(options_message) => navigate_page(options_message, current_page_number < 9 ? current_page_number+1 : 1)}
+                // {emoji_name:'bot_emoji_nine', callback:(options_message) => navigate_page(options_message, 9)},
+                {emoji_name:'bot_emoji_angle_right', callback:(options_message) => navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1)}
             ]);
         }
     },

@@ -12,7 +12,8 @@ const bot_common_name = bot_config.common_name;
 
 module.exports = new DisBotCommand({
     name:'STOP',
-    category:`${DisBotCommander.categories.MUSIC_LEAVE}`,
+    // category:`${DisBotCommander.categories.MUSIC_LEAVE}`,
+    category:`${DisBotCommander.categories.MUSIC_CONTROLS}`,
     description:'Stops music playback and disconnects the bot from the voice channel',
     aliases:['stop', 'bye', 'fuckoff', '#{cp}'],
     async executor(Discord, client, message, opts={}) {
