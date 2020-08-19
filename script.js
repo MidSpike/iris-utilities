@@ -507,7 +507,7 @@ client.on('guildMemberAdd', async member => {
 client.on('guildMemberRemove', async member => {
     if (member.partial) member.fetch().catch(console.warn);
 
-    if (isThisBot(member.id)) return; // Don't log the bot itself joining... It can happen oddly enough...
+    if (isThisBot(member.id)) return; // Don't log the bot itself leaving... It can happen oddly enough...
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
