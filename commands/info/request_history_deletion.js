@@ -10,6 +10,7 @@ const history_deletion_requests_channel_id = process.env.BOT_LOGGING_CHANNEL_HIS
 module.exports = new DisBotCommand({
     name:'REQUEST_HISTORY_DELETION',
     category:`${DisBotCommander.categories.INFO}`,
+    weight:7,
     description:'Allows the user to request their history to be deleted',
     aliases:['request_history_deletion'],
     async executor(Discord, client, message, opts={}) {

@@ -10,6 +10,7 @@ const bot_invite_link = `https://discordapp.com/oauth2/authorize?&client_id=${bo
 module.exports = new DisBotCommand({
     name:'INVITE',
     category:`${DisBotCommander.categories.INFO}`,
+    weight:2,
     description:'provides the user with an invite link for the bot',
     aliases:['invite'],
     async executor(Discord, client, message, opts={}) {

@@ -33,6 +33,7 @@ class DisBotCommand {
     #cmd_template = {
         name:'',
         category:'',
+        weight:9999,
         description:'',
         aliases:[],
         access_level:DisBotCommand.access_levels.GLOBAL_USER,
@@ -51,6 +52,7 @@ class DisBotCommand {
         // type checks
         if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new Error('`name` must be a valid string!');
         if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new Error('`category` must be a valid string!');
+        if (isNaN(_cmd.weight)) throw new Error('`weight` must be a valid number!');
         if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new Error('`description` must be a valid string!');
         if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new Error('`aliases` must be a valid array!');
         if (isNaN(_cmd.access_level)) throw new Error('`access_level` must be a valid number!');
@@ -61,6 +63,7 @@ class DisBotCommand {
 
         this.name = _cmd.name;
         this.category = _cmd.category;
+        this.weight = _cmd.weight;
         this.description = _cmd.description;
         this.aliases = _cmd.aliases;
         this.access_level = _cmd.access_level;

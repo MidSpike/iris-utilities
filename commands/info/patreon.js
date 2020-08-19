@@ -5,12 +5,12 @@ const bot_config = require(`../../config.json`);
 
 const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
-const { findCustomEmoji } = require('../../src/emoji.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
     name:'PATREON',
     category:`${DisBotCommander.categories.INFO}`,
+    weight:3,
     description:'invites the developer to the server',
     aliases:['patreon'],
     async executor(Discord, client, message, opts={}) {

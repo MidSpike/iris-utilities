@@ -9,6 +9,7 @@ const { disBotServers } = require('../../src/SHARED_VARIABLES.js');
 module.exports = new DisBotCommand({
     name:'TIMESTAMP',
     category:`${DisBotCommander.categories.MUSIC}`,
+    weight:12,
     description:'Tells the user the timestamp of what is currently playing',
     aliases:['timestamp', 'ts'],
     async executor(Discord, client, message, opts={}) {

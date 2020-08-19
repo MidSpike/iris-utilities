@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js
 module.exports = new DisBotCommand({
     name:'ABOUT_COMMAND',
     category:`${DisBotCommander.categories.HELP}`,
+    weight:3,
     description:'Displays information on a command',
     aliases:['about_command'],
     access_level:DisBotCommand.access_levels.GLOBAL_USER,
