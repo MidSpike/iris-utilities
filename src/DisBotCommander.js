@@ -90,7 +90,6 @@ class DisBotCommander {
         INFO:'Bot Info',
         MUSIC_PLAYBACK:'YouTube Music And More',
         MUSIC_CONTROLS:'Music Controls',
-        // MUSIC_LEAVE:'Disconnect',
         FUN:'Fun Stuff',
         UTILITIES:'Utilities',
         ADMINISTRATOR:'Administrative Powers',
