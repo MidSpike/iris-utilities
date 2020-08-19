@@ -23,7 +23,7 @@ function playStream(voice_connection, stream, volume_ratio=1.0, startCallback=(v
         });
     }
     
-    const magic_volume_constant = 0.25; // This number effects all volume situations
+    const magic_volume_constant = 0.275; // This number effects all volume situations
     server.dispatcher = voice_connection.play(stream, {type:'unknown', seek:0, volume:(magic_volume_constant * volume_ratio), highWaterMark:1, fec:true});
     
     server.dispatcher.on('start', () => {
@@ -31,7 +31,6 @@ function playStream(voice_connection, stream, volume_ratio=1.0, startCallback=(v
         startCallback(voice_connection, server.dispatcher);
     });
     server.dispatcher.on('finish', () => {
-        // setTimeout(() => endCallback(voice_connection, server.dispatcher), 500);
         endCallback(voice_connection, server.dispatcher);
     });
     server.dispatcher.on('error', (error) => {
