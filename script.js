@@ -231,27 +231,35 @@ client.on('ready', async () => {
     let presenceMode = 'mention'; // can be [ mention | uptime | creator | mention_me | version | guilds | users ]
     client.setTimeout(() => { // wait after a restart before updating the presence
         client.setInterval(() => {
-            if (presenceMode === 'mention') {
-                client.user.setPresence({type:4, activity:{name:`@${client.user.tag}`}});
-                presenceMode = 'uptime';
-            } else if (presenceMode === 'uptime') {
-                client.user.setPresence({type:4, activity:{name:`Uptime: ${getReadableTime(client.uptime / 1000)}`}});
-                presenceMode = 'creator';
-            } else if (presenceMode === 'creator') {
-                client.user.setPresence({type:4, activity:{name:`👨‍💻${client.users.cache.get(bot_config.owner_id).tag}👑`}});
-                presenceMode = 'mention_me';
-            } else if (presenceMode === 'mention_me') {
-                client.user.setPresence({type:4, activity:{name:`@mention me for help!`}});
-                presenceMode = 'version';
-            } else if (presenceMode === 'version') {
-                client.user.setPresence({type:4, activity:{name:`${bot_version}`}});
-                presenceMode = 'guilds';
-            } else if (presenceMode === 'guilds') {
-                client.user.setPresence({type:4, activity:{name:`in ${client.guilds.cache.size} servers!`}});
-                presenceMode = 'users';
-            } else if (presenceMode === 'users') {
-                client.user.setPresence({type:4, activity:{name:`with ${client.users.cache.filter(user => !user.bot).size} people!`}});
-                presenceMode = 'mention';
+            switch (presenceMode) {
+                case 'mention':
+                    client.user.setPresence({type:4, activity:{name:`@${client.user.tag}`}});
+                    presenceMode = 'uptime';
+                break;
+                case 'uptime':
+                    client.user.setPresence({type:4, activity:{name:`Uptime: ${getReadableTime(client.uptime / 1000)}`}});
+                    presenceMode = 'creator';
+                break;
+                case 'creator':
+                    client.user.setPresence({type:4, activity:{name:`👨‍💻${client.users.cache.get(bot_config.owner_id).tag}👑`}});
+                    presenceMode = 'mention_me';
+                break;
+                case 'mention_me':
+                    client.user.setPresence({type:4, activity:{name:`@mention me for help!`}});
+                    presenceMode = 'version';
+                break;
+                case 'version':
+                    client.user.setPresence({type:4, activity:{name:`${bot_version}`}});
+                    presenceMode = 'guilds';
+                break;
+                case 'guilds':
+                    client.user.setPresence({type:4, activity:{name:`in ${client.guilds.cache.size} servers!`}});
+                    presenceMode = 'users';
+                break;
+                case 'users':
+                    client.user.setPresence({type:4, activity:{name:`with ${client.users.cache.filter(user => !user.bot).size} people!`}});
+                    presenceMode = 'mention';
+                break;
             }
         }, 1000 * 10); // 10 seconds
     }, 1000 * 60 * 1); // 1 minute
