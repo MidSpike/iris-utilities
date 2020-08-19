@@ -47,7 +47,6 @@ module.exports = new DisBotCommand({
             const eval_output = await eval(`${code_to_run.indexOf('await') > -1 ? (`(async function() {${code_to_run.match(/^(\(await|await)/g) ? `return ${code_to_run}` : `${code_to_run}`}})();`) : code_to_run}`);
             console.info(`Output:\n`, eval_output);
             const eval_output_string = typeof eval_output === 'string' ? eval_output : `${safe_stringify(eval_output, null, 2)}`;
-            console.log(eval_output_string);
             message.reply(new CustomRichEmbed({
                 title:'Evaluated Code',
                 fields:[
