@@ -8,7 +8,7 @@ const { disBotServers } = require('../../src/SHARED_VARIABLES.js');
 
 module.exports = new DisBotCommand({
     name:'REPLAY',
-    category:`${DisBotCommander.categories.MUSIC_CONTROLS}`,
+    category:`${DisBotCommander.categories.MUSIC}`,
     description:'Allows replaying a song',
     aliases:['replay', 'r'],
     async executor(Discord, client, message, opts={}) {

@@ -21,8 +21,7 @@ module.exports = new DisBotCommand({
         const command_categories = [
             DisBotCommander.categories.HELP,
             DisBotCommander.categories.INFO,
-            DisBotCommander.categories.MUSIC_PLAYBACK,
-            DisBotCommander.categories.MUSIC_CONTROLS,
+            DisBotCommander.categories.MUSIC,
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
             DisBotCommander.categories.ADMINISTRATOR,
@@ -57,7 +56,7 @@ module.exports = new DisBotCommand({
             current_page_number = page_number;
             const help_page_commands_field = all_commands_fields[page_number-1];
             return new CustomRichEmbed({
-                title:`I'm here to help! Let's start by navigating the help menu's pages!`,
+                title:`I'm here to help! Start by navigating the help menu's pages!`,
                 fields:[
                     {name:`Help Pages`, value:`${'```'}\n${command_categories.map((command_category, index) => `${index+1} — ${command_category}`).join('\n')}\n${'```'}`},
                     {name:'\u200b', value:'\u200b'},
@@ -89,7 +88,7 @@ module.exports = new DisBotCommand({
                 {emoji_name:'bot_emoji_five', callback:(options_message) => navigate_page(options_message, 5)},
                 {emoji_name:'bot_emoji_six', callback:(options_message) => navigate_page(options_message, 6)},
                 {emoji_name:'bot_emoji_seven', callback:(options_message) => navigate_page(options_message, 7)},
-                {emoji_name:'bot_emoji_eight', callback:(options_message) => navigate_page(options_message, 8)},
+                // {emoji_name:'bot_emoji_eight', callback:(options_message) => navigate_page(options_message, 8)},
                 // {emoji_name:'bot_emoji_nine', callback:(options_message) => navigate_page(options_message, 9)},
                 {emoji_name:'bot_emoji_angle_right', callback:(options_message) => navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1)}
             ]);

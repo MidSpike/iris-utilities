@@ -145,7 +145,7 @@ async function playBroadcastify(message, search_query, playnext=false) {
 
 module.exports = new DisBotCommand({
     name:'PLAY',
-    category:`${DisBotCommander.categories.MUSIC_PLAYBACK}`,
+    category:`${DisBotCommander.categories.MUSIC}`,
     description:'play music from youtube and more',
     aliases:[`play`, `p`, `playnext`, `pn`, ``],
     async executor(Discord, client, message, opts={}) {
