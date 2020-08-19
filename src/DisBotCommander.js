@@ -3,7 +3,7 @@
 /**
  * Parses message_content for the command used
  * @param {String} message_content 
- * @returns {String} discord_command
+ * @returns {String} discord_command including the comman_prefix
  */
 function getDiscordCommand(message_content) {
     return message_content.split(/\s/g).filter(item => item !== '')[0].toLowerCase();
@@ -12,7 +12,7 @@ function getDiscordCommand(message_content) {
 /**
  * Gets an array of command arguments based off of seperating the message_content with spaces
  * @param {*} message_content 
- * @returns {Array<String>}
+ * @returns {Array<String>} 
  */
 function getDiscordCommandArgs(message_content) {
     return message_content.split(/\s/g).filter(item => item !== '').slice(1);
@@ -24,6 +24,7 @@ function getDiscordCommandArgs(message_content) {
 class DisBotCommand {
     static access_levels = {
         GLOBAL_USER:1,
+        // GLOBAL_DONATOR:250, // reserved for potential future usage
         GUILD_MOD:500,
         GUILD_ADMIN:1_000,
         BOT_SUPER:5_000,
@@ -89,7 +90,7 @@ class DisBotCommander {
         INFO:'Bot Info',
         MUSIC_PLAYBACK:'YouTube Music And More',
         MUSIC_CONTROLS:'Music Controls',
-        MUSIC_LEAVE:'Disconnect',
+        // MUSIC_LEAVE:'Disconnect',
         FUN:'Fun Stuff',
         UTILITIES:'Utilities',
         ADMINISTRATOR:'Administrative Powers',

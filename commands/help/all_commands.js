@@ -19,7 +19,7 @@ module.exports = new DisBotCommand({
             DisBotCommander.categories.INFO,
             DisBotCommander.categories.MUSIC_PLAYBACK,
             DisBotCommander.categories.MUSIC_CONTROLS,
-            DisBotCommander.categories.MUSIC_LEAVE,
+            // DisBotCommander.categories.MUSIC_LEAVE,
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
             DisBotCommander.categories.ADMINISTRATOR,
