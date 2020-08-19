@@ -799,7 +799,7 @@ client.on('message', async message => {
     /* Register Command Prefix */
     const guild_config_manipulator = new GuildConfigManipulator(message.guild.id);
     const guild_config = guild_config_manipulator.config;
-    const cp = guild_config.command_prefix || bot_default_guild_config.command_prefix;
+    const command_prefix = guild_config.command_prefix || bot_default_guild_config.command_prefix;
 
     //#region guild invite blocking
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
@@ -855,7 +855,7 @@ client.on('message', async message => {
     if (message.content.startsWith(`<@!${client.user.id}>`)) {
         const quick_help_embed = new CustomRichEmbed({
             title:`Hi there ${message.author.username}`,
-            description:`My command prefix is \`${cp}\` in **${message.guild.name}**.\n\nUse \`${cp}help\` in that server to get started!`
+            description:`My command prefix is \`${command_prefix}\` in **${message.guild.name}**.\n\nUse \`${command_prefix}help\` in that server to get started!`
         });
         message.channel.send(quick_help_embed).catch(() => {
             message.author.createDM().then(dmChannel => {
@@ -866,7 +866,7 @@ client.on('message', async message => {
     }
     
     //#region setup important constants
-    if (!message.content.startsWith(cp)) return;
+    if (!message.content.startsWith(command_prefix)) return;
     if (SHARED_VARIABLES.restarting_bot) {
         message.channel.send(new CustomRichEmbed({
             color:0xFF00FF,
@@ -879,18 +879,18 @@ client.on('message', async message => {
     const discord_command = getDiscordCommand(message.content);
     const command_args =  getDiscordCommandArgs(message.content);
     const clean_command_args = getDiscordCommandArgs(message.cleanContent);
-    const discord_command_without_prefix = discord_command.replace(`${cp}`, '');
+    const discord_command_without_prefix = discord_command.replace(`${command_prefix}`, '');
     if (discord_command_without_prefix.match(/^\d/)) return; // Don't allow commands that start with numbers (aka $50 is not a command)
     //#endregion setup important constants
 
     //#region check for valid command
-    const command = DisBotCommander.commands.find(cmd => cmd.aliases.map(cmd => `${cp}${cmd.replace('#{cp}', `${cp}`)}`).includes(discord_command));
+    const command = DisBotCommander.commands.find(cmd => cmd.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`).includes(discord_command));
     if (!command) {
         message.channel.send(new CustomRichEmbed({
             title:`That command doesn't exist!`,
-            description:`Try \`${cp}help\` for a list of commands!\n\nIf \`${cp}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
+            description:`Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
             fields:[
-                {name:`How to change ${bot_common_name} command prefix`, value:`\`\`\`${cp}set_prefix NEW_PREFIX_HERE\`\`\``}
+                {name:`How to change ${bot_common_name} command prefix`, value:`\`\`\`${command_prefix}set_prefix NEW_PREFIX_HERE\`\`\``}
             ]
         }, message));
         return;
@@ -1008,8 +1008,8 @@ client.on('message', async message => {
             title:'Sorry but you do not have permission to use this command!',
             description:'You must ascend in order to obtain the power you desire.\n\nIf you are a moderator or admin in this server, tell one of your server administrators about the commands below.',
             fields:[
-                {name:'Setting Bot Moderator Roles', value:`\`\`\`${cp}set_moderator_roles @role1 @role2 @role3 ...\`\`\``},
-                {name:'Setting Bot Admin Roles', value:`\`\`\`${cp}set_admin_roles @role1 @role2 @role3 ...\`\`\``}
+                {name:'Setting Bot Moderator Roles', value:`\`\`\`${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\`\`\``},
+                {name:'Setting Bot Admin Roles', value:`\`\`\`${command_prefix}set_admin_roles @role1 @role2 @role3 ...\`\`\``}
             ]
         }, message));
     } else {
@@ -1020,7 +1020,7 @@ client.on('message', async message => {
         }
         try {
             command.execute(Discord, client, message, {
-                command_prefix:`${cp}`,
+                command_prefix:`${command_prefix}`,
                 discord_command:discord_command,
                 command_args:command_args,
                 clean_command_args:clean_command_args,
