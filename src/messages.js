@@ -182,7 +182,8 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
     const guild = client.channels.cache.get(channel_id).guild;
     const server = disBotServers[guild.id];
     const makeEmbed = () => new CustomRichEmbed({
-        title:`The Current Volume Is: ${constructNumberUsingEmoji(server.volume_manager.volume)}`
+        title:`The Current Volume Is: ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
+        description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
     }, old_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
@@ -193,7 +194,8 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
                 server.volume_manager.toggleMute();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${server.volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`
+                    title:`${server.volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`,
+                    description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
                 }));
             }
         }, {
@@ -204,7 +206,8 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
                 server.volume_manager.decreaseVolume();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`
+                    title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
+                    description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
                 }));
             }
         }, {
@@ -219,7 +222,9 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
-                    description:(new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined)
+                    description:(new_volume === old_volume ? (
+                        `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}`
+                    ) : `[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`)
                 }));
             }
         }
