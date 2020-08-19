@@ -16,7 +16,6 @@ module.exports = new DisBotCommand({
     aliases:['lockdown'],
     access_level:DisBotCommand.access_levels.BOT_OWNER,
     async executor(Discord, client, message, opts={}) {
-        console.log(`this should not log!`);
         const { command_args } = opts;
         if (!isThisBotsOwner(message.author.id)) {
             sendNotAllowedCommand(message);
