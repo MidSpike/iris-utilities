@@ -39,12 +39,13 @@ module.exports = new DisBotCommand({
             sendNotAllowedCommand(message);
             return;
         }
-        const code_input = message.content.replace(discord_command, ``).trim(); // Removes the discord_command and trims
         console.info(`----------------------------------------------------------------------------------------------------------------`);
+        const code_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         try {
-            console.info(`Running Code:`, code_input);
-            const code_to_run = `${code_input.replace(/\r?\n|\r/g, '').trim()}`; // Removes line-breaks and trims
-            const eval_output = await eval(`${code_to_run.indexOf('await') > -1 ? (`(async function() {${code_to_run.match(/^(\(await|await)/g) ? `return ${code_to_run}` : `${code_to_run}`}})();`) : code_to_run}`);
+            console.info(`Running Code:\n`, code_input);
+            const code_with_return = code_input.trim().replace(/((?:.*)(?!\n)(?:.))$/g, `return $1`); // insert 'return' at the beginning of the last line
+            const code_to_run = code_with_return.replace(/\r?\n|\r/g, ``).trim(); // removes line-breaks and trims
+            const eval_output = await eval(`(async function() {${code_to_run}})();`);
             console.info(`Output:\n`, eval_output);
             const eval_output_string = typeof eval_output === 'string' ? eval_output : `${safe_stringify(eval_output, null, 2)}`;
             message.reply(new CustomRichEmbed({
