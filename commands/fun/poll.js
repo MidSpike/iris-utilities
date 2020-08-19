@@ -27,7 +27,7 @@ module.exports = new DisBotCommand({
                         thumbnail:`${bot_cdn_url}/Vote_2020-04-27_0.png`,
                         fields:[
                             {name:`Poll Question`, value:`${poll_question}`},
-                            {name:`Poll Choices`, value:`${poll_choices.map((pc, i) => `${constructNumberUsingEmoji(i)} — ${pc}`).join('\n\n')}`}
+                            {name:`Poll Choices`, value:`${poll_choices.map((pc, i) => `${constructNumberUsingEmoji(i+1)} — ${pc}`).join('\n\n')}`}
                         ],
                         footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${discord_command}`}
                     }, message));
