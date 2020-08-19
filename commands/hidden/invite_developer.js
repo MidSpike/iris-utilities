@@ -12,7 +12,7 @@ const bot_owner_discord_id = bot_config.owner_id;
 
 module.exports = new DisBotCommand({
     name:'INVITE_DEVELOPER',
-    category:`${DisBotCommander.categories.INFO}`,
+    category:`${DisBotCommander.categories.HIDDEN}`,
     description:'invites the developer to the server',
     aliases:['invite_developer'],
     async executor(Discord, client, message, opts={}) {

@@ -12,6 +12,7 @@ const { constructNumberUsingEmoji } = require('../../src/emoji.js');
 module.exports = new DisBotCommand({
     name:'HELP',
     category:`${DisBotCommander.categories.HELP}`,
+    weight:1,
     description:'Displays a list of commands page by page',
     aliases:['help'],
     access_level:DisBotCommand.access_levels.GLOBAL_USER,
@@ -31,10 +32,12 @@ module.exports = new DisBotCommand({
         const formated_command_categories = command_categories.map(category_name => {
             const commands_in_category = DisBotCommander.commands.filter(command => command.category === category_name);
 
+            const sorted_commands_in_category = commands_in_category.sort((a, b) => a.weight - b.weight);
+
             /**
              * Example Output: [`% | %play | %p | %playnext | %pn`, `%search`]
              */
-            const formatted_commands = commands_in_category.map(command => 
+            const formatted_commands = sorted_commands_in_category.map(command => 
                 command.aliases.map(command_alias => 
                     `${command_prefix}${command_alias.replace('#{cp}', `${command_prefix}`)}`
                 ).join(' | ')
@@ -56,7 +59,7 @@ module.exports = new DisBotCommand({
             current_page_number = page_number;
             const help_page_commands_field = all_commands_fields[page_number-1];
             return new CustomRichEmbed({
-                title:`I'm here to help! Start by navigating the help menu's pages!`,
+                title:`I'm here and ready to help! Navigate this menu for more!`,
                 fields:[
                     {name:`Help Pages`, value:`${'```'}\n${command_categories.map((command_category, index) => `${index+1} — ${command_category}`).join('\n')}\n${'```'}`},
                     {name:'\u200b', value:'\u200b'},

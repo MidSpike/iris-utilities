@@ -20,6 +20,7 @@ const super_people = bot_config.super_people;
 module.exports = new DisBotCommand({
     name:'INFO',
     category:`${DisBotCommander.categories.INFO}`,
+    weight:1,
     description:'invites the developer to the server',
     aliases:['info'],
     async executor(Discord, client, message, opts={}) {

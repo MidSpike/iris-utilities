@@ -10,6 +10,7 @@ const { sendMusicControllerEmbed } = require('../../src/messages.js');
 module.exports = new DisBotCommand({
     name:'CONTROLS',
     category:`${DisBotCommander.categories.MUSIC}`,
+    weight:3,
     description:'Opens the music controls menu',
     aliases:['controls', 'c'],
     async executor(Discord, client, message, opts={}) {

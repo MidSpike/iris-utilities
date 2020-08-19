@@ -13,6 +13,7 @@ const bot_common_name = bot_config.common_name;
 module.exports = new DisBotCommand({
     name:'SKIP',
     category:`${DisBotCommander.categories.MUSIC}`,
+    weight:8,
     description:'Allows skipping a song',
     aliases:['skip', 's', 'next', 'n'],
     async executor(Discord, client, message, opts={}) {

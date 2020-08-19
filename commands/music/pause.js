@@ -13,6 +13,7 @@ const bot_common_name = bot_config.common_name;
 module.exports = new DisBotCommand({
     name:'PAUSE',
     category:`${DisBotCommander.categories.MUSIC}`,
+    weight:5,
     description:'Pauses anything that the bot is playing',
     aliases:['pause'],
     async executor(Discord, client, message, opts={}) {

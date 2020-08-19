@@ -10,6 +10,7 @@ const { sendYtDiscordEmbed } = require('../../src/messages.js');
 module.exports = new DisBotCommand({
     name:'NOWPLAYING',
     category:`${DisBotCommander.categories.MUSIC}`,
+    weight:11,
     description:'Tells the user what is currently playing',
     aliases:['nowplaying', 'np'],
     async executor(Discord, client, message, opts={}) {

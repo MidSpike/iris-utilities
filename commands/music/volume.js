@@ -10,6 +10,7 @@ const { sendVolumeControllerEmbed } = require('../../src/messages.js');
 module.exports = new DisBotCommand({
     name:'VOLUME',
     category:`${DisBotCommander.categories.MUSIC}`,
+    weight:4,
     description:'Enables the user to control the volume of the audio playback',
     aliases:['volume', 'v'],
     async executor(Discord, client, message, opts={}) {

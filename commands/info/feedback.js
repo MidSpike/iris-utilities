@@ -14,6 +14,7 @@ const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
 module.exports = new DisBotCommand({
     name:'FEEDBACK',
     category:`${DisBotCommander.categories.INFO}`,
+    weight:4,
     description:'Allows users to send feedback about the bot to the developers',
     aliases:['feedback'],
     async executor(Discord, client, message, opts={}) {

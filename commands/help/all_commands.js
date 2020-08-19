@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js
 module.exports = new DisBotCommand({
     name:'ALL_COMMANDS',
     category:`${DisBotCommander.categories.HELP}`,
+    weight:2,
     description:'Displays a list of all commands',
     aliases:['all_commands'],
     access_level:DisBotCommand.access_levels.GLOBAL_USER,
@@ -48,7 +49,7 @@ module.exports = new DisBotCommand({
         }));
 
         message.channel.send(new CustomRichEmbed({
-            title:`Here are the possible commands all at once!`,
+            title:`Here are all of the commands, all at once!`,
             fields:all_commands_fields
         }, message));
     },
