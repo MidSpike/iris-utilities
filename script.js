@@ -806,27 +806,21 @@ client.on('message', async message => {
     const contains_invite_link = message.cleanContent.includes(`discord.gg/`) || message.cleanContent.includes('discord.com/invite/') || message.cleanContent.includes(`discord.io/`) || message.cleanContent.includes(`invite.gg/`);
     if (guild_invite_blocking_enabled && contains_invite_link) {
         if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-            if (message.member.hasPermission('ADMINISTRATOR')) {
-                message.channel.send(new CustomRichEmbed({
-                    color:0x00FF00,
-                    author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
-                    title:'Woah there!',
-                    description:'Sending discord invites is not allowed in this guild, but you are immune!'
-                }));
-            } else {
+            const _member_is_immune = message.member.hasPermission('ADMINISTRATOR');
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
+                title:'Woah there!',
+                description:`Sending discord invites is not allowed in this guild${_member_is_immune ? ', but you are immune!' : '!'}`
+            }));
+            if (!_member_is_immune) {
                 await message.delete({timeout:250}).catch(error => console.warn(`Unable to delete message`, error));
-                message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
-                    title:'Woah there!',
-                    description:'Sending discord invites is not allowed in this guild!'
-                }));
             }
         } else {
             message.channel.send(new CustomRichEmbed({
                 color:0xFF0000,
                 title:'An error has occurred!',
-                description:`This guild has invite blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages with discord invites.`
+                description:`This guild has invite blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages containing discord invites.`
             }));
         }
     }
@@ -837,27 +831,21 @@ client.on('message', async message => {
     const contains_url = new RegExp('([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?').test(message.cleanContent);
     if (guild_url_blocking_enabled && contains_url) {
         if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-            if (message.member.hasPermission('ADMINISTRATOR')) {
-                message.channel.send(new CustomRichEmbed({
-                    color:0x00FF00,
-                    author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
-                    title:'Woah there!',
-                    description:'Sending links is not allowed in this guild, but you are immune!'
-                }));
-            } else {
+            const _member_is_immune = message.member.hasPermission('ADMINISTRATOR');
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
+                title:'Woah there!',
+                description:`Sending links is not allowed in this guild${_member_is_immune ? ', but you are immune!' : '!'}`
+            }));
+            if (!_member_is_immune) {
                 await message.delete({timeout:250}).catch(error => console.warn(`Unable to delete message`, error));
-                message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
-                    title:'Woah there!',
-                    description:'Sending links is not allowed in this guild!'
-                }));
             }
         } else {
             message.channel.send(new CustomRichEmbed({
                 color:0xFF0000,
                 title:'An error has occurred!',
-                description:`This guild has url blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages with urls.`
+                description:`This guild has url blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages containing urls.`
             }));
         }
     }
