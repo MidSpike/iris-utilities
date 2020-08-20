@@ -4,7 +4,7 @@
 const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
 const { sendNotAllowedCommand } = require('../../src/messages.js');
-const { isSuperPerson, isSuperPersonAllowed } = require('../../src/permissions.js');
+const { isThisBotsOwner } = require('../../src/permissions.js');
 
 const util = require("util");
 const child_process = require("child_process");
@@ -19,7 +19,7 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.BOT_OWNER,
     async executor(Discord, client, message, opts={}) {
         const { discord_command } = opts;
-        if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'shell')) {
+        if (!isThisBotsOwner(message.author.id)) {
             sendNotAllowedCommand(message);
             return;
         }
