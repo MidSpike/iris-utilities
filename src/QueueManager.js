@@ -5,6 +5,7 @@ const { random_range_inclusive, array_insert, array_shuffle } = require('../util
 const { disBotServers } = require('./SHARED_VARIABLES.js');
 const { createConnection } = require('./createConnection.js');
 const { playStream } = require('./playStream.js');
+const { GuildConfigManipulator } = require('./GuildConfig.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -96,16 +97,28 @@ class QueueItemPlayer {
         this.end_callback = typeof end_callback === 'function' ? end_callback : (() => {});
         this.error_callback = typeof error_callback === 'function' ? error_callback : (() => {});
         return async () => {
-            const server = disBotServers[this.voice_connection.channel.guild.id];
-            playStream(await createConnection(this.voice_connection.channel), await this.stream_maker(), this.volume_ratio, () => {
-                this.start_callback();
+            const guild = this.voice_connection.channel.guild;
+            const server = disBotServers[guild.id];
+            const guild_config_manipulator = new GuildConfigManipulator(guild.id);
+            const guild_config = guild_config_manipulator.config;
+            const guild_tts_provider = guild_config.tts_provider;
+            const guild_tts_voice = guild_tts_provider === 'ibm' ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
+            playStream(await createConnection(this.voice_connection.channel), await this.stream_maker(), this.volume_ratio, async () => {
+                await this.start_callback();
             }, async (voice_connection, dispatcher) => {
                 await this.queue_manager.removeItem(1); // Remove this item from the queue
-                this.end_callback();
+                await this.end_callback();
                 if (this.queue_manager.queue.length === 0 && voice_connection && !this.queue_manager.loop_enabled) {// The queue is empty so disconnect the bot
                     setTimeout(() => {
                         if (this.queue_manager.queue.length === 0 && voice_connection && (!this.queue_manager.loop_enabled || !this.queue_manager.autoplay_enabled)) {
-                            server.audio_controller.disconnect();
+                            if (guild_config.disconnect_tts_voice === 'enabled') { // Play TTS before disconnecting
+                                const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
+                                playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
+                                    server.audio_controller.disconnect();
+                                });
+                            } else { // Just disconnect
+                                server.audio_controller.disconnect();
+                            }
                         }
                     }, 1000 * 30);
                 } else {// The queue is not empty so handle it
@@ -120,7 +133,15 @@ class QueueItemPlayer {
                         }
                     }
                     if (this.queue_manager.queue.length > 0) {// The queue is not empty so continue playing
-                        this.queue_manager.queue[0].player();
+                        if (guild_config.queue_tts_voice === 'enabled') {
+                            const speak_text = `Next Up: ${this.queue_manager.queue[0].description}`;
+                            const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(speak_text)}`;
+                            playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
+                                this.queue_manager.queue[0].player();
+                            });
+                        } else {
+                            this.queue_manager.queue[0].player();
+                        }
                     }
                 }
             }, (error) => {
