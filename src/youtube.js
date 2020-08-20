@@ -104,23 +104,25 @@ async function playYouTube(message, search_query, playnext=false) {
             }, message));
             return; // Don't allow live streams to play
         }
+        if (!search_message.deleted) {
+            search_message.delete({timeout:500}).catch(console.warn);
+        }
         const player = new QueueItemPlayer(server.queue_manager, voice_connection, streamMaker, 1.0, () => {
-            if (!search_message.deleted) {
-                search_message.delete({timeout:500}).catch(console.warn);
-            }
             sendYtDiscordEmbed(message, yt_video_info, 'Playing');
-        }, () => {
+        }, async () => {
             if (server.queue_manager.queue.length === 0 && server.queue_manager.autoplay_enabled) {
-                _play_as_video(array_random(yt_video_info.related_videos.slice(0,3)).id);
+                await _play_as_video(array_random(yt_video_info.related_videos.slice(0, 3)).id);
             }
+            return; // Complete async
         }, (error) => {
             console.trace(`${error ?? 'Unknown Playback Error!'}`);
         });
-        server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined)).then(() => {
+        await server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined)).then(() => {
             if (server.queue_manager.queue.length > 1 && send_embed) {
                 sendYtDiscordEmbed(message, yt_video_info, 'Added');
             }
         });
+        return; // Complete async
     }
 
     async function _play_as_playlist(playlist_id) {

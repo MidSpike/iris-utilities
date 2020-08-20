@@ -134,6 +134,8 @@
         "player_description": "disabled",
         "url_blocking": "disabled",
         "invite_blocking": "disabled",
+        "disconnect_tts_voice": "enabled",
+        "queue_tts_voice": "disabled",
         "admin_roles": [],
         "moderator_roles": [],
         "new_member_roles": [],
