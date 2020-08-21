@@ -1,6 +1,7 @@
 'use strict';
 
 //#region local dependencies
+const { sendLargeMessage } = require('../../src/messages.js');
 const { CustomRichEmbed } = require('../../src/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../src/DisBotCommander.js');
 //#endregion local dependencies

@@ -361,25 +361,23 @@ function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
     let show_player_description = guild_config.player_description === 'enabled';
     function makeYTEmbed() {
         return new CustomRichEmbed({
-            title:`${server.queue_manager.loop_enabled ? 'Looping' : (server.queue_manager.autoplay_enabled ? 'Autoplaying' : status)}: ${videoInfo.title}`,
+            title:`${server.queue_manager.loop_enabled ? 'Looping' : (server.queue_manager.autoplay_enabled ? 'Autoplaying' : status)}: ${videoInfo.videoDetails.title}`,
             description:(show_player_description ? ([
-                `Author: [${videoInfo.author.name}](https://youtube.com/channel/${videoInfo.author.channel_url})`,
-                `Uploaded: ${moment(videoInfo.published).format('YYYY-MM-DD')}`,
-                `Duration: ${getReadableTime(parseInt(videoInfo.length_seconds))}`,
-                `Age Restricted: ${videoInfo.age_restricted ? 'Yes' : 'No'}`,
-                // `Rating: ${Math.trunc((videoInfo.likes / (videoInfo.likes + videoInfo.dislikes)) * 100) || 'n/a'}% of people like this`,
-                `Rating: ${((videoInfo.player_response.videoDetails.averageRating / 5) * 100).toFixed(2)}% of people like this`,
-                `Likes: ${videoInfo.likes ?? 'n/a'}`,
-                `Dislikes: ${videoInfo.dislikes ?? 'n/a'}`,
-                `Views: ${videoInfo.player_response.videoDetails.viewCount ?? 'n/a'}`,
-                `Link: [https://youtu.be/${videoInfo.video_id}](https://youtu.be/${videoInfo.video_id})`,
+                `Author: [${videoInfo.videoDetails.author.name}](${videoInfo.videoDetails.author.channel_url})`,
+                `Uploaded: ${videoInfo.videoDetails.publishDate}`,
+                `Duration: ${getReadableTime(parseInt(videoInfo.videoDetails.lengthSeconds))}`,
+                `Age Restricted: ${videoInfo.videoDetails.age_restricted ? 'Yes' : 'No'}`,
+                `Rating: ${((videoInfo.videoDetails.averageRating / 5) * 100).toFixed(2)}% of people like this`,
+                `Likes: ${videoInfo.videoDetails.likes ?? 'n/a'}`,
+                `Dislikes: ${videoInfo.videoDetails.dislikes ?? 'n/a'}`,
+                `Views: ${videoInfo.videoDetails.viewCount ?? 'n/a'}`,
+                `Link: [https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`,
                 `Volume: ${server.volume_manager.volume}%`
-            ].join('\n')) : `[https://youtu.be/${videoInfo.video_id}](https://youtu.be/${videoInfo.video_id})`),
-            thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.player_response.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}`),
-            image:(show_player_description ? `${videoInfo.player_response.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}` : undefined)
+            ].join('\n')) : `[https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`),
+            thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}`),
+            image:(show_player_description ? `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}` : undefined)
         }, user_message);
     }
-    let timestamp_interval;
     sendOptionsMessage(user_message.channel.id, makeYTEmbed(), [
         {
             emoji_name:'bot_emoji_information',
