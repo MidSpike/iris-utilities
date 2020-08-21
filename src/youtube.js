@@ -23,48 +23,50 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * Searches YouTube using the YT API and returns an array of search results
+ * Searches YouTube using the YT API and returns an array of search results.
+ * If the YouTube API fails more than the specified number of retry_attempts,
+ * then it will attempt one last time by scraping the YouTube website.
  * @param {String} search_query video, url, etc to look up on youtube
- * @param {Number} max_results 
- * @param {Number} retry_attempts 
- * @returns {Array<Object>|undefined}
+ * @param {Number} max_results the max number of results to ask the YouTube API for
+ * @param {Number} retry_attempts the amount of Offical YouTube API retry attempts
+ * @returns {Array<{id:String, link:String, title:String}>|undefined} the number of results is not based on max_results
  */
-async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=3) {
+async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1) {
     if (typeof search_query !== 'string') throw new TypeError('`search_query` must be a string!');
     if (isNaN(max_results)) throw new TypeError('`max_results` must be a number!');
     if (Math.floor(max_results) !== max_results || max_results < 1) throw RangeError('`max_results` must be a whole number and at least `1`!');
     if (isNaN(retry_attempts)) throw new TypeError('`retry_attempts` must be positive whole number above zero!');
     if (Math.floor(retry_attempts) !== retry_attempts || retry_attempts < 1) throw RangeError('`retry_attempts` must be a whole number and at least `1`!');
-
+    // try using the YouTube API results
     let current_search_attempt = 1;
-    let search_results;
+    let search_results = [];
     while (current_search_attempt <= retry_attempts) {
         try {
             const { results } = await youtubeSearch(search_query, {
-                maxResults: max_results,
-                type: 'video',
-                regionCode: 'US',
-                key: process.env.YOUTUBE_API_TOKEN
+                maxResults:max_results,
+                type:'video',
+                regionCode:'US',
+                key:process.env.YOUTUBE_API_TOKEN
             });
             search_results = results;
         } catch (error) {
             console.warn(`Failed YouTube API Lookup!`);
         } finally {
-            if (search_results?.length > 0) break;
+            if (search_results.length > 0) break;
             else current_search_attempt++;
             await Timer(1000 + current_search_attempt * 250);
         }
     }
-    let backup_search_results = [];
-    if (!(search_results?.length > 0)) { // search_results is nullish or empty
+    // fallback to scraping the youtube website results
+    if (search_results.length === 0) {
         console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
-        const back_up_result = await ytSearchBackup(search_query);
-        const re_mapped_results = back_up_result.videos.map(video_result => ({
-            id: video_result.videoId,
-            link: video_result.url,
-            title: video_result.title
+        const backup_search_results = (await ytSearchBackup(search_query)).videos;
+        // Map the unofficial backup results to match the primary results scheme
+        search_results = backup_search_results.map(({ videoId, url, title }) => ({
+            id:`${videoId}`,
+            link:`${url}`,
+            title:`${title}`
         }));
-        backup_search_results = re_mapped_results;
     }
     return search_results ?? backup_search_results ?? []; // Force an empty array if nullish
 }
