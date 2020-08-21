@@ -70,17 +70,18 @@ class DisBotCommand {
         this.executor = _cmd.executor;
     }
     /**
-     * Executes the command
+     * Executes the command executor
+     * @param {Discord} Discord 
      * @param {Client} client 
      * @param {Message} message 
      * @param {Object} opts 
      */
-    execute(Discord, client, message, opts={}) {
-        if (!Discord) throw new Error('`Discord` must be passed!');
-        if (!client) throw new Error('`client` must be passed!');
-        if (!message) throw new Error('`message` must be passed!');
-        if (!opts) throw new Error('`opts` must be passed!');
-        return this.executor(Discord, client, message, opts);
+    async execute(Discord, client, message, opts={}) {
+        if (!Discord) throw new Error('`Discord` must be passed to command.execute()!');
+        if (!client) throw new Error('`client` must be passed to command.execute()!');
+        if (!message) throw new Error('`message` must be passed to command.execute()!');
+        if (!opts) throw new Error('`opts` must be passed to command.execute()!');
+        return await this.executor(Discord, client, message, opts);
     }
 }
 

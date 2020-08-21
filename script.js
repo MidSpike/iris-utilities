@@ -1029,7 +1029,7 @@ client.on('message', async message => {
             logAdminCommandsToGuild(message);
         }
         try {
-            command.execute(Discord, client, message, {
+            await command.execute(Discord, client, message, {
                 command_prefix:`${command_prefix}`,
                 discord_command:discord_command,
                 command_args:command_args,
@@ -1038,7 +1038,6 @@ client.on('message', async message => {
                 guild_config_manipulator:guild_config_manipulator
             });
         } catch (error) {
-            console.trace(error);
             logUserError(message, error);
         }
     }
@@ -1056,7 +1055,7 @@ try {
         DisBotCommander.registerCommand(command_to_register);
     }
 } catch (error) {
-    console.trace(error);
+    console.trace(`Error while registering commands:`, error);
 }
 //#endregion register all commands
 
