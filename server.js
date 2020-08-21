@@ -46,15 +46,13 @@ router.get('/ytinfo', async (req, res) => {
     res.set({'Content-Type':'application/json'});
     if (req.query.video_id) {
         console.log(`video_id:`, req.query.video_id);
-        console.time(`ytdl.getBasicInfo: yt_info`);
         let yt_info;
         try {
             yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`);
         } catch (error) {
-            console.trace(error);
+            console.trace(`Can't find video info:`, error);
             yt_info = {};
         } finally {
-            console.timeEnd(`ytdl.getBasicInfo: yt_info`);
             res.send(JSON.stringify(yt_info, null, 2));
         }
     } else {

@@ -4,6 +4,7 @@ const axios = require('axios');
 const validator = require('validator');
 const urlParser = require('url-parameter-parser');
 const youtubeSearch = require('youtube-search');
+const ytSearchBackup = require('yt-search');
 const videoIdFromYouTubeURL = require(`parse-video-id-from-yt-url`);
 
 const { Timer, array_random } = require('../utilities.js');
@@ -45,17 +46,27 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=3)
                 regionCode: 'US',
                 key: process.env.YOUTUBE_API_TOKEN
             });
-            search_results = results ?? []; // Force an empty array if nullish
+            search_results = results;
         } catch (error) {
-            console.trace(error);
-            // throw error;
+            console.warn(`Failed YouTube API Lookup!`);
         } finally {
-            if (search_results.length > 0) break;
+            if (search_results?.length > 0) break;
             else current_search_attempt++;
             await Timer(1000 + current_search_attempt * 250);
         }
     }
-    return search_results ?? []; // Force an empty array if nullish
+    let backup_search_results = [];
+    if (!(search_results?.length > 0)) { // search_results is nullish or empty
+        console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
+        const back_up_result = await ytSearchBackup(search_query);
+        const re_mapped_results = back_up_result.videos.map(video_result => ({
+            id: video_result.videoId,
+            link: video_result.url,
+            title: video_result.title
+        }));
+        backup_search_results = re_mapped_results;
+    }
+    return search_results ?? backup_search_results ?? []; // Force an empty array if nullish
 }
 
 /**
@@ -91,15 +102,15 @@ async function playYouTube(message, search_query, playnext=false) {
         const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(video_id)}`);
         const yt_video_info = youtube_playlist_api_response?.data;
         const voice_connection = await createConnection(voice_channel);
-        const streamMaker = async () => await `${bot_api_url}/ytdl?url=${encodeURIComponent(yt_video_info.video_url)}`;
+        const streamMaker = async () => await `${bot_api_url}/ytdl?url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
         if (parseInt(yt_video_info.length_seconds) === 0) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
                 title:'Woah there buddy!',
                 description:`Live streams aren't supported!`,
                 fields:[
-                    {name:'Offending Live Stream Title', value:`${yt_video_info.title}`},
-                    {name:'Offending Live Stream URL', value:`${yt_video_info.video_url}`}
+                    {name:'Offending Live Stream Title', value:`${yt_video_info.videoDetails.title}`},
+                    {name:'Offending Live Stream URL', value:`${yt_video_info.videoDetails.video_url}`}
                 ]
             }, message));
             return; // Don't allow live streams to play
@@ -126,7 +137,7 @@ async function playYouTube(message, search_query, playnext=false) {
     }
 
     async function _play_as_playlist(playlist_id) {
-        const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=25&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`
+        const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=25&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`;
         const yt_playlist_response = await axios.get(yt_playlist_api_url);
         const playlist_items = yt_playlist_response.data.items;
         if (!search_message.deleted) {
@@ -172,9 +183,14 @@ async function playYouTube(message, search_query, playnext=false) {
     const potential_video_id = await _get_video_id_from_query(search_query);
 
     if (potential_playlist_id) { // The search_query was a playlist
-        _play_as_playlist(potential_playlist_id);
+        try {
+            await _play_as_playlist(potential_playlist_id);
+        } catch {
+            console.warn(`Issues with YouTube API detected... Falling-back to normal video playback!`);
+            await _play_as_video(potential_video_id);
+        }
     } else if (potential_video_id) { // The search_query is a video
-        _play_as_video(potential_video_id);
+        await _play_as_video(potential_video_id);
     } else {
         if (!search_message.deleted) search_message.delete({timeout:500}).catch(console.warn);
         message.channel.send(new CustomRichEmbed({
