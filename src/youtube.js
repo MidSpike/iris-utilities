@@ -37,6 +37,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     if (Math.floor(max_results) !== max_results || max_results < 1) throw RangeError('`max_results` must be a whole number and at least `1`!');
     if (isNaN(retry_attempts)) throw new TypeError('`retry_attempts` must be positive whole number above zero!');
     if (Math.floor(retry_attempts) !== retry_attempts || retry_attempts < 1) throw RangeError('`retry_attempts` must be a whole number and at least `1`!');
+    console.time(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
     // try using the YouTube API results
     let current_search_attempt = 1;
     let search_results = [];
@@ -68,6 +69,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
             title:`${title}`
         }));
     }
+    console.timeEnd(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
     return search_results ?? backup_search_results ?? []; // Force an empty array if nullish
 }
 
@@ -92,9 +94,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 possible_video_id = videoIdFromYouTubeURL(query);
             } catch {} // exceptions are thrown for non-youtube URLs, so just ignore them
         } else { // search for the video via the youtube api as a fallback
-            console.time(`_get_video_id_from_query: forceYouTubeSearch`);
             const youtube_search_results = await forceYouTubeSearch(query, 1, 3);
-            console.timeEnd(`_get_video_id_from_query: forceYouTubeSearch`);
             possible_video_id = youtube_search_results[0]?.id;
         }
         return possible_video_id;
@@ -105,7 +105,7 @@ async function playYouTube(message, search_query, playnext=false) {
         const yt_video_info = youtube_playlist_api_response?.data;
         const voice_connection = await createConnection(voice_channel);
         const streamMaker = async () => await `${bot_api_url}/ytdl?url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
-        if (parseInt(yt_video_info.length_seconds) === 0) {
+        if (parseInt(yt_video_info.videoDetails.lengthSeconds) === 0) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
                 title:'Woah there buddy!',
@@ -130,7 +130,7 @@ async function playYouTube(message, search_query, playnext=false) {
         }, (error) => {
             console.trace(`${error ?? 'Unknown Playback Error!'}`);
         });
-        await server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined)).then(() => {
+        await server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.videoDetails.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined)).then(() => {
             if (server.queue_manager.queue.length > 1 && send_embed) {
                 sendYtDiscordEmbed(message, yt_video_info, 'Added');
             }
