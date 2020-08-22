@@ -67,7 +67,7 @@ router.get('/ytdl', async (req, res) => {
     res.set({'Content-Type':'audio/mpeg'});
     if (req.query.url) {
         try {
-            const ytdl_stream_id = `${pseudoUniqueId()}`;
+            const ytdl_stream_id = `${pseudoUniqueId()} - ${req.query.url}`;
 
             const ytdl_stream = ytdl(req.query.url, {
                 'lang':'en',
@@ -76,15 +76,16 @@ router.get('/ytdl', async (req, res) => {
                 'highWaterMark':1<<25 // 32 MB
             });
 
-            console.log(`Started Response Stream: ${ytdl_stream_id} - ${req.query.url}`);
+            console.log(`Started response stream: ${ytdl_stream_id}`);
+
             const res_stream = ytdl_stream.pipe(res);
+
             res_stream.on('error', error => {
-                console.error(`----------------------------------------------------------------------------------------------------------------`);
-                console.trace(error);
-                console.error(`----------------------------------------------------------------------------------------------------------------`);
+                console.trace(`Failed while streaming ${ytdl_stream_id}: `, error);
             });
+
             res_stream.on('finish', () => {
-                console.log(`Finished Response Stream: ${ytdl_stream_id} - ${req.query.url}`);
+                console.log(`Finished response stream: ${ytdl_stream_id}`);
             });
         } catch (error) {
             console.trace(`Failed to stream: ${req.query.url}`, error);

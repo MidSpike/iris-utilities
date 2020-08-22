@@ -40,8 +40,8 @@ class DisBotCommand {
         executor(Discord, client, message, opts={}) {}
     };
     /**
-     * Arguments is an object to allow for easy future expansion
-     * @param {Object} cmd an object that must contain the properties of this.#cmd_template
+     * The arguments are an object to allow for easy future expansion
+     * @param {Object} cmd an object that must be composed from the properties of this.#cmd_template.
      */
     constructor(cmd={}) {
         const _cmd = {
@@ -49,16 +49,16 @@ class DisBotCommand {
             ...cmd
         };
 
-        // type checks
+        // type checks and basic validation checks
         if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new Error('`name` must be a valid string!');
         if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new Error('`category` must be a valid string!');
-        if (isNaN(_cmd.weight)) throw new Error('`weight` must be a valid number!');
+        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new Error('`weight` must be a valid number above `0`!');
         if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new Error('`description` must be a valid string!');
         if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new Error('`aliases` must be a valid array!');
         if (isNaN(_cmd.access_level)) throw new Error('`access_level` must be a valid number!');
         if (typeof _cmd.executor !== 'function') throw new Error('`executor` must be a valid function!');
 
-        // validation checks
+        // advanced validation checks
         if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new Error('`access_level` must be from DisBotCommand.access_levels!');
 
         this.name = _cmd.name;
