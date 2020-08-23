@@ -125,10 +125,10 @@ async function updateGuildConfig(guild) {
     const guild_config_manipulator = new GuildConfigManipulator(guild.id);
     const old_guild_config = guild_config_manipulator.config;
 
-    // The methodology used below will clone a property in all guild configs
+    /* the methodology used below can clone a property in all guild configs */
     // old_guild_config['NEW_PROPERTY_NAME'] = old_guild_config['OLD_PROPERTY_NAME'];
 
-    // The methodology used below will remove a property from all guild configs
+    /* the methodology used below can remove a property from all guild configs */
     // delete old_guild_config['PROPERTY_NAME'];
 
     const new_guild_config = {
@@ -151,7 +151,12 @@ async function updateGuildConfig(guild) {
     };
     guild_config_manipulator.modifyConfig(new_guild_config);
 }
+
 function add_guild_to_disBotServers(guild) {
+    if (!guild) {
+        console.error('MAJOR ISSUE: Guild is not defined!');
+        return;
+    }
     disBotServers[guild.id] = {
         ...(disBotServers[guild.id] ?? {}),
         ...{
@@ -189,37 +194,23 @@ function checkForBlacklistedUser(message) {
     }
 }
 
-function checkForUserInGuildTimeout(message) {
-    const guild_users_in_timeout = new GuildConfigManipulator(message.guild.id).config.users_in_timeout || [];
-    if (guild_users_in_timeout.includes(message.author.id)) {
-        message.delete({timeout:500}).then(message => {
-            message.author.createDM().then(dmChannel => {
-                dmChannel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`I'm sorry, you were put into an indefinite timeout in ${message.guild.name}.`,
-                    description:'Currently all messages that you are trying to send in that server will be deleted!\nPlease contact an administrator on that discord server to be removed from timeout.',
-                }));
-            }).catch(console.warn);
-        }).catch(error => console.warn(`Unable to delete message`, error));
-        return;
-    }
-}
-
 //---------------------------------------------------------------------------------------------------------------//
 
 // client.on('debug', console.info);
+
 client.on('warn', console.trace);
+
 client.on('error', console.trace);
 
 client.on('ready', async () => {
     const ready_timestamp = moment();
+
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     console.log(`${bot_common_name} Logged in as ${client.user.tag} on ${ready_timestamp} in ${client.guilds.cache.size} servers!`);
-    // console.log(`${client.guilds.cache.map(guild => `(${guild.id}) ${guild.name}`).join('\n')}`);
     console.log(`----------------------------------------------------------------------------------------------------------------`);
-    
-    client.user.setPresence({type:4, activity:{name:`Just restarted!`}});
-    const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.name === bot_restart_log_channel_name);
+
+    /* log to all subscribed servers that a restart has just happened */
+    const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
     guild_restart_logging_channels.forEach(channel => {
         if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
             channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
@@ -228,6 +219,10 @@ client.on('ready', async () => {
         }
     });
 
+    /* set the client presence to indicate a restart has just happened */
+    client.user.setPresence({type:4, activity:{name:`Just restarted!`}});
+
+    /* update the client presence with various helpful information */
     let presenceMode = 'mention'; // can be [ mention | uptime | creator | mention_me | version | guilds | users ]
     client.setTimeout(() => { // wait after a restart before updating the presence
         client.setInterval(() => {
@@ -264,7 +259,7 @@ client.on('ready', async () => {
         }, 1000 * 10); // 10 seconds
     }, 1000 * 60 * 1); // 1 minute
 
-    //#region Update Guild Configs To Include Their State Of Existence After Each Restart
+    /* update guild configs to include their state of existence */
     const main_guild_config_manipulator = new GuildConfigManipulator(bot_logging_guild_id);
     const resolved_guilds_from_configs = Object.keys(main_guild_config_manipulator.configs).map(guild_config_id => ({id:`${guild_config_id}`, exists:!!client.guilds.resolve(guild_config_id)}));
     resolved_guilds_from_configs.forEach(resolved_guild => {
@@ -276,16 +271,15 @@ client.on('ready', async () => {
             }
         });
     });
-    //#endregion
 
+    /* update all guild configs and register the guild to disBotServers */
     client.guilds.cache.forEach(async guild => {
-        if (!guild) return;
-        if (checkForBlacklistedGuild(guild)) return;
         updateGuildConfig(guild);
         add_guild_to_disBotServers(guild);
     });
 
-    client.setInterval(() => { // Update each guild config after an interval of 5 minutes
+    /* update all guild configs with an interval of 5 minutes */
+    client.setInterval(() => {
         client.guilds.cache.forEach(guild => updateGuildConfig(guild));
     }, 1000 * 60 * 5);
 });
@@ -326,7 +320,6 @@ client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
 
 client.on('guildUpdate', async (old_guild, new_guild) => {
     if (new_guild.partial) await new_guild.fetch().catch(console.warn);
-    if (!new_guild.available) return;
     updateGuildConfig(new_guild);
 });
 
@@ -360,6 +353,7 @@ client.on('guildCreate', async guild => {
         ].join(`\n\n`),
         image:`${bot_cdn_url}/new_guild_information_2020-06-27_1.png`
     });
+
     try {
         channel_to_send_initial_message.send(new_guild_information_embed);
     } catch {
@@ -396,8 +390,8 @@ client.on('channelCreate', async channel => {
     if (channel) channel.fetch().catch(console.warn);
 
     if (channel.type !== 'text') return;
-    const gcm = new GuildConfigManipulator(channel.guild.id);
-    const guild_config = gcm.config;
+    const guild_config_manipulator = new GuildConfigManipulator(channel.guild.id);
+    const guild_config = guild_config_manipulator.config;
     const command_prefix = guild_config.command_prefix;
     function prevent_sending_messages_in_channel(channel) {
         channel.overwritePermissions([
@@ -416,7 +410,7 @@ client.on('channelCreate', async channel => {
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
-                description:`Now syncing future \`${command_prefix}ban\` command appeal messages to this channel!\n`
+                description:`Now syncing future \`${command_prefix}ban\` command appeal messages to this channel!`
             }));
             channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
@@ -579,7 +573,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('inviteCreate', async invite => {
-    if (!invite.channel.guild) return;
+    if (!invite.channel?.guild) return;
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel_name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
@@ -595,7 +589,7 @@ client.on('inviteCreate', async invite => {
 });
 
 client.on('inviteDelete', async invite => {
-    if (!invite.channel.guild) return;
+    if (!invite.channel?.guild) return;
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel_name);
     if (!logging_channel) return;
     const last_audit_log_deleted_invite_entry = (await invite.channel.guild.fetchAuditLogs({limit:1, type:'INVITE_DELETE'})).entries.first();
@@ -614,7 +608,7 @@ client.on('inviteDelete', async invite => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region Appeals Centre
+//#region bot appeals centre
 client.on('guildMemberAdd', async member => {
     if (member.partial) await member.fetch().catch(console.warn);
 
@@ -675,11 +669,11 @@ client.on('guildMemberAdd', async member => {
         }
     }
 });
-//#endregion Appeals Centre
+//#endregion bot appeals centre
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region Automatic Roles
+//#region automatic roles additions
 client.on('guildMemberAdd', async member => {
     if (member.partial) await member.fetch().catch(console.warn);
 
@@ -690,11 +684,11 @@ client.on('guildMemberAdd', async member => {
         member.roles.add(auto_roles, 'Adding Auto Roles');
     }
 });
-//#endregion Automatic Roles
+//#endregion automatic roles additions
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region Direct Messages With Bot Support Server
+//#region direct messages with bot support server
 client.on('message', async message => {
     if (message.partial) await message.fetch().catch(console.warn);
     if (message.user?.partial) await message.user.fetch().catch(console.warn);
@@ -772,56 +766,74 @@ client.on('message', async message => {
         }
     }
 });
-//#endregion Direct Messages With Bot Support Server
+//#endregion direct messages with bot support server
 
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('message', async message => {
-    // handle potential partial data structures
+    /* handle potential partial data structures */
     if (message.partial) await message.fetch().catch(console.warn);
     if (message.user?.partial) await message.user.fetch().catch(console.warn);
     if (message.member?.partial) await message.member.fetch().catch(console.warn);
     if (message.guild) await message.guild.fetch().catch(console.warn);
 
-    // don't continue if the message is empty and there aren't any attachments
+    /* don't continue if the message is empty and there aren't any attachments */
     if (message.content.trim().length === 0 && message.attachments.size === 0) return;
 
-    // don't interact with other bots
+    /* don't interact with other bots */
     if (message.author.bot) return;
 
-    // don't continue when the bot is in lockdown mode
+    /* don't continue when the bot is in lockdown mode */
     if (SHARED_VARIABLES.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
-    // make sure that the message is from a guild text-channel
+    /* make sure that the message is from a guild text-channel */
     if (message.channel.type !== 'text') return;
 
     /********************************************************************
      * the bot is being used in a guild text-channel after this comment *
      ********************************************************************/
 
-    // don't continue when the guild is in lockdown mode
+    /* don't continue when the guild is in lockdown mode */
     if (disBotServers[message.guild.id]?.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
-    // don't allow blacklisted users and notify them of their inability to use this bot
-    if (checkForBlacklistedUser(message)) return;
-
-    // don't allow blacklisted guilds and silently halt execution
-    if (checkForBlacklistedGuild(message.guild)) return;
-
-    // don't allow users in guild timeout notify them of their inability to use this bot
-    if (checkForUserInGuildTimeout(message)) return;
-
-    //#region register the guild command prefix
+    /* register the guild config manipulator and guild config */
     const guild_config_manipulator = new GuildConfigManipulator(message.guild.id);
     const guild_config = guild_config_manipulator.config;
+
+    /* register the guild command prefix */
     const command_prefix = guild_config.command_prefix ?? bot_default_guild_config.command_prefix;
 
-    // prevent broken command prefixes from being used and alert the developer to fix them
+    /* confirm that the guild command prefix is valid prefix */
     if (typeof command_prefix !== 'string' || command_prefix.length === 0) {
         console.error(`Guild (${message.guild.id}) has an invalid command prefix: ${command_prefix}; manual fixing is required!`);
         return;
     }
-    //#endregion register the guild command prefix
+
+    /* don't allow blacklisted users and notify them of their inability to use this bot */
+    if (checkForBlacklistedUser(message)) return;
+
+    /* don't allow blacklisted guilds and silently halt execution */
+    if (checkForBlacklistedGuild(message.guild)) return;
+
+    /* don't allow users in guild timeout and notify them of their inability to use this bot */
+    const guild_users_in_timeout = guild_config.users_in_timeout ?? [];
+    if (guild_users_in_timeout.includes(message.author.id)) {
+        try {
+            await message.delete({timeout:500});
+            const dm_channel = await message.author.createDM();
+            await dm_channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:`I'm sorry, you were put into an indefinite timeout in ${message.guild.name}.`,
+                description:[
+                    `Currently all messages that you are trying to send in that server will be deleted!`,
+                    `Please contact an administrator on that discord server to be removed from timeout.`
+                ].join('\n')
+            }));
+        } catch {
+            // ignore any errors... they wont matter here
+        }
+        return;
+    }
 
     //#region handle guild invite-blocking
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
@@ -888,28 +900,26 @@ client.on('message', async message => {
             const dm_channel = await message.author.createDM();
             dm_channel.send(quick_help_embed).catch(console.warn);
         }
+        return;
     }
     //#endregion handle messages that start with a @mention of this bot
 
-    // check if the message starts with the command prefix
+    /* check if the message starts with the command prefix */
     if (!message.content.startsWith(command_prefix)) return;
 
     /**********************************************
      * start handling commands after this comment *
      **********************************************/
 
-    //#region command constants
+    /* setup command constants */
     const command_timestamp = moment();
     const discord_command = getDiscordCommand(message.content);
     const command_args =  getDiscordCommandArgs(message.content);
     const clean_command_args = getDiscordCommandArgs(message.cleanContent);
     const discord_command_without_prefix = discord_command.replace(`${command_prefix}`, ``);
-    //#endregion command constants
 
-    //#region prevent false positives for non-command matches
-    // don't allow commands that start with numbers (example: `$50` is not a valid command)
-    if (discord_command_without_prefix.match(/^\d/)) return;
-    //#endregion prevent false positives for non-command matches
+    /* prevent false positives for non-command matches */
+    if (discord_command_without_prefix.match(/^\d/)) return; // commands can't start with numbers
 
     //#region check for guild allowed channels
     const guild_allowed_channels = guild_config.allowed_channels;
@@ -993,7 +1003,7 @@ client.on('message', async message => {
         console.trace(`Unable to save to command log file!`, error);
     }
     //#endregion central command logging
-    
+
     //#region central anonymous command logging for bot staff
     const anonymous_command_log_entry = {
         timestamp:`${command_timestamp}`,
@@ -1029,7 +1039,6 @@ client.on('message', async message => {
     const isSuperWorthy = hasBotSuperGuildAdmin;
     const isOwnerWorthy = hasBotOwner;
 
-    // elevate the user_access_level for each permission level that is matched
     let user_access_level = DisBotCommand.access_levels.GLOBAL_USER;
     if (isGuildModeratorWorthy) user_access_level = DisBotCommand.access_levels.GUILD_MOD;
     if (isGuildAdminWorthy) user_access_level = DisBotCommand.access_levels.GUILD_ADMIN;
@@ -1069,7 +1078,7 @@ client.on('message', async message => {
     }
 });
 
-//------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------------------------------//
 
 //#region register the commands
 try {
@@ -1085,7 +1094,7 @@ try {
 }
 //#endregion register the commands
 
-//------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------------------------------//
 
 //#region prevent the bot from crashing for these situations
 process.on('unhandledRejection', (reason, promise) => {
