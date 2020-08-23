@@ -86,12 +86,12 @@ class QueueItem {
 class QueueItemPlayer {
     constructor(queue_manager, voice_connection, stream_maker, volume_ratio, start_callback, end_callback, error_callback) {
         if (queue_manager === undefined || voice_connection === undefined || stream_maker === undefined) {
-            console.trace(`QueueItemPlayer is missing something:`, {queue_manager, voice_connection, streamMaker});
+            console.trace(`QueueItemPlayer is missing something:`, {queue_manager, voice_connection, stream_maker});
             return;
         }
         this.queue_manager = queue_manager;
         this.voice_connection = voice_connection;
-        this.stream_maker =  async () => await stream_maker(); // Generates a new stream for each run of the player
+        this.stream_maker =  async () => await stream_maker(); // For generate a new stream for each run of the queue item player
         this.volume_ratio = volume_ratio ?? undefined;
         this.start_callback = typeof start_callback === 'function' ? start_callback : (() => {});
         this.end_callback = typeof end_callback === 'function' ? end_callback : (() => {});
