@@ -124,8 +124,8 @@ async function playBroadcastify(message, search_query, playnext=false) {
     if (!broadcast_id) return;
     const broadcast_url = `https://broadcastify.cdnstream1.com/${broadcast_id}`;
     const voice_connection = await createConnection(message.member.voice.channel);
-    const streamMaker = async () => await `${broadcast_url}`;
-    const player = new QueueItemPlayer(server.queue_manager, voice_connection, streamMaker, 1.5, () => {
+    const stream_maker = () => `${broadcast_url}`;
+    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.5, () => {
         message.channel.send(new CustomRichEmbed({
             title:'Playing Broadcastify Stream',
             description:`[Stream Link - ${broadcast_id}](${broadcast_url})`

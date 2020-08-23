@@ -104,7 +104,7 @@ async function playYouTube(message, search_query, playnext=false) {
         const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(video_id)}`);
         const yt_video_info = youtube_playlist_api_response?.data;
         const voice_connection = await createConnection(voice_channel);
-        const streamMaker = async () => await `${bot_api_url}/ytdl?url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
+        const stream_maker = () => `${bot_api_url}/ytdl?url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
         if (parseInt(yt_video_info.videoDetails.lengthSeconds) === 0) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
@@ -120,7 +120,7 @@ async function playYouTube(message, search_query, playnext=false) {
         if (!search_message.deleted) {
             search_message.delete({timeout:500}).catch(console.warn);
         }
-        const player = new QueueItemPlayer(server.queue_manager, voice_connection, streamMaker, 1.0, () => {
+        const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.0, () => {
             sendYtDiscordEmbed(message, yt_video_info, 'Playing');
         }, async () => {
             if (server.queue_manager.queue.length === 0 && server.queue_manager.autoplay_enabled) {
