@@ -1,0 +1,17 @@
+# Security Policy
+I welcome everyone to report any security vulnerabilities via the official method below!
+
+## Official Method for Reporting a Security Vulnerability
+Send an email to [developer@midspike.com](mailto:developer@midspike.com) with the following header:
+```
+SECURITY - I.R.I.S. Utilities Discord Bot
+```
+This way I'll know the email is important!
+
+You will recieve a response as soon as your email has been noticed!
+
+## Supported Branches for Reporting Security Vulnerabilities
+| Version | Supported          |
+| ------- | ------------------ |
+| Master  | :white_check_mark: |
+| Other   | :x:                |
