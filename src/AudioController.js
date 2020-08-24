@@ -7,11 +7,12 @@ const { disBotServers } = require('./SHARED_VARIABLES.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 class AudioController {
+    #guild;
     constructor(guild) {
-        this._guild = guild;
+        this.#guild = guild;
     }
     get voice() {
-        return this._guild.voice;
+        return this.#guild.voice;
     }
     get timestamp() {
         const dispatcher_stream_time = this.voice?.connection?.dispatcher?.streamTime;
@@ -33,7 +34,7 @@ class AudioController {
         return this;
     }
     async disconnect() {
-        disBotServers[this._guild.id].queue_manager.clearItems(true);
+        disBotServers[this.#guild.id].queue_manager.clearItems(true);
         this.voice?.channel?.leave();
         return this;
     }
