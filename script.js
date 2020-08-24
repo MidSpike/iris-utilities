@@ -12,20 +12,19 @@ const recursiveReadDirectory = require('recursive-read-directory');
 
 const moment = require('moment-timezone');
 
-const { Discord, client } = require('./src/bot.js');
-
 //---------------------------------------------------------------------------------------------------------------//
+
+const { Discord,
+        client } = require('./src/bot.js');
+
+const { Timer,
+        getReadableTime } = require('./utilities.js');
+
+const SHARED_VARIABLES = require('./src/SHARED_VARIABLES.js');
 
 const bot_config = require('./config.json');
-const { Timer } = require('./utilities.js');
-const SHARED_VARIABLES = require('./src/SHARED_VARIABLES.js');
-const { disBotServers } = require('./src/SHARED_VARIABLES.js');
 
 //---------------------------------------------------------------------------------------------------------------//
-
-//#region utility functions
-const { getReadableTime } = require('./utilities.js');
-//#endregion utility functions
 
 //#region bot files
 const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE;
@@ -73,41 +72,34 @@ const bot_central_guild_history_channel_id = process.env.BOT_LOGGING_CHANNEL_GUI
 const bot_central_anonymous_command_log_channel_id = process.env.BOT_LOGGING_CHANNEL_ANONYMOUS_COMMAND_LOG_ID;
 //#endregion bot channels
 
-//#region bot controllers
-const { isThisBot, isThisBotsOwner, isSuperPerson, isSuperPersonAllowed } = require('./src/permissions.js');
-//#endregion bot controllers
-
 //---------------------------------------------------------------------------------------------------------------//
 
 const { CustomRichEmbed } = require('./src/CustomRichEmbed.js');
 
-//---------------------------------------------------------------------------------------------------------------//
-
 const { logUserError } = require('./src/errors.js');
-
-//---------------------------------------------------------------------------------------------------------------//
 
 const { logAdminCommandsToGuild } = require('./src/messages.js');
 
-//---------------------------------------------------------------------------------------------------------------//
-
 const { GuildConfigManipulator } = require('./src/GuildConfig.js');
 
-//---------------------------------------------------------------------------------------------------------------//
-
 const { QueueManager } = require('./src/QueueManager.js');
-
-//---------------------------------------------------------------------------------------------------------------//
-
 const { AudioController } = require('./src/AudioController.js');
-
-//---------------------------------------------------------------------------------------------------------------//
-
 const { VolumeManager } = require('./src/VolumeManager.js');
 
-//---------------------------------------------------------------------------------------------------------------//
+const { isThisBot,
+        isThisBotsOwner,
+        isSuperPerson,
+        isSuperPersonAllowed } = require('./src/permissions.js');
 
-const { getDiscordCommand, getDiscordCommandArgs, DisBotCommand, DisBotCommander } = require('./src/DisBotCommander.js');
+
+
+
+
+
+const { getDiscordCommand,
+        getDiscordCommandArgs,
+        DisBotCommand,
+        DisBotCommander } = require('./src/DisBotCommander.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -116,11 +108,13 @@ async function updateGuildConfig(guild) {
         console.error('MAJOR ISSUE: Guild is not defined!');
         return;
     }
+
     if (!guild.available) {
         console.error(`Guild: ${guild.id} was not available!`);
         return;
     }
-    if (guild.partial) await guild.fetch();
+
+    if (guild.partial) await guild.fetch().catch(console.warn);
 
     const guild_config_manipulator = new GuildConfigManipulator(guild.id);
     const old_guild_config = guild_config_manipulator.config;
@@ -132,12 +126,12 @@ async function updateGuildConfig(guild) {
     // delete old_guild_config['PROPERTY_NAME'];
 
     const new_guild_config = {
-        ...{// Only write this info upon first addition to the config
+        ...{ // only write this info upon first addition to the config
             '_added_on':`${moment()}`
         },
         ...bot_default_guild_config,
         ...old_guild_config,
-        ...{// Update the following information
+        ...{ // update the following information
             '_last_seen_on':`${moment()}`,
             '_exists':guild.available,
             '_name':guild.name,
@@ -152,15 +146,23 @@ async function updateGuildConfig(guild) {
     guild_config_manipulator.modifyConfig(new_guild_config);
 }
 
-function add_guild_to_disBotServers(guild) {
+async function add_guild_to_disBotServers(guild) {
     if (!guild) {
         console.error('MAJOR ISSUE: Guild is not defined!');
         return;
     }
-    disBotServers[guild.id] = {
-        ...(disBotServers[guild.id] ?? {}),
+
+    if (!guild.available) {
+        console.error(`Guild: ${guild.id} was not available!`);
+        return;
+    }
+
+    if (guild.partial) await guild.fetch().catch(console.warn);
+
+    SHARED_VARIABLES.disBotServers[guild.id] = {
+        ...(SHARED_VARIABLES.disBotServers[guild.id] ?? {}),
         ...{
-            queue_manager:new QueueManager(),
+            queue_manager:new QueueManager(guild),
             volume_manager:new VolumeManager(guild),
             audio_controller:new AudioController(guild),
             dispatcher:undefined
@@ -320,11 +322,13 @@ client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
 
 client.on('guildUpdate', async (old_guild, new_guild) => {
     if (new_guild.partial) await new_guild.fetch().catch(console.warn);
+
     updateGuildConfig(new_guild);
 });
 
 client.on('guildCreate', async guild => {
     if (guild.partial) guild.fetch().catch(console.warn);
+
     if (!guild.available) return;
 
     const central_guild_history_logging_channel = client.channels.cache.get(bot_central_guild_history_channel_id);
@@ -794,7 +798,7 @@ client.on('message', async message => {
      ********************************************************************/
 
     /* don't continue when the guild is in lockdown mode */
-    if (disBotServers[message.guild.id]?.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
+    if (SHARED_VARIABLES.disBotServers[message.guild.id]?.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
     /* register the guild config manipulator and guild config */
     const guild_config_manipulator = new GuildConfigManipulator(message.guild.id);
@@ -830,12 +834,12 @@ client.on('message', async message => {
                 ].join('\n')
             }));
         } catch {
-            // ignore any errors... they wont matter here
+            /* ignore any errors... they wont matter here */
         }
         return;
     }
 
-    //#region handle guild invite-blocking
+    /* handle guild invite-blocking */
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
     const contains_invite_link = message.cleanContent.includes(`discord.gg/`) || message.cleanContent.includes('discord.com/invite/') || message.cleanContent.includes(`discord.io/`) || message.cleanContent.includes(`invite.gg/`);
     if (guild_invite_blocking_enabled && contains_invite_link) {
@@ -858,9 +862,8 @@ client.on('message', async message => {
             }));
         }
     }
-    //#endregion handle guild invite-blocking
 
-    //#region handle guild url-blocking
+    /* handle guild url-blocking */
     const guild_url_blocking_enabled = guild_config.url_blocking === 'enabled';
     const contains_url = new RegExp('([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?').test(message.cleanContent);
     if (guild_url_blocking_enabled && contains_url) {
@@ -883,9 +886,8 @@ client.on('message', async message => {
             }));
         }
     }
-    //#endregion handle guild url-blocking
 
-    //#region handle messages that start with a @mention of this bot
+    /* handle messages that start with a @mention of this bot */
     if (message.content.startsWith(`<@!${client.user.id}>`)) {
         const quick_help_embed = new CustomRichEmbed({
             title:`Hi there ${message.author.username}!`,
@@ -902,7 +904,6 @@ client.on('message', async message => {
         }
         return;
     }
-    //#endregion handle messages that start with a @mention of this bot
 
     /* check if the message starts with the command prefix */
     if (!message.content.startsWith(command_prefix)) return;
@@ -921,7 +922,7 @@ client.on('message', async message => {
     /* prevent false positives for non-command matches */
     if (discord_command_without_prefix.match(/^\d/)) return; // commands can't start with numbers
 
-    //#region check for guild allowed channels
+    /* check for guild allowed channels */
     const guild_allowed_channels = guild_config.allowed_channels;
     const fetched_allowed_channels = await Promise.all(guild_allowed_channels.map(async channel_id => await message.guild.channels.resolve(channel_id)?.fetch()));
     const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel_name;
@@ -947,9 +948,8 @@ client.on('message', async message => {
         }));
         return;
     }
-    //#endregion check for guild allowed channels
 
-    //#region check for valid command
+    /* check for valid command */
     const command = DisBotCommander.commands.find(cmd => cmd.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`).includes(discord_command));
     if (!command) {
         message.channel.send(new CustomRichEmbed({
@@ -961,9 +961,8 @@ client.on('message', async message => {
         }, message));
         return;
     }
-    //#region check for valid command
 
-    //#region block commands when restarting
+    /* block commands when restarting */
     if (SHARED_VARIABLES.restarting_bot) {
         message.channel.send(new CustomRichEmbed({
             color:0xFF00FF,
@@ -972,19 +971,13 @@ client.on('message', async message => {
         }, message));
         return;
     }
-    //#endregion block commands when restarting
 
-    //#region command message removal
+    /* command message removal */
     if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
-        try {
-            message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
-        } catch (error) {
-            console.warn(error);
-        }
+        message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
     }
-    //#endregion command message removal
 
-    //#region central command logging
+    /* central command logging */
     try {
         const current_command_log_file_name = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY_MM`)}`);
         const command_log_file_exists = fs.existsSync(current_command_log_file_name);
@@ -1002,18 +995,16 @@ client.on('message', async message => {
     } catch (error) {
         console.trace(`Unable to save to command log file!`, error);
     }
-    //#endregion central command logging
 
-    //#region central anonymous command logging for bot staff
+    /* central anonymous command logging for bot staff */
     const anonymous_command_log_entry = {
         timestamp:`${command_timestamp}`,
         command:`${message.content}`
     };
     const central_anonymous_command_logging_channel = client.channels.cache.get(bot_central_anonymous_command_log_channel_id);
     central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
-    //#endregion central anonymous command logging for bot staff
 
-    //#region guild command logging
+    /* guild command logging */
     const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.type === 'text' && channel.name === bot_command_log_channel_name);
     guild_command_logging_channel?.send(new CustomRichEmbed({
         author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
@@ -1021,33 +1012,24 @@ client.on('message', async message => {
         description:`${'```'}\n${message.content}\n${'```'}`,
         footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${command_timestamp}`}
     })).catch(console.warn);
-    //#endregion guild command logging
 
     //#region configure permission handlers for the command
-    const guild_moderator_roles = guild_config.moderator_roles ?? [];
-    const guild_admin_roles = guild_config.admin_roles ?? [];
-
-    const hasGuildModeratorRole = message.member.roles.cache.filter(role => guild_moderator_roles.includes(role.id)).size > 0;
-    const hasGuildAdminRole = message.member.roles.cache.filter(role => guild_admin_roles.includes(role.id)).size > 0;
-    const hasGuildAdminPerm = message.member.hasPermission('ADMINISTRATOR');
-
-    const hasBotSuperGuildAdmin = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
-    const hasBotOwner = isThisBotsOwner(message.member.id);
-
+    const hasGuildModeratorRole = message.member.roles.cache.filter(role => guild_config.moderator_roles?.includes(role.id)).size > 0;
+    const hasGuildAdminRole = message.member.roles.cache.filter(role => guild_config.admin_roles?.includes(role.id)).size > 0;
     const isGuildModeratorWorthy = hasGuildModeratorRole;
-    const isGuildAdminWorthy = hasGuildAdminRole || hasGuildAdminPerm;
-    const isSuperWorthy = hasBotSuperGuildAdmin;
-    const isOwnerWorthy = hasBotOwner;
+    const isGuildAdminWorthy = hasGuildAdminRole || message.member.hasPermission('ADMINISTRATOR');
+    const isSuperWorthy = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
+    const isOwnerWorthy = isThisBotsOwner(message.member.id);
 
-    let user_access_level = DisBotCommand.access_levels.GLOBAL_USER;
-    if (isGuildModeratorWorthy) user_access_level = DisBotCommand.access_levels.GUILD_MOD;
-    if (isGuildAdminWorthy) user_access_level = DisBotCommand.access_levels.GUILD_ADMIN;
-    if (isSuperWorthy) user_access_level = DisBotCommand.access_levels.BOT_SUPER;
-    if (isOwnerWorthy) user_access_level = DisBotCommand.access_levels.BOT_OWNER;
-    //#endregion configure permission handlers for the command
+    /* set the command author's access_level for each level of worthyness */
+    let command_author_access_level = DisBotCommand.access_levels.GLOBAL_USER;
+    if (isGuildModeratorWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_MOD;
+    if (isGuildAdminWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_ADMIN;
+    if (isSuperWorthy) command_author_access_level = DisBotCommand.access_levels.BOT_SUPER;
+    if (isOwnerWorthy) command_author_access_level = DisBotCommand.access_levels.BOT_OWNER;
 
-    if (user_access_level < command.access_level) {
-        // the user doesn't have permission to use this command
+    /* compare the required access level for the command with the command author's access_level */
+    if (command_author_access_level < command.access_level) { // the user doesn't have permission to use this command
         message.channel.send(new CustomRichEmbed({
             color:0xFF00FF,
             title:'Sorry but you do not have permission to use this command!',
@@ -1057,12 +1039,12 @@ client.on('message', async message => {
                 {name:'Setting Bot Admin Roles', value:`\`\`\`${command_prefix}set_admin_roles @role1 @role2 @role3 ...\`\`\``}
             ]
         }, message));
-    } else {
-        // the user has permission to use this command
+    } else { // the user has permission to use this command
+        /* log any commands residing in the ADMINISTRATOR or GUILD_SETTINGS categories, to the guild */
         if ([DisBotCommander.categories.ADMINISTRATOR, DisBotCommander.categories.GUILD_SETTINGS].includes(command.category)) {
-            // log admin commands used in the guild
             logAdminCommandsToGuild(message);
         }
+        /* attempt to execute the command, if anything goes wrong; it will logUserError */
         try {
             await command.execute(Discord, client, message, {
                 command_prefix:`${command_prefix}`,
@@ -1080,7 +1062,7 @@ client.on('message', async message => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region register the commands
+/* register the commands */
 try {
     const command_files_directory_path = path.join(process.cwd(), './commands/');
     const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
@@ -1092,11 +1074,10 @@ try {
 } catch (error) {
     console.trace(`An issue occurred while registering the commands:`, error);
 }
-//#endregion register the commands
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region prevent the bot from crashing for these situations
+/* prevent the bot from crashing for unhandledRejections */
 process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`${moment()}`);
@@ -1104,10 +1085,10 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
 });
 
+/* prevent the bot from crashing for uncaughtExceptions */
 process.on('uncaughtException', (error) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`${moment()}`);
     console.trace('uncaughtException at:', error);
     console.error('----------------------------------------------------------------------------------------------------------------');
 });
-//#endregion prevent the bot from crashing for these situations

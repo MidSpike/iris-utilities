@@ -23,6 +23,8 @@ const { Timer } = require('../../utilities.js');
 const { logUserError } = require('../../src/errors.js');
 const { generateInviteToGuild } = require(`../../src/invites.js`);
 
+const SHARED_VARIABLES = require('../../src/SHARED_VARIABLES.js');
+
 const bot_cdn_url = process.env.BOT_CDN_URL;
 const bot_api_url = process.env.BOT_API_SERVER_URL;
 //#endregion eval dependencies

@@ -432,8 +432,7 @@ async function sendNotAllowedCommand(message) {
  */
 function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
     const moderation_log_channel = admin_message.guild.channels.cache.find(c => c.name === bot_config.special_channels.GUILD_MODERATION.public_name);
-    if (!moderation_log_channel) return;
-    moderation_log_channel.send(custom_log_message ?? new CustomRichEmbed({
+    moderation_log_channel?.send(custom_log_message ?? new CustomRichEmbed({
         title:`An Admin Command Has Been Used!`,
         description:`Command Used:${'```'}\n${admin_message.content}${'```'}`,
         fields:[
@@ -441,7 +440,7 @@ function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
             {name:'Channel', value:`${admin_message.channel}`},
             {name:'Message Link', value:`[Jump To Where The Command Was Used](${admin_message.url})`}
         ]
-    })).catch(console.warn);
+    }))?.catch(console.warn);
 }
 
 module.exports = {

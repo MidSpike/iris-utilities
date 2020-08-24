@@ -27,10 +27,10 @@ module.exports = new DisBotCommand({
                     function makeQueueEmbed() {
                         const entire_queue_formatted = queue_manager.queue.map((queue_item, index) => {
                             if (queue_item.type === 'youtube') {
-                                const yt_video_title = `${string_ellipses(queue_item.metadata.videoInfo.title, 50)}`;
-                                const yt_video_link = `https://youtu.be/${queue_item.metadata.videoInfo.video_id}`;
-                                const yt_channel_title = `${string_ellipses(queue_item.metadata.videoInfo.author.name, 50)}`;
-                                const yt_channel_link = `${queue_item.metadata.videoInfo.author.channel_url}`;
+                                const yt_video_title = `${string_ellipses(queue_item.metadata.videoInfo.videoDetails.title, 50)}`;
+                                const yt_video_link = `https://youtu.be/${queue_item.metadata.videoInfo.videoDetails.videoId}`;
+                                const yt_channel_title = `${string_ellipses(queue_item.metadata.videoInfo.videoDetails.author.name, 50)}`;
+                                const yt_channel_link = `${queue_item.metadata.videoInfo.videoDetails.author.channel_url}`;
                                 return {
                                     name:`[ ${index + 1} ] ${queue_item.type}`.toUpperCase(),
                                     value:`[${yt_video_title}](${yt_video_link}) by [${yt_channel_title}](${yt_channel_link})`

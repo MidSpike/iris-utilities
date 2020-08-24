@@ -9,14 +9,22 @@ const { GuildConfigManipulator } = require('./GuildConfig.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+/**
+ * Creates an interface for controlling and interacting with the Queue of a Guild
+ * @param {Guild} guild 
+ * @returns {QueueManager} 
+ */
 class QueueManager {
+    #guild; // for future usage
     #allowed_loop_types = ['single', 'multiple', 'shuffle'];
     #queue = [];
     #last_removed = undefined;
     #loop_enabled = false;
-    #loop_type = 'single'; // Can be any of this.#allowed_loop_types
+    #loop_type = 'single'; // can be any of this.#allowed_loop_types
     #autoplay_enabled = false;
-    constructor() {}
+    constructor(guild) {
+        this.#guild = guild;
+    }
     get queue() {
         return this.#queue;
     }
