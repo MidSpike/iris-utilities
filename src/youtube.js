@@ -101,6 +101,7 @@ async function playYouTube(message, search_query, playnext=false) {
     }
 
     async function _play_as_video(video_id, send_embed=true) {
+        if (!video_id) throw new Error(`'video_id' must be defined`);
         const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(video_id)}`);
         const yt_video_info = youtube_playlist_api_response?.data;
         const voice_connection = await createConnection(voice_channel);
@@ -117,9 +118,7 @@ async function playYouTube(message, search_query, playnext=false) {
             }, message));
             return; // Don't allow live streams to play
         }
-        if (!search_message.deleted) {
-            search_message.delete({timeout:500}).catch(console.warn);
-        }
+        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
         const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.0, () => {
             sendYtDiscordEmbed(message, yt_video_info, 'Playing');
         }, async () => {
@@ -142,9 +141,7 @@ async function playYouTube(message, search_query, playnext=false) {
         const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=25&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`;
         const yt_playlist_response = await axios.get(yt_playlist_api_url);
         const playlist_items = yt_playlist_response.data.items;
-        if (!search_message.deleted) {
-            search_message.delete({timeout:500}).catch(console.warn);
-        }
+        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
         const confirmEmbed = new CustomRichEmbed({
             title:`Do you want this to play as a playlist?`,
             description:[
@@ -157,20 +154,35 @@ async function playYouTube(message, search_query, playnext=false) {
                 emoji_name:'bot_emoji_checkmark',
                 callback:async (options_message, collected_reaction, user) => {
                     await options_message.delete({timeout:500}).catch(console.warn);
-                    await options_message.channel.send(new CustomRichEmbed({title:'Started playing as a playlist'}, message));
-                    for (const index in playlist_items) {
-                        if (index > 0 && !options_message.guild.me?.voice?.connection) break; // Stop the loop
-                        const playlist_item = playlist_items[index];
-                        const playlist_item_video_id = playlist_item.snippet.resourceId.videoId;
-                        _play_as_video(playlist_item_video_id, false);
-                        await Timer(10000); // Add an item every 10 seconds
+                    await options_message.channel.send(new CustomRichEmbed({
+                        title:`Started adding ${playlist_items.length} item(s) to the playlist!`
+                    }, message));
+                    for (const playlist_item of playlist_items) {
+                        /* make sure the bot is still in a voice channel */
+                        if (options_message.guild.me?.voice?.connection) {
+                            const playlist_item_video_id = playlist_item.snippet.resourceId.videoId;
+                            _play_as_video(playlist_item_video_id, false);
+                        } else {
+                            break;
+                        }
+                        await Timer(10_000); // Add an item every 10 seconds
                     }
                 }
             }, {
                 emoji_name:'bot_emoji_close',
                 callback:async (options_message, collected_reaction, user) => {
-                    options_message.delete({timeout:500}).catch(console.warn);
-                    _play_as_video(await _get_video_id_from_query(search_query));
+                    await options_message.delete({timeout:500}).catch(console.warn);
+                    const potential_video_id = await _get_video_id_from_query(search_query);
+                    if (potential_video_id) {
+                        _play_as_video(potential_video_id);
+                    } else {
+                        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
+                        message.channel.send(new CustomRichEmbed({
+                            color:0xFFFF00,
+                            title:`Uh Oh! ${message.author.username}`,
+                            description:`I'm unable to play that!`
+                        }, message));
+                    }
                 }
             }
         ]);
@@ -194,7 +206,7 @@ async function playYouTube(message, search_query, playnext=false) {
     } else if (potential_video_id) { // The search_query is a video
         await _play_as_video(potential_video_id);
     } else {
-        if (!search_message.deleted) search_message.delete({timeout:500}).catch(console.warn);
+        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
         message.channel.send(new CustomRichEmbed({
             color:0xFFFF00,
             title:`Uh Oh! ${message.author.username}`,

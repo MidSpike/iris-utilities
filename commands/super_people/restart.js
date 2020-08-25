@@ -27,8 +27,8 @@ module.exports = new DisBotCommand({
             sendNotAllowedCommand(message);
             return;
         }
-        const num_active_voices = client.voice?.connections?.size;
-        const active_voice_guilds = client.voice?.connections?.map(connection => connection.channel.guild);
+        const num_active_voices = client.voice.connections?.size;
+        const active_voice_guilds = client.voice.connections?.map(connection => connection.channel.guild) ?? [];
         sendConfirmationEmbed(message.author.id, message.channel.id, false, new CustomRichEmbed({
             title:`Do you want to restart ${bot_common_name}`,
             description:`${num_active_voices > 0 ? '```fix\n' : ''}There ${num_active_voices === 1 ? 'is' : 'are'} ${num_active_voices} active voice connection${num_active_voices === 1 ? '' : 's'} right now.${num_active_voices > 0 ? '\n```' : ''}`,
