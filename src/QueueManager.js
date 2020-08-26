@@ -1,6 +1,8 @@
 'use strict';
 
-const { random_range_inclusive, array_insert, array_shuffle } = require('../utilities.js');
+const { random_range_inclusive,
+        array_insert,
+        array_shuffle } = require('../utilities.js');
 
 const { disBotServers } = require('./SHARED_VARIABLES.js');
 const { createConnection } = require('./createConnection.js');

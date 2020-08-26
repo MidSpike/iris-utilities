@@ -221,9 +221,6 @@ client.on('ready', async () => {
         }
     });
 
-    /* set the client presence to indicate a restart has just happened */
-    client.user.setPresence({type:4, activity:{name:`Just restarted!`}});
-
     /* update the client presence with various helpful information */
     let presenceMode = 'mention'; // can be [ mention | uptime | creator | mention_me | version | guilds | users ]
     client.setTimeout(() => { // wait after a restart before updating the presence

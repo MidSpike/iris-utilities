@@ -7,14 +7,18 @@ const youtubeSearch = require('youtube-search');
 const ytSearchBackup = require('yt-search');
 const videoIdFromYouTubeURL = require(`parse-video-id-from-yt-url`);
 
-const { Timer, array_random } = require('../utilities.js');
+const { Timer,
+        array_random } = require('../utilities.js');
 
 const { disBotServers } = require('./SHARED_VARIABLES.js');
+
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 const { findCustomEmoji } = require('./emoji.js');
-const { QueueItem, QueueItemPlayer } = require('./QueueManager.js');
 const { createConnection } = require('./createConnection.js');
-const { sendOptionsMessage, sendYtDiscordEmbed } = require('./messages.js');
+const { QueueItem,
+        QueueItemPlayer } = require('./QueueManager.js');
+const { sendOptionsMessage,
+        sendYtDiscordEmbed } = require('./messages.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
