@@ -1,18 +1,20 @@
 'use strict';
 
-const moment = require('moment-timezone');
 const nodeEmoji = require('node-emoji');
-
-const { Timer, getReadableTime } = require('../utilities.js');
-
-const { client } = require('./bot.js');
 
 const bot_config = require('../config.json');
 
+const { Timer,
+        getReadableTime } = require('../utilities.js');
+
+const { client } = require('./bot.js');
+
 const { disBotServers } = require('./SHARED_VARIABLES.js');
+
 const { GuildConfigManipulator } = require('./GuildConfig.js');
-const { findCustomEmoji, constructNumberUsingEmoji } = require('./emoji.js');
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
+const { findCustomEmoji,
+        constructNumberUsingEmoji } = require('./emoji.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
