@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 const client = new Discord.Client({
-    disableMentions: 'all',
+    disableMentions: 'everyone',
     partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
     presence: {
         status: 'online',
