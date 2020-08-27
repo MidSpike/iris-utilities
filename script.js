@@ -38,6 +38,7 @@ const bot_version = bot_config.public_version;
 const bot_website = bot_config.website;
 const bot_default_guild_config = bot_config.default_guild_config;
 const bot_support_guild_invite_url = bot_config.support_guild_invite_url;
+const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
 const bot_logging_guild_id = process.env.BOT_LOGGING_GUILD_ID;
 const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
 const bot_cdn_url = process.env.BOT_CDN_URL;
@@ -728,7 +729,7 @@ client.on('message', async message => {
         }
     }
     if (message.channel.type === 'dm') {
-        const dmEmbed = new CustomRichEmbed({
+        const dm_embed = new CustomRichEmbed({
             color:0xBBBBBB,
             author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
             description:`${message.cleanContent}`,
@@ -744,10 +745,10 @@ client.on('message', async message => {
                 text:`[Direct Message]: ${moment()}`
             }
         });
-        const bot_logging_guild = client.guilds.cache.get(bot_logging_guild_id);
+        const bot_logging_guild = client.guilds.cache.get(bot_support_guild_id);
         const potential_central_dm_channel_with_user = bot_logging_guild.channels.cache.find(channel => channel.name === `dm-${message.author.id}`);
         if (potential_central_dm_channel_with_user) {
-            potential_central_dm_channel_with_user.send(dmEmbed);
+            potential_central_dm_channel_with_user.send(dm_embed);
         } else {
             await message.channel.send(new CustomRichEmbed({
                 title:`Opening Chat With ${bot_common_name} Staff`,
@@ -758,12 +759,12 @@ client.on('message', async message => {
                 topic:`${message.author.tag} (${message.author.id}) | ${moment()}`
             }).catch(console.trace);
             await central_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID).catch(console.trace);
-            await Timer(500); // For some reason Discord.js needs a little bit to recognise the new parent of the channel, therefore this delay exists
+            await Timer(750); // For some reason Discord.js needs a little bit to recognise the new parent of the channel, therefore this delay exists
             await central_dm_channel_with_user.lockPermissions().catch(console.trace);
             await central_dm_channel_with_user.send(new CustomRichEmbed({
                 title:`Opened DM with: ${message.author.tag} (${message.author.id})`
             }));
-            await central_dm_channel_with_user.send(dmEmbed);
+            await central_dm_channel_with_user.send(dm_embed);
         }
     }
 });
