@@ -24,7 +24,7 @@ module.exports = new DisBotCommand({
         }
         await message.reply(`Reloading All Command Files`);
         try {
-            for (const command_to_reload of DisBotCommander.commands) {
+            for (const command_to_reload of DisBotCommander.commands.values()) {
                 const command_files_directory_path = path.join(process.cwd(), './commands/');
                 const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
     

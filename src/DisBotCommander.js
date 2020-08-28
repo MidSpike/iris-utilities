@@ -1,5 +1,9 @@
 'use strict';
 
+const { Discord } = require('./bot.js');
+
+//---------------------------------------------------------------------------------------------------------------//
+
 /**
  * Parses message_content for the command used
  * @param {String} message_content 
@@ -101,14 +105,13 @@ class DisBotCommander {
         BOT_OWNER:'Bot Owner Commands',
         HIDDEN:'Hidden Commands',
     };
-    static #commands = [];
+    static #commands = new Discord.Collection();
     static get commands() {
         return this.#commands;
     }
     static registerCommand(command) {
         if (command instanceof DisBotCommand) {
-            this.#commands = this.commands.filter(cmd => cmd.name !== command.name); // Allow commands to be replaced
-            this.#commands.push(command);
+            this.#commands.set(command.name, command);
         } else {
             throw new TypeError(`'command' should be an instance of the DisBotCommand type!`);
         }
