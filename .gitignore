@@ -23,3 +23,8 @@ private
 
 # wildcard for any file / directory starting with '__'
 __*
+
+# Whitelisted Files
+!start_all.bat
+!start_bot.bat
+!start_server.bat
