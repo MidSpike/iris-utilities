@@ -15,10 +15,10 @@ const moment = require('moment-timezone');
 //---------------------------------------------------------------------------------------------------------------//
 
 const { Discord,
-        client } = require('./src/bot.js');
+        client } = require('./src/libs/bot.js');
 
 const { Timer,
-        getReadableTime } = require('./utilities.js');
+        getReadableTime } = require('./src/utilities.js');
 
 const SHARED_VARIABLES = require('./src/SHARED_VARIABLES.js');
 
@@ -75,32 +75,27 @@ const bot_central_anonymous_command_log_channel_id = process.env.BOT_LOGGING_CHA
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const { CustomRichEmbed } = require('./src/CustomRichEmbed.js');
+const { CustomRichEmbed } = require('./src/libs/CustomRichEmbed.js');
 
-const { logUserError } = require('./src/errors.js');
+const { logUserError } = require('./src/libs/errors.js');
 
-const { logAdminCommandsToGuild } = require('./src/messages.js');
+const { logAdminCommandsToGuild } = require('./src/libs/messages.js');
 
-const { GuildConfigManipulator } = require('./src/GuildConfig.js');
+const { GuildConfigManipulator } = require('./src/libs/GuildConfig.js');
 
-const { QueueManager } = require('./src/QueueManager.js');
-const { AudioController } = require('./src/AudioController.js');
-const { VolumeManager } = require('./src/VolumeManager.js');
+const { QueueManager } = require('./src/libs/QueueManager.js');
+const { AudioController } = require('./src/libs/AudioController.js');
+const { VolumeManager } = require('./src/libs/VolumeManager.js');
 
 const { isThisBot,
         isThisBotsOwner,
         isSuperPerson,
-        isSuperPersonAllowed } = require('./src/permissions.js');
-
-
-
-
-
+        isSuperPersonAllowed } = require('./src/libs/permissions.js');
 
 const { getDiscordCommand,
         getDiscordCommandArgs,
         DisBotCommand,
-        DisBotCommander } = require('./src/DisBotCommander.js');
+        DisBotCommander } = require('./src/libs/DisBotCommander.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -1066,10 +1061,10 @@ client.on('message', async message => {
 
 /* register the commands */
 try {
-    const command_files_directory_path = path.join(process.cwd(), './commands/');
+    const command_files_directory_path = path.join(process.cwd(), './src/commands/');
     const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
     for (const command_file of command_files) {
-        const command_file_path = path.join(process.cwd(), './commands/', command_file);
+        const command_file_path = path.join(process.cwd(), './src/commands/', command_file);
         const command_to_register = require(command_file_path);
         DisBotCommander.registerCommand(command_to_register);
     }
