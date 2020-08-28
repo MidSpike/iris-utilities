@@ -18,13 +18,20 @@ module.exports = new DisBotCommand({
     aliases:['reload'],
     access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
-        const { command_args } = opts;
+        const { command_prefix, command_args } = opts;
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'reload')) {
             sendNotAllowedCommand(message);
             return;
         }
-        const command_to_search_for = `${command_args[0]}`;
-        const command_to_reload = DisBotCommander.commands.find(cmd => cmd.name.toLowerCase() === command_to_search_for.toLowerCase());
+
+        const specified_command_input = `${command_args[0]}`.toLowerCase();
+        const specified_command_input_with_prefix = specified_command_input.startsWith(command_prefix) ? specified_command_input : `${command_prefix}${specified_command_input}`;
+        const command_to_reload = DisBotCommander.commands.find(cmd => 
+            cmd.aliases.map(cmd => 
+                `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
+            ).includes(specified_command_input_with_prefix)
+        );
+
         if (command_to_reload) {
             const command_files_directory_path = path.join(process.cwd(), './commands/');
             const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));

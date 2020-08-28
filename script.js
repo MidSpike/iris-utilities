@@ -948,7 +948,11 @@ client.on('message', async message => {
     }
 
     /* check for valid command */
-    const command = DisBotCommander.commands.find(cmd => cmd.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`).includes(discord_command));
+    const command = DisBotCommander.commands.find(cmd => 
+        cmd.aliases.map(cmd => 
+            `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
+        ).includes(discord_command)
+    );
     if (!command) {
         message.channel.send(new CustomRichEmbed({
             title:`That command doesn't exist!`,
