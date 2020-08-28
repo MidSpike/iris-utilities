@@ -52,7 +52,7 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
     const server = disBotServers[message.guild.id];
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${remote_mp3_path}`;
-    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.0, () => {
+    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 5.0, () => {
         message.channel.send(new CustomRichEmbed({
             title:'Playing A MP3 File From The Internet',
             description:`${'```'}\n${remote_mp3_path}\n${'```'}`
@@ -77,7 +77,7 @@ async function playUserUploadedMP3(message, playnext=false) {
         if (message_media.attachment.endsWith('.mp3')) {
             const voice_connection = await createConnection(message.member.voice.channel);
             const stream_maker = () => `${message_media.attachment}`;
-            const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.0, () => {
+            const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 5.0, () => {
                 message.channel.send(new CustomRichEmbed({
                     title:'Playing A MP3 File From Their Computer',
                     description:`${'```'}\n${message_media.name}${'```'}`
@@ -125,7 +125,7 @@ async function playBroadcastify(message, search_query, playnext=false) {
     const broadcast_url = `https://broadcastify.cdnstream1.com/${broadcast_id}`;
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${broadcast_url}`;
-    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.5, () => {
+    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 5.0, () => {
         message.channel.send(new CustomRichEmbed({
             title:'Playing Broadcastify Stream',
             description:`[Stream Link - ${broadcast_id}](${broadcast_url})`
