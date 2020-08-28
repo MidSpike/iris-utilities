@@ -69,7 +69,11 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, new CustomRichEmbed({title:`Are you sure you want to ban @${user_to_ban.tag}?`}), async () => {
+        const confirm_embed = new CustomRichEmbed({
+            title:`Are you sure you want to ban @${user_to_ban.tag}?`
+        }, message);
+
+        sendConfirmationEmbed(message.author.id, message.channel.id, true, confirm_embed, async () => {
             const guild_member_to_ban = message.guild.members.resolve(user_to_ban.id);
             if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
                 const dm_channel = await user_to_ban.createDM();
@@ -92,10 +96,10 @@ module.exports = new DisBotCommand({
             }).then(() => {
                 message.channel.send(new CustomRichEmbed({
                     title:`@${user_to_ban.tag} has been banned!`
-                })).catch(console.warn);
+                }, message)).catch(console.warn);
                 logAdminCommandsToGuild(message, new CustomRichEmbed({
                     title:`@${message.author.tag} (${message.author.id}) banned @${user_to_ban.tag} (${user_to_ban.id}) from the server!`
-                }));
+                }, message));
             }).catch(() => {
                 logUserError(message, error);
             });
