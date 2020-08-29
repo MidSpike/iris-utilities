@@ -1,10 +1,11 @@
 'use strict';
 
-const { random_range_inclusive,
-        array_insert,
-        array_shuffle } = require('../utilities.js');
+const { array_insert,
+        array_shuffle,
+        random_range_inclusive } = require('../utilities.js');
 
-const { disBotServers } = require('../SHARED_VARIABLES.js');
+const SHARED_VARIABLES = require('../SHARED_VARIABLES.js');
+
 const { createConnection } = require('./createConnection.js');
 const { playStream } = require('./playStream.js');
 const { GuildConfigManipulator } = require('./GuildConfig.js');
@@ -108,7 +109,7 @@ class QueueItemPlayer {
         this.error_callback = typeof error_callback === 'function' ? error_callback : (() => {});
         return async () => {
             const guild = this.voice_connection.channel.guild;
-            const server = disBotServers[guild.id];
+            const server = SHARED_VARIABLES.disBotServers[guild.id];
             const guild_config_manipulator = new GuildConfigManipulator(guild.id);
             const guild_config = guild_config_manipulator.config;
             const guild_tts_provider = guild_config.tts_provider;
@@ -122,7 +123,7 @@ class QueueItemPlayer {
                     setTimeout(() => {
                         if (this.queue_manager.queue.length === 0 && voice_connection && (!this.queue_manager.loop_enabled || !this.queue_manager.autoplay_enabled)) {
                             if (guild_config.disconnect_tts_voice === 'enabled') { // Play TTS before disconnecting
-                                const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
+                                const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
                                 playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
                                     server.audio_controller.disconnect();
                                 });
@@ -145,7 +146,7 @@ class QueueItemPlayer {
                     if (this.queue_manager.queue.length > 0) {// The queue is not empty so continue playing
                         if (guild_config.queue_tts_voice === 'enabled') {
                             const speak_text = `Next Up: ${this.queue_manager.queue[0].description}`;
-                            const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(speak_text)}`;
+                            const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(speak_text)}`;
                             playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
                                 this.queue_manager.queue[0].player();
                             });
