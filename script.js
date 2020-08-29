@@ -115,7 +115,6 @@ async function updateGuildConfig(guild) {
     }
 
     if (guild.partial) await guild.fetch().catch(console.warn);
-    if (guild.owner.partial) guild.owner.fetch().catch(console.warn);
 
     const guild_config_manipulator = new GuildConfigManipulator(guild.id);
     const old_guild_config = guild_config_manipulator.config;
@@ -326,7 +325,6 @@ client.on('guildUpdate', async (old_guild, new_guild) => {
 
 client.on('guildCreate', async guild => {
     if (guild.partial) guild.fetch().catch(console.warn);
-    if (guild.owner.partial) guild.owner.fetch().catch(console.warn);
 
     const central_guild_history_logging_channel = client.channels.cache.get(bot_central_guild_history_channel_id);
     central_guild_history_logging_channel?.send(new CustomRichEmbed({
