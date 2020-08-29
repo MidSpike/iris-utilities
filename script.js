@@ -396,14 +396,12 @@ client.on('guildCreate', async guild => {
 
         /* the voice channel containing the most guild admins that aren't bots */
         const voice_channel_to_send_tts_to = guild_voice_channels.reduce((a, c) => {
-            console.log(`a:`, a, `c:`, c);
             const a_num_admins_in_vc = a.members.filter(m => !m.user.bot && m.hasPermission('ADMINISTRATOR')).size;
             const c_num_admins_in_vc = c.members.filter(m => !m.user.bot && m.hasPermission('ADMINISTRATOR')).size;
             return c_num_admins_in_vc > a_num_admins_in_vc ? c : a;
         }, first_voice_channel_in_guild);
 
         if (voice_channel_to_send_tts_to.members.size > 0) {
-            console.log(`voice_channel_to_send_tts_to:`, voice_channel_to_send_tts_to);
             playStream(await createConnection(voice_channel_to_send_tts_to, true), tts_url_english, 5.0, undefined, () => {
                 SHARED_VARIABLES.disBotServers[guild.id].audio_controller.disconnect();
             });
