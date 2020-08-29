@@ -14,15 +14,19 @@ const moment = require('moment-timezone');
 
 //---------------------------------------------------------------------------------------------------------------//
 
+const bot_config = require('./config.json');
+
+const SHARED_VARIABLES = require('./src/SHARED_VARIABLES.js');
+
 const { Discord,
         client } = require('./src/libs/bot.js');
 
 const { Timer,
         getReadableTime } = require('./src/utilities.js');
 
-const SHARED_VARIABLES = require('./src/SHARED_VARIABLES.js');
+const { playStream } = require('./src/libs/playStream.js');
 
-const bot_config = require('./config.json');
+const { createConnection } = require('./src/libs/createConnection.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -101,7 +105,7 @@ const { getDiscordCommand,
 
 async function updateGuildConfig(guild) {
     if (!guild) {
-        console.error('MAJOR ISSUE: Guild is not defined!');
+        console.trace('MAJOR ISSUE: `guild` is not defined!');
         return;
     }
 
@@ -111,6 +115,7 @@ async function updateGuildConfig(guild) {
     }
 
     if (guild.partial) await guild.fetch().catch(console.warn);
+    if (guild.owner.partial) guild.owner.fetch().catch(console.warn);
 
     const guild_config_manipulator = new GuildConfigManipulator(guild.id);
     const old_guild_config = guild_config_manipulator.config;
@@ -144,7 +149,7 @@ async function updateGuildConfig(guild) {
 
 async function add_guild_to_disBotServers(guild) {
     if (!guild) {
-        console.error('MAJOR ISSUE: Guild is not defined!');
+        console.trace('MAJOR ISSUE: Guild is not defined!');
         return;
     }
 
@@ -321,8 +326,7 @@ client.on('guildUpdate', async (old_guild, new_guild) => {
 
 client.on('guildCreate', async guild => {
     if (guild.partial) guild.fetch().catch(console.warn);
-
-    if (!guild.available) return;
+    if (guild.owner.partial) guild.owner.fetch().catch(console.warn);
 
     const central_guild_history_logging_channel = client.channels.cache.get(bot_central_guild_history_channel_id);
     central_guild_history_logging_channel?.send(new CustomRichEmbed({
@@ -332,11 +336,16 @@ client.on('guildCreate', async guild => {
         footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${moment()}`}
     }));
 
+    /* do not move these */
+    updateGuildConfig(guild);
+    add_guild_to_disBotServers(guild);
+
+    /* send a text message to the most likely bot-channel in the guild, falling back to the owner of the guild */
     const viewable_text_channels = guild.channels.cache.filter(c => c.type === 'text' && c.viewable && c.permissionsFor(guild.me).has('SEND_MESSAGES'));
     const potential_bot_commands_channel = viewable_text_channels.filter(c => ['bot-commands', 'commands', 'bot'].includes(c.name)).first();
     const potential_general_channel = viewable_text_channels.filter(c => ['general-chat', 'general', 'chat'].includes(c.name)).first();
     const fallback_first_available_channel = viewable_text_channels.first();
-    const channel_to_send_initial_message = potential_bot_commands_channel ?? potential_general_channel ?? fallback_first_available_channel;
+    const channel_to_send_initial_message = potential_general_channel ?? potential_bot_commands_channel ?? fallback_first_available_channel;
     const new_guild_information_embed = new CustomRichEmbed({
         title:`Hello there ${guild.name}!`,
         description:[
@@ -350,7 +359,6 @@ client.on('guildCreate', async guild => {
         ].join(`\n\n`),
         image:`${bot_cdn_url}/new_guild_information_2020-06-27_1.png`
     });
-
     try {
         channel_to_send_initial_message.send(new_guild_information_embed);
     } catch {
@@ -366,9 +374,6 @@ client.on('guildCreate', async guild => {
             console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the owner!`);
         }
     }
-    
-    updateGuildConfig(guild);
-    add_guild_to_disBotServers(guild);
 });
 
 client.on('guildDelete', async guild => {

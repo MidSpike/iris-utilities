@@ -19,7 +19,7 @@ const moment = require('moment-timezone');
 
 const bot_config = require('../../../config.json');
 
-const { Timer } = require('../../utilities.js');
+const { Timer, pseudoUniqueId } = require('../../utilities.js');
 const { logUserError } = require('../../libs/errors.js');
 const { generateInviteToGuild } = require(`../../libs/invites.js`);
 
