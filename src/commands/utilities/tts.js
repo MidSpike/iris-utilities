@@ -5,11 +5,13 @@ const axios = require('axios');
 
 const bot_config = require('../../../config.json');
 
+const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
+
 const { array_chunks } = require('../../utilities.js');
+
 const { QueueItem, QueueItemPlayer } = require('../../libs/QueueManager.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { createConnection } = require('../../libs/createConnection.js');
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 
 const google_languages_json = require('../../../files/google_languages.json');
@@ -28,7 +30,7 @@ const tts_opts_template = {
 async function playTTS(voice_channel, tts_text='Hello World! This Is The Default Text!', options=tts_opts_template) {
     const _options = {...tts_opts_template, ...options};
 
-    const server = disBotServers[voice_channel.guild.id];
+    const server = SHARED_VARIABLES.disBotServers[voice_channel.guild.id];
 
     const provider = _options.provider ?? 'ibm';
     const voice = _options.voice ?? (provider === 'google' ? 'en-us' : 'en-US_EmilyV3Voice');
@@ -41,7 +43,7 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
         return error;
     }
 
-    const stream = `${process.env.BOT_API_SERVER_URL}/speech?type=${provider}&lang=${encodeURI(voice)}&text=${encodeURI(tts_text)}`;
+    const stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${provider}&lang=${encodeURI(voice)}&text=${encodeURI(tts_text)}`;
     const stream_maker = () => stream;
 
     const {start_callback, end_callback, error_callback} = _options.callbacks;

@@ -105,10 +105,10 @@ async function playYouTube(message, search_query, playnext=false) {
 
     async function _play_as_video(video_id, send_embed=true) {
         if (!video_id) throw new Error(`'video_id' must be defined`);
-        const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?video_id=${encodeURI(video_id)}`);
+        const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&video_id=${encodeURI(video_id)}`);
         const yt_video_info = youtube_playlist_api_response?.data;
         const voice_connection = await createConnection(voice_channel);
-        const stream_maker = () => `${bot_api_url}/ytdl?url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
+        const stream_maker = () => `${bot_api_url}/ytdl?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
         if (parseInt(yt_video_info.videoDetails.lengthSeconds) === 0) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
