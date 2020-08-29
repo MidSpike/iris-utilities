@@ -10,6 +10,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 
+const moment = require('moment-timezone');
+
 const GoogleTranslate = require('translate-google');
 
 const SpongeBobMock = require('spmock');
@@ -189,4 +191,22 @@ app.listen(app.get('port'), () => {
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     console.log(`Started Bot Server On Port: ${app.get('port')}`);
     console.log(`----------------------------------------------------------------------------------------------------------------`);
+});
+
+//---------------------------------------------------------------------------------------------------------------//
+
+/* prevent the api server from crashing for unhandledRejections */
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('----------------------------------------------------------------------------------------------------------------');
+    console.error(`${moment()}`);
+    console.trace('unhandledRejection at:', reason?.stack ?? reason, promise);
+    console.error('----------------------------------------------------------------------------------------------------------------');
+});
+
+/* prevent the api server from crashing for uncaughtExceptions */
+process.on('uncaughtException', (error) => {
+    console.error('----------------------------------------------------------------------------------------------------------------');
+    console.error(`${moment()}`);
+    console.trace('uncaughtException at:', error);
+    console.error('----------------------------------------------------------------------------------------------------------------');
 });
