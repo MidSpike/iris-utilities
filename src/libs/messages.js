@@ -7,9 +7,9 @@ const bot_config = require('../../config.json');
 const { Timer,
         getReadableTime } = require('../utilities.js');
 
-const { client } = require('./bot.js');
-
 const { disBotServers } = require('../SHARED_VARIABLES.js');
+
+const { client } = require('./bot.js');
 
 const { GuildConfigManipulator } = require('./GuildConfig.js');
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
@@ -88,7 +88,7 @@ const options_message_reactions_template = [
  * @param {String} confirmation_user_id 
  */
 async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
-    const options_message = await client.channels.cache.get(channel_id).send(embed);
+    const options_message = await client.channels.cache.get(channel_id).send(embed).catch(console.warn);
     const reaction_promises = reaction_options.map(reaction_option => async () => { // This needs to be a synchronous lambda returning an asynchronous lambda
         const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? nodeEmoji.emojify(nodeEmoji.get(reaction_option.emoji_name));
         if (!reaction_option_emoji) return;
