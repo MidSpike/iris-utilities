@@ -14,6 +14,9 @@
 # vscode configs
 .vscode
 
+# vscode extensions
+.VSCodeCounter
+
 # node stuff
 node_modules
 npm
