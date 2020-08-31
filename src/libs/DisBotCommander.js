@@ -27,20 +27,20 @@ function getDiscordCommandArgs(message_content) {
  */
 class DisBotCommand {
     static access_levels = {
-        GLOBAL_USER:1,
-        // GLOBAL_DONATOR:250, // reserved for potential future usage
-        GUILD_MOD:500,
-        GUILD_ADMIN:1_000,
-        BOT_SUPER:5_000,
-        BOT_OWNER:10_000,
+        GLOBAL_USER: 1,
+        // GLOBAL_DONATOR: 250, // reserved for potential future usage
+        GUILD_MOD: 500,
+        GUILD_ADMIN: 1_000,
+        BOT_SUPER: 5_000,
+        BOT_OWNER: 10_000
     };
     #cmd_template = {
-        name:'',
-        category:'',
-        weight:9999,
-        description:'',
-        aliases:[],
-        access_level:DisBotCommand.access_levels.GLOBAL_USER,
+        name: '',
+        category: '',
+        weight: 9999,
+        description: '',
+        aliases: [],
+        access_level: DisBotCommand.access_levels.GLOBAL_USER,
         executor(Discord, client, message, opts={}) {}
     };
     /**
@@ -94,16 +94,16 @@ class DisBotCommand {
  */
 class DisBotCommander {
     static categories = {
-        HELP:'Help Commands',
-        INFO:'Bot Info',
-        MUSIC:'YouTube, Music Controls, And More',
-        FUN:'Fun Stuff',
-        UTILITIES:'Utilities',
-        ADMINISTRATOR:'Administrative Powers',
-        GUILD_SETTINGS:'Server Management',
-        SUPER_PEOPLE:'Super People Commands',
-        BOT_OWNER:'Bot Owner Commands',
-        HIDDEN:'Hidden Commands',
+        HELP: 'Help Commands',
+        INFO: 'Bot Info',
+        MUSIC: 'YouTube, Music Controls, And More',
+        FUN: 'Fun Stuff',
+        UTILITIES: 'Utilities',
+        ADMINISTRATOR: 'Administrative Powers',
+        GUILD_SETTINGS: 'Server Management',
+        SUPER_PEOPLE: 'Super People Commands',
+        BOT_OWNER: 'Bot Owner Commands',
+        HIDDEN: 'Hidden Commands'
     };
     static #commands = new Discord.Collection();
     static get commands() {
