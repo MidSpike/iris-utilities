@@ -8,7 +8,7 @@ const client = new Discord.Client({
     presence: {
         status: 'online',
         type: 4,
-        activity:{
+        activity: {
             type: 'PLAYING',
             name: 'Just restarted!'
         }
