@@ -10,11 +10,11 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 const bot_cdn_url = process.env.BOT_CDN_URL;
 
 module.exports = new DisBotCommand({
-    name:'PRIVACY_DISCLAIMER',
+    name:'DISCLAIMER',
     category:`${DisBotCommander.categories.INFO}`,
     weight:5,
     description:'Shows the user the privacy disclaimer',
-    aliases:['privacy_disclaimer'],
+    aliases:['disclaimer', 'privacy'],
     async executor(Discord, client, message, opts={}) {
         await message.channel.send(new CustomRichEmbed({
             title:'Privacy Disclaimer Inbound!',
