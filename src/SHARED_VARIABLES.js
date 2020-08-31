@@ -4,7 +4,7 @@ const lockdown_mode = false;
 const restarting_bot = false;
 
 const disBotServers = {/*
-    'guild_id':{
+    'guild_id': {
         queue_manager,
         volume_manager,
         audio_controller,
