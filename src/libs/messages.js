@@ -77,8 +77,15 @@ function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selecti
 }
 
 const options_message_reactions_template = [
-    {emoji_name:'bot_emoji_checkmark', cooldown:undefined, callback:(options_message, collected_reaction, user)=>{}},
-    {emoji_name:'bot_emoji_close', cooldown:undefined, callback:(options_message, collected_reaction, user)=>{}}
+    {
+        emoji_name: 'bot_emoji_checkmark',
+        cooldown: 1500,
+        callback(options_message, collected_reaction, user) {}
+    }, {
+        emoji_name: 'bot_emoji_close',
+        cooldown: 1500,
+        callback(options_message, collected_reaction, user) {}
+    }
 ];
 /**
  * 
@@ -86,46 +93,46 @@ const options_message_reactions_template = [
  * @param {MessageEmbed} embed 
  * @param {options_message_reactions_template} reaction_options 
  * @param {String} confirmation_user_id 
+ * @returns {Message} options_message after attempting to add all reactions
  */
 async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
     const options_message = await client.channels.cache.get(channel_id).send(embed).catch(console.warn);
-    const reaction_promises = reaction_options.map(reaction_option => async () => { // This needs to be a synchronous lambda returning an asynchronous lambda
+    if (!options_message) throw new Error(`Unable to send options_message!`);
+
+    for (const reaction_option of reaction_options) { // execute each reaction sequentially
+        if (options_message.deleted) break; // don't add reactions to deleted messages
+
         const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? nodeEmoji.emojify(nodeEmoji.get(reaction_option.emoji_name));
-        if (!reaction_option_emoji) return;
-        if (options_message.deleted) return; // Don't add reactions to deleted messages
+        if (!reaction_option_emoji) {
+            console.error(`An invalid reaction was passed to 'sendOptionsMessage': ${reaction_option.emoji_name}`)
+            continue; // the remaining reactions might be valid so continue
+        }
+
         let bot_reaction;
         try {
             bot_reaction = await options_message.react(reaction_option_emoji);
-        } catch { // The most likely exception thrown will be the message was deleted and the reaction can't be added
+        } catch { // the most likely exception thrown will be the message was deleted and the reaction can't be added
             console.warn(`Unable to add reaction: ${reaction_option_emoji}`);
+            break; // there is no reason to continue trying to add reactions after a failed attempt
         }
-        const filter = (user_reaction, user) => {
-            const isNotBot = !user.bot;
-            const emojiMatches = bot_reaction.emoji.name === user_reaction.emoji.name;
-            const confirmationUserMatches = confirmation_user_id ? confirmation_user_id === user.id : true;
-            return (isNotBot && emojiMatches && confirmationUserMatches);
-        };
+
         const cooldown_time_ms = reaction_option.cooldown ?? 1500;
         let last_time_of_action = Date.now() - cooldown_time_ms; // subtract the cooldown so that the button can be pressed immediately after it shows up
-        function _isLastTimeOfActionRecent() {
+        const options_message_reaction_collector = options_message.createReactionCollector((user_reaction, user) => {
+            const is_not_bot = !user.bot;
+            const emoji_matches = bot_reaction.emoji.name === user_reaction.emoji.name;
+            const confirmation_user_matches = confirmation_user_id ? confirmation_user_id === user.id : true;
+            return (is_not_bot && emoji_matches && confirmation_user_matches);
+        });
+        options_message_reaction_collector.on('collect', (collected_reaction, user) => {
             const recent_time_of_action = Date.now();
-            if (recent_time_of_action - last_time_of_action < cooldown_time_ms) {
-                last_time_of_action = Date.now();
-                return true;
-            } else {
-                last_time_of_action = Date.now();
-                return false;
-            }
-        }
-        options_message.createReactionCollector(filter).on('collect', (collected_reaction, user) => {
-            if (_isLastTimeOfActionRecent()) return; // Force the user to wait before clicking again
+            const last_time_of_action_was_recent = recent_time_of_action - last_time_of_action < cooldown_time_ms;
+            last_time_of_action = Date.now();
+            if (last_time_of_action_was_recent) return; // force the user to wait before clicking the button again
             reaction_option.callback(options_message, collected_reaction, user);
         });
-        return;
-    });
-    for (let reaction_promise of reaction_promises) {// Execute Each Reaction Sequentially
-        await reaction_promise();
     }
+
     return options_message;
 }
 
