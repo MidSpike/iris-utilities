@@ -287,7 +287,7 @@ client.on('invalidated', () => {
     console.warn(`----------------------------------------------------------------------------------------------------------------`);
     console.warn(`Bot session was invalidated!`);
     console.warn(`----------------------------------------------------------------------------------------------------------------`);
-    process.exit(1);
+    process.exit(1); // stop this process and restart it via the .bat script
 });
 
 // client.on('rateLimit', (rateLimit) => {
@@ -326,6 +326,7 @@ client.on('guildUpdate', async (old_guild, new_guild) => {
 client.on('guildCreate', async guild => {
     if (guild.partial) guild.fetch().catch(console.warn);
 
+    /* log to the central logging server when a guild adds the bot to it */
     const central_guild_history_logging_channel = client.channels.cache.get(bot_central_guild_history_channel_id);
     central_guild_history_logging_channel?.send(new CustomRichEmbed({
         color:0x00FF00,
@@ -334,7 +335,7 @@ client.on('guildCreate', async guild => {
         footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${moment()}`}
     }));
 
-    /* do not move these */
+    /* prepare the guild for configs and other runtime variables */
     updateGuildConfig(guild);
     add_guild_to_disBotServers(guild);
 
@@ -411,6 +412,8 @@ client.on('guildCreate', async guild => {
 
 client.on('guildDelete', async guild => {
     if (guild.partial) guild.fetch().catch(console.warn);
+
+    /* log to the central logging server when a guild removes the bot from it */
     client.channels.cache.get(bot_central_guild_history_channel_id).send(new CustomRichEmbed({
         color:0xFFFF00,
         author:{iconURL:guild.iconURL(), name:`${guild?.name} (${guild?.id})`},
@@ -520,7 +523,7 @@ client.on('channelCreate', async channel => {
 client.on('guildMemberAdd', async member => {
     if (member.partial) member.fetch().catch(console.warn);
 
-    if (isThisBot(member.id)) return; // Don't log the bot itself joining... It can happen oddly enough...
+    if (isThisBot(member.id)) return; // don't log this bot joining... it can happen oddly enough...
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
@@ -536,7 +539,7 @@ client.on('guildMemberAdd', async member => {
 client.on('guildMemberRemove', async member => {
     if (member.partial) member.fetch().catch(console.warn);
 
-    if (isThisBot(member.id)) return; // Don't log the bot itself leaving... It can happen oddly enough...
+    if (isThisBot(member.id)) return; // don't log this bot leaving... it can happen oddly enough...
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
@@ -556,8 +559,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (reaction.message.partial) await reaction.message.fetch().catch(console.warn);
     if (user.partial) await user.fetch().catch(console.warn);
 
-    if (user.bot) return; // Don't log bots
-    if (!reaction.message.guild) return; // Don't continue with DM reactions
+    if (user.bot) return; // don't log bots
+    if (!reaction.message.guild) return; // don't continue with direct message reactions
 
     const member = reaction.message.guild.members.cache.get(user.id);
     const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel_name);
@@ -583,8 +586,8 @@ client.on('messageReactionRemove', async (reaction, user) => {
     if (reaction.message.partial) await reaction.message.fetch().catch(console.warn);
     if (user.partial) await user.fetch().catch(console.warn);
 
-    if (user.bot) return; // Don't log bots
-    if (!reaction.message.guild) return; // Don't continue with DM reactions
+    if (user.bot) return; // don't log bots
+    if (!reaction.message.guild) return; // don't continue with direct message reactions
 
     const member = reaction.message.guild.members.cache.get(user.id);
     const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel_name);
@@ -643,18 +646,18 @@ client.on('inviteDelete', async invite => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region bot appeals centre
+/* bot appeals centre handling for freshly banned members */
 client.on('guildMemberAdd', async member => {
     if (member.partial) await member.fetch().catch(console.warn);
 
-    if (member.guild.id !== bot_appeals_guild_id) return; // Check to see if the joined the Bot Appeals Guild
+    if (member.guild.id !== bot_appeals_guild_id) return; // check to see if the joined the Bot Appeals Guild
 
     for (let guild of client.guilds.cache.values()) {
-        await Timer(250); // Prevent Discord API Abuse
+        await Timer(250); // prevent Discord API abuse
         if (!guild.me.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS', 'MANAGE_GUILD', 'VIEW_AUDIT_LOG'])) continue; // DO NOT USE RETURN
         const guild_bans = await guild.fetchBans();
         const is_banned_in_guild = guild_bans.has(member.id);
-        if (is_banned_in_guild) { // The GuildMember is not banned in this server with the bot
+        if (is_banned_in_guild) { // the GuildMember is not banned in this server with the bot
             const guild_with_banned_member = guild;
             const banned_guild_member = member;
             const bot_appeals_guild = client.guilds.cache.get(bot_appeals_guild_id);
@@ -704,35 +707,32 @@ client.on('guildMemberAdd', async member => {
         }
     }
 });
-//#endregion bot appeals centre
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region automatic roles additions
+/* automatic addition of roles */
 client.on('guildMemberAdd', async member => {
     if (member.partial) await member.fetch().catch(console.warn);
 
-    const guild = member.guild;
-    const auto_roles = new GuildConfigManipulator(guild.id).config.new_member_roles ?? [];
-    if (auto_roles.length > 0 && guild.me.hasPermission('MANAGE_ROLES')) {
-        await Timer(1000); // Prevent API Abuse
+    const auto_roles = new GuildConfigManipulator(member.guild.id).config.new_member_roles ?? [];
+    if (auto_roles.length > 0 && member.guild.me.hasPermission('MANAGE_ROLES')) {
+        await Timer(1000); // prevent API abuse
         member.roles.add(auto_roles, 'Adding Auto Roles');
     }
 });
-//#endregion automatic roles additions
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region direct messages with bot support server
+/* direct messages with the bot support server */
 client.on('message', async message => {
     if (message.partial) await message.fetch().catch(console.warn);
     if (message.user?.partial) await message.user.fetch().catch(console.warn);
     if (message.member?.partial) await message.member.fetch().catch(console.warn);
     if (message.guild) await message.guild.fetch().catch(console.warn);
     
-    if (message.author.bot) return; // Don't interact with bots
+    if (message.author.bot) return; // don't interact with bots
 
-    if (SHARED_VARIABLES.lockdown_mode && !isThisBotsOwner(message.author.id)) return; // Don't continue when the bot is in lockdown mode
+    if (SHARED_VARIABLES.lockdown_mode && !isThisBotsOwner(message.author.id)) return; // don't continue when the bot is in lockdown mode
 
     if (message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID) {
         const user_to_dm_from_dm_channel = client.users.cache.get(`${message.channel.name.replace('dm-', '')}`);
@@ -761,6 +761,7 @@ client.on('message', async message => {
             }));
         }
     }
+
     if (message.channel.type === 'dm') {
         const dm_embed = new CustomRichEmbed({
             color:0xBBBBBB,
@@ -792,7 +793,7 @@ client.on('message', async message => {
                 topic:`${message.author.tag} (${message.author.id}) | ${moment()}`
             }).catch(console.trace);
             await central_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID).catch(console.trace);
-            await Timer(750); // For some reason Discord.js needs a little bit to recognise the new parent of the channel, therefore this delay exists
+            await Timer(750); // for some reason Discord.js needs a little bit to recognise the new parent of the channel, therefore this delay exists
             await central_dm_channel_with_user.lockPermissions().catch(console.trace);
             await central_dm_channel_with_user.send(new CustomRichEmbed({
                 title:`Opened DM with: ${message.author.tag} (${message.author.id})`
@@ -801,7 +802,6 @@ client.on('message', async message => {
         }
     }
 });
-//#endregion direct messages with bot support server
 
 //---------------------------------------------------------------------------------------------------------------//
 
