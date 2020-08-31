@@ -16,7 +16,7 @@ function getDiscordCommand(message_content) {
 /**
  * Gets an array of command arguments based off of seperating the message_content with spaces
  * @param {*} message_content 
- * @returns {Array<String>} 
+ * @returns {Array<String>} command arguments
  */
 function getDiscordCommandArgs(message_content) {
     return message_content.split(/\s/g).filter(item => item !== '').slice(1);
@@ -53,7 +53,7 @@ class DisBotCommand {
             ...cmd
         };
 
-        // type checks and basic validation checks
+        /* type checks and basic validation checks */
         if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new Error('`name` must be a valid string!');
         if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new Error('`category` must be a valid string!');
         if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new Error('`weight` must be a valid number above `0`!');
@@ -62,7 +62,7 @@ class DisBotCommand {
         if (isNaN(_cmd.access_level)) throw new Error('`access_level` must be a valid number!');
         if (typeof _cmd.executor !== 'function') throw new Error('`executor` must be a valid function!');
 
-        // advanced validation checks
+        /* advanced validation checks */
         if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new Error('`access_level` must be from DisBotCommand.access_levels!');
 
         this.name = _cmd.name;
@@ -79,6 +79,7 @@ class DisBotCommand {
      * @param {Client} client 
      * @param {Message} message 
      * @param {Object} opts 
+     * @returns {unknown} whatever is returned from the executed command
      */
     async execute(Discord, client, message, opts={}) {
         if (!Discord) throw new Error('`Discord` must be passed to command.execute()!');
@@ -103,12 +104,22 @@ class DisBotCommander {
         GUILD_SETTINGS: 'Server Management',
         SUPER_PEOPLE: 'Super People Commands',
         BOT_OWNER: 'Bot Owner Commands',
-        HIDDEN: 'Hidden Commands'
+        HIDDEN: 'Hidden Commands',
     };
+
     static #commands = new Discord.Collection();
+
+    /**
+     * @returns a Discord.Collection of commands
+     */
     static get commands() {
         return this.#commands;
     }
+
+    /**
+     * Registers a command to the DisBotCommander.commands
+     * @param {DisBotCommand} command 
+     */
     static registerCommand(command) {
         if (command instanceof DisBotCommand) {
             this.#commands.set(command.name, command);
