@@ -12,7 +12,12 @@ const client = new Discord.Client({
             type: 'PLAYING',
             name: 'Just restarted!'
         }
-    }
+    },
+    /** @TODO start */
+    messageCacheMaxSize: 150,
+    messageCacheLifetime: 60 * 30, // keep messages for 30 minutes at a time
+    messageSweepInterval: 60 * 60, // Sweep messages every 60 minutes
+    /** @TODO end */
 });
 
 client.login(process.env.BOT_DISCORD_API_TOKEN);
