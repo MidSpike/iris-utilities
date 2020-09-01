@@ -188,7 +188,7 @@ async function playYouTube(message, search_query, playnext=false) {
                     }
                 }
             }
-        ]);
+        ], message.author.id);
     }
 
     const search_message = await message.channel.send(new CustomRichEmbed({
