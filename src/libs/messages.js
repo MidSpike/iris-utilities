@@ -46,36 +46,6 @@ async function sendLargeMessage(channel_id, large_message, code_block_lang='') {
     return sent_messages;
 }
 
-/**
- * Sends an embed with buttons for the user to click on
- * @param {String} confirm_user_id 
- * @param {String} channel_id 
- * @param {Boolean} delete_after_selection 
- * @param {String|MessageEmbed} embed_contents 
- * @param {Function} yes_callback 
- * @param {Function} no_callback 
- */
-function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selection=true, embed_contents='Default Embed', yes_callback=(discord_embed)=>{}, no_callback=(discord_embed)=>{}) {
-    client.channels.cache.get(channel_id).send(embed_contents).then(async discord_embed => {
-        if (!discord_embed) {return;}
-        const bot_emoji_checkmark = findCustomEmoji('bot_emoji_checkmark');
-        const bot_emoji_close = findCustomEmoji('bot_emoji_close');
-        await discord_embed.react(bot_emoji_checkmark);
-        await discord_embed.react(bot_emoji_close);
-        discord_embed.createReactionCollector(filter => true).on('collect', reaction => {
-            if (reaction.users.cache.get(confirm_user_id) && reaction.users.cache.filter(user => !user.bot).size > 0) {
-                if (reaction.emoji.name === 'bot_emoji_checkmark') {
-                    if (delete_after_selection) discord_embed.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
-                    yes_callback(discord_embed);
-                } else if (reaction.emoji.name === 'bot_emoji_close') {
-                    if (delete_after_selection) discord_embed.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
-                    no_callback(discord_embed);
-                }
-            }
-        });
-    });
-}
-
 const options_message_reactions_template = [
     {
         emoji_name: 'bot_emoji_checkmark',
@@ -136,6 +106,35 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
     }
 
     return options_message;
+}
+
+/**
+ * @deprecated Sends an embed with buttons for the user to click on
+ * @param {String} confirm_user_id 
+ * @param {String} channel_id 
+ * @param {Boolean} delete_after_selection 
+ * @param {String|MessageEmbed} embed_contents 
+ * @param {Function} yes_callback 
+ * @param {Function} no_callback 
+ */
+function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selection=true, embed_contents='Default Embed', yes_callback=(discord_embed)=>{}, no_callback=(discord_embed)=>{}) {
+    sendOptionsMessage(channel_id, embed_contents, [
+        {
+            emoji_name: 'bot_emoji_checkmark',
+            cooldown: 1500,
+            callback(options_message, collected_reaction, user) {
+                if (delete_after_selection) discord_embed.delete({timeout:500}).catch(console.warn);
+                yes_callback(options_message);
+            }
+        }, {
+            emoji_name: 'bot_emoji_close',
+            cooldown: 1500,
+            callback(options_message, collected_reaction, user) {
+                if (delete_after_selection) discord_embed.delete({timeout:500}).catch(console.warn);
+                no_callback(options_message);
+            }
+        }
+    ], confirm_user_id);
 }
 
 /**
