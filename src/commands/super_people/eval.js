@@ -37,7 +37,7 @@ module.exports = new DisBotCommand({
     aliases:['eval', 'evil'],
     access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command } = opts;
+        const { command_prefix, discord_command } = opts;
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'evaluate_code')) {
             sendNotAllowedCommand(message);
             return;
@@ -51,13 +51,17 @@ module.exports = new DisBotCommand({
             const eval_output = await eval(`(async function() {${code_to_run}})();`);
             console.info(`Output:\n`, eval_output);
             const eval_output_string = typeof eval_output === 'string' ? eval_output : `${safe_stringify(eval_output, null, 2)}`;
-            message.reply(new CustomRichEmbed({
-                title:'Evaluated Code',
-                fields:[
-                    {name:'Input', value:`${'```'}\n${discord_command}\n${code_input}\n${'```'}`},
-                    {name:'Output', value:`${'```'}\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`}
-                ]
-            }));
+            if (discord_command === `${command_prefix}evil`) {
+                /* don't output to the channel for the evil command */
+            } else {
+                message.reply(new CustomRichEmbed({
+                    title:'Evaluated Code',
+                    fields:[
+                        {name:'Input', value:`${'```'}\n${discord_command}\n${code_input}\n${'```'}`},
+                        {name:'Output', value:`${'```'}\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`}
+                    ]
+                }));
+            }
         } catch (error) {
             console.trace(error);
             message.reply(new CustomRichEmbed({
