@@ -111,6 +111,7 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
         let bot_reaction;
         try {
             bot_reaction = await options_message.react(reaction_option_emoji);
+            await Timer(250); // prevent API abuse (250 seems io work best)
         } catch { // the most likely exception thrown will be the message was deleted and the reaction can't be added
             console.warn(`Unable to add reaction: ${reaction_option_emoji}`);
             break; // there is no reason to continue trying to add reactions after a failed attempt
@@ -124,11 +125,12 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
             const confirmation_user_matches = confirmation_user_id ? confirmation_user_id === user.id : true;
             return (is_not_bot && emoji_matches && confirmation_user_matches);
         });
-        options_message_reaction_collector.on('collect', (collected_reaction, user) => {
+        options_message_reaction_collector.on('collect', async (collected_reaction, user) => {
             const recent_time_of_action = Date.now();
             const last_time_of_action_was_recent = recent_time_of_action - last_time_of_action < cooldown_time_ms;
             last_time_of_action = Date.now();
             if (last_time_of_action_was_recent) return; // force the user to wait before clicking the button again
+            await Timer(250); // prevent API abuse
             reaction_option.callback(options_message, collected_reaction, user);
         });
     }
@@ -137,16 +139,20 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
 }
 
 /**
- * Removes any reactions created by a user on a specified message
+ * Removes any reactions created by any user on a specified message
  * @param {Message} message 
  */
-function removeUserReactionsFromMessage(message) {
+async function removeUserReactionsFromMessage(message) {
+    await Timer(250); // prevent API abuse
     if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-        message.reactions.cache.forEach(reaction => {
-            reaction.users.cache.filter(user => !user.bot).forEach(nonBotUser => {
-                reaction.users.remove(nonBotUser);
-            });
-        });
+        const message_reactions = message.reactions.cache;
+        for (const message_reaction of message_reactions.values()) {
+            const reaction_users = message_reaction.users.cache.filter(user => !user.bot); // don't interact with bots
+            for (const reaction_user of reaction_users.values()) {
+                message_reaction.users.remove(reaction_user);
+                if (reaction_users.size > 0) await Timer(250); // prevent API abuse
+            }
+        }
     }
 }
 
@@ -155,6 +161,7 @@ function removeUserReactionsFromMessage(message) {
  * @param {Message} message 
  */
 async function removeAllReactionsFromMessage(message) {
+    await Timer(250); // prevent API abuse
     if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
         return await message.reactions.removeAll();
     }

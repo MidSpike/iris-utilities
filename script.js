@@ -290,21 +290,20 @@ client.on('invalidated', () => {
     process.exit(1); // stop this process and restart it via the .bat script
 });
 
-// client.on('rateLimit', (rateLimit) => {
-//     console.log(`----------------------------------------------------------------------------------------------------------------`);
-//     console.log('RateLimit:', rateLimit);
-//     console.log(`----------------------------------------------------------------------------------------------------------------`);
-// });
+client.on('rateLimit', (rateLimit) => {
+    console.log(`----------------------------------------------------------------------------------------------------------------`);
+    console.log('RateLimit:', rateLimit);
+    console.log(`----------------------------------------------------------------------------------------------------------------`);
+});
 
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
-    if (old_voice_state.member.id === client.user.id && new_voice_state.member.id === client.user.id) {
-        if (new_voice_state.connection && new_voice_state.channel) {// Run if connected to a voice channel
-            client.setTimeout(() => {
-                if (new_voice_state.serverMute) new_voice_state.setMute(false, `Don't mute me!`);
-                if (new_voice_state.serverDeaf) new_voice_state.setDeaf(false, `Don't deafen me!`);
-            }, 500);
+    if (isThisBot(new_voice_state.member.id)) {
+        if (new_voice_state.connection && new_voice_state.channel) { // Run if connected to a voice channel
+            await Timer(500); // prevent API abuse
+            if (new_voice_state.serverMute) new_voice_state.setMute(false, `Don't mute me!`);
+            if (new_voice_state.serverDeaf) new_voice_state.setDeaf(false, `Don't deafen me!`);
         }
     }
 });
