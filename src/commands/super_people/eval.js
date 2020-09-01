@@ -22,6 +22,7 @@ const bot_config = require('../../../config.json');
 const { Timer, pseudoUniqueId } = require('../../utilities.js');
 const { logUserError } = require('../../libs/errors.js');
 const { generateInviteToGuild } = require(`../../libs/invites.js`);
+const { sendLargeMessage } = require('../../libs/messages.js');
 
 const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
 
