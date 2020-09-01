@@ -74,29 +74,60 @@ module.exports = new DisBotCommand({
             }, message);
         }
 
-        const page_number_input = parseInt(command_args[0]) || 1; // Do not use ??
-        const proccessed_number_input = math_clamp(page_number_input, 1, command_categories.length)
+        const page_number_input = parseInt(command_args[0]);
 
-        if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-            message.channel.send(makeHelpEmbed(proccessed_number_input));
-        } else {
-            function navigate_page(options_message, page_number=1) {
-                options_message.edit(makeHelpEmbed(page_number));
-                removeUserReactionsFromMessage(options_message);
+        if (!isNaN(page_number_input)) {
+            /* the user specified a page number */
+            const proccessed_number_input = math_clamp(page_number_input, 1, command_categories.length)
+            if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                message.channel.send(makeHelpEmbed(proccessed_number_input));
+            } else {
+                function navigate_page(options_message, page_number=1) {
+                    options_message.edit(makeHelpEmbed(page_number));
+                    removeUserReactionsFromMessage(options_message);
+                }
+                sendOptionsMessage(message.channel.id, makeHelpEmbed(proccessed_number_input), [
+                    {emoji_name:'bot_emoji_angle_left', callback:(options_message) => navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length)},
+                    {emoji_name:'bot_emoji_one', callback:(options_message) => navigate_page(options_message, 1)},
+                    {emoji_name:'bot_emoji_two', callback:(options_message) => navigate_page(options_message, 2)},
+                    {emoji_name:'bot_emoji_three', callback:(options_message) => navigate_page(options_message, 3)},
+                    {emoji_name:'bot_emoji_four', callback:(options_message) => navigate_page(options_message, 4)},
+                    {emoji_name:'bot_emoji_five', callback:(options_message) => navigate_page(options_message, 5)},
+                    {emoji_name:'bot_emoji_six', callback:(options_message) => navigate_page(options_message, 6)},
+                    {emoji_name:'bot_emoji_seven', callback:(options_message) => navigate_page(options_message, 7)},
+                    // {emoji_name:'bot_emoji_eight', callback:(options_message) => navigate_page(options_message, 8)},
+                    // {emoji_name:'bot_emoji_nine', callback:(options_message) => navigate_page(options_message, 9)},
+                    {emoji_name:'bot_emoji_angle_right', callback:(options_message) => navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1)}
+                ]);
             }
-            sendOptionsMessage(message.channel.id, makeHelpEmbed(proccessed_number_input), [
-                {emoji_name:'bot_emoji_angle_left', callback:(options_message) => navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length)},
-                {emoji_name:'bot_emoji_one', callback:(options_message) => navigate_page(options_message, 1)},
-                {emoji_name:'bot_emoji_two', callback:(options_message) => navigate_page(options_message, 2)},
-                {emoji_name:'bot_emoji_three', callback:(options_message) => navigate_page(options_message, 3)},
-                {emoji_name:'bot_emoji_four', callback:(options_message) => navigate_page(options_message, 4)},
-                {emoji_name:'bot_emoji_five', callback:(options_message) => navigate_page(options_message, 5)},
-                {emoji_name:'bot_emoji_six', callback:(options_message) => navigate_page(options_message, 6)},
-                {emoji_name:'bot_emoji_seven', callback:(options_message) => navigate_page(options_message, 7)},
-                // {emoji_name:'bot_emoji_eight', callback:(options_message) => navigate_page(options_message, 8)},
-                // {emoji_name:'bot_emoji_nine', callback:(options_message) => navigate_page(options_message, 9)},
-                {emoji_name:'bot_emoji_angle_right', callback:(options_message) => navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1)}
-            ]);
+        } else {
+            /* the user specified a potential command name, not a page number */
+            const specified_command_input = `${command_args[0]}`.toLowerCase();
+            const specified_command_input_with_prefix = specified_command_input.startsWith(command_prefix) ? specified_command_input : `${command_prefix}${specified_command_input}`;
+            const specified_command = DisBotCommander.commands.find(cmd => 
+                cmd.aliases.map(cmd => 
+                    `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
+                ).includes(specified_command_input_with_prefix)
+            );
+            if (specified_command) {
+                const specified_command_aliases = specified_command.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`);
+                message.channel.send(new CustomRichEmbed({
+                    title:`About Command — ${specified_command_input}`,
+                    description:[
+                        `**Formal Name:** ${specified_command.name}`,
+                        `**Category:** ${specified_command.category}`,
+                        `**Description:** ${specified_command.description}`,
+                        `**Aliases:** \`${specified_command_aliases.join(', ')}\``,
+                        `**Access Level:** ${specified_command.access_level}`
+                    ].join('\n')
+                }, message));
+            } else {
+                message.channel.send(new CustomRichEmbed({
+                    color:0xFFFF00,
+                    title:`About Command — ${specified_command_input}`,
+                    description:`I couldn't find that command!`
+                }, message));
+            }
         }
     },
 });
