@@ -74,10 +74,11 @@ module.exports = new DisBotCommand({
             }, message);
         }
 
-        const page_number_input = parseInt(command_args[0]);
+        const specified_command_input = `${command_args[0] ?? ''}`.trim().toLowerCase();
 
-        if (!isNaN(page_number_input)) {
-            /* the user specified a page number */
+        if (specified_command_input.length === 0 || !isNaN(parseInt(specified_command_input))) {
+            /* the user specified a page number or is lacking input after the command */
+            const page_number_input = parseInt(specified_command_input) || 1;
             const proccessed_number_input = math_clamp(page_number_input, 1, command_categories.length)
             if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
                 message.channel.send(makeHelpEmbed(proccessed_number_input));
@@ -102,7 +103,6 @@ module.exports = new DisBotCommand({
             }
         } else {
             /* the user specified a potential command name, not a page number */
-            const specified_command_input = `${command_args[0]}`.toLowerCase();
             const specified_command_input_with_prefix = specified_command_input.startsWith(command_prefix) ? specified_command_input : `${command_prefix}${specified_command_input}`;
             const specified_command = DisBotCommander.commands.find(cmd => 
                 cmd.aliases.map(cmd => 
