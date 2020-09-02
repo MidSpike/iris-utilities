@@ -145,7 +145,10 @@ async function updateGuildConfig(guild) {
             '_bot_count':guild.members.cache.filter(member => member.user.bot).size
         }
     };
+
     guild_config_manipulator.modifyConfig(new_guild_config);
+
+    return; // complete async
 }
 
 async function add_guild_to_disBotServers(guild) {
@@ -170,6 +173,8 @@ async function add_guild_to_disBotServers(guild) {
             dispatcher:undefined
         }
     };
+
+    return; // complete async
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -208,6 +213,7 @@ client.on('error', console.trace);
 
 client.on('ready', async () => {
     const ready_timestamp = moment();
+    SHARED_VARIABLES.restarting_bot = true; // the bot is still restarting
 
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     console.log(`${bot_common_name} Logged in as ${client.user.tag} on ${ready_timestamp} in ${client.guilds.cache.size} servers!`);
@@ -265,14 +271,16 @@ client.on('ready', async () => {
     async function propagate_guilds() {
         console.time(`propagate_guilds()`);
         for (const guild of client.guilds.cache.values()) {
-            updateGuildConfig(guild);
-            add_guild_to_disBotServers(guild);
-            await Timer(50); // wait a little bit in-between requests
+            await add_guild_to_disBotServers(guild);
+            await updateGuildConfig(guild);
         }
         console.timeEnd(`propagate_guilds()`);
     }
-    client.setTimeout(propagate_guilds, 1000 * 30); // after 30 seconds
+    await propagate_guilds(); // immediately after a restart
     client.setInterval(propagate_guilds, 1000 * 60 * 5); // every 5 minutes
+
+    /* finish up preparing the bot */
+    SHARED_VARIABLES.restarting_bot = false; // the bot can be considered done restarting
 });
 
 client.on('invalidated', () => {
