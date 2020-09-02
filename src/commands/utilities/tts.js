@@ -62,6 +62,7 @@ module.exports = new DisBotCommand({
     aliases:['tts'],
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, clean_command_args, guild_config_manipulator } = opts;
+
         const guild_config = guild_config_manipulator.config;
 
         const tts_input = clean_command_args.join(' ').trim();
@@ -112,17 +113,12 @@ module.exports = new DisBotCommand({
         const tts_provider = tts_arg_potential_provider ?? bot_config.default_guild_config.tts_provider;
         const tts_voice = tts_arg_potential_voice ?? (tts_provider === 'ibm' ? guild_config.tts_voice_ibm ?? bot_config.default_guild_config.tts_voice_ibm : guild_config.tts_voice_google ?? bot_config.default_guild_config.tts_voice_google);
 
-        // console.log({tts_arg, tts_arg_potential_voice, tts_arg_potential_provider, tts_provider, tts_voice});
-
         const tts_source = (message.attachments.size > 0 ? (await axios.get(message.attachments.first().url)).data : (tts_input ?? '').replace(regex_tts_command_args, ``)).trim();
         const tts_chunks = array_chunks(tts_source.split(/\s/g), 100).map(chunk => chunk.join(' '));
-
-        console.log(tts_chunks);
 
         for (let chunk_index = 0; chunk_index < tts_chunks.length; chunk_index++) {
             if (chunk_index > 0 && !message.guild.me.voice?.connection) break;
             const tts_chunk = tts_chunks[chunk_index];
-            console.log(tts_chunk);
             const tts_chunk_short = tts_chunk.length > 100 ? `${tts_chunk.slice(0, 100)}...` : tts_chunk;
             let tts_chunk_done_resolve;
             const tts_chunk_done = new Promise((resolve, reject) => tts_chunk_done_resolve = resolve);
