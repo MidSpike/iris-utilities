@@ -299,6 +299,8 @@ client.on('rateLimit', (rateLimit) => {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (isThisBot(new_voice_state.member.id)) {
         if (new_voice_state.connection && new_voice_state.channel) { // Run if connected to a voice channel
             await Timer(500); // prevent API abuse
@@ -317,12 +319,16 @@ client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
 // });
 
 client.on('guildUpdate', async (old_guild, new_guild) => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (new_guild.partial) await new_guild.fetch().catch(console.warn);
 
     updateGuildConfig(new_guild);
 });
 
 client.on('guildCreate', async guild => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (guild.partial) guild.fetch().catch(console.warn);
 
     /* log to the central logging server when a guild adds the bot to it */
@@ -410,6 +416,8 @@ client.on('guildCreate', async guild => {
 });
 
 client.on('guildDelete', async guild => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (guild.partial) guild.fetch().catch(console.warn);
 
     /* log to the central logging server when a guild removes the bot from it */
@@ -424,6 +432,8 @@ client.on('guildDelete', async guild => {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('channelCreate', async channel => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (channel) channel.fetch().catch(console.warn);
 
     if (channel.type !== 'text') return;
@@ -520,6 +530,8 @@ client.on('channelCreate', async channel => {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('guildMemberAdd', async member => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (member.partial) member.fetch().catch(console.warn);
 
     if (isThisBot(member.id)) return; // don't log this bot joining... it can happen oddly enough...
@@ -536,6 +548,8 @@ client.on('guildMemberAdd', async member => {
 });
 
 client.on('guildMemberRemove', async member => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (member.partial) member.fetch().catch(console.warn);
 
     if (isThisBot(member.id)) return; // don't log this bot leaving... it can happen oddly enough...
@@ -554,6 +568,8 @@ client.on('guildMemberRemove', async member => {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('messageReactionAdd', async (reaction, user) => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (reaction.partial) await reaction.fetch().catch(console.warn);
     if (reaction.message.partial) await reaction.message.fetch().catch(console.warn);
     if (user.partial) await user.fetch().catch(console.warn);
@@ -581,6 +597,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
 });
 
 client.on('messageReactionRemove', async (reaction, user) => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (reaction.partial) await reaction.fetch().catch(console.warn);
     if (reaction.message.partial) await reaction.message.fetch().catch(console.warn);
     if (user.partial) await user.fetch().catch(console.warn);
@@ -610,6 +628,8 @@ client.on('messageReactionRemove', async (reaction, user) => {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.on('inviteCreate', async invite => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (!invite.channel?.guild) return;
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel_name);
     if (!logging_channel) return;
@@ -626,6 +646,8 @@ client.on('inviteCreate', async invite => {
 });
 
 client.on('inviteDelete', async invite => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (!invite.channel?.guild) return;
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel_name);
     if (!logging_channel) return;
@@ -647,6 +669,8 @@ client.on('inviteDelete', async invite => {
 
 /* bot appeals centre handling for freshly banned members */
 client.on('guildMemberAdd', async member => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (member.partial) await member.fetch().catch(console.warn);
 
     if (member.guild.id !== bot_appeals_guild_id) return; // check to see if the joined the Bot Appeals Guild
@@ -711,6 +735,8 @@ client.on('guildMemberAdd', async member => {
 
 /* automatic addition of roles */
 client.on('guildMemberAdd', async member => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (member.partial) await member.fetch().catch(console.warn);
 
     const auto_roles = new GuildConfigManipulator(member.guild.id).config.new_member_roles ?? [];
@@ -724,6 +750,8 @@ client.on('guildMemberAdd', async member => {
 
 /* direct messages with the bot support server */
 client.on('message', async message => {
+    if (SHARED_VARIABLES.restarting_bot) return;
+
     if (message.partial) await message.fetch().catch(console.warn);
     if (message.user?.partial) await message.user.fetch().catch(console.warn);
     if (message.member?.partial) await message.member.fetch().catch(console.warn);
