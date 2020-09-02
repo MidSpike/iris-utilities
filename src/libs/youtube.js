@@ -40,7 +40,9 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     if (Math.floor(max_results) !== max_results || max_results < 1) throw RangeError('`max_results` must be a whole number and at least `1`!');
     if (isNaN(retry_attempts)) throw new TypeError('`retry_attempts` must be positive whole number above zero!');
     if (Math.floor(retry_attempts) !== retry_attempts || retry_attempts < 1) throw RangeError('`retry_attempts` must be a whole number and at least `1`!');
+
     console.time(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
+
     // try using the YouTube API results
     let current_search_attempt = 1;
     let search_results = [];
@@ -61,6 +63,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
             await Timer(1000 + current_search_attempt * 250);
         }
     }
+
     // fallback to scraping the youtube website results
     if (search_results.length === 0) {
         console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
@@ -72,6 +75,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
             title:`${title}`
         }));
     }
+
     console.timeEnd(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
     return search_results ?? backup_search_results ?? []; // Force an empty array if nullish
 }
@@ -90,12 +94,20 @@ async function playYouTube(message, search_query, playnext=false) {
         return validator.isURL(query) ? urlParser(query)?.list : undefined;
     }
 
+    /**
+     * Fetches a YouTube video id from a search query
+     * @param {String} query 
+     * @returns {String|undefined} a youtube video id or undefined
+     */
     async function _get_video_id_from_query(query) {
         let possible_video_id;
-        if (validator.isURL(query ?? '')) {// parse the id from the YT url
+        if (validator.isURL(query ?? '')) { // parse the id from the YT url
             try {
                 possible_video_id = videoIdFromYouTubeURL(query);
-            } catch {} // exceptions are thrown for non-youtube URLs, so just ignore them
+            } catch {
+                /* exceptions are thrown for non-youtube URLs */
+                possible_video_id = undefined;
+            }
         } else { // search for the video via the youtube api as a fallback
             const youtube_search_results = await forceYouTubeSearch(query, 1, 3);
             possible_video_id = youtube_search_results[0]?.id;
@@ -119,16 +131,18 @@ async function playYouTube(message, search_query, playnext=false) {
                     {name:'Offending Live Stream URL', value:`${yt_video_info.videoDetails.video_url}`}
                 ]
             }, message));
-            return; // Don't allow live streams to play
+            return; // don't allow live streams to play... live streams are buggy
         }
         if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
         const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.0, () => {
             sendYtDiscordEmbed(message, yt_video_info, 'Playing');
         }, async () => {
+            /* handle queue autoplay for youtube videos */
             if (server.queue_manager.queue.length === 0 && server.queue_manager.autoplay_enabled) {
-                await _play_as_video(array_random(yt_video_info.related_videos.slice(0, 3)).id);
+                const random_related_video = array_random(yt_video_info.related_videos.slice(0, 3));
+                await _play_as_video(random_related_video.id);
             }
-            return; // Complete async
+            return; // complete async
         }, (error) => {
             console.trace(`${error ?? 'Unknown Playback Error!'}`);
         });
@@ -137,7 +151,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 sendYtDiscordEmbed(message, yt_video_info, 'Added');
             }
         });
-        return; // Complete async
+        return; // complete async
     }
 
     async function _play_as_playlist(playlist_id) {
