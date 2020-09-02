@@ -1,6 +1,7 @@
 'use strict';
 
-const { array_insert,
+const { isObject,
+        array_insert,
         array_shuffle,
         random_range_inclusive } = require('../utilities.js');
 
@@ -86,15 +87,31 @@ class QueueManager {
 }
 
 class QueueItem {
+    static types = ['youtube', 'tts', 'mp3', 'other'];
     constructor(type, player, description, metadata={}) {
-        this.type = ['youtube', 'tts', 'mp3', 'other'].includes(type) ? type : 'other';
-        this.player = player; // Player should be a QueueItemPlayer
+        if (!QueueItem.types.includes(type)) throw new TypeError('`type` should be a valid type from `QueueItem.types`');
+        if (typeof player !== 'function') throw new TypeError('`player` should be an anonymous function created by `QueueItemPlayer`');
+        if (typeof description !== 'string') throw new TypeError('`description` should be a string');
+        if (!isObject(metadata)) throw new TypeError('`metadata` should be an object');
+        this.type = type;
+        this.player = player;
         this.description = description;
         this.metadata = metadata;
     }
 }
 
 class QueueItemPlayer {
+    /**
+     * Creates a player for queue items
+     * @param {QueueManager} queue_manager 
+     * @param {VoiceConnection} voice_connection 
+     * @param {Function} stream_maker 
+     * @param {Number} volume_ratio 
+     * @param {Function} start_callback 
+     * @param {Function} end_callback 
+     * @param {Function} error_callback 
+     * @returns {QueueItemPlayer} an instance of QueueItemPlayer
+     */
     constructor(queue_manager, voice_connection, stream_maker, volume_ratio, start_callback, end_callback, error_callback) {
         if (queue_manager === undefined || voice_connection === undefined || stream_maker === undefined) {
             console.trace(`QueueItemPlayer is missing something:`, {queue_manager, voice_connection, stream_maker});
@@ -106,7 +123,7 @@ class QueueItemPlayer {
         this.volume_ratio = volume_ratio ?? undefined;
         this.start_callback = typeof start_callback === 'function' ? start_callback : (() => {});
         this.end_callback = typeof end_callback === 'function' ? end_callback : (() => {});
-        this.error_callback = typeof error_callback === 'function' ? error_callback : (() => {});
+        this.error_callback = typeof error_callback === 'function' ? error_callback : ((error) => {});
         return async () => {
             const guild = this.voice_connection.channel.guild;
             const server = SHARED_VARIABLES.disBotServers[guild.id];
