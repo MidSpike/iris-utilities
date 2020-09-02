@@ -67,7 +67,7 @@ router.get('/ytinfo', async (req, res) => {
     } else {
         res.set({'Content-Type':'application/json'});
         if (req.query.video_id) {
-            console.log(`video_id:`, req.query.video_id);
+            console.info(`[/ytinfo] - video_id:`, req.query.video_id);
             let yt_info;
             try {
                 yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`);
@@ -108,19 +108,16 @@ router.get('/ytdl', async (req, res) => {
                     'highWaterMark':1<<25 // 32 MB
                 });
 
-                console.log(`Started response stream: ${ytdl_stream_id}`);
-                
-                console.time(`Stream Time for ${ytdl_stream_id}`);
+                console.time(`[/ytdl] - Stream Time for ${ytdl_stream_id}`);
                 const res_stream = ytdl_stream.pipe(res);
 
                 res_stream.on('error', (error) => {
-                    console.timeEnd(`Stream Time for ${ytdl_stream_id}`);
+                    console.timeEnd(`[/ytdl] - Stream Time for ${ytdl_stream_id}`);
                     console.trace(`Failed while streaming ${ytdl_stream_id}: `, error);
                 });
 
                 res_stream.on('finish', () => {
-                    console.timeEnd(`Stream Time for ${ytdl_stream_id}`);
-                    console.log(`Finished response stream: ${ytdl_stream_id}`);
+                    console.timeEnd(`[/ytdl] - Stream Time for ${ytdl_stream_id}`);
                 });
             } catch (error) {
                 console.trace(`Failed to stream: ${req.query.url}`, error);
