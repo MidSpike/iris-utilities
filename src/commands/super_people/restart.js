@@ -36,15 +36,18 @@ module.exports = new DisBotCommand({
             fields:[
                 {
                     name:'Affected Guilds',
-                    value:(active_voice_guilds.length > 0 ? `${'```'}\n${active_voice_guilds.map(guild => `${guild?.me?.voice?.channel?.members?.filter(member => !member.user.bot).size} - ${guild.name}`).join('\n')}\n${'```'}` : 'N/A')
+                    value:(active_voice_guilds.length > 0 ? `${'```'}\n${active_voice_guilds.map(guild => `${guild.me.voice?.channel?.members?.filter(member => !member.user.bot)?.size ?? 0} - ${guild.name}`).join('\n')}\n${'```'}` : 'N/A')
                 }
             ]
         }), async (bot_message) => {
             SHARED_VARIABLES.restarting_bot = true;
-            console.warn(`@${message.author.tag} (${message.author.id}) restarted ${bot_common_name}!`);
+
             const voice_channels = client.voice.connections?.map(c => c.channel) ?? [];
             if (voice_channels.length > 0) {
-                await bot_message.edit(new CustomRichEmbed({title:`${bot_common_name}: SENDING RESTART TTS`}));
+                await bot_message.edit(new CustomRichEmbed({
+                    title:`${bot_common_name}: Sending Restart TTS Announcement`
+                }));
+
                 const tts_text_english = `My developer told me to restart for updates... Check back in 5 minutes to see if I'm finished updating.`;
                 const tts_url_english = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=en-GB_KateV3Voice&text=${encodeURIComponent(tts_text_english)}`;
                 const tts_broadcast_english = client.voice.createBroadcast();
@@ -85,15 +88,20 @@ module.exports = new DisBotCommand({
                 }
                 await Timer(25000); // Let TTS do its thing first
             }
+
             await bot_message.edit(new CustomRichEmbed({
-                title:`${bot_common_name}: INITIATED RESTART PROTOCOLS`
+                title:`${bot_common_name}: Started Restart Process`
             }));
+
             await Timer(500);
-            process.exit(1); // Restart Bot
+            client.destroy(); // destroy the client instance
+            await Timer(500);
+
+            process.exit(1); // restart the bot by killing the process
         }, async (bot_message) => {
-            await bot_message.reactions.removeAll();
-            bot_message.edit(new CustomRichEmbed({
-                title:`CANCELED RESTARTING ${bot_common_name}`
+            await bot_message.delete({timeout:500});
+            await bot_message.channel.send(new CustomRichEmbed({
+                title:`${bot_common_name}: Canceled Restarting`
             }));
         });
     },
