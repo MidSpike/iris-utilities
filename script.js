@@ -37,6 +37,8 @@ const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
 //#endregion bot files
 
 //#region bot globals
+const bot_owner_id = bot_config.owner_id;
+const bot_short_name = bot_config.short_name;
 const bot_common_name = bot_config.common_name;
 const bot_version = bot_config.public_version;
 const bot_website = bot_config.website;
@@ -212,75 +214,65 @@ client.on('ready', async () => {
     console.log(`----------------------------------------------------------------------------------------------------------------`);
 
     /* log to all subscribed servers that a restart has just happened */
-    const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
-    guild_restart_logging_channels.forEach(channel => {
-        if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
-            channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
-        } else {
-            console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`)
-        }
-    });
+    // const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
+    // guild_restart_logging_channels.forEach(channel => {
+    //     if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
+    //         channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
+    //     } else {
+    //         console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`)
+    //     }
+    // });
 
     /* update the client presence with various helpful information */
-    let presenceMode = 'mention'; // can be [ mention | uptime | creator | mention_me | version | guilds | users ]
-    client.setTimeout(() => { // wait after a restart before updating the presence
+    client.setTimeout(() => {
+        let bot_presence_mode = 1;
         client.setInterval(() => {
-            switch (presenceMode) {
-                case 'mention':
-                    client.user.setPresence({type:4, activity:{name:`@${client.user.tag}`}});
-                    presenceMode = 'uptime';
+            let bot_presence_text;
+            switch (bot_presence_mode) {
+                case 0:
+                    bot_presence_text = `@${client.user.tag}`;
                 break;
-                case 'uptime':
-                    client.user.setPresence({type:4, activity:{name:`Uptime: ${getReadableTime(client.uptime / 1000)}`}});
-                    presenceMode = 'creator';
+                case 1:
+                    bot_presence_text = `Uptime: ${getReadableTime(client.uptime / 1000)}`;
                 break;
-                case 'creator':
-                    client.user.setPresence({type:4, activity:{name:`👨‍💻${client.users.cache.get(bot_config.owner_id).tag}👑`}});
-                    presenceMode = 'mention_me';
+                case 2:
+                    bot_presence_text = `👨‍💻${client.users.resolve(bot_owner_id).tag}👑`;
                 break;
-                case 'mention_me':
-                    client.user.setPresence({type:4, activity:{name:`@mention me for help!`}});
-                    presenceMode = 'version';
+                case 3:
+                    bot_presence_text = `@mention me for help!`;
                 break;
-                case 'version':
-                    client.user.setPresence({type:4, activity:{name:`${bot_version}`}});
-                    presenceMode = 'guilds';
+                case 4:
+                    bot_presence_text = `${bot_version}`;
                 break;
-                case 'guilds':
-                    client.user.setPresence({type:4, activity:{name:`in ${client.guilds.cache.size} servers!`}});
-                    presenceMode = 'users';
+                case 5:
+                    bot_presence_text = `in ${client.guilds.cache.size} servers!`;
                 break;
-                case 'users':
-                    client.user.setPresence({type:4, activity:{name:`with ${client.users.cache.filter(user => !user.bot).size} people!`}});
-                    presenceMode = 'mention';
+                case 6:
+                    bot_presence_text = `with ${client.users.cache.filter(user => !user.bot).size} people!`;
                 break;
             }
-        }, 1000 * 10); // 10 seconds
-    }, 1000 * 60 * 1); // 1 minute
+            bot_presence_mode += (bot_presence_mode < 6 ? 1 : -6); // incrementally loop the presence mode
+            client.user.setPresence({
+                type: 4,
+                activity: {
+                    name: `${bot_presence_text}`
+                }
+            });
+        }, 1000 * 15); // 2) then cycle every 15 seconds
+    }, 1000 * 60 * 1); // 1) wait for 5 minutes
 
-    /* update guild configs to include their state of existence */
-    const main_guild_config_manipulator = new GuildConfigManipulator(bot_logging_guild_id);
-    const resolved_guilds_from_configs = Object.keys(main_guild_config_manipulator.configs).map(guild_config_id => ({id:`${guild_config_id}`, exists:!!client.guilds.resolve(guild_config_id)}));
-    resolved_guilds_from_configs.forEach(resolved_guild => {
-        const guild_config_manipulator = new GuildConfigManipulator(resolved_guild.id);
-        const resolved_guild_exists = !!resolved_guild.exists;
-        guild_config_manipulator.modifyConfig({
-            ...{
-                '_exists':resolved_guild_exists
-            }
-        });
-    });
-
-    /* update all guild configs and register the guild to disBotServers */
-    client.guilds.cache.forEach(async guild => {
-        updateGuildConfig(guild);
-        add_guild_to_disBotServers(guild);
-    });
-
-    /* update all guild configs with an interval of 5 minutes */
-    client.setInterval(() => {
-        client.guilds.cache.forEach(guild => updateGuildConfig(guild));
-    }, 1000 * 60 * 5);
+    /* propagate all guild configs and disBotServers */
+    async function propagate_guilds() {
+        console.time(`propagate_guilds()`);
+        for (const guild of client.guilds.cache.values()) {
+            updateGuildConfig(guild);
+            add_guild_to_disBotServers(guild);
+            await Timer(50); // wait a little bit in-between requests
+        }
+        console.timeEnd(`propagate_guilds()`);
+    }
+    client.setTimeout(propagate_guilds, 1000 * 30); // after 30 seconds
+    client.setInterval(propagate_guilds, 1000 * 60 * 5); // every 5 minutes
 });
 
 client.on('invalidated', () => {
@@ -332,7 +324,7 @@ client.on('guildCreate', async guild => {
         author:{iconURL:guild.iconURL(), name:`${guild.name} (${guild.id})`},
         title:`Added ${bot_common_name}!`,
         footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${moment()}`}
-    }));
+    }))?.catch(console.warn);
 
     /* prepare the guild for configs and other runtime variables */
     updateGuildConfig(guild);
@@ -376,9 +368,9 @@ client.on('guildCreate', async guild => {
     /* send a TTS message to the voice channel containing the most guild admins */
     try {
         const tts_text_english = [
-            `Hello there, I'm ${bot_config.short_name}!`,
+            `Hello there, I'm ${bot_short_name}!`,
             `Thank you for adding me to this server!`,
-            `You can use me by sending '${bot_config.default_guild_config.command_prefix}help' in a text-channel!`,
+            `You can use me by sending '${bot_default_guild_config.command_prefix}help' in a text-channel!`,
             `...`,
             `I have support staff ready to answer any questions that you may have!`,
             `Simply, direct message me to get in contact with them!`
