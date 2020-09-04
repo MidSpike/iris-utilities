@@ -90,13 +90,18 @@ async function playYouTube(message, search_query, playnext=false) {
     const server = disBotServers[message.guild.id];
     const voice_channel = message.member.voice.channel;
 
+    /**
+     * Fetches a YouTube playlist id from a search query
+     * @param {String} query any string that might contain a youtube url or search query
+     * @returns {String|undefined} a playlist id if successful
+     */
     async function _get_playlist_id_from_query(query) {
         return validator.isURL(query) ? urlParser(query)?.list : undefined;
     }
 
     /**
      * Fetches a YouTube video id from a search query
-     * @param {String} query 
+     * @param {String} query any string that might contain a youtube url or search query
      * @returns {String|undefined} a youtube video id or undefined
      */
     async function _get_video_id_from_query(query) {

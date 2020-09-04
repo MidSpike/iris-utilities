@@ -16,7 +16,7 @@ const zero_to_nine_as_words = ['zero', 'one', 'two', 'three', 'four', 'five', 's
 /**
  * Searches for an emoji located in the Bot's Emoji Server
  * @param {String} custom_emoji_name 
- * @returns {GuildEmoji|undefined}
+ * @returns {GuildEmoji|undefined} the guild emoji or unicode emoji
  */
 function findCustomEmoji(custom_emoji_name) {
     if (typeof custom_emoji_name !== 'string') throw new TypeError('`custom_emoji_name` must be a string!');
@@ -28,7 +28,7 @@ function findCustomEmoji(custom_emoji_name) {
 /**
  * Converts a number into an emoji from the bots emoji guild
  * @param {Number|String} num can be multiple digits
- * @returns {String}
+ * @returns {String} a string of bot number emojis
  */
 function constructNumberUsingEmoji(num) {
     if (isNaN(num) && typeof num !== 'string') throw new TypeError('`num` must be a number or a string!');

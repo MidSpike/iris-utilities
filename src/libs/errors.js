@@ -39,14 +39,22 @@ function logUserError(message, error=fallback_user_error) {
             {name:'Information:', value:`${'```'}\n${error}${'```'}`}
         ]
     });
+
+    /* output to message.channel */
     message.channel.send(error_embed).catch(console.warn); // Send error to the guild
+
+    /* output to central error logging channel */
     client.channels.cache.get(bot_central_errors_channel_id).send(error_embed).catch(console.trace);  // Send error to central discord log
+
+    /* output to the console */
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`Error In Server ${message.guild.name}`);
     console.error(`Caused by @${message.author.tag} (${message.author.id})`);
     console.error(`Command Used: ${message.cleanContent}`);
     console.trace(error);
     console.error('----------------------------------------------------------------------------------------------------------------');
+
+    /* output to error log file */
     fs.appendFile(bot_error_log_file, [
         `Id: ${error_id}`,
         `Timestamp: ${error_timestamp}`,
