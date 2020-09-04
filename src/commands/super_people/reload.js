@@ -55,7 +55,7 @@ module.exports = new DisBotCommand({
                 message.reply(`The command name specified does not have a file!`);
             }
         } else {
-            message.reply(`Could not find command \`${command_to_search_for}\`!`);
+            message.reply(`Could not find command \`${specified_command_input_with_prefix}\`!`);
         }
     },
 });
