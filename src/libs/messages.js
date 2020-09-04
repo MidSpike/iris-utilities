@@ -170,7 +170,7 @@ async function removeAllReactionsFromMessage(message) {
  * Removes a specified message from a specified channel
  * @param {String} channel_id 
  * @param {String} message_id 
- * @returns {Promise<Message>}
+ * @returns {Promise<Message>} 
  */
 async function removeMessageFromChannel(channel_id, message_id) {
     const channel_containing_message = client.channels.cache.get(channel_id);

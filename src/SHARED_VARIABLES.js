@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * This file will contain variables that should be accessible to all
+ * This file contains variables that should be accessible to all
  * scopes of the bot process, excluding the bot api server process.
  */
 

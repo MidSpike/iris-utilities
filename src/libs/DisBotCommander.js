@@ -7,18 +7,20 @@ const { Discord } = require('./bot.js');
 /**
  * Parses message_content for the command used
  * @param {String} message_content 
- * @returns {String} discord_command including the comman_prefix
+ * @returns {String} the `discord_command` including the `command_prefix`
  */
 function getDiscordCommand(message_content) {
+    if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
     return message_content.split(/\s/g).filter(item => item !== '')[0].toLowerCase();
 }
 
 /**
  * Gets an array of command arguments based off of seperating the message_content with spaces
- * @param {*} message_content 
- * @returns {Array<String>} command arguments
+ * @param {String} message_content 
+ * @returns {Array<String>} the `discord_command` `command_args`
  */
 function getDiscordCommandArgs(message_content) {
+    if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
     return message_content.split(/\s/g).filter(item => item !== '').slice(1);
 }
 
@@ -54,16 +56,16 @@ class DisBotCommand {
         };
 
         /* type checks and basic validation checks */
-        if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new Error('`name` must be a valid string!');
-        if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new Error('`category` must be a valid string!');
-        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new Error('`weight` must be a valid number above `0`!');
-        if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new Error('`description` must be a valid string!');
-        if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new Error('`aliases` must be a valid array!');
-        if (isNaN(_cmd.access_level)) throw new Error('`access_level` must be a valid number!');
-        if (typeof _cmd.executor !== 'function') throw new Error('`executor` must be a valid function!');
+        if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new TypeError('`name` must be a valid string!');
+        if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new TypeError('`category` must be a valid string!');
+        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new TypeError('`weight` must be a valid number above `0`!');
+        if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new TypeError('`description` must be a valid string!');
+        if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new TypeError('`aliases` must be a valid array!');
+        if (isNaN(_cmd.access_level)) throw new TypeError('`access_level` must be a valid number!');
+        if (typeof _cmd.executor !== 'function') throw new TypeError('`executor` must be a valid function!');
 
         /* advanced validation checks */
-        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new Error('`access_level` must be from DisBotCommand.access_levels!');
+        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new TypeError('`access_level` must be from DisBotCommand.access_levels!');
 
         this.name = _cmd.name;
         this.category = _cmd.category;
@@ -110,7 +112,7 @@ class DisBotCommander {
     static #commands = new Discord.Collection();
 
     /**
-     * @returns a Discord.Collection of commands
+     * @returns a `Discord.Collection` of commands
      */
     static get commands() {
         return this.#commands;
