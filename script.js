@@ -212,24 +212,29 @@ client.on('warn', console.trace);
 client.on('error', console.trace);
 
 client.on('ready', async () => {
-    const ready_timestamp = moment();
+    console.timeEnd(`client.login -> 'ready' event`);
+
     SHARED_VARIABLES.restarting_bot = true; // the bot is still restarting
+
+    const ready_timestamp = moment(); // consider this timestamp as the official 'ready' event moment
 
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     console.log(`${bot_common_name} Logged in as ${client.user.tag} on ${ready_timestamp} in ${client.guilds.cache.size} servers!`);
     console.log(`----------------------------------------------------------------------------------------------------------------`);
 
-    /* log to all subscribed servers that a restart has just happened */
-    // const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
-    // guild_restart_logging_channels.forEach(channel => {
-    //     if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
-    //         channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
-    //     } else {
-    //         console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`)
-    //     }
-    // });
+    /* after 1 minute, log to all subscribed servers that a restart has just occurred */
+    client.setTimeout(() => {
+        const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
+        guild_restart_logging_channels.forEach(channel => {
+            if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
+                channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
+            } else {
+                console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`)
+            }
+        });
+    }, 1000 * 60 * 1); // 1 minute
 
-    /* update the client presence with various helpful information */
+    /* after 5 minutes, update the client presence with various helpful information */
     client.setTimeout(() => {
         let bot_presence_mode = 1;
         client.setInterval(() => {
@@ -1125,17 +1130,20 @@ client.on('message', async message => {
 //---------------------------------------------------------------------------------------------------------------//
 
 /* register the commands */
+console.info('----------------------------------------------------------------------------------------------------------------');
 try {
     const command_files_directory_path = path.join(process.cwd(), './src/commands/');
     const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
     for (const command_file of command_files) {
+        console.info(`Registering Command: ${command_file}`);
         const command_file_path = path.join(process.cwd(), './src/commands/', command_file);
         const command_to_register = require(command_file_path);
         DisBotCommander.registerCommand(command_to_register);
     }
 } catch (error) {
-    console.trace(`An issue occurred while registering the commands:`, error);
+    console.trace(`An error occurred while registering the commands:`, error);
 }
+console.info('----------------------------------------------------------------------------------------------------------------');
 
 //---------------------------------------------------------------------------------------------------------------//
 

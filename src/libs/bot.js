@@ -22,6 +22,7 @@ const client = new Discord.Client({
     messageSweepInterval: 60 * 5, // sweep messages every 5 minutes
 });
 
+console.time(`client.login -> 'ready' event`);
 client.login(process.env.BOT_DISCORD_API_TOKEN);
 
 module.exports = {
