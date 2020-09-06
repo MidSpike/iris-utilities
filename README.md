@@ -3,22 +3,29 @@
 ## Information
 
 ### What is I.R.I.S. Utilities?
-I.R.I.S Utilities is a multi-purpose discord bot that allows you to play music, have fun, manage roles, and perform various other utility-related things.
+I.R.I.S Utilities is a multi-purpose discord bot that allows you to play music, have fun, and perform various other utility-related tasks.
 
 ### What does I.R.I.S. stand for?
-I.R.I.S. is the Interactive Reconnaissance Information Service and it's here to help!
+I.R.I.S. is the **I**nteractive **R**econnaissance **I**nformation **S**ervice and she's here to help!
 
-### Is there a website?
+### Why is I.R.I.S. Utilities a "she"?
+I.R.I.S. originally did not have a gender until a growing number of users started calling I.R.I.S. by feminine pronouns.
+
+### Does I.R.I.S. Utilities have a website?
 Yes, check out [iris-utilities.com](https://iris-utilities.com/)!
 
 ### Who was I.R.I.S. Utilities created by?
-The I.R.I.S. Utilities Discord Bot was created by and is currently maintained by Tyler S. Resch over at [MidSpike.Com](https://midspike.com/).
+I.R.I.S. Utilities was created by and is currently maintained by Tyler S. Resch from [MidSpike.Com](https://midspike.com/).
 
 ### Why is I.R.I.S. Utilities on GitHub?
-I have decided that I.R.I.S. Utilities is a Discord Bot for the people, therefore it's source-code should viewable by the public and open to contributions!
+There are a few reasons for this:
 
-### Am I allowed to make a Discord Bot from this source-code?
-Yes, you are allowed to create a Discord Bot from this source-code. ([see restrictions below](#restrictions-for-created/modified-bots:))
+1) I decided that I.R.I.S. Utilities is a Discord Bot for the people; therefore, it's source-code should be viewable by the public!
+
+2) Open-source software is good for the end-user: bug fixes, security patches, and general improvements can be quickly generated!
+
+### Am I allowed to make a Discord Bot from I.R.I.S. Utilities source-code?
+Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code. ([see restrictions below](#legal))
 
 ---
 
@@ -53,7 +60,7 @@ Yes, you are allowed to create a Discord Bot from this source-code. ([see restri
 > 
 > Any Discord Bot created/modified from this source-code by anyone (including the copyright holders) must attribute the copyright holder(s) listed in the [Copyright Notice](#copyright-notice) below.
 > 
-> The restrictions above, are meant to protect everyone from potentially malicious clones of this Software and to protect the authenticity of I.R.I.S. Utilities.
+> The restrictions above, are meant to protect users from potentially malicious copies/modifications of this source-code and uphold the authenticity of I.R.I.S. Utilities.
 
 ### Privacy Notice
 > We have a privacy policy for the creators and end-users of any Discord Bot created from this source-code:  
@@ -64,16 +71,17 @@ Yes, you are allowed to create a Discord Bot from this source-code. ([see restri
 > I.R.I.S. Utilities is a Music & Utilities bot for Discord  
 > Copyright (C) 2020 - Tyler S. Resch
 > 
-> This program is free software: you can redistribute it and/or modify
-> it under the terms of the GNU General Public License as published by
-> the Free Software Foundation, either version 3 of the License, or
+> This program is free software: you can redistribute it and/or modify  
+> it under the terms of the GNU General Public License as published by  
+> the Free Software Foundation, either version 3 of the License, or  
 > (at your option) any later version.
 > 
-> This program is distributed in the hope that it will be useful,
-> but WITHOUT ANY WARRANTY; without even the implied warranty of
-> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> This program is distributed in the hope that it will be useful,  
+> but WITHOUT ANY WARRANTY; without even the implied warranty of  
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
 > GNU General Public License for more details.
 > 
-> You should have received a copy of the GNU General Public License
+> You should have received a copy of the GNU General Public License  
 > along with this program. If not, see <http://www.gnu.org/licenses/>.
+> 
 > **[Linked copy of the GNU General Public License](LICENSE.md)**
