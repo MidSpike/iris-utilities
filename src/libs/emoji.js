@@ -8,7 +8,7 @@ const emoji_guild_id = process.env.BOT_EMOJI_GUILD_ID;
 
 //---------------------------------------------------------------------------------------------------------------//
 
-/** @TODO Find better way to do this */
+/** @TODO find a better way to do this */
 const zero_to_nine_as_words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 
 //---------------------------------------------------------------------------------------------------------------//

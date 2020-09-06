@@ -8,7 +8,7 @@ const { Discord,
 /**
  * Creates an auto-filled Discord.MessageEmbed for common usage scenarios that this bot may need
  * @param {Object} options 
- * @param {Message} message 
+ * @param {Message} message an origin message such as a command message
  * @returns {Discord.MessageEmbed} A discord message embed
  */
 class CustomRichEmbed {

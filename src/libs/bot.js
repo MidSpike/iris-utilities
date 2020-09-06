@@ -18,7 +18,7 @@ const client = new Discord.Client({
         },
     },
     messageCacheMaxSize: 50, // keep 50 messages cached in each channel
-    messageCacheLifetime: 60 * 5, // messages should be keep for 5 minutes
+    messageCacheLifetime: 60 * 5, // messages should be kept for 5 minutes
     messageSweepInterval: 60 * 5, // sweep messages every 5 minutes
 });
 

@@ -14,7 +14,7 @@ const bot_guild_configs_file = path.join(process.cwd(), process.env.BOT_GUILD_CO
 /**
  * Creates an interface for accessing Guild Config Information and modifying it
  * @param {String} guild_id
- * @returns {GuildConfigManipulator}
+ * @returns {GuildConfigManipulator} 
  */
 class GuildConfigManipulator {
     #configs_file = bot_guild_configs_file;

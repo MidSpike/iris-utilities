@@ -10,14 +10,14 @@ const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-/**
- * Constructs a new reminder to use with the ReminderManager
- * @param {String} user_id 
- * @param {Date} date_time 
- * @param {Message} message 
- * @returns {this}
- */
 class Reminder {
+    /**
+     * Constructs a new reminder to use with the ReminderManager
+     * @param {String} user_id 
+     * @param {Date} date_time 
+     * @param {String} message the contents of the reminder
+     * @returns {Reminder} a new Reminder
+     */
     constructor(user_id, date_time, message) {
         this.id = pseudoUniqueId();
         this.user_id = user_id;
