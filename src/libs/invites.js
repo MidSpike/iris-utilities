@@ -8,6 +8,7 @@ const { client } = require('./bot.js');
  * Generates an invite to a guild
  * @param {String} guild_id 
  * @param {String} invite_reason 
+ * @returns {Invite} an invite or throws if unsuccessful
  */
 async function generateInviteToGuild(guild_id, invite_reason='created invite via a command that was used in this server') {
     const guild = client.guilds.cache.get(guild_id);

@@ -49,21 +49,21 @@ async function sendLargeMessage(channel_id, large_message, code_block_lang='') {
 const options_message_reactions_template = [
     {
         emoji_name: 'bot_emoji_checkmark',
-        cooldown: 1500,
+        cooldown: 1000,
         callback(options_message, collected_reaction, user) {}
     }, {
         emoji_name: 'bot_emoji_close',
-        cooldown: 1500,
+        cooldown: 1000,
         callback(options_message, collected_reaction, user) {}
     }
 ];
 /**
- * 
+ * Sends a message with clickable reactions for a user to interact with
  * @param {String} channel_id 
- * @param {MessageEmbed} embed 
- * @param {options_message_reactions_template} reaction_options 
- * @param {String} confirmation_user_id 
- * @returns {Message} options_message after attempting to add all reactions
+ * @param {MessageContents} embed any valid input for channel.send(...)
+ * @param {options_message_reactions_template} reaction_options an object that derives from an `options_message_reactions_template`
+ * @param {String} confirmation_user_id the user_id to confirm reaction origin with
+ * @returns {Message} the options_message after attempting to add all reactions
  */
 async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
     const options_message = await client.channels.cache.get(channel_id).send(embed).catch(console.warn);

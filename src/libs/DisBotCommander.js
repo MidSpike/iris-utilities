@@ -135,5 +135,5 @@ module.exports = {
     getDiscordCommand,
     getDiscordCommandArgs,
     DisBotCommand,
-    DisBotCommander
+    DisBotCommander,
 };
