@@ -17,10 +17,12 @@ const { disBotServers } = require('../SHARED_VARIABLES.js');
 function playStream(voice_connection, stream, volume_ratio=1.0, startCallback=(voice_connection, dispatcher)=>{}, endCallback=(voice_connection, dispatcher)=>{}, errorCallback=(error)=>{}) {
     const server = disBotServers[voice_connection.channel.guild.id];
 
-    stream?.on('error', (error) => {
-        console.trace(error);
-        errorCallback(error);
-    });
+    if (typeof stream?.on === 'function') {
+        stream.on('error', (error) => {
+            console.trace(error);
+            errorCallback(error);
+        });
+    }
 
     const magic_volume_constant = 0.275; // This number effects all volume situations
     server.dispatcher = voice_connection.play(stream, {
