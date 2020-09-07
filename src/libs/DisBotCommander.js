@@ -19,7 +19,7 @@ function getDiscordCommand(message_content) {
 /**
  * Gets an array of command arguments based off of seperating the message_content with spaces
  * @param {String} message_content 
- * @returns {Array<String>} the `discord_command` `command_args`
+ * @returns {Array<String>} the `command_args` of the command message
  */
 function getDiscordCommandArgs(message_content) {
     if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
@@ -36,7 +36,7 @@ class DisBotCommand {
         GUILD_MOD: 500,
         GUILD_ADMIN: 1_000,
         BOT_SUPER: 5_000,
-        BOT_OWNER: 10_000
+        BOT_OWNER: 10_000,
     };
     #cmd_template = {
         name: '',
@@ -45,7 +45,7 @@ class DisBotCommand {
         description: '',
         aliases: [],
         access_level: DisBotCommand.access_levels.GLOBAL_USER,
-        executor(Discord, client, message, opts={}) {}
+        executor(Discord, client, message, opts={}) {},
     };
     /**
      * The arguments are an object to allow for easy future expansion
@@ -54,7 +54,7 @@ class DisBotCommand {
     constructor(cmd={}) {
         const _cmd = {
             ...this.#cmd_template,
-            ...cmd
+            ...cmd,
         };
 
         /* type checks and basic validation checks */

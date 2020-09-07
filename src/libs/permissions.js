@@ -54,7 +54,6 @@ const isSuperPersonAllowed = (super_person, permission_flag) => {
 
 module.exports = {
     botHasPermissionsInGuild,
-
     isThisBot,
     isThisBotsOwner,
     isSuperPerson,
