@@ -140,14 +140,14 @@ class QueueItemPlayer {
 
                 const queue_is_active = () => this.queue_manager.queue.length > 0 || this.queue_manager.loop_enabled || this.queue_manager.autoplay_enabled;
                 if (!queue_is_active()) { // the bot is not active in vc, so run the disconnect process
-                    await Timer(1000 * 5); // wait 5 seconds before starting the disconnect process
+                    await Timer(1000 * 10); // wait 10 seconds before starting the disconnect process
 
-                    const bot_is_active_in_vc = () => voice_connection.voice?.speaking;
+                    const bot_is_active_in_vc = () => voice_connection.voice?.speaking === true;
 
-                    /* loop 5 times at an interval of 5 seconds (total check time of 25 seconds) to see if vc is active */
-                    for (let vc_check_number = 0; vc_check_number < 5; vc_check_number++) {
-                        if (bot_is_active_in_vc()) return;
-                        await Timer(1000 * 5);
+                    /* loop 10 times at an interval of 2 seconds (total check time of 20 seconds) to see if vc is active */
+                    for (let vc_check_number = 0; vc_check_number < 20; vc_check_number++) {
+                        if (queue_is_active() || bot_is_active_in_vc()) return;
+                        await Timer(1000);
                     }
 
                     if (guild_config.disconnect_tts_voice === 'enabled') { // disconnect with TTS
