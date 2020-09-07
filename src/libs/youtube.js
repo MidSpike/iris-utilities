@@ -151,11 +151,10 @@ async function playYouTube(message, search_query, playnext=false) {
         }, (error) => {
             console.trace(`${error ?? 'Unknown Playback Error!'}`);
         });
-        await server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.videoDetails.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined)).then(() => {
-            if (server.queue_manager.queue.length > 1 && send_embed) {
-                sendYtDiscordEmbed(message, yt_video_info, 'Added');
-            }
-        });
+        await server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.videoDetails.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined));
+        if (server.queue_manager.queue.length > 1 && send_embed) {
+            sendYtDiscordEmbed(message, yt_video_info, 'Added');
+        }
         return; // complete async
     }
 
@@ -164,14 +163,14 @@ async function playYouTube(message, search_query, playnext=false) {
         const yt_playlist_response = await axios.get(yt_playlist_api_url);
         const playlist_items = yt_playlist_response.data.items;
         if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
-        const confirmEmbed = new CustomRichEmbed({
+        const confirmation_embed = new CustomRichEmbed({
             title:`Do you want this to play as a playlist?`,
             description:[
                 `${'```'}fix\nWARNING! YOU CAN'T STOP A PLAYLIST FROM ADDING ITEMS!\n${'```'}`,
                 `**If you want this to play as a song, then click on the ${findCustomEmoji('bot_emoji_close')}.**`
             ].join('\n')
         }, message);
-        sendOptionsMessage(message.channel.id, confirmEmbed, [
+        sendOptionsMessage(message.channel.id, confirmation_embed, [
             {
                 emoji_name:'bot_emoji_checkmark',
                 callback:async (options_message, collected_reaction, user) => {
@@ -187,7 +186,7 @@ async function playYouTube(message, search_query, playnext=false) {
                         } else {
                             break;
                         }
-                        await Timer(10_000); // Add an item every 10 seconds
+                        await Timer(10_000); // add an item every 10 seconds
                     }
                 }
             }, {
@@ -218,16 +217,16 @@ async function playYouTube(message, search_query, playnext=false) {
     const potential_playlist_id = await _get_playlist_id_from_query(search_query);
     const potential_video_id = await _get_video_id_from_query(search_query);
 
-    if (potential_playlist_id) { // The search_query was a playlist
+    if (potential_playlist_id) { // the search_query was a playlist
         try {
             await _play_as_playlist(potential_playlist_id);
         } catch {
             console.warn(`Issues with YouTube API detected... Falling-back to normal video playback!`);
             await _play_as_video(potential_video_id);
         }
-    } else if (potential_video_id) { // The search_query is a video
+    } else if (potential_video_id) { // the search_query is a video
         await _play_as_video(potential_video_id);
-    } else {
+    } else { // the search_query is unknown
         if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
         message.channel.send(new CustomRichEmbed({
             color:0xFFFF00,
