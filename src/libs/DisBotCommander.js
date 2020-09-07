@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+const recursiveReadDirectory = require('recursive-read-directory');
 const { Discord } = require('./bot.js');
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -131,9 +133,31 @@ class DisBotCommander {
     }
 }
 
+/**
+ * Registers all `DisBotCommand` files to `DisBotCommander` by recursively
+ * looking for all `.js` files in the `./src/commands/` directory.
+ */
+function registerDisBotCommands() {
+    console.info('----------------------------------------------------------------------------------------------------------------');
+    try {
+        const command_files_directory_path = path.join(process.cwd(), './src/commands/');
+        const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
+        for (const command_file of command_files) {
+            console.info(`Registering Command: ${command_file}`);
+            const command_file_path = path.join(process.cwd(), './src/commands/', command_file);
+            const command_to_register = require(command_file_path);
+            DisBotCommander.registerCommand(command_to_register);
+        }
+    } catch (error) {
+        console.trace(`An error occurred while registering the commands:`, error);
+    }
+    console.info('----------------------------------------------------------------------------------------------------------------');
+}
+
 module.exports = {
     getDiscordCommand,
     getDiscordCommandArgs,
     DisBotCommand,
     DisBotCommander,
+    registerDisBotCommands,
 };
