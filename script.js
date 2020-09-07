@@ -7,8 +7,6 @@ require('manakin').global; // colors for Console.*
 
 const os = require('os'); os.setPriority(0, os.constants.priority.PRIORITY_HIGH);
 const fs = require('fs');
-const path = require('path');
-const recursiveReadDirectory = require('recursive-read-directory');
 
 const moment = require('moment-timezone');
 
@@ -101,7 +99,8 @@ const { isThisBot,
 const { getDiscordCommand,
         getDiscordCommandArgs,
         DisBotCommand,
-        DisBotCommander } = require('./src/libs/DisBotCommander.js');
+        DisBotCommander,
+        registerDisBotCommands } = require('./src/libs/DisBotCommander.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -1130,20 +1129,7 @@ client.on('message', async message => {
 //---------------------------------------------------------------------------------------------------------------//
 
 /* register the commands */
-console.info('----------------------------------------------------------------------------------------------------------------');
-try {
-    const command_files_directory_path = path.join(process.cwd(), './src/commands/');
-    const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
-    for (const command_file of command_files) {
-        console.info(`Registering Command: ${command_file}`);
-        const command_file_path = path.join(process.cwd(), './src/commands/', command_file);
-        const command_to_register = require(command_file_path);
-        DisBotCommander.registerCommand(command_to_register);
-    }
-} catch (error) {
-    console.trace(`An error occurred while registering the commands:`, error);
-}
-console.info('----------------------------------------------------------------------------------------------------------------');
+registerDisBotCommands();
 
 //---------------------------------------------------------------------------------------------------------------//
 
