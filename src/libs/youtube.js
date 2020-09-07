@@ -43,7 +43,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
 
     console.time(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
 
-    // try using the YouTube API results
+    /* try using the YouTube API results */
     let current_search_attempt = 1;
     let search_results = [];
     while (current_search_attempt <= retry_attempts) {
@@ -64,11 +64,11 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
         }
     }
 
-    // fallback to scraping the youtube website results
+    /* fallback to scraping the youtube website results */
     if (search_results.length === 0) {
         console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
         const backup_search_results = (await ytSearchBackup(search_query)).videos;
-        // Map the unofficial backup results to match the primary results scheme
+        /* Map the unofficial backup results to match the primary results scheme */
         search_results = backup_search_results.map(({ videoId, url, title }) => ({
             id:`${videoId}`,
             link:`${url}`,
@@ -77,7 +77,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     }
 
     console.timeEnd(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
-    return search_results ?? backup_search_results ?? []; // Force an empty array if nullish
+    return search_results ?? []; // Force an empty array if nullish
 }
 
 /**
