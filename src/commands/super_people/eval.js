@@ -17,6 +17,8 @@ const recursiveReadDirectory = require('recursive-read-directory');
 const axios = require('axios');
 const moment = require('moment-timezone');
 
+const splitString = require('split-string');
+
 const bot_config = require('../../../config.json');
 
 const { Timer, pseudoUniqueId } = require('../../utilities.js');
