@@ -22,9 +22,6 @@ module.exports = new DisBotCommand({
     aliases:['tts_argument'],
     access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
-        const { guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
-
         const used_insults = [];
         let insult_count = 1;
         async function tts_insult() {
@@ -45,8 +42,6 @@ module.exports = new DisBotCommand({
 
             const tts_provider = 'ibm';
             const tts_voice = tts_person ? 'en-GB_KateV3Voice' : 'en-US_HenryV3Voice';
-            // const tts_provider = tts_person ? `ibm` : 'google';
-            // const tts_voice = tts_person ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
             const tts_text = `${insult.insult}`;
 
             const tts_url = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(tts_provider)}&lang=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}`;
