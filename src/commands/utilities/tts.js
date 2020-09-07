@@ -110,8 +110,10 @@ module.exports = new DisBotCommand({
         const tts_arg_potential_voice = [...Object.keys(google_languages_json), ...Object.keys(ibm_languages_json)].includes(tts_arg) ? tts_arg : undefined;
         const tts_arg_potential_provider = ['ibm', 'google'].includes(tts_arg) ? tts_arg : (Object.keys(google_languages_json).includes(tts_arg_potential_voice) ? 'google' : (Object.keys(ibm_languages_json).includes(tts_arg_potential_voice) ? 'ibm' : undefined));
 
-        const tts_provider = tts_arg_potential_provider ?? bot_config.default_guild_config.tts_provider;
-        const tts_voice = tts_arg_potential_voice ?? (tts_provider === 'ibm' ? guild_config.tts_voice_ibm ?? bot_config.default_guild_config.tts_voice_ibm : guild_config.tts_voice_google ?? bot_config.default_guild_config.tts_voice_google);
+        const tts_provider = tts_arg_potential_provider ?? guild_config.tts_provider ?? bot_config.default_guild_config.tts_provider;
+        const tts_voice_when_provider_is_ibm = guild_config.tts_voice_ibm ?? bot_config.default_guild_config.tts_voice_ibm;
+        const tts_voice_when_provider_is_google = guild_config.tts_voice_google ?? bot_config.default_guild_config.tts_voice_google;
+        const tts_voice = tts_arg_potential_voice ?? tts_provider === 'ibm' ? tts_voice_when_provider_is_ibm : tts_voice_when_provider_is_google;
 
         const tts_source = (message.attachments.size > 0 ? (await axios.get(message.attachments.first().url)).data : (tts_input ?? '').replace(regex_tts_command_args, ``)).trim();
         const tts_chunks = array_chunks(tts_source.split(/\s/g), 100).map(chunk => chunk.join(' '));
