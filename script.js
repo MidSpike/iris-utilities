@@ -115,7 +115,7 @@ async function updateGuildConfig(guild) {
         return;
     }
 
-    if (guild.partial) await guild.fetch().catch(console.warn);
+    if (guild.partial) await guild.fetch().catch((warning) => console.warn('1599589897074799491', warning));
 
     const guild_config_manipulator = new GuildConfigManipulator(guild.id);
     const old_guild_config = guild_config_manipulator.config;
@@ -161,7 +161,7 @@ async function add_guild_to_disBotServers(guild) {
         return;
     }
 
-    if (guild.partial) await guild.fetch().catch(console.warn);
+    if (guild.partial) await guild.fetch().catch((warning) => console.warn('1599589897074318280', warning));
 
     SHARED_VARIABLES.disBotServers[guild.id] = {
         ...(SHARED_VARIABLES.disBotServers[guild.id] ?? {}),
@@ -337,7 +337,7 @@ client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
 client.on('guildUpdate', async (old_guild, new_guild) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (new_guild.partial) await new_guild.fetch().catch(console.warn);
+    if (new_guild.partial) await new_guild.fetch().catch((warning) => console.warn('1599589897074706177', warning));
 
     updateGuildConfig(new_guild);
 });
@@ -345,7 +345,7 @@ client.on('guildUpdate', async (old_guild, new_guild) => {
 client.on('guildCreate', async guild => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (guild.partial) guild.fetch().catch(console.warn);
+    if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074386511', warning));
 
     /* log to the central logging server when a guild adds the bot to it */
     const central_guild_history_logging_channel = client.channels.cache.get(bot_central_guild_history_channel_id);
@@ -434,7 +434,7 @@ client.on('guildCreate', async guild => {
 client.on('guildDelete', async guild => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (guild.partial) guild.fetch().catch(console.warn);
+    if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074228380', warning));
 
     /* log to the central logging server when a guild removes the bot from it */
     client.channels.cache.get(bot_central_guild_history_channel_id).send(new CustomRichEmbed({
@@ -450,7 +450,7 @@ client.on('guildDelete', async guild => {
 client.on('channelCreate', async channel => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (channel) channel.fetch().catch(console.warn);
+    if (channel) channel.fetch().catch((warning) => console.warn('1599589897074960649', warning));
 
     if (channel.type !== 'text') return;
     const guild_config_manipulator = new GuildConfigManipulator(channel.guild.id);
@@ -545,12 +545,13 @@ client.on('channelCreate', async channel => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-client.on('guildMemberAdd', async member => {
+client.on('guildMemberAdd', async (member) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (member.partial) member.fetch().catch(console.warn);
-
     if (isThisBot(member.id)) return; // don't log this bot joining... it can happen oddly enough...
+
+    if (member.user.partial) member.user.fetch().catch((warning) => console.warn('1599589897074279134', warning));
+
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
@@ -563,12 +564,13 @@ client.on('guildMemberAdd', async member => {
     });
 });
 
-client.on('guildMemberRemove', async member => {
+client.on('guildMemberRemove', async (member) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (member.partial) member.fetch().catch(console.warn);
-
     if (isThisBot(member.id)) return; // don't log this bot leaving... it can happen oddly enough...
+
+    if (member.user.partial) member.user.fetch().catch((warning) => console.warn('1599589897074661817', warning));
+
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
@@ -586,9 +588,9 @@ client.on('guildMemberRemove', async member => {
 client.on('messageReactionAdd', async (reaction, user) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (reaction.partial) await reaction.fetch().catch(console.warn);
-    if (reaction.message.partial) await reaction.message.fetch().catch(console.warn);
-    if (user.partial) await user.fetch().catch(console.warn);
+    if (reaction.partial) await reaction.fetch().catch((warning) => console.warn('1599589897074362466', warning));
+    if (reaction.message.partial) await reaction.message.fetch().catch((warning) => console.warn('1599589897074415111', warning));
+    if (user.partial) await user.fetch().catch((warning) => console.warn('1599589897074338603', warning));
 
     if (user.bot) return; // don't log bots
     if (!reaction.message.guild) return; // don't continue with direct message reactions
@@ -615,9 +617,9 @@ client.on('messageReactionAdd', async (reaction, user) => {
 client.on('messageReactionRemove', async (reaction, user) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (reaction.partial) await reaction.fetch().catch(console.warn);
-    if (reaction.message.partial) await reaction.message.fetch().catch(console.warn);
-    if (user.partial) await user.fetch().catch(console.warn);
+    if (reaction.partial) await reaction.fetch().catch((warning) => console.warn('1599589897074335802', warning));
+    if (reaction.message.partial) await reaction.message.fetch().catch((warning) => console.warn('1599589897074481368', warning));
+    if (user.partial) await user.fetch().catch((warning) => console.warn('1599589897074623501', warning));
 
     if (user.bot) return; // don't log bots
     if (!reaction.message.guild) return; // don't continue with direct message reactions
@@ -687,7 +689,7 @@ client.on('inviteDelete', async invite => {
 client.on('guildMemberAdd', async member => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (member.partial) await member.fetch().catch(console.warn);
+    if (member.partial) await member.fetch().catch((warning) => console.warn('1599589897074427723', warning));
 
     if (member.guild.id !== bot_appeals_guild_id) return; // check to see if the joined the Bot Appeals Guild
 
@@ -753,7 +755,7 @@ client.on('guildMemberAdd', async member => {
 client.on('guildMemberAdd', async member => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (member.partial) await member.fetch().catch(console.warn);
+    if (member.partial) await member.fetch().catch((warning) => console.warn('1599589897074140652', warning));
 
     const auto_roles = new GuildConfigManipulator(member.guild.id).config.new_member_roles ?? [];
     if (auto_roles.length > 0 && member.guild.me.hasPermission('MANAGE_ROLES')) {
@@ -768,10 +770,10 @@ client.on('guildMemberAdd', async member => {
 client.on('message', async message => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
-    if (message.partial) await message.fetch().catch(console.warn);
-    if (message.user?.partial) await message.user.fetch().catch(console.warn);
-    if (message.member?.partial) await message.member.fetch().catch(console.warn);
-    if (message.guild) await message.guild.fetch().catch(console.warn);
+    if (message.partial) await message.fetch().catch((warning) => console.warn('1599589897074120198', warning));
+    if (message.user?.partial) await message.user.fetch().catch((warning) => console.warn('1599589897074640420', warning));
+    if (message.member?.partial) await message.member.fetch().catch((warning) => console.warn('1599589897074997570', warning));
+    if (message.guild) await message.guild.fetch().catch((warning) => console.warn('1599589897074678159', warning));
     
     if (message.author.bot) return; // don't interact with bots
 
@@ -850,10 +852,10 @@ client.on('message', async message => {
 
 client.on('message', async message => {
     /* handle potential partial data structures */
-    if (message.partial) await message.fetch().catch(console.warn);
-    if (message.user?.partial) await message.user.fetch().catch(console.warn);
-    if (message.member?.partial) await message.member.fetch().catch(console.warn);
-    if (message.guild) await message.guild.fetch().catch(console.warn);
+    if (message.partial) await message.fetch().catch((warning) => console.warn('1599589897074884457', warning));
+    if (message.user?.partial) await message.user.fetch().catch((warning) => console.warn('1599589897074181056', warning));
+    if (message.member?.partial) await message.member.fetch().catch((warning) => console.warn('1599589897074955328', warning));
+    if (message.guild) await message.guild.fetch().catch((warning) => console.warn('1599589897074775229', warning));
 
     /* don't continue if the message is empty and there aren't any attachments */
     if (message.content.trim().length === 0 && message.attachments.size === 0) return;
