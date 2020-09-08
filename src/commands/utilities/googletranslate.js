@@ -41,7 +41,7 @@ module.exports = new DisBotCommand({
                 description:`${'```'}\n${translate_this}\n${'```'}`
             }, message));
 
-            const api_response = await axios.get(`${bot_api_url}/translate?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&text=${encodeURIComponent(user_text)}`);
+            const api_response = await axios.get(`${bot_api_url}/translate?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&translate_to=${encodeURIComponent(translate_to)}&text=${encodeURIComponent(user_text)}`);
 
             const { original_text,
                     translated_from_language,
