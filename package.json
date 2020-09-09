@@ -33,6 +33,7 @@
     "recursive-read-directory": "git+https://github.com/MidSpike/recursive-read-directory.git",
     "request": "^2.88.2",
     "shakespeare-insult": "^1.0.0",
+    "speedtest-net": "^2.1.1",
     "split-string": "^6.1.0",
     "spmock": "^1.0.3",
     "sugar": "^2.0.6",
