@@ -645,7 +645,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-client.on('inviteCreate', async invite => {
+client.on('inviteCreate', async (invite) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
     if (!invite.channel?.guild) return;
@@ -663,7 +663,7 @@ client.on('inviteCreate', async invite => {
     });
 });
 
-client.on('inviteDelete', async invite => {
+client.on('inviteDelete', async (invite) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
     if (!invite.channel?.guild) return;
@@ -686,7 +686,7 @@ client.on('inviteDelete', async invite => {
 //---------------------------------------------------------------------------------------------------------------//
 
 /* bot appeals centre handling for freshly banned members */
-client.on('guildMemberAdd', async member => {
+client.on('guildMemberAdd', async (member) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
     if (member.partial) await member.fetch().catch((warning) => console.warn('1599589897074427723', warning));
@@ -752,7 +752,7 @@ client.on('guildMemberAdd', async member => {
 //---------------------------------------------------------------------------------------------------------------//
 
 /* automatic addition of roles */
-client.on('guildMemberAdd', async member => {
+client.on('guildMemberAdd', async (member) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
     if (member.partial) await member.fetch().catch((warning) => console.warn('1599589897074140652', warning));
@@ -767,7 +767,7 @@ client.on('guildMemberAdd', async member => {
 //---------------------------------------------------------------------------------------------------------------//
 
 /* direct messages with the bot support server */
-client.on('message', async message => {
+client.on('message', async (message) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
     if (message.partial) await message.fetch().catch((warning) => console.warn('1599589897074120198', warning));
@@ -850,7 +850,7 @@ client.on('message', async message => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-client.on('message', async message => {
+client.on('message', async (message) => {
     /* handle potential partial data structures */
     if (message.partial) await message.fetch().catch((warning) => console.warn('1599589897074884457', warning));
     if (message.user?.partial) await message.user.fetch().catch((warning) => console.warn('1599589897074181056', warning));
