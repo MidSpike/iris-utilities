@@ -40,10 +40,14 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command } = opts;
+
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'evaluate_code')) {
             sendNotAllowedCommand(message);
             return;
         }
+
+        const server = SHARED_VARIABLES.disBotServers[message.guild.id];
+
         console.info(`----------------------------------------------------------------------------------------------------------------`);
         const code_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         try {
