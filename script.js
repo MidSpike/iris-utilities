@@ -22,10 +22,6 @@ const { Discord,
 const { Timer,
         getReadableTime } = require('./src/utilities.js');
 
-const { playStream } = require('./src/libs/playStream.js');
-
-const { createConnection } = require('./src/libs/createConnection.js');
-
 //---------------------------------------------------------------------------------------------------------------//
 
 //#region bot files
@@ -36,14 +32,12 @@ const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
 
 //#region bot globals
 const bot_owner_id = bot_config.owner_id;
-const bot_short_name = bot_config.short_name;
 const bot_common_name = bot_config.common_name;
 const bot_version = bot_config.public_version;
 const bot_website = bot_config.website;
 const bot_default_guild_config = bot_config.default_guild_config;
 const bot_support_guild_invite_url = bot_config.support_guild_invite_url;
 const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
-const bot_logging_guild_id = process.env.BOT_LOGGING_GUILD_ID;
 const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
 const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion bot globals
