@@ -30,6 +30,9 @@ class QueueManager {
     constructor(guild) {
         this.#guild = guild;
     }
+    get guild() {
+        return this.#guild;
+    }
     get queue() {
         return this.#queue;
     }
@@ -126,12 +129,13 @@ class QueueItemPlayer {
         this.end_callback = typeof end_callback === 'function' ? end_callback : (() => {});
         this.error_callback = typeof error_callback === 'function' ? error_callback : ((error) => {});
         return async () => {
-            const guild = this.voice_connection.channel.guild;
-            const server = SHARED_VARIABLES.disBotServers[guild.id];
+            const guild = this.queue_manager.guild;
             const guild_config_manipulator = new GuildConfigManipulator(guild.id);
             const guild_config = guild_config_manipulator.config;
             const guild_tts_provider = guild_config.tts_provider;
             const guild_tts_voice = guild_tts_provider === 'ibm' ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
+            const server = SHARED_VARIABLES.disBotServers[guild.id];
+
             playStream(await createConnection(this.voice_connection.channel), await this.stream_maker(), this.volume_ratio, async () => {
                 await this.start_callback();
             }, async (voice_connection, dispatcher) => {
@@ -144,7 +148,7 @@ class QueueItemPlayer {
 
                     const bot_is_active_in_vc = () => voice_connection.voice?.speaking === true;
 
-                    /* loop 10 times at an interval of 2 seconds (total check time of 20 seconds) to see if vc is active */
+                    /* loop 20 times at an interval of 1 second (total check time of 20 seconds) to see if vc is active */
                     for (let vc_check_number = 0; vc_check_number < 20; vc_check_number++) {
                         if (queue_is_active() || bot_is_active_in_vc()) return;
                         await Timer(1000);
