@@ -286,8 +286,17 @@ client.on('ready', async () => {
         }
         console.timeEnd(`propagate_guilds()`);
     }
-    await propagate_guilds(); // immediately after a restart
-    client.setInterval(propagate_guilds, 1000 * 60 * 5); // every 5 minutes
+    client.setImmediate(propagate_guilds); // immediately after a restart
+
+    /* update guild configs every 15 minutes to keep an updated record */
+    async function update_guild_configs() {
+        console.time(`update_guild_configs()`);
+        for (const guild of client.guilds.cache.values()) {
+            await updateGuildConfig(guild);
+        }
+        console.timeEnd(`update_guild_configs()`);
+    }
+    client.setInterval(update_guild_configs, 1000 * 60 * 15); // every 15 minutes
 
     /* finish up preparing the bot */
     SHARED_VARIABLES.restarting_bot = false; // the bot can be considered done restarting
