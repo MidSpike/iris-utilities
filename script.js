@@ -394,41 +394,6 @@ client.on('guildCreate', async guild => {
             console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the owner!`);
         }
     }
-
-    /* send a TTS message to the voice channel containing the most guild admins */
-    // try {
-    //     const tts_text_english = [
-    //         `Hello there, I'm ${bot_short_name}!`,
-    //         `Thank you for adding me to this server!`,
-    //         `You can use me by sending '${bot_default_guild_config.command_prefix}help' in a text-channel!`,
-    //         `...`,
-    //         `I have support staff ready to answer any questions that you may have!`,
-    //         `Simply, direct message me to get in contact with them!`
-    //     ].join('\n');
-    // 
-    //     const tts_url_english = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=en-GB_KateV3Voice&text=${encodeURIComponent(tts_text_english)}`;
-    // 
-    //     /* voice channels in the guild that the bot can connect to */
-    //     const guild_voice_channels = guild.channels.cache.filter(c => c.type === 'voice' && c.permissionsFor(guild.me).has('CONNECT') && c.members.size > 0);
-    // 
-    //     /* the first voice channel in the guild that the bot can connect to */
-    //     const first_voice_channel_in_guild = guild.channels.cache.find(c => c.type === 'voice' && c.permissionsFor(guild.me).has('CONNECT'));
-    // 
-    //     /* the voice channel containing the most guild admins that aren't bots */
-    //     const voice_channel_to_send_tts_to = guild_voice_channels.reduce((a, c) => {
-    //         const a_num_admins_in_vc = a.members.filter(m => !m.user.bot && m.hasPermission('ADMINISTRATOR')).size;
-    //         const c_num_admins_in_vc = c.members.filter(m => !m.user.bot && m.hasPermission('ADMINISTRATOR')).size;
-    //         return c_num_admins_in_vc > a_num_admins_in_vc ? c : a;
-    //     }, first_voice_channel_in_guild);
-    // 
-    //     if (voice_channel_to_send_tts_to.members.size > 0) {
-    //         playStream(await createConnection(voice_channel_to_send_tts_to, true), tts_url_english, 5.0, undefined, () => {
-    //             SHARED_VARIABLES.disBotServers[guild.id].audio_controller.disconnect();
-    //         });
-    //     }
-    // } catch (error) {
-    //     console.warn(error);
-    // }
 });
 
 client.on('guildDelete', async guild => {
