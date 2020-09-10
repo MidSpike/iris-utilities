@@ -178,6 +178,7 @@ async function playYouTube(message, search_query, playnext=false) {
                     await options_message.channel.send(new CustomRichEmbed({
                         title:`Started adding ${playlist_items.length} item(s) to the playlist!`
                     }, message));
+                    await createConnection(voice_channel); // connect the bot to vc for the checks below to pass
                     for (const playlist_item of playlist_items) {
                         /* make sure the bot is still in a voice channel */
                         if (options_message.guild.me?.voice?.connection) {

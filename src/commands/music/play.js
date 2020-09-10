@@ -16,15 +16,25 @@ const { playYouTube } = require('../../libs/youtube.js');
 const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion local dependencies
 
-function detect_unsupported_play_input(search_query) {
-    if (search_query.includes('spotify.com/')) {
+function detect_unsupported_urls(search_query) {
+    if (search_query.includes('spotify.com/')
+     || search_query.includes('soundcloud.com/')
+     || search_query.includes('twitter.com/')
+     || search_query.includes('facebook.com/')
+    ) {
         return true;
-    } else if (search_query.includes('soundcloud.com/')) {
-        return true;
-    } else if (search_query.includes('twitter.com/')) {
-        return true;
-    } else if (search_query.includes('facebook.com/')) {
-        return true;
+    } else {
+        return false;
+    }
+}
+
+function detect_unsupported_attachment(message_attachment) {
+    if (message_attachment) {
+        if (message_attachment.name.endsWith('.mp3')) {
+            return false;
+        } else {
+            return true;
+        }
     } else {
         return false;
     }
@@ -151,6 +161,7 @@ module.exports = new DisBotCommand({
     aliases:[`play`, `p`, `playnext`, `pn`, ``],
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
+
         const playnext = [`${command_prefix}playnext`, `${command_prefix}pn`].includes(discord_command);
 
         if (!message.member?.voice?.channel) {
@@ -162,10 +173,19 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        if (detect_unsupported_play_input(command_args.join(' '))) {
+        const message_attachment = message.attachments.first() ?? undefined;
+        
+        if (detect_unsupported_urls(command_args.join(' '))) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:`Sorry playing music from that website isn't supported!`,
+                title:`Playing music from that website isn't supported!`,
+                description:`Use \`${discord_command}\` to see how to use this command.`
+            }));
+        } else if (detect_unsupported_attachment(message_attachment)) {
+            const message_attachment_extension = message_attachment?.name?.match(/[^.]+$/g)?.[0] ?? 'unknown';
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:`Playing music from files ending in \`.${message_attachment_extension}\` aren't supported!`,
                 description:`Use \`${discord_command}\` to see how to use this command.`
             }));
         } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
@@ -184,11 +204,28 @@ module.exports = new DisBotCommand({
                 title:`That's just not how you use this command!`,
                 description:`Take a look below to see how you should have done it!`,
                 fields:[
-                    {name:'Playing Videos From YouTube:', value:`${'```'}\n${discord_command} ussr national anthem\n${'```'}${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`},
-                    {name:'Playing Playlists From YouTube:', value:`${'```'}\n${discord_command} https://www.youtube.com/watch?v=CJHJAzVXvgk&list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI&index=1\n${'```'}${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`},
-                    {name:'Playing Broadcastify URLs:', value:`${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`},
-                    {name:'Playing MP3 Files From The Internet:', value:`${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`},
-                    {name:'Playing MP3 Files From Your Computer:', value:`${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the .mp3 file to the message)`}
+                    {
+                        name:'Playing Videos From YouTube:',
+                        value:[
+                            `${'```'}\n${discord_command} ussr national anthem\n${'```'}`,
+                            `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`
+                        ].join('')
+                    }, {
+                        name:'Playing Playlists From YouTube:',
+                        value:[
+                            `${'```'}\n${discord_command} https://www.youtube.com/watch?v=CJHJAzVXvgk&list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI&index=1\n${'```'}`,
+                            `${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`
+                        ].join('')
+                    }, {
+                        name:'Playing Broadcastify URLs:',
+                        value:`${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`
+                    }, {
+                        name:'Playing MP3 Files From The Internet:',
+                        value:`${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`
+                    }, {
+                        name:'Playing MP3 Files From Your Computer:',
+                        value:`${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the .mp3 file to the message)`
+                    }
                 ],
                 image:`${bot_cdn_url}/mp3_command_usage.png`
             }, message));
