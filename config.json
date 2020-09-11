@@ -3,14 +3,11 @@
   "short_name": "IRIS",
   "common_name": "I.R.I.S. Utilities",
   "long_name": "Interactive Reconnaissance Information Service Utilities",
-  "client_id": "550423785795223627",
   "owner_id": "163646957783482370",
-  "permissions": 8,
   "website": "https://iris-utilities.com/",
   "patreon": "https://patreon.com/midspike",
   "github": "https://github.com/MidSpike/iris-utilities",
   "support_guild_invite_url": "https://discord.gg/BXJpS6g",
-  "support_guild_info_channel_id": "709222758948536402",
   "special_channels": {
     "SPECIAL_CHANNELS_CATEGORY": {
       "type": "category",
