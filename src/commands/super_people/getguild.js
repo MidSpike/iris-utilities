@@ -94,7 +94,7 @@ module.exports = new DisBotCommand({
             break;
             case 'usage':
                 function getGuildCommandsUsage(guild_id) {
-                    const current_command_logs_file = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY_MM`)}`);
+                    const current_command_logs_file = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
                     const current_command_logs = require(current_command_logs_file);
                     const guild_command_usage = current_command_logs.filter(command_log_entry => command_log_entry.guild.indexOf(guild_id) > -1).length;
                     return guild_command_usage;

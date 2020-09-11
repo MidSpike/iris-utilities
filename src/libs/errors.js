@@ -1,7 +1,5 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const moment = require('moment-timezone');
 
 const bot_config = require('../../config.json');
@@ -16,7 +14,6 @@ const { client } = require('./bot.js');
 
 const bot_common_name = bot_config.common_name;
 const bot_support_guild_invite_url = bot_config.support_guild_invite_url;
-const bot_error_log_file = path.join(process.cwd(), process.env.BOT_ERROR_LOG_FILE);
 const bot_central_errors_channel_id = process.env.BOT_LOGGING_CHANNEL_ERRORS_ID;
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -53,20 +50,6 @@ function logUserError(message, error=fallback_user_error) {
     console.error(`Command Used: ${message.cleanContent}`);
     console.trace(error);
     console.error('----------------------------------------------------------------------------------------------------------------');
-
-    /* output to error log file */
-    fs.appendFile(bot_error_log_file, [
-        `Id: ${error_id}`,
-        `Timestamp: ${error_timestamp}`,
-        `Guild: ${message.guild.name} (${message.guild.id})`,
-        `Channel: #${message.channel.name} (${message.channel.id})`,
-        `User: @${message.author.tag} (${message.author.id})`,
-        `Command: ${message}`,
-        `${error}`,
-        `----------------------------------------------------------------------------------------------------------------\n`
-    ].join('\n'), (errorWhileLoggingToFile) => {
-        if (errorWhileLoggingToFile) throw errorWhileLoggingToFile;
-    });
 }
 
 module.exports = {

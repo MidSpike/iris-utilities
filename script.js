@@ -1027,7 +1027,7 @@ client.on('message', async (message) => {
 
     /* central command logging */
     try {
-        const current_command_log_file_name = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY_MM`)}`);
+        const current_command_log_file_name = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
         const command_log_file_exists = fs.existsSync(current_command_log_file_name);
         const current_command_logs = command_log_file_exists ? JSON.parse(fs.readFileSync(current_command_log_file_name)) : [];
         const command_log_entry = {
