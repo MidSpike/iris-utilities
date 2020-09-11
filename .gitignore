@@ -21,8 +21,10 @@
 node_modules
 npm
 
-# bot-related sensitive stuff
+# bot-related sensitive stuff and runtime generated content
 private
+database
+logging
 
 # wildcard for any file / directory starting with '__'
 __*
