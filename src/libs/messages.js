@@ -203,7 +203,7 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
             emoji_name:'bot_emoji_mute',
-            cooldown:500,
+            cooldown:1000,
             callback:(options_message, collected_reaction, user) => {
                 removeUserReactionsFromMessage(options_message);
                 server.volume_manager.toggleMute();
@@ -215,7 +215,7 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
             }
         }, {
             emoji_name:'bot_emoji_volume_down',
-            cooldown:500,
+            cooldown:1000,
             callback:(options_message, collected_reaction, user) => {
                 removeUserReactionsFromMessage(options_message);
                 server.volume_manager.decreaseVolume();
@@ -227,7 +227,7 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
             }
         }, {
             emoji_name:'bot_emoji_volume_up',
-            cooldown:500,
+            cooldown:1000,
             callback:async (options_message, collected_reaction, user) => {
                 const guild_config = new GuildConfigManipulator(guild.id).config;
                 removeUserReactionsFromMessage(options_message);

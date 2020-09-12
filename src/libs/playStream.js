@@ -15,12 +15,15 @@ const { disBotServers } = require('../SHARED_VARIABLES.js');
  * @returns {Dispatcher} the `server.dispatcher` attached to the stream
  */
 function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(voice_connection, dispatcher)=>{}, end_callback=(voice_connection, dispatcher)=>{}, error_callback=(error)=>{}) {
+    if (!voice_connection) throw new Error(`expected a 'voice_connection'`);
+    if (!stream) throw new Error(`expected a 'stream'`);
+
     const server = disBotServers[voice_connection.channel.guild.id];
 
     if (typeof stream?.on === 'function') {
         stream.on('error', (error) => {
             console.trace(error);
-            errorCallback(error);
+            error_callback(error);
         });
     }
 
@@ -46,6 +49,12 @@ function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(
     server.dispatcher.on('error', (error) => {
         console.trace(error);
         error_callback(error);
+    });
+
+    server.dispatcher.on('debug', (debug) => {
+        console.log(`----------------------------------------------------------------------------------------------------------------`);
+        console.log(debug);
+        console.log(`----------------------------------------------------------------------------------------------------------------`);
     });
 
     return server.dispatcher;
