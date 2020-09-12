@@ -99,25 +99,35 @@ router.get('/ytdl', async (req, res) => {
         res.set({'Content-Type':'audio/mpeg'});
         if (req.query.url) {
             try {
-                const ytdl_stream_id = `${pseudoUniqueId()} - ${req.query.url}`;
+                const ytdl_stream_id = `<${req.query.url}> - (${pseudoUniqueId()})`;
 
                 const ytdl_stream = ytdl(req.query.url, {
                     'lang':'en',
-                    'quality':'highestaudio',
                     'filter':'audioonly',
-                    'highWaterMark':1<<25 // 32 MB
+                    // 'quality':'highestaudio',
+                    // 'highWaterMark':1<<25 // 32 MB
                 });
 
-                console.time(`[/ytdl] - Stream Time for ${ytdl_stream_id}`);
+                console.time(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
+                ytdl_stream.on('error', (error) => {
+                    console.timeEnd(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
+                    console.trace(`Failed while streaming ${ytdl_stream_id}: `, error);
+                });
+
+                ytdl_stream.on('finish', () => {
+                    console.timeEnd(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
+                });
+
+                console.time(`[/ytdl] - [API Server -> Discord Bot] - Stream Time for ${ytdl_stream_id}`);
                 const res_stream = ytdl_stream.pipe(res);
 
                 res_stream.on('error', (error) => {
-                    console.timeEnd(`[/ytdl] - Stream Time for ${ytdl_stream_id}`);
+                    console.timeEnd(`[/ytdl] - [API Server -> Discord Bot] - Stream Time for ${ytdl_stream_id}`);
                     console.trace(`Failed while streaming ${ytdl_stream_id}: `, error);
                 });
 
                 res_stream.on('finish', () => {
-                    console.timeEnd(`[/ytdl] - Stream Time for ${ytdl_stream_id}`);
+                    console.timeEnd(`[/ytdl] - [API Server -> Discord Bot] - Stream Time for ${ytdl_stream_id}`);
                 });
             } catch (error) {
                 console.trace(`Failed to stream: ${req.query.url}`, error);

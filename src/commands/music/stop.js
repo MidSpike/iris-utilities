@@ -7,7 +7,7 @@ const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { playStream } = require('../../libs/playStream.js')
+const { playStream } = require('../../libs/playStream.js');
 //#endregion local dependencies
 
 const bot_common_name = bot_config.common_name;

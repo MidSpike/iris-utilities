@@ -1,6 +1,7 @@
 'use strict';
 
-const { math_clamp } = require('../utilities.js');
+const { Timer,
+        math_clamp } = require('../utilities.js');
 
 const { GuildConfigManipulator } = require('./GuildConfig.js');
 
@@ -62,10 +63,6 @@ class VolumeManager {
             this.#volume = math_clamp(volume_input, 0, clamp_volume ? this.maximum : Number.MAX_SAFE_INTEGER);
 
             this.#guild.voice.connection.dispatcher.setVolume(this.multiplier * this.volume);
-            if (typeof this.volume !== 'number' || isNaN(this.volume)) {
-                console.trace('ERROR: Volume is somehow not a number!');
-                this.#volume = this.#fallback_volume;
-            }
         }
         return this;
     }

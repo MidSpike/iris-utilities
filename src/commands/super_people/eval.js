@@ -26,6 +26,9 @@ const { logUserError } = require('../../libs/errors.js');
 const { generateInviteToGuild } = require(`../../libs/invites.js`);
 const { sendLargeMessage } = require('../../libs/messages.js');
 
+const { playStream } = require(`../../libs/playStream.js`);
+const { createConnection } = require(`../../libs/createConnection.js`);
+
 const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
