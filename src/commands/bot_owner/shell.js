@@ -6,8 +6,8 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isThisBotsOwner } = require('../../libs/permissions.js');
 
-const util = require("util");
-const child_process = require("child_process");
+const util = require('util');
+const child_process = require('child_process');
 const eval_shell = util.promisify(child_process.exec);
 //#endregion local dependencies
 
