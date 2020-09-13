@@ -86,6 +86,7 @@ router.get('/ytinfo', async (req, res) => {
     }
 });
 
+/** potentially @deprecated */
 router.get('/ytdl', async (req, res) => {
     if (req.query?.token !== process.env.BOT_API_SERVER_TOKEN) {
         console.warn(`Unauthorized request to the '/ytdl' endpoint!`);
@@ -104,8 +105,8 @@ router.get('/ytdl', async (req, res) => {
                 const ytdl_stream = ytdl(req.query.url, {
                     'lang':'en',
                     'filter':'audioonly',
-                    // 'quality':'highestaudio',
-                    // 'highWaterMark':1<<25 // 32 MB
+                    'quality':'highestaudio',
+                    'highWaterMark':1<<25 // 32 MB
                 });
 
                 console.time(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
