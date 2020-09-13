@@ -21,7 +21,7 @@
     "languagedetect": "^1.3.0",
     "libsodium-wrappers": "^0.7.8",
     "manakin": "^0.5.2",
-    "mathjs": "^6.6.5",
+    "mathjs": "^7.2.0",
     "moment-timezone": "^0.5.31",
     "node-emoji": "^1.10.0",
     "node-gtts": "^2.0.2",
