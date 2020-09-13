@@ -158,13 +158,10 @@ async function add_guild_to_disBotServers(guild) {
     if (guild.partial) await guild.fetch().catch((warning) => console.warn('1599589897074318280', warning));
 
     SHARED_VARIABLES.disBotServers[guild.id] = {
-        ...(SHARED_VARIABLES.disBotServers[guild.id] ?? {}),
-        ...{
-            queue_manager:new QueueManager(guild),
-            volume_manager:new VolumeManager(guild),
-            audio_controller:new AudioController(guild),
-            dispatcher:undefined
-        }
+        queue_manager: new QueueManager(guild),
+        volume_manager: new VolumeManager(guild),
+        audio_controller: new AudioController(guild),
+        dispatcher: undefined
     };
 
     return; // complete async
@@ -309,9 +306,9 @@ client.on('invalidated', () => {
     process.exit(1); // stop this process and restart it via the .bat script
 });
 
-client.on('rateLimit', (rateLimit) => {
+client.on('rateLimit', (rate_limit_info) => {
     console.log(`----------------------------------------------------------------------------------------------------------------`);
-    console.log('RateLimit:', rateLimit);
+    console.log('rate_limit:', rate_limit_info);
     console.log(`----------------------------------------------------------------------------------------------------------------`);
 });
 
@@ -345,7 +342,7 @@ client.on('guildUpdate', async (old_guild, new_guild) => {
     updateGuildConfig(new_guild);
 });
 
-client.on('guildCreate', async guild => {
+client.on('guildCreate', async (guild) => {
     if (SHARED_VARIABLES.restarting_bot) return;
 
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074386511', warning));
@@ -360,8 +357,8 @@ client.on('guildCreate', async guild => {
     }))?.catch(console.warn);
 
     /* prepare the guild for configs and other runtime variables */
-    updateGuildConfig(guild);
-    add_guild_to_disBotServers(guild);
+    await updateGuildConfig(guild);
+    await add_guild_to_disBotServers(guild);
 
     /* send a text message to the most likely bot-channel in the guild, falling back to the owner of the guild */
     const viewable_text_channels = guild.channels.cache.filter(c => c.type === 'text' && c.viewable && c.permissionsFor(guild.me).has('SEND_MESSAGES'));

@@ -56,7 +56,7 @@ module.exports = new DisBotCommand({
                     if (!vc) return;
                     playStream(await createConnection(vc, true), tts_broadcast_english, 5.0);
                 }
-                await Timer(10000); // Let TTS do its thing first
+                await Timer(10000); // let TTS do its thing first
 
                 const tts_text_spanish = `Mi desarrollador me dijo que reiniciara las actualizaciones ... Vuelva en 5 minutos para ver si he terminado de actualizar.`;
                 const tts_url_spanish = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=es-LA_SofiaV3Voice&text=${encodeURIComponent(tts_text_spanish)}`;
@@ -66,7 +66,7 @@ module.exports = new DisBotCommand({
                     if (!vc) return;
                     playStream(await createConnection(vc, false), tts_broadcast_spanish, 5.0);
                 }
-                await Timer(15000); // Let TTS do its thing first
+                await Timer(15000); // let TTS do its thing first
 
                 const tts_text_german = `Mein Entwickler sagte mir, ich solle für Updates neu starten ... Überprüfen Sie in 5 Minuten erneut, ob ich mit dem Update fertig bin.`;
                 const tts_url_german = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=de-DE_DieterV3Voice&text=${encodeURIComponent(tts_text_german)}`;
@@ -76,7 +76,7 @@ module.exports = new DisBotCommand({
                     if (!vc) return;
                     playStream(await createConnection(vc, false), tts_broadcast_german, 5.0);
                 }
-                await Timer(13000); // Let TTS do its thing first
+                await Timer(13000); // let TTS do its thing first
 
                 const tts_text_japanese = `開発者からアップデートを再開するように言われました... 5分後にもう一度チェックして、アップデートが終了したかどうかを確認してください。`;
                 const tts_url_japanese = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=ja-JP_EmiV3Voice&text=${encodeURIComponent(tts_text_japanese)}`;
@@ -86,7 +86,7 @@ module.exports = new DisBotCommand({
                     if (!vc) return;
                     playStream(await createConnection(vc, false), tts_broadcast_japanese, 5.0);
                 }
-                await Timer(25000); // Let TTS do its thing first
+                await Timer(25000); // let TTS do its thing first
             }
 
             await bot_message.edit(new CustomRichEmbed({
@@ -97,7 +97,7 @@ module.exports = new DisBotCommand({
             client.destroy(); // destroy the client instance
             await Timer(500);
 
-            process.exit(1); // restart the bot by killing the process
+            process.exit(0); // restart the bot by killing the process
         }, async (bot_message) => {
             await bot_message.delete({timeout:500});
             await bot_message.channel.send(new CustomRichEmbed({
