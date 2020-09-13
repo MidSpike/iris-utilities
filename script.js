@@ -176,7 +176,7 @@ function checkForBlacklistedGuild(guild) {
     return guild_is_blacklisted ? true : false;
 }
 
-function checkForBlacklistedUser(message) {
+async function checkForBlacklistedUser(message) {
     const blacklisted_users = JSON.parse(fs.readFileSync(bot_blacklisted_users_file));
     if (blacklisted_users.map(blacklisted_user => blacklisted_user.id).includes(message.author.id)) {// Prevent certain users from using the bot
         console.log(`Blacklisted user tried using ${bot_common_name}: ${message.author.tag} (${message.author.id})`);
@@ -192,6 +192,8 @@ function checkForBlacklistedUser(message) {
             message.channel.send(embed); // Send to guild instead
         });
         return true;
+    } else {
+        return false;
     }
 }
 
@@ -858,7 +860,7 @@ client.on('message', async (message) => {
     }
 
     /* don't allow blacklisted users and notify them of their inability to use this bot */
-    if (checkForBlacklistedUser(message)) return;
+    if (await checkForBlacklistedUser(message)) return;
 
     /* don't allow blacklisted guilds and silently halt execution */
     if (checkForBlacklistedGuild(message.guild)) return;
