@@ -123,14 +123,14 @@ function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selecti
             emoji_name: 'bot_emoji_checkmark',
             cooldown: 1500,
             callback(options_message, collected_reaction, user) {
-                if (delete_after_selection) discord_embed.delete({timeout:500}).catch(console.warn);
+                if (delete_after_selection) options_message.delete({timeout:500}).catch(console.warn);
                 yes_callback(options_message);
             }
         }, {
             emoji_name: 'bot_emoji_close',
             cooldown: 1500,
             callback(options_message, collected_reaction, user) {
-                if (delete_after_selection) discord_embed.delete({timeout:500}).catch(console.warn);
+                if (delete_after_selection) options_message.delete({timeout:500}).catch(console.warn);
                 no_callback(options_message);
             }
         }
