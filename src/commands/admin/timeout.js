@@ -11,7 +11,7 @@ module.exports = new DisBotCommand({
     name:'TIMEOUT',
     category:`${DisBotCommander.categories.ADMINISTRATOR}`,
     description:'Puts / Removes users from timeout mode',
-    aliases:['timeout'],
+    aliases:['timeout', 'untimeout'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args, guild_config_manipulator } = opts;

@@ -10,7 +10,7 @@ module.exports = new DisBotCommand({
     name:'DEAFEN',
     category:`${DisBotCommander.categories.ADMINISTRATOR}`,
     description:'Deafens a users audio',
-    aliases:['deafen'],
+    aliases:['deafen', 'undeafen'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { command_args } = opts;
