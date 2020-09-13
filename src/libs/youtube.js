@@ -10,6 +10,7 @@ const videoIdFromYouTubeURL = require(`parse-video-id-from-yt-url`);
 
 const { Timer,
         array_random } = require('../utilities.js');
+
 const { disBotServers } = require('../SHARED_VARIABLES.js');
 
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
@@ -69,7 +70,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     if (search_results.length === 0) {
         console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
         const backup_search_results = (await ytSearchBackup(search_query)).videos;
-        /* Map the unofficial backup results to match the primary results scheme */
+        /* map the unofficial backup results to match the primary results scheme */
         search_results = backup_search_results.map(({ videoId, url, title }) => ({
             id:`${videoId}`,
             link:`${url}`,
@@ -78,7 +79,7 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     }
 
     console.timeEnd(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
-    return search_results ?? []; // Force an empty array if nullish
+    return search_results ?? []; // force an empty array if nullish
 }
 
 /**
@@ -129,11 +130,6 @@ async function playYouTube(message, search_query, playnext=false) {
         const stream_maker = async () => {
             // const bot_ytdl_api_url = `${bot_api_url}/ytdl?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
             // return bot_ytdl_api_url;
-
-            // const bot_ytdl_api_url = `${bot_api_url}/ytdl?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
-            // const bot_ytdl_api_response = await axios.get(bot_ytdl_api_url, {responseType:`stream`});
-            // const bot_ytdl_api_response_stream = bot_ytdl_api_response.data;
-            // return bot_ytdl_api_response_stream;
 
             const ytdl_stream = ytdl(`https://youtu.be/${video_id}`, {
                 lang: 'en',
