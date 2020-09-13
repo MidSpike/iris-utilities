@@ -8,6 +8,8 @@ const { pseudoUniqueId } = require('../utilities.js');
 
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 
+const { generateInviteToGuild } = require('./invites.js');
+
 const { client } = require('./bot.js');
 
 //---------------------------------------------------------------------------------------------------------------//
