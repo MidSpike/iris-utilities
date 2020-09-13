@@ -10,7 +10,7 @@ module.exports = new DisBotCommand({
     name:'FLEXTAPE',
     category:`${DisBotCommander.categories.ADMINISTRATOR}`,
     description:'Mutes and deafens a users voice / audio',
-    aliases:['flextape'],
+    aliases:['flextape', 'unflextape'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { command_args } = opts;

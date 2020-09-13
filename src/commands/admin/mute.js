@@ -10,7 +10,7 @@ module.exports = new DisBotCommand({
     name:'MUTE',
     category:`${DisBotCommander.categories.ADMINISTRATOR}`,
     description:'Mutes a users voice',
-    aliases:['mute'],
+    aliases:['mute', 'unmute'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { command_args } = opts;
