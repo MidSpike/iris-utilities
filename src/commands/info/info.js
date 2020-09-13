@@ -12,6 +12,7 @@ const bot_config = require('../../../config.json');
 //#endregion local dependencies
 
 const bot_website = bot_config.website;
+const bot_github = bot_config.github;
 const bot_version = bot_config.public_version;
 const bot_common_name = bot_config.common_name;
 const bot_long_name = bot_config.long_name;
@@ -38,6 +39,7 @@ module.exports = new DisBotCommand({
                 {name:'My Developer', value:`${midspike_emoji} @${client.users.cache.get(bot_owner_discord_id).tag}`},
                 {name:'My Admins', value:`${super_people.filter(super_person => super_person.public).map(super_person => super_person.name).join('\n')}`},
                 {name:'My Website', value:`${bot_website}`},
+                {name:'My GitHub', value:`${bot_github}`},
                 {name:'My Version', value:`${bot_version}`},
                 {name:'My Ping To Discord', value:`${client.ws.ping}ms`},
                 {name:'My Creation Date', value:`${client.user.createdAt}`},
