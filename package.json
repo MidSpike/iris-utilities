@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "script.js",
   "dependencies": {
-    "@discordjs/opus": "^0.1.0",
+    "@discordjs/opus": "^0.3.2",
     "@discordjs/uws": "^11.149.1",
     "aki-api": "^5.1.1",
     "axios": "^0.20.0",
