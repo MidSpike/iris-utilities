@@ -6,7 +6,7 @@
     "@discordjs/opus": "^0.1.0",
     "@discordjs/uws": "^10.149.0",
     "aki-api": "^5.1.1",
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "bufferutil": "^4.0.1",
     "discord.js": "^12.3.1",
     "dogeify-js": "git+https://github.com/MidSpike/dogeify.git",
