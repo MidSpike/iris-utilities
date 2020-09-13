@@ -4,7 +4,7 @@
   "main": "script.js",
   "dependencies": {
     "@discordjs/opus": "^0.1.0",
-    "@discordjs/uws": "^10.149.0",
+    "@discordjs/uws": "^11.149.1",
     "aki-api": "^5.1.1",
     "axios": "^0.20.0",
     "bufferutil": "^4.0.1",
