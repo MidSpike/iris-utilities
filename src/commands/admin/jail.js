@@ -60,6 +60,7 @@ module.exports = new DisBotCommand({
                 color:0xFFFF00,
                 title:`This command doesn't work on members with the \`ADMINISTRATOR\` permission!`
             }, message));
+            return;
         }
 
         if (discord_command === `${command_prefix}jail`) {
