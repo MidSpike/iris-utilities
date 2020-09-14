@@ -33,7 +33,7 @@ function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(
         type: 'unknown',
         seek: 0,
         volume: (magic_volume_constant * volume_ratio),
-        highWaterMark: 1,
+        highWaterMark: 1, // set to `1` for quick volume ajustments
         fec: true,
     });
 
