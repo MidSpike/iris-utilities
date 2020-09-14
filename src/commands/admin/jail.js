@@ -68,11 +68,18 @@ module.exports = new DisBotCommand({
             }, message));
             for (const channel of message.guild.channels.cache.values()) {
                 await channel.createOverwrite(member, {
-                    'READ_MESSAGE_HISTORY': false,
+                    'MANAGE_MESSAGES': false,
                     'SEND_MESSAGES': false,
-                    'VIEW_CHANNEL': false,
+                    'ADD_REACTIONS': false,
+                    'ATTACH_FILES': false,
+                    'EMBED_LINKS': false,
+                    'CONNECT': false,
                     'SPEAK': false,
+                    'STREAM': false,
                     'USE_VAD': false,
+                    'MOVE_MEMBERS': false,
+                    'MUTE_MEMBERS': false,
+                    'DEAFEN_MEMBERS': false,
                 }).catch(console.warn);
                 await Timer(100);
             }
@@ -85,11 +92,18 @@ module.exports = new DisBotCommand({
             }, message));
             for (const channel of message.guild.channels.cache.values()) {
                 await channel.createOverwrite(member, {
-                    'READ_MESSAGE_HISTORY': null,
+                    'MANAGE_MESSAGES': null,
                     'SEND_MESSAGES': null,
-                    'VIEW_CHANNEL': null,
+                    'ADD_REACTIONS': null,
+                    'ATTACH_FILES': null,
+                    'EMBED_LINKS': null,
+                    'CONNECT': null,
                     'SPEAK': null,
+                    'STREAM': null,
                     'USE_VAD': null,
+                    'MOVE_MEMBERS': null,
+                    'MUTE_MEMBERS': null,
+                    'DEAFEN_MEMBERS': null,
                 }).catch(console.warn);
                 await Timer(100);
             }
