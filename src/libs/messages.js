@@ -63,7 +63,7 @@ const options_message_reactions_template = [
  * @param {MessageContents} embed any valid input for channel.send(...)
  * @param {options_message_reactions_template} reaction_options an object that derives from an `options_message_reactions_template`
  * @param {String} confirmation_user_id the user_id to confirm reaction origin with
- * @returns {Message} the options_message after attempting to add all reactions
+ * @returns {Promise<Message>} the options_message after attempting to add all reactions
  */
 async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
     const options_message = await client.channels.cache.get(channel_id).send(embed).catch(console.warn);
@@ -140,6 +140,7 @@ function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selecti
 /**
  * Removes any reactions created by any user on a specified message
  * @param {Message} message 
+ * @returns {Promise<void>} 
  */
 async function removeUserReactionsFromMessage(message) {
     await Timer(250); // prevent API abuse
@@ -158,6 +159,7 @@ async function removeUserReactionsFromMessage(message) {
 /**
  * Removes any reactions created by a user on a specified message
  * @param {Message} message 
+ * @returns {Promise<Message>} 
  */
 async function removeAllReactionsFromMessage(message) {
     await Timer(250); // prevent API abuse
@@ -191,15 +193,15 @@ async function removeMessageFromChannel(channel_id, message_id) {
 /**
  * * Sends a volume controller embed
  * @param {String} channel_id 
- * @param {Message} old_message 
+ * @param {Message} user_message 
  */
-function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
+function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
     const guild = client.channels.cache.get(channel_id).guild;
     const server = disBotServers[guild.id];
     const makeEmbed = () => new CustomRichEmbed({
         title:`The Current Volume Is: ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
         description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
-    }, old_message);
+    }, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
             emoji_name:'bot_emoji_mute',
@@ -249,13 +251,13 @@ function sendVolumeControllerEmbed(channel_id, old_message=undefined) {
 /**
  * Sends a music controller embed
  * @param {String} channel_id 
- * @param {Messsage|undefined} old_message 
+ * @param {Messsage|undefined} user_message 
  */
-function sendMusicControllerEmbed(channel_id, old_message=undefined) {
+function sendMusicControllerEmbed(channel_id, user_message=undefined) {
     const embed_title = 'Audio Controller';
     const server = disBotServers[client.channels.cache.get(channel_id).guild.id];
     const audio_controller = server.audio_controller;
-    const makeEmbed = () => new CustomRichEmbed({title:`${embed_title}`}, old_message);
+    const makeEmbed = () => new CustomRichEmbed({title:`${embed_title}`}, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
             emoji_name:'bot_emoji_play_pause',
