@@ -23,7 +23,7 @@ function isThenable(value) {
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * asynchronous setTimeout b/c I'm too lazy to type it out everywhere
+ * Asynchronous setTimeout b/c I'm too lazy to type it out everywhere
  * @param {Number} time_in_milliseconds 
  * @returns {Promise} 
  */
