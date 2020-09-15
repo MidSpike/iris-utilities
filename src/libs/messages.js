@@ -114,13 +114,14 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
 }
 
 /**
- * @deprecated Sends an embed with buttons for the user to click on
+ * Sends an embed with buttons for the user to click on
  * @param {String} confirm_user_id 
  * @param {String} channel_id 
  * @param {Boolean} delete_after_selection 
  * @param {String|MessageEmbed} embed_contents 
  * @param {Function} yes_callback 
  * @param {Function} no_callback 
+ * @deprecated 
  */
 function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selection=true, embed_contents='Default Embed', yes_callback=(discord_embed)=>{}, no_callback=(discord_embed)=>{}) {
     sendOptionsMessage(channel_id, embed_contents, [
@@ -204,38 +205,35 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
     const guild = client.channels.cache.get(channel_id).guild;
     const server = disBotServers[guild.id];
     const makeEmbed = () => new CustomRichEmbed({
-        title:`The Current Volume Is: ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
-        description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
+        title:`The Current Volume Is: ${constructNumberUsingEmoji(server.volume_manager.volume)}`
     }, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
             emoji_name:'bot_emoji_mute',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 server.volume_manager.toggleMute();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${server.volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`,
-                    description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
+                    title:`${server.volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`
                 }));
             }
         }, {
             emoji_name:'bot_emoji_volume_down',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 server.volume_manager.decreaseVolume();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
-                    description:`[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`
+                    title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`
                 }));
             }
         }, {
             emoji_name:'bot_emoji_volume_up',
             cooldown:1000,
-            callback:async (options_message, collected_reaction, user) => {
+            async callback(options_message, collected_reaction, user) {
                 const guild_config = new GuildConfigManipulator(guild.id).config;
                 removeUserReactionsFromMessage(options_message);
                 const old_volume = server.volume_manager.volume;
@@ -244,9 +242,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
-                    description:(new_volume === old_volume ? (
-                        `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}`
-                    ) : `[Help keep ${bot_config.common_name} free for everyone!](${bot_config.patreon})`)
+                    description:(new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined)
                 }));
             }
         }
@@ -267,7 +263,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         {
             emoji_name:'bot_emoji_play_pause',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 if (audio_controller.paused === true) {
                     audio_controller.resume();
@@ -295,7 +291,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_stop_square',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 if (server.dispatcher && server.dispatcher.player && server.dispatcher.player.voiceConnection && server.dispatcher.player.voiceConnection.channel) {
                     server.queue_manager.clearItems(true);
@@ -310,7 +306,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_skip',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 if (server.dispatcher) {
                     server.dispatcher.end();
@@ -324,7 +320,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_shuffle',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 server.queue_manager.shuffleItems();
                 options_message.edit(new CustomRichEmbed({
@@ -336,7 +332,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_repeat_all',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 server.queue_manager.setLoopType('multiple');
                 server.queue_manager.toggleLoop();
@@ -349,7 +345,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_repeat_one',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 server.queue_manager.setLoopType('single');
                 server.queue_manager.toggleLoop();
@@ -362,7 +358,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_volume_up',
             cooldown:500,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 sendVolumeControllerEmbed(channel_id);
             }
@@ -394,7 +390,7 @@ function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
                 `Dislikes: ${videoInfo.videoDetails.dislikes ?? 'n/a'}`,
                 `Views: ${videoInfo.videoDetails.viewCount ?? 'n/a'}`,
                 `Link: [https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`,
-                `Volume: ${server.volume_manager.volume}%`
+                // `Volume: ${server.volume_manager.volume}%`,
             ].join('\n')) : `[https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`),
             thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}`),
             image:(show_player_description ? `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}` : undefined)
@@ -404,23 +400,22 @@ function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
         {
             emoji_name:'bot_emoji_information',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 show_player_description = !show_player_description;
                 options_message.edit(makeYTEmbed());
             }
-        },
-        {
+        }, {
             emoji_name:'bot_emoji_music',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 sendMusicControllerEmbed(user_message.channel.id);
             }
         }, {
             emoji_name:'bot_emoji_volume_up',
             cooldown:1000,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 sendVolumeControllerEmbed(user_message.channel.id);
             }
