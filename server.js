@@ -19,6 +19,8 @@ const SpongeBobMock = require('spmock');
 const gtts = require('node-gtts');
 const ytdl = require('ytdl-core');
 
+const Discord = require('discord.js');
+
 //---------------------------------------------------------------------------------------------------------------//
 
 const { pseudoUniqueId } = require('./src/utilities.js');
@@ -71,6 +73,9 @@ router.get('/ytinfo', async (req, res) => {
             let yt_info;
             try {
                 yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`);
+                const regex_brackets = /(\<|\>|\(|\)|\[|\]|\{|\})/g;
+                yt_info.videoDetails.title = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.title).replace(regex_brackets, ``)}`;
+                yt_info.videoDetails.author.name = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.author.name).replace(regex_brackets, ``)}`;
             } catch (error) {
                 console.trace(`Can't find video info for video id: ${req.query.video_id}`, error);
                 yt_info = {};
