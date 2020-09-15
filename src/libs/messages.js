@@ -82,8 +82,13 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
         try {
             bot_reaction = await options_message.react(reaction_option_emoji);
             await Timer(250); // prevent API abuse (250 seems io work best)
-        } catch { // the most likely exception thrown will be the message was deleted and the reaction can't be added
-            console.warn(`Unable to add reaction: ${reaction_option_emoji}`);
+        } catch {
+            /**
+             * The most likely exceptions will be:
+             *  - the message was deleted and the reaction can't be added
+             *  - the guild denied the bot from adding reactions
+             */
+            console.warn(`Unable to add reaction: ${reaction_option_emoji};`);
             break; // there is no reason to continue trying to add reactions after a failed attempt
         }
 
