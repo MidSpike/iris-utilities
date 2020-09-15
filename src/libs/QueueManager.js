@@ -155,8 +155,9 @@ class QueueItemPlayer {
                     }
 
                     if (guild_config.disconnect_tts_voice === 'enabled') { // disconnect with TTS
-                        const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
-                        playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
+                        const tts_text = `Disconnecting...`;
+                        const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
+                        playStream(voice_connection, tts_url_stream, 15.0, undefined, () => {
                             server.audio_controller.disconnect();
                         });
                     } else { // disconnect without TTS
@@ -175,9 +176,9 @@ class QueueItemPlayer {
                     }
                     if (this.queue_manager.queue.length > 0) { // the queue is not empty so continue playing
                         if (guild_config.queue_tts_voice === 'enabled') {
-                            const speak_text = `Next Up: ${this.queue_manager.queue[0].description}`;
-                            const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(speak_text)}`;
-                            playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
+                            const tts_text = `Next Up: ${this.queue_manager.queue[0].description}`;
+                            const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
+                            playStream(voice_connection, tts_url_stream, 15.0, undefined, () => {
                                 this.queue_manager.queue[0].player();
                             });
                         } else {
