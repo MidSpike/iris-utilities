@@ -180,13 +180,13 @@ async function playYouTube(message, search_query, playnext=false) {
             title:`Do you want this to play as a playlist?`,
             description:[
                 `${'```'}fix\nWARNING! YOU CAN'T STOP A PLAYLIST FROM ADDING ITEMS!\n${'```'}`,
-                `**If you want this to play as a song, then click on the ${findCustomEmoji('bot_emoji_close')}.**`
+                `**If you want this to play as a song; click on the ${findCustomEmoji('bot_emoji_close')}.**`
             ].join('\n')
         }, message);
         sendOptionsMessage(message.channel.id, confirmation_embed, [
             {
                 emoji_name:'bot_emoji_checkmark',
-                callback:async (options_message, collected_reaction, user) => {
+                async callback(options_message, collected_reaction, user) {
                     await options_message.delete({timeout:500}).catch(console.warn);
                     await options_message.channel.send(new CustomRichEmbed({
                         title:`Started adding ${playlist_items.length} item(s) to the playlist!`
@@ -205,7 +205,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 }
             }, {
                 emoji_name:'bot_emoji_close',
-                callback:async (options_message, collected_reaction, user) => {
+                async callback(options_message, collected_reaction, user) {
                     await options_message.delete({timeout:500}).catch(console.warn);
                     const potential_video_id = await _get_video_id_from_query(search_query);
                     if (potential_video_id) {
