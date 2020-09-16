@@ -687,7 +687,6 @@ client.on('guildMemberAdd', async (member) => {
                 title:`You did something to piss off ${guild_with_banned_member.name}!`,
                 description:[
                     `As such, you have been sent here by ${bot_common_name}.`,
-                    `If you haven't looked at <#${process.env.APPEALS_GUILD_ABOUT_CHANNEL_ID}> yet, then go look at it!`,
                     `You may send **ONE** message here, to *possibly* be viewed by the staff from the server you were banned in.`
                 ].join('\n')
             }));
