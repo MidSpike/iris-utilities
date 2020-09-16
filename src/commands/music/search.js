@@ -27,7 +27,7 @@ module.exports = new DisBotCommand({
             const search_results = await forceYouTubeSearch(search_query, 9);
             const reactions = search_results.map((search_result, index) => ({
                 emoji_name:`bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][index+1]}`,
-                callback:(options_message, collected_reaction, user) => {
+                callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     options_message.delete({timeout:10000}).catch(console.warn);
                     playYouTube(message, `${search_result.link}`);

@@ -58,7 +58,7 @@ module.exports = new DisBotCommand({
         sendOptionsMessage(message.channel.id, makeEmbed(), [
             {
                 emoji_name:'bot_emoji_angle_left',
-                callback:(options_message, collected_reaction, user) => {
+                callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     page_index--;
                     if (page_index < 0) {page_index = pages.length-1;}
@@ -66,7 +66,7 @@ module.exports = new DisBotCommand({
                 }
             }, {
                 emoji_name:'bot_emoji_angle_right',
-                callback:(options_message, collected_reaction, user) => {
+                callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     page_index++;
                     if (page_index > pages.length-1) {page_index = 0;}
