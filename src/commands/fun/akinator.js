@@ -63,7 +63,7 @@ module.exports = new DisBotCommand({
             const reactions = [
                 {
                     emoji_name:'bot_emoji_angle_left',
-                    callback:async (options_message, collected_reaction, user) => {
+                    async callback(options_message, collected_reaction, user) {
                         removeUserReactionsFromMessage(options_message);
                         if (question_num > 1) {
                             await akinator_api.back();
@@ -73,7 +73,7 @@ module.exports = new DisBotCommand({
                     }
                 }, ...akinator_api.answers.map((value, index) => ({
                     emoji_name:`${findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[index+1]}`).name}`,
-                    callback:async (options_message, collected_reaction, user) => {
+                    async callback(options_message, collected_reaction, user) {
                         removeUserReactionsFromMessage(options_message);
                         _proceed_with_game(options_message, index);
                     }

@@ -49,7 +49,7 @@ module.exports = new DisBotCommand({
         }
         const reactions = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => ({
             emoji_name:`bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][num]}`,
-            callback:(options_message, collected_reaction, user) => {
+            callback(options_message, collected_reaction, user) {
                 // removeUserReactionsFromMessage(options_message);
                 if (!makeMove(num, current_player === 'PLAYER_A' ? '❌' : '⭕')) return;
                 current_player = current_player === 'PLAYER_A' ? 'PLAYER_B' : 'PLAYER_A';

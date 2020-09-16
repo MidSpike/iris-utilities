@@ -88,17 +88,64 @@ module.exports = new DisBotCommand({
                     removeUserReactionsFromMessage(options_message);
                 }
                 sendOptionsMessage(message.channel.id, makeHelpEmbed(proccessed_number_input), [
-                    {emoji_name:'bot_emoji_angle_left', callback:(options_message) => navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length)},
-                    {emoji_name:'bot_emoji_one', callback:(options_message) => navigate_page(options_message, 1)},
-                    {emoji_name:'bot_emoji_two', callback:(options_message) => navigate_page(options_message, 2)},
-                    {emoji_name:'bot_emoji_three', callback:(options_message) => navigate_page(options_message, 3)},
-                    {emoji_name:'bot_emoji_four', callback:(options_message) => navigate_page(options_message, 4)},
-                    {emoji_name:'bot_emoji_five', callback:(options_message) => navigate_page(options_message, 5)},
-                    {emoji_name:'bot_emoji_six', callback:(options_message) => navigate_page(options_message, 6)},
-                    {emoji_name:'bot_emoji_seven', callback:(options_message) => navigate_page(options_message, 7)},
-                    // {emoji_name:'bot_emoji_eight', callback:(options_message) => navigate_page(options_message, 8)},
-                    // {emoji_name:'bot_emoji_nine', callback:(options_message) => navigate_page(options_message, 9)},
-                    {emoji_name:'bot_emoji_angle_right', callback:(options_message) => navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1)}
+                    {
+                        emoji_name:'bot_emoji_angle_left',
+                        callback(options_message) {
+                            navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_one',
+                        callback(options_message) {
+                            navigate_page(options_message, 1);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_two',
+                        callback(options_message) {
+                            navigate_page(options_message, 2);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_three',
+                        callback(options_message) {
+                            navigate_page(options_message, 3);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_four',
+                        callback(options_message) {
+                            navigate_page(options_message, 4);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_five',
+                        callback(options_message) {
+                            navigate_page(options_message, 5);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_six',
+                        callback(options_message) {
+                            navigate_page(options_message, 6);
+                        }
+                    }, {
+                        emoji_name:'bot_emoji_seven',
+                        callback(options_message) {
+                            navigate_page(options_message, 7);
+                        }
+                    },
+                    // {
+                    //     emoji_name:'bot_emoji_eight',
+                    //     callback(options_message) {
+                    //         navigate_page(options_message, 8);
+                    //     }
+                    // }, {
+                    //     emoji_name:'bot_emoji_nine',
+                    //     callback(options_message) {
+                    //         navigate_page(options_message, 9);
+                    //     }
+                    // },
+                    {
+                        emoji_name:'bot_emoji_angle_right',
+                        callback(options_message) {
+                            navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1);
+                        }
+                    }
                 ]);
             }
         } else {
