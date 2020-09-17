@@ -11,8 +11,6 @@ const videoIdFromYouTubeURL = require(`parse-video-id-from-yt-url`);
 const { Timer,
         array_random } = require('../utilities.js');
 
-const { disBotServers } = require('../SHARED_VARIABLES.js');
-
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 const { findCustomEmoji } = require('./emoji.js');
 const { createConnection } = require('./createConnection.js');
@@ -89,7 +87,8 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
  * @param {Boolean} playnext 
  */
 async function playYouTube(message, search_query, playnext=false) {
-    const server = disBotServers[message.guild.id];
+    const guild_queue_manager = message.guild.client.$.queue_managers.get(message.guild.id);
+
     const voice_channel = message.member.voice.channel;
 
     /**
@@ -163,11 +162,11 @@ async function playYouTube(message, search_query, playnext=false) {
             return; // don't allow live streams to play... live streams are buggy
         }
         if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
-        const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 1.0, () => {
+        const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 1.0, () => {
             sendYtDiscordEmbed(message, yt_video_info, 'Playing');
         }, async () => {
             /* handle queue autoplay for youtube videos */
-            if (server.queue_manager.queue.length === 0 && server.queue_manager.autoplay_enabled) {
+            if (guild_queue_manager.queue.length === 0 && guild_queue_manager.autoplay_enabled) {
                 const random_related_video = array_random(yt_video_info.related_videos.slice(0, 3));
                 await _play_as_video(random_related_video.id);
             }
@@ -175,8 +174,8 @@ async function playYouTube(message, search_query, playnext=false) {
         }, (error) => {
             console.trace(`${error ?? 'Unknown Playback Error!'}`);
         });
-        await server.queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.videoDetails.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined));
-        if (server.queue_manager.queue.length > 1 && send_embed) {
+        await guild_queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.videoDetails.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined));
+        if (guild_queue_manager.queue.length > 1 && send_embed) {
             sendYtDiscordEmbed(message, yt_video_info, 'Added');
         }
         return; // complete async
