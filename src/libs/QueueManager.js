@@ -6,8 +6,6 @@ const { Timer,
         array_shuffle,
         random_range_inclusive } = require('../utilities.js');
 
-const SHARED_VARIABLES = require('../SHARED_VARIABLES.js');
-
 const { createConnection } = require('./createConnection.js');
 const { playStream } = require('./playStream.js');
 const { GuildConfigManipulator } = require('./GuildConfig.js');
@@ -134,7 +132,8 @@ class QueueItemPlayer {
             const guild_config = guild_config_manipulator.config;
             const guild_tts_provider = guild_config.tts_provider;
             const guild_tts_voice = guild_tts_provider === 'ibm' ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
-            const server = SHARED_VARIABLES.disBotServers[guild.id];
+
+            const guild_audio_controller = guild.client.$.audio_controllers.get(guild.id);
 
             playStream(await createConnection(this.voice_connection.channel), await this.stream_maker(), this.volume_ratio, async () => {
                 await this.start_callback();
@@ -158,10 +157,10 @@ class QueueItemPlayer {
                         const tts_text = `Disconnecting...`;
                         const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
                         playStream(voice_connection, tts_url_stream, 15.0, undefined, () => {
-                            server.audio_controller.disconnect();
+                            guild_audio_controller.disconnect();
                         });
                     } else { // disconnect without TTS
-                        server.audio_controller.disconnect();
+                        guild_audio_controller.disconnect();
                     }
                 } else { // the queue is not empty so handle it
                     if (this.queue_manager.loop_enabled) { // queue loop is enabled
