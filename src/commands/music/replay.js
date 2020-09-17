@@ -3,7 +3,6 @@
 //#region local dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
@@ -13,10 +12,11 @@ module.exports = new DisBotCommand({
     description:'Allows replaying a song',
     aliases:['replay', 'r'],
     async executor(Discord, client, message, opts={}) {
-        const server = disBotServers[message.guild.id];
-        const thing_to_replay = server.queue_manager.last_removed ?? server.queue_manager.queue[0];
+        const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
+
+        const thing_to_replay = guild_queue_manager.last_removed ?? guild_queue_manager.queue[0];
         if (thing_to_replay) {
-            server.queue_manager.addItem(thing_to_replay, 1);
+            guild_queue_manager.addItem(thing_to_replay, 1);
         } else {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
