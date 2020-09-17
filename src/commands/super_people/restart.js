@@ -4,7 +4,6 @@
 const bot_config = require('../../../config.json');
 
 const { Timer } = require('../../utilities.js');
-const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
 
 const { createConnection } = require('../../libs/createConnection.js');
 const { playStream } = require('../../libs/playStream.js');
@@ -40,7 +39,7 @@ module.exports = new DisBotCommand({
                 }
             ]
         }), async (bot_message) => {
-            SHARED_VARIABLES.restarting_bot = true;
+            client.$.restarting_bot = true;
 
             const voice_channels = client.voice.connections?.map(c => c.channel) ?? [];
             if (voice_channels.length > 0) {
