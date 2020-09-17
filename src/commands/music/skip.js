@@ -3,7 +3,6 @@
 //#region local dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 
 const bot_config = require('../../../config.json');
 //#endregion local dependencies
@@ -17,11 +16,11 @@ module.exports = new DisBotCommand({
     description:'Allows skipping a song',
     aliases:['skip', 's', 'next', 'n'],
     async executor(Discord, client, message, opts={}) {
-        const server = disBotServers[message.guild.id];
+        const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
         message.channel.send(new CustomRichEmbed({
             title:`Controlling ${bot_common_name}`,
             description:`Skipped the current song!`
         }, message));
-        server.audio_controller.skip();
+        guild_audio_controller.skip();
     },
 });
