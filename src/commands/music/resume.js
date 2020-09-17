@@ -3,7 +3,6 @@
 //#region local dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 
 const bot_config = require('../../../config.json');
 //#endregion local dependencies
@@ -17,9 +16,10 @@ module.exports = new DisBotCommand({
     description:'Resumes anything that the bot is playing',
     aliases:['resume'],
     async executor(Discord, client, message, opts={}) {
-        const server = disBotServers[message.guild.id];
+        const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
+
         if (message.guild.voice) {
-            server.audio_controller.resume();
+            guild_audio_controller.resume();
             message.channel.send(new CustomRichEmbed({
                 title:`Controlling ${bot_common_name}`,
                 description:'Resumed The Music'
