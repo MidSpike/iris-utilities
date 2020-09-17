@@ -33,6 +33,7 @@ async function createConnection(voice_channel, force_new=false) {
         server.queue_manager.clearItems(true);
 
         try {
+            /** @TODO @FIX prevent trying to join voice channels that aren't joinable */
             voice_connection = await voice_channel.join();
         } catch (error) {
             console.trace(error);
