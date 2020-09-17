@@ -1,7 +1,6 @@
 'use strict';
 
 //#region local dependencies
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
@@ -20,7 +19,9 @@ module.exports = new DisBotCommand({
             sendNotAllowedCommand(message);
             return;
         }
-        const server = disBotServers[message.guild.id];
+
+        const guild_dispatcher = client.$.dispatchers.get(message.guild.id);
+
         const bot_voice_channels = client.voice.connections.map(voice_connection => voice_connection.channel);
         const user_voice_channel = message.member.voice.channel;
         if (!bot_voice_channels.includes(user_voice_channel)) return; // The user is not in a voice channel with the bot
@@ -32,7 +33,7 @@ module.exports = new DisBotCommand({
             }, message));
             return;
         }
-        server.dispatcher.setVolume(parsed_super_volume_input);
+        guild_dispatcher.setVolume(parsed_super_volume_input);
         message.channel.send(new CustomRichEmbed({
             title:`Super Volume: ${parsed_super_volume_input}`
         }, message));
