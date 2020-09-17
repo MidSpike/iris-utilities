@@ -3,7 +3,6 @@
 //#region local dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 const { sendVolumeControllerEmbed } = require('../../libs/messages.js');
 //#endregion local dependencies
 
@@ -15,8 +14,11 @@ module.exports = new DisBotCommand({
     aliases:['volume', 'v'],
     async executor(Discord, client, message, opts={}) {
         const { command_args } = opts;
-        const server = disBotServers[message.guild.id];
-        if (!server.dispatcher) { // There isn't anything to request the volume from
+        
+        const guild_dispatcher = client.$.dispatchers.get(message.guild.id);
+        const guild_volume_manager = client.$.volume_managers.get(message.guild.id);
+
+        if (!guild_dispatcher) { // There isn't anything to request the volume from
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
                 title:'Nothing Is Playing Right Now!',
@@ -26,7 +28,7 @@ module.exports = new DisBotCommand({
         }
         // See if the bot has an active voice connection shared with the user
         if (message.guild.voice?.connection?.channel?.id === message.member.voice?.channel?.id) {
-            server.volume_manager.setVolume(parseFloat(command_args[0]) || server.volume_manager.volume); // Don't use ?? here
+            guild_volume_manager.setVolume(parseFloat(command_args[0]) || guild_volume_manager.volume); // Don't use ?? here
             sendVolumeControllerEmbed(message.channel.id, message);
         } else {
             message.channel.send(new CustomRichEmbed({
