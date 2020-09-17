@@ -3,7 +3,6 @@
 //#region local dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
@@ -13,10 +12,12 @@ module.exports = new DisBotCommand({
     description:'Tells the user the timestamp of what is currently playing',
     aliases:['timestamp', 'ts'],
     async executor(Discord, client, message, opts={}) {
-        const server = disBotServers[message.guild.id];
-        if (server.queue_manager.queue.length > 0) {
+        const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
+        const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
+
+        if (guild_queue_manager.queue.length > 0) {
             message.channel.send(new CustomRichEmbed({
-                title:`The Current Queue Item Timestamp Is: ${server.audio_controller.timestamp}`
+                title:`The Current Queue Item Timestamp Is: ${guild_audio_controller.timestamp}`
             }, message));
         } else {
             message.channel.send(new CustomRichEmbed({
