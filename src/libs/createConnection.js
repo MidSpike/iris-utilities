@@ -2,8 +2,6 @@
 
 const { Timer } = require('../utilities.js');
 
-const { disBotServers } = require('../SHARED_VARIABLES.js');
-
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
@@ -17,20 +15,23 @@ async function createConnection(voice_channel, force_new=false) {
 
     let voice_connection;
 
-    const current_voice_state = voice_channel.guild.voice;
+    const guild = voice_channel.guild;
+
+    const guild_audio_controller = guild.client.$.audio_controllers.get(guild.id);
+    const guild_queue_manager = guild.client.$.queue_managers.get(guild.id);
+
+    const current_voice_state = guild.voice;
     if (current_voice_state?.connection && current_voice_state?.channel?.id === voice_channel.id && !force_new) {
         // use the current voice_connection
         voice_connection = current_voice_state.connection;
     } else {
         // create a new voice_connection
-        const server = disBotServers[voice_channel.guild.id];
-
-        if (force_new) server.audio_controller.disconnect();
+        if (force_new) guild_audio_controller.disconnect();
         await Timer(force_new ? 500 : 0); // wait a bit when force creating a new voice_connection
 
-        server.queue_manager.toggleLoop(false);
-        server.queue_manager.toggleAutoplay(false);
-        server.queue_manager.clearItems(true);
+        guild_queue_manager.toggleLoop(false);
+        guild_queue_manager.toggleAutoplay(false);
+        guild_queue_manager.clearItems(true);
 
         try {
             /** @TODO @FIX prevent trying to join voice channels that aren't joinable */
