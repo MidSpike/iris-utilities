@@ -1,7 +1,6 @@
 'use strict';
 
 //#region local dependencies
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 //#endregion local dependencies
@@ -15,7 +14,9 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args, guild_config_manipulator } = opts;
         const guild_config = guild_config_manipulator.config;
-        const server = disBotServers[message.guild.id];
+
+        const guild_volume_manager = client.$.volume_managers.get(message.guild.id);
+
         if (command_args[0]) {
             const old_volume_multiplier = guild_config.volume_multiplier ?? 1;
             const new_volume_multiplier = !isNaN(parseFloat(command_args[0])) ? parseFloat(command_args[0]) : 1;
@@ -26,7 +27,7 @@ module.exports = new DisBotCommand({
             guild_config_manipulator.modifyConfig({
                 volume_multiplier:new_volume_multiplier
             });
-            server.volume_manager.setVolume(server.volume_manager.last_volume);
+            guild_volume_manager.setVolume(guild_volume_manager.last_volume);
         } else {
             message.channel.send(`Please provide a number after the command next time!`);
             message.channel.send(`Examples:${'```'}\n${discord_command} 0.5\n${'```'}${'```'}\n${discord_command} 1\n${'```'}${'```'}\n${discord_command} 2.0\n${'```'}`);
