@@ -24,12 +24,10 @@ const bot_config = require('../../../config.json');
 const { Timer, pseudoUniqueId } = require('../../utilities.js');
 const { logUserError } = require('../../libs/errors.js');
 const { generateInviteToGuild } = require(`../../libs/invites.js`);
-const { sendLargeMessage } = require('../../libs/messages.js');
+const { sendLargeMessage, sendOptionsMessage } = require('../../libs/messages.js');
 
 const { playStream } = require(`../../libs/playStream.js`);
 const { createConnection } = require(`../../libs/createConnection.js`);
-
-const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 const bot_api_url = process.env.BOT_API_SERVER_URL;
@@ -48,8 +46,6 @@ module.exports = new DisBotCommand({
             sendNotAllowedCommand(message);
             return;
         }
-
-        const server = SHARED_VARIABLES.disBotServers[message.guild.id];
 
         console.info(`----------------------------------------------------------------------------------------------------------------`);
         const code_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
