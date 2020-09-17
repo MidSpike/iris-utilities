@@ -7,8 +7,6 @@ const bot_config = require('../../config.json');
 const { Timer,
         getReadableTime } = require('../utilities.js');
 
-const { disBotServers } = require('../SHARED_VARIABLES.js');
-
 const { client } = require('./bot.js');
 
 const { GuildConfigManipulator } = require('./GuildConfig.js');
@@ -202,10 +200,12 @@ async function removeMessageFromChannel(channel_id, message_id) {
  * @param {Message} user_message 
  */
 function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
-    const guild = client.channels.cache.get(channel_id).guild;
-    const server = disBotServers[guild.id];
+    const guild_id = client.channels.cache.get(channel_id).guild.id;
+
+    const guild_volume_manager = client.$.volume_managers.get(guild_id);
+
     const makeEmbed = () => new CustomRichEmbed({
-        title:`The Current Volume Is: ${constructNumberUsingEmoji(server.volume_manager.volume)}`
+        title:`The Current Volume Is: ${constructNumberUsingEmoji(guild_volume_manager.volume)}`
     }, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
@@ -213,10 +213,10 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                server.volume_manager.toggleMute();
+                guild_volume_manager.toggleMute();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${server.volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`
+                    title:`${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`
                 }));
             }
         }, {
@@ -224,24 +224,24 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                server.volume_manager.decreaseVolume();
+                guild_volume_manager.decreaseVolume();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`
+                    title:`Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`
                 }));
             }
         }, {
             emoji_name:'bot_emoji_volume_up',
             cooldown:1000,
             async callback(options_message, collected_reaction, user) {
-                const guild_config = new GuildConfigManipulator(guild.id).config;
+                const guild_config = new GuildConfigManipulator(guild_id).config;
                 removeUserReactionsFromMessage(options_message);
-                const old_volume = server.volume_manager.volume;
-                const [updated_volume_manager, increase_amount] = await server.volume_manager.increaseVolume();
+                const old_volume = guild_volume_manager.volume;
+                const [updated_volume_manager, increase_amount] = await guild_volume_manager.increaseVolume();
                 const new_volume = updated_volume_manager.volume;
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`Set The Volume To ${constructNumberUsingEmoji(server.volume_manager.volume)}`,
+                    title:`Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
                     description:(new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined)
                 }));
             }
@@ -255,9 +255,13 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
  * @param {Messsage|undefined} user_message 
  */
 function sendMusicControllerEmbed(channel_id, user_message=undefined) {
+    const guild_id = client.channels.cache.get(channel_id).guild.id;
+
+    const guild_audio_controller = client.$.audio_controllers.get(guild_id);
+    const guild_queue_manager = client.$.queue_managers.get(guild_id);
+
+    const audio_controller = guild_audio_controller;
     const embed_title = 'Audio Controller';
-    const server = disBotServers[client.channels.cache.get(channel_id).guild.id];
-    const audio_controller = server.audio_controller;
     const makeEmbed = () => new CustomRichEmbed({title:`${embed_title}`}, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
@@ -293,36 +297,31 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                if (server.dispatcher && server.dispatcher.player && server.dispatcher.player.voiceConnection && server.dispatcher.player.voiceConnection.channel) {
-                    server.queue_manager.clearItems(true);
-                    server.dispatcher.player.voiceConnection.channel.leave();
-                    options_message.edit(new CustomRichEmbed({
-                        author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                        title:`${embed_title}`,
-                        description:'Stopped Music'
-                    }));
-                }
+                audio_controller.disconnect();
+                options_message.edit(new CustomRichEmbed({
+                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
+                    title:`${embed_title}`,
+                    description:'Stopped Music'
+                }));
             }
         }, {
             emoji_name:'bot_emoji_skip',
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                if (server.dispatcher) {
-                    server.dispatcher.end();
-                    options_message.edit(new CustomRichEmbed({
-                        author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                        title:`${embed_title}`,
-                        description:'Skipped The Current Item In The Queue'
-                    }));
-                }
+                audio_controller.skip();
+                options_message.edit(new CustomRichEmbed({
+                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
+                    title:`${embed_title}`,
+                    description:'Skipped The Current Item In The Queue'
+                }));
             }
         }, {
             emoji_name:'bot_emoji_shuffle',
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                server.queue_manager.shuffleItems();
+                guild_queue_manager.shuffleItems();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`${embed_title}`,
@@ -334,12 +333,12 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                server.queue_manager.setLoopType('multiple');
-                server.queue_manager.toggleLoop();
+                guild_queue_manager.setLoopType('multiple');
+                guild_queue_manager.toggleLoop();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`${embed_title}`,
-                    description:`${server.queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The Entire Queue`
+                    description:`${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The Entire Queue`
                 }));
             }
         }, {
@@ -347,12 +346,12 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             cooldown:1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                server.queue_manager.setLoopType('single');
-                server.queue_manager.toggleLoop();
+                guild_queue_manager.setLoopType('single');
+                guild_queue_manager.toggleLoop();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`${embed_title}`,
-                    description:`${server.queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The First Item In The Queue`
+                    description:`${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The First Item In The Queue`
                 }));
             }
         }, {
@@ -373,13 +372,16 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
  * @param {String} status 
  */
 function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
-    const server = disBotServers[user_message.guild.id];
-    const guild_config_manipulator = new GuildConfigManipulator(user_message.guild.id);
+    const guild_id = user_message.guild.id;
+
+    const guild_queue_manager = user_message.client.$.queue_managers.get(guild_id);
+
+    const guild_config_manipulator = new GuildConfigManipulator(guild_id);
     const guild_config = guild_config_manipulator.config;
     let show_player_description = guild_config.player_description === 'enabled';
     function makeYTEmbed() {
         return new CustomRichEmbed({
-            title:`${server.queue_manager.loop_enabled ? 'Looping' : (server.queue_manager.autoplay_enabled ? 'Autoplaying' : status)}: ${videoInfo.videoDetails.title}`,
+            title:`${guild_queue_manager.loop_enabled ? 'Looping' : (guild_queue_manager.autoplay_enabled ? 'Autoplaying' : status)}: ${videoInfo.videoDetails.title}`,
             description:(show_player_description ? ([
                 `Author: [${videoInfo.videoDetails.author.name}](${videoInfo.videoDetails.author.channel_url})`,
                 `Uploaded: ${videoInfo.videoDetails.publishDate}`,
@@ -390,7 +392,6 @@ function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
                 `Dislikes: ${videoInfo.videoDetails.dislikes ?? 'n/a'}`,
                 `Views: ${videoInfo.videoDetails.viewCount ?? 'n/a'}`,
                 `Link: [https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`,
-                // `Volume: ${server.volume_manager.volume}%`,
             ].join('\n')) : `[https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`),
             thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}`),
             image:(show_player_description ? `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}` : undefined)
