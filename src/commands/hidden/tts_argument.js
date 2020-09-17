@@ -3,8 +3,6 @@
 //#region local dependencies
 const axios = require('axios');
 
-const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
-
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -27,7 +25,7 @@ module.exports = new DisBotCommand({
         async function tts_insult() {
             if (!message.member.voice?.channel) return;
 
-            const server = SHARED_VARIABLES.disBotServers[message.guild.id];
+            const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
 
             let insult;
 
@@ -49,13 +47,13 @@ module.exports = new DisBotCommand({
             const voice_connection = await createConnection(message.member.voice.channel, false);
 
             const stream_maker = () => tts_url;
-            const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
+            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
                 if (!message.guild.me.voice?.channel) return;
                 insult_count++;
                 tts_insult();
             });
 
-            await server.queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
+            await guild_queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
                 text: `${tts_text}`,
                 provider: `${tts_provider}`,
                 voice: `${tts_voice}`
