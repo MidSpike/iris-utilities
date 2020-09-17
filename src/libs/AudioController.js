@@ -2,8 +2,6 @@
 
 const { getReadableTime } = require('../utilities.js');
 
-const { disBotServers } = require('../SHARED_VARIABLES.js');
-
 //---------------------------------------------------------------------------------------------------------------//
 
 class AudioController {
@@ -34,7 +32,8 @@ class AudioController {
         return this;
     }
     async disconnect() {
-        disBotServers[this.#guild.id].queue_manager.clearItems(true);
+        const guild_queue_manager = this.#guild.client.$.queue_managers.get(this.#guild.id);
+        guild_queue_manager.clearItems(true);
         this.voice?.channel?.leave();
         return this;
     }
