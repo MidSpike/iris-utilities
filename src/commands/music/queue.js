@@ -3,7 +3,6 @@
 //#region local dependencies
 const { array_chunks, string_ellipses } = require('../../utilities.js');
 
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { removeUserReactionsFromMessage, sendOptionsMessage } = require('../../libs/messages.js');
@@ -16,16 +15,18 @@ module.exports = new DisBotCommand({
     description:'used for controlling the queue',
     aliases:['queue', 'q'],
     async executor(Discord, client, message, opts={}) {
-        const { command_prefix, discord_command, command_args } = opts;
-        const { queue_manager } = disBotServers[message.guild.id];
-        if (queue_manager.queue.length > 0) {
+        const { discord_command, command_args } = opts;
+
+        const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
+
+        if (guild_queue_manager.queue.length > 0) {
             if (command_args.length > 0) {
                 if (['items', 'i'].includes(command_args[0])) {
                     const queue_page_size = 10;
                     let page_index = 0;
                     let queue_pages = [];
                     function makeQueueEmbed() {
-                        const entire_queue_formatted = queue_manager.queue.map((queue_item, index) => {
+                        const entire_queue_formatted = guild_queue_manager.queue.map((queue_item, index) => {
                             if (queue_item.type === 'youtube') {
                                 const yt_video_title = `${string_ellipses(queue_item.metadata.videoInfo.videoDetails.title, 50)}`;
                                 const yt_video_link = `https://youtu.be/${queue_item.metadata.videoInfo.videoDetails.videoId}`;
@@ -56,7 +57,7 @@ module.exports = new DisBotCommand({
                         if (queue_pages[page_index]) {// The queue is populated
                             return new CustomRichEmbed({
                                 title:`Requested The Queue`,
-                                description:`There are currently ${queue_manager.queue.length} items in the queue.\nCurrently on queue page: \`[ ${page_index+1} ]\` of \`[ ${queue_pages.length} ]\`.`,
+                                description:`There are currently ${guild_queue_manager.queue.length} items in the queue.\nCurrently on queue page: \`[ ${page_index+1} ]\` of \`[ ${queue_pages.length} ]\`.`,
                                 fields:[...queue_pages[page_index]]
                             }, message);
                         } else {// The queue is not populated
@@ -86,21 +87,21 @@ module.exports = new DisBotCommand({
                         }
                     ]);
                 } else if (['autoplay', 'a'].includes(command_args[0])) {
-                    await queue_manager.toggleAutoplay();
-                    message.channel.send(new CustomRichEmbed({title:`${queue_manager.autoplay_enabled ? 'Enabled' : 'Disabled'} Autoplay Of Related YouTube Videos In The Queue`}, message));
+                    await guild_queue_manager.toggleAutoplay();
+                    message.channel.send(new CustomRichEmbed({title:`${guild_queue_manager.autoplay_enabled ? 'Enabled' : 'Disabled'} Autoplay Of Related YouTube Videos In The Queue`}, message));
                 } else if (['loop', 'l'].includes(command_args[0])) {
                     if (['item', 'i'].includes(command_args[1])) {
-                        await queue_manager.toggleLoop();
-                        await queue_manager.setLoopType('single');
-                        message.channel.send(new CustomRichEmbed({title:`${queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} Queue Looping For The First Item`}, message));
+                        await guild_queue_manager.toggleLoop();
+                        await guild_queue_manager.setLoopType('single');
+                        message.channel.send(new CustomRichEmbed({title:`${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} Queue Looping For The First Item`}, message));
                     } else if (['all', 'a'].includes(command_args[1])) {
-                        await queue_manager.toggleLoop();
-                        await queue_manager.setLoopType('multiple');
-                        message.channel.send(new CustomRichEmbed({title:`${queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} Queue Looping For The Entire Queue`}, message));
+                        await guild_queue_manager.toggleLoop();
+                        await guild_queue_manager.setLoopType('multiple');
+                        message.channel.send(new CustomRichEmbed({title:`${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} Queue Looping For The Entire Queue`}, message));
                     } else if (['shuffle', 's'].includes(command_args[1])) {
-                        await queue_manager.toggleLoop();
-                        await queue_manager.setLoopType('shuffle');
-                        message.channel.send(new CustomRichEmbed({title:`${queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} Queue Shuffle Looping For The Entire Queue`}, message));
+                        await guild_queue_manager.toggleLoop();
+                        await guild_queue_manager.setLoopType('shuffle');
+                        message.channel.send(new CustomRichEmbed({title:`${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} Queue Shuffle Looping For The Entire Queue`}, message));
                     } else {
                         message.channel.send(new CustomRichEmbed({
                             title:'Possible Queue Loop Commands',
@@ -108,13 +109,13 @@ module.exports = new DisBotCommand({
                         }, message));
                     }
                 } else if (['shuffle', 's'].includes(command_args[0])) {
-                    await queue_manager.shuffleItems();
+                    await guild_queue_manager.shuffleItems();
                     message.channel.send(new CustomRichEmbed({title:`Shuffled Items In The Queue`}, message));
                 } else if (['remove', 'r'].includes(command_args[0])) {
                     if (command_args[1]) {
                         const remove_index_number = parseInt(command_args[1]);
                         if (!isNaN(remove_index_number)) {
-                            queue_manager.removeItem(remove_index_number);
+                            guild_queue_manager.removeItem(remove_index_number);
                             message.channel.send(new CustomRichEmbed({title:`Removed An Item From The Queue`, description:`Removed item at position #${remove_index_number}!`}, message));
                         } else {
                             message.channel.send(new CustomRichEmbed({color:0xFFFF00, title:`Woah dude!`, description:`I can't remove ${remove_index_number} from the queue!\nTry specifying a number!`}, message));
@@ -126,8 +127,8 @@ module.exports = new DisBotCommand({
                         }, message));
                     }
                 } else if (['clear', 'c'].includes(command_args[0])) {
-                    message.channel.send(new CustomRichEmbed({title:`Removed ${queue_manager.queue.length-1} Uninvoked Items From The Queue`}, message));
-                    queue_manager.clearItems(false);
+                    message.channel.send(new CustomRichEmbed({title:`Removed ${guild_queue_manager.queue.length-1} Uninvoked Items From The Queue`}, message));
+                    guild_queue_manager.clearItems(false);
                 }
             } else {//Show the queue commands
                 message.channel.send(new CustomRichEmbed({
