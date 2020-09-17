@@ -3,8 +3,6 @@
 //#region local dependencies
 const bot_config = require('../../../config.json');
 
-const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
-
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { playStream } = require('../../libs/playStream.js');
@@ -21,12 +19,13 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { guild_config_manipulator } = opts;
 
-        const server = SHARED_VARIABLES.disBotServers[message.guild.id];
+        const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
+
         const guild_config = guild_config_manipulator.config;
         const guild_tts_provider = guild_config.tts_provider;
         const guild_tts_voice = guild_tts_provider === 'ibm' ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
 
-        const voice_connection = server.audio_controller.voice?.connection;
+        const voice_connection = guild_audio_controller.voice?.connection;
 
         if (!voice_connection) {
             message.channel.send(new CustomRichEmbed({
@@ -54,10 +53,10 @@ module.exports = new DisBotCommand({
         if (guild_config.disconnect_tts_voice === 'enabled') { // play TTS before disconnecting
             const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
             playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
-                server.audio_controller.disconnect();
+                guild_audio_controller.disconnect();
             });
         } else {
-            server.audio_controller.disconnect();
+            guild_audio_controller.disconnect();
         }
     },
 });
