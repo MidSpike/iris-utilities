@@ -34,8 +34,11 @@ async function createConnection(voice_channel, force_new=false) {
         guild_queue_manager.clearItems(true);
 
         try {
-            /** @TODO @FIX prevent trying to join voice channels that aren't joinable */
-            voice_connection = await voice_channel.join();
+            if (voice_channel.joinable) {
+                voice_connection = await voice_channel.join();
+            } else {
+                throw new Error('`voice_channel.joinable` is false!');
+            }
         } catch (error) {
             console.trace(error);
             throw new Error(`Unable to join the voice_channel (${voice_channel.id})`);
