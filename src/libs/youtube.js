@@ -126,7 +126,18 @@ async function playYouTube(message, search_query, playnext=false) {
         if (!video_id) throw new Error(`'video_id' must be defined`);
         const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&video_id=${encodeURI(video_id)}`);
         const yt_video_info = youtube_playlist_api_response?.data;
-        const voice_connection = await createConnection(voice_channel);
+        let voice_connection;
+        try {
+            voice_connection = await createConnection(voice_channel);
+        } catch {
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:`Welp that's an issue!`,
+                description:`I'm unable to join your voice channel!`
+            }, message));
+        } finally {
+            if (!voice_connection) return; // there is no point in continuing if the bot can't join vc
+        }
         const stream_maker = async () => {
             // const bot_ytdl_api_url = `${bot_api_url}/ytdl?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
             // return bot_ytdl_api_url;
