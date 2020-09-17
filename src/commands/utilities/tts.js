@@ -5,8 +5,6 @@ const axios = require('axios');
 
 const bot_config = require('../../../config.json');
 
-const SHARED_VARIABLES = require('../../SHARED_VARIABLES.js');
-
 const { array_chunks } = require('../../utilities.js');
 
 const { QueueItem, QueueItemPlayer } = require('../../libs/QueueManager.js');
@@ -30,7 +28,7 @@ const tts_opts_template = {
 async function playTTS(voice_channel, tts_text='Hello World! This Is The Default Text!', options=tts_opts_template) {
     const _options = {...tts_opts_template, ...options};
 
-    const server = SHARED_VARIABLES.disBotServers[voice_channel.guild.id];
+    const guild_queue_manager = voice_channel.guild.client.$.queue_managers.get(voice_channel.guild.id);
 
     const provider = _options.provider ?? 'ibm';
     const voice = _options.voice ?? (provider === 'google' ? 'en-us' : 'en-US_EmilyV3Voice');
@@ -47,8 +45,8 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
     const stream_maker = () => stream;
 
     const {start_callback, end_callback, error_callback} = _options.callbacks;
-    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 10.0, start_callback, end_callback, error_callback);
-    return await server.queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, start_callback, end_callback, error_callback);
+    return await guild_queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
         text:`${tts_text}`,
         provider:`${provider}`,
         voice:`${voice}`
