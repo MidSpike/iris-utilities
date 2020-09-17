@@ -6,7 +6,6 @@ const validator = require('validator');
 
 const { forcePromise } = require('../../utilities.js');
 
-const { disBotServers } = require('../../SHARED_VARIABLES.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { QueueItem, QueueItemPlayer } = require('../../libs/QueueManager.js');
 const { createConnection } = require('../../libs/createConnection.js');
@@ -59,10 +58,11 @@ async function detect_remote_mp3(search_query='') {
 }
 
 async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
-    const server = disBotServers[message.guild.id];
+    const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
+
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${remote_mp3_path}`;
-    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 5.0, () => {
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
         message.channel.send(new CustomRichEmbed({
             title:'Playing A MP3 File From The Internet',
             description:`${'```'}\n${remote_mp3_path}\n${'```'}`
@@ -70,8 +70,8 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
     }, () => {}, (error) => {
         console.trace(error);
     });
-    server.queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name:`${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
-        if (server.queue_manager.queue.length > 1) {
+    guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name:`${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
+        if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
                 title:'Added A MP3 File From The Internet',
                 description:`${'```'}\n${remote_mp3_path}\n${'```'}`
@@ -81,13 +81,14 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
 }
 
 async function playUserUploadedMP3(message, playnext=false) {
-    const server = disBotServers[message.guild.id];
+    const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
+
     const message_media = message.attachments.first();
     if (message_media) {
         if (message_media.attachment.endsWith('.mp3')) {
             const voice_connection = await createConnection(message.member.voice.channel);
             const stream_maker = () => `${message_media.attachment}`;
-            const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 5.0, () => {
+            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
                 message.channel.send(new CustomRichEmbed({
                     title:'Playing A MP3 File From Their Computer',
                     description:`${'```'}\n${message_media.name}${'```'}`
@@ -99,8 +100,8 @@ async function playUserUploadedMP3(message, playnext=false) {
             }, (error) => {
                 console.trace(error);
             });
-            server.queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name:`${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
-                if (server.queue_manager.queue.length > 1) {
+            guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name:`${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
+                if (guild_queue_manager.queue.length > 1) {
                     message.channel.send(new CustomRichEmbed({
                         title:'Added A MP3 File From Their Computer',
                         description:`${'```'}\n${message_media.name}${'```'}`
@@ -129,13 +130,14 @@ function detect_broadcastify(search_query='') {
 }
 
 async function playBroadcastify(message, search_query, playnext=false) {
-    const server = disBotServers[message.guild.id];
+    const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
+
     const broadcast_id = search_query.match(/(\d+)/)?.[0]; // ID should be numbers only
     if (!broadcast_id) return;
     const broadcast_url = `https://broadcastify.cdnstream1.com/${broadcast_id}`;
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${broadcast_url}`;
-    const player = new QueueItemPlayer(server.queue_manager, voice_connection, stream_maker, 5.0, () => {
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
         message.channel.send(new CustomRichEmbed({
             title:'Playing Broadcastify Stream',
             description:`[Stream Link - ${broadcast_id}](${broadcast_url})`
@@ -143,8 +145,8 @@ async function playBroadcastify(message, search_query, playnext=false) {
     }, () => {}, (error) => {
         console.trace(error);
     });
-    server.queue_manager.addItem(new QueueItem('other', player, `Broadcastify Stream`), (playnext ? 2 : undefined)).then(() => {
-        if (server.queue_manager.queue.length > 1) {
+    guild_queue_manager.addItem(new QueueItem('other', player, `Broadcastify Stream`), (playnext ? 2 : undefined)).then(() => {
+        if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
                 title:'Added Broadcastify Stream',
                 description:`[Stream Link - ${broadcast_id}](${broadcast_url})`
