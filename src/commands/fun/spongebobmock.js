@@ -16,8 +16,8 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
 module.exports = new DisBotCommand({
     name:'SPONGEBOBMOCK',
     category:`${DisBotCommander.categories.FUN}`,
-    description:'Spongebob mock text',
-    aliases:['spongebobmock'],
+    description:'mock text like the Spongebob Mock meme',
+    aliases:['spongebobmock', 'mock'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, clean_command_args } = opts;
 
