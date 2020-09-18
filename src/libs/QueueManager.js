@@ -14,8 +14,8 @@ const { GuildConfigManipulator } = require('./GuildConfig.js');
 
 /**
  * Creates an interface for controlling and interacting with the Queue of a Guild
- * @param {Guild} guild 
- * @returns {QueueManager} 
+ * @param {Guild} guild a `new Discord.Guild`
+ * @returns {QueueManager} the `new QueueManager`
  */
 class QueueManager {
     #guild; // for future usage
@@ -25,27 +25,41 @@ class QueueManager {
     #loop_enabled = false;
     #loop_type = 'single'; // can be any of this.#allowed_loop_types
     #autoplay_enabled = false;
+
     constructor(guild) {
         this.#guild = guild;
     }
+
     get guild() {
         return this.#guild;
     }
+
     get queue() {
         return this.#queue;
     }
+
     get last_removed() {
         return this.#last_removed;
     }
+
     get loop_enabled() {
         return this.#loop_enabled;
     }
+
     get loop_type() {
         return this.#loop_type;
     }
+
     get autoplay_enabled() {
         return this.#autoplay_enabled;
     }
+
+    /**
+     * Adds a QueueItem to the Queue
+     * @param {QueueItem} item a QueueItem to be added to the queue
+     * @param {Number} insertion_index a postion in the queue (starting at 1) for the item to be added to
+     * @returns {Promise<QueueManager>} 
+     */
     async addItem(item, insertion_index=this.queue.length+1) {
         if (!item) throw new Error('Item is undefined and cannot be added to the queue!');
         this.#queue = array_insert(this.queue, insertion_index-1, item);
@@ -54,15 +68,32 @@ class QueueManager {
         }
         return this;
     }
+
+    /**
+     * Removes an item from the Queue
+     * @param {Number} removal_index a postion in the queue (starting at 1) for an item to be removed from
+     * @returns {Promise<QueueManager>} 
+     */
     async removeItem(removal_index=1) {
         this.#last_removed = this.queue[0] ?? this.last_removed;
         this.#queue.splice(removal_index - 1, 1);
         return this;
     }
+
+    /**
+     * Shuffles all items in the queue (apart from the first item)
+     * @returns {Promise<QueueManager>} 
+     */
     async shuffleItems() {
         this.#queue = [this.queue[0], ...(array_shuffle(this.queue.slice(1, this.queue.length)))];
         return this;
     }
+
+    /**
+     * Clears all items from the Queue
+     * @param {Boolean} all whether or not to force clear all items in the queue (including the first one)
+     * @returns {Promise<QueueManager>} 
+     */
     async clearItems(all=false) {
         this.toggleLoop(false);
         this.toggleAutoplay(false);
@@ -70,10 +101,22 @@ class QueueManager {
         this.#queue = all ? [] : (this.queue[0] ? [this.queue[0]] : []);
         return this;
     }
+
+    /**
+     * Toggles the Queue Loop feature
+     * @param {Boolean} override force the Queue Loop to this value
+     * @returns {Promise<QueueManager>} 
+     */
     async toggleLoop(override=undefined) {
         this.#loop_enabled = override !== undefined ? override : !this.loop_enabled;
         return this;
     }
+
+    /**
+     * Sets the Queue Loop methodology
+     * @param {String} new_loop_type (obtainable values can be found in `this.#allowed_loop_types`)
+     * @returns {Promise<QueueManager>} 
+     */
     async setLoopType(new_loop_type='single') {
         if (this.#allowed_loop_types.includes(new_loop_type)) {
             this.#loop_type = new_loop_type;
@@ -82,6 +125,12 @@ class QueueManager {
         }
         return this;
     }
+
+    /**
+     * Toggles the Queue Autoplay feature
+     * @param {Boolean} override force the Queue Autoplay to this value
+     * @returns {Promise<QueueManager>} 
+     */
     async toggleAutoplay(override=undefined) {
         this.#autoplay_enabled = override !== undefined ? override : !this.autoplay_enabled;
         return this;
@@ -121,7 +170,7 @@ class QueueItemPlayer {
         }
         this.queue_manager = queue_manager;
         this.voice_connection = voice_connection;
-        this.stream_maker =  async () => await stream_maker(); // For generate a new stream for each run of the queue item player
+        this.stream_maker =  async () => await stream_maker(); // for generating a new stream for each run of the queue item player
         this.volume_ratio = volume_ratio ?? undefined;
         this.start_callback = typeof start_callback === 'function' ? start_callback : (() => {});
         this.end_callback = typeof end_callback === 'function' ? end_callback : (() => {});
