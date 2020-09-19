@@ -12,6 +12,7 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 module.exports = new DisBotCommand({
     name:'IPINFO',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:8,
     description:'IP Information',
     aliases:['ipinfo'],
     async executor(Discord, client, message, opts={}) {

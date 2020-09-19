@@ -11,6 +11,7 @@ const { Reminder, ReminderManager } = require('../../libs/ReminderManager.js');
 module.exports = new DisBotCommand({
     name:'REMINDME',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:5,
     description:'Creates a reminder',
     aliases:['remindme'],
     async executor(Discord, client, message, opts={}) {

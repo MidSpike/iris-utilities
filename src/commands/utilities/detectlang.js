@@ -11,6 +11,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'DETECTLANG',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:7,
     description:'Detect Language',
     aliases:['detectlang'],
     async executor(Discord, client, message, opts={}) {

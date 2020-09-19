@@ -15,6 +15,7 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 module.exports = new DisBotCommand({
     name:'EMBED',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:4,
     description:'Create message embeds via command',
     aliases:['embed'],
     async executor(Discord, client, message, opts={}) {
