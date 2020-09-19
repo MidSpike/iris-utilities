@@ -13,6 +13,7 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 module.exports = new DisBotCommand({
     name:'POLL',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:3,
     description:'used for creating polls to vote on',
     aliases:['poll'],
     async executor(Discord, client, message, opts={}) {

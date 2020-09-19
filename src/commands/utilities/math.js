@@ -10,6 +10,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'MATH',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:2,
     description:'Evaluate Math',
     aliases:['math'],
     async executor(Discord, client, message, opts={}) {

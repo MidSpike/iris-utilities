@@ -11,6 +11,7 @@ const ibm_languages_json = require('../../../files/ibm_languages.json');
 module.exports = new DisBotCommand({
     name:'LANGCODES',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:6,
     description:'Language Codes',
     aliases:['langcodes'],
     async executor(Discord, client, message, opts={}) {

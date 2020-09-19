@@ -15,6 +15,7 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
 module.exports = new DisBotCommand({
     name:'GOOGLETRANSLATE',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:13,
     description:'Google Translate',
     aliases:['googletranslate'],
     async executor(Discord, client, message, opts={}) {

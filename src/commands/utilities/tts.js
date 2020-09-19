@@ -56,6 +56,7 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
 module.exports = new DisBotCommand({
     name:'TTS',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:1,
     description:'Text-to-Speech',
     aliases:['tts'],
     async executor(Discord, client, message, opts={}) {

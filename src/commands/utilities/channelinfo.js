@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'CHANNELINFO',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:12,
     description:'Channel Information',
     aliases:['channelinfo'],
     async executor(Discord, client, message, opts={}) {

@@ -10,6 +10,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'MEMBERINFO',
     category:`${DisBotCommander.categories.UTILITIES}`,
+    weight:10,
     description:'Guild Member Information',
     aliases:['memberinfo'],
     async executor(Discord, client, message, opts={}) {
