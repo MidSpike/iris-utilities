@@ -145,6 +145,7 @@ function registerDisBotCommands() {
         for (const command_file of command_files) {
             console.info(`Registering Command: ${command_file}`);
             const command_file_path = path.join(process.cwd(), './src/commands/', command_file);
+            delete require.cache[command_file_path]; // force require the command
             const command_to_register = require(command_file_path);
             DisBotCommander.registerCommand(command_to_register);
         }

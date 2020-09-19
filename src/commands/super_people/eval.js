@@ -4,7 +4,7 @@
 const safe_stringify = require('json-stringify-safe');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommander, DisBotCommand, registerDisBotCommands } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
