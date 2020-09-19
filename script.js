@@ -95,6 +95,8 @@ const { getDiscordCommand,
         DisBotCommander,
         registerDisBotCommands } = require('./src/libs/DisBotCommander.js');
 
+const { registerDisBotEvents } = require('./src/libs/events.js');
+
 //---------------------------------------------------------------------------------------------------------------//
 
 async function updateGuildConfig(guild) {
@@ -196,14 +198,8 @@ async function checkForBlacklistedUser(message) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-// client.on('debug', console.info);
-
-client.on('warn', console.trace);
-
-client.on('error', console.trace);
-
 client.on('ready', async () => {
-    console.timeEnd(`client.login -> 'ready' event`);
+    console.timeEnd(`client.login -> client#ready`);
 
     client.$.restarting_bot = true; // the bot is still restarting
 
@@ -218,9 +214,9 @@ client.on('ready', async () => {
         const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
         guild_restart_logging_channels.forEach(channel => {
             if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
-                channel.send(`${bot_common_name} restarted! ${ready_timestamp}`);
+                channel.send(`${bot_common_name} restarted at ${ready_timestamp}!`);
             } else {
-                console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`)
+                console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`);
             }
         });
     }, 1000 * 60 * 1); // 1 minute
@@ -300,40 +296,7 @@ client.on('ready', async () => {
     client.$.restarting_bot = false; // the bot can be considered done restarting
 });
 
-client.on('invalidated', () => {
-    console.warn(`----------------------------------------------------------------------------------------------------------------`);
-    console.warn(`Bot session was invalidated!`);
-    console.warn(`----------------------------------------------------------------------------------------------------------------`);
-    process.exit(1); // stop this process and restart it via the .bat script
-});
-
-client.on('rateLimit', (rate_limit_info) => {
-    console.log(`----------------------------------------------------------------------------------------------------------------`);
-    console.log('rate_limit:', rate_limit_info);
-    console.log(`----------------------------------------------------------------------------------------------------------------`);
-});
-
 //---------------------------------------------------------------------------------------------------------------//
-
-client.on('voiceStateUpdate', async (old_voice_state, new_voice_state) => {
-    if (client.$.restarting_bot) return;
-
-    if (isThisBot(new_voice_state.member.id)) {
-        if (new_voice_state.connection && new_voice_state.channel) { // Run if connected to a voice channel
-            await Timer(500); // prevent API abuse
-            if (new_voice_state.serverMute) new_voice_state.setMute(false, `Don't mute me!`);
-            if (new_voice_state.serverDeaf) new_voice_state.setDeaf(false, `Don't deafen me!`);
-        }
-    }
-});
-
-//---------------------------------------------------------------------------------------------------------------//
-
-// client.on('guildUnavailable', (guild) => {
-//     console.info(`----------------------------------------------------------------------------------------------------------------`);
-//     console.info(`Guild: (${guild?.id}) is unavailable!`);
-//     console.info(`----------------------------------------------------------------------------------------------------------------`);
-// });
 
 client.on('guildUpdate', async (old_guild, new_guild) => {
     if (client.$.restarting_bot) return;
@@ -1111,6 +1074,9 @@ client.on('message', async (message) => {
 
 /* register the commands */
 registerDisBotCommands();
+
+/* register the events */
+registerDisBotEvents();
 
 //---------------------------------------------------------------------------------------------------------------//
 
