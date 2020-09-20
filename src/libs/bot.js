@@ -32,7 +32,7 @@ client.$ = {
     audio_controllers: new Discord.Collection(),
 };
 
-console.time(`client.login -> 'ready' event`);
+console.time(`client.login -> client#ready`);
 client.login(process.env.BOT_DISCORD_API_TOKEN);
 
 module.exports = {
