@@ -101,6 +101,16 @@ module.exports = new DisBotCommand({
             return;
         }
 
+        const message_attachment = message.attachments.first();
+        if (message_attachment && !message_attachment.name.endsWith('.txt')) {
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:'Uh Oh!',
+                description:`You can't use TTS to play non-\`.txt\` files!`
+            }, message));
+            return;
+        }
+
         const regex_tts_command_args = /\{(.*?)\}/g;
         const regex_tts_command_args_bounds = /(\{|\})/g;
         const tts_command_args = tts_input.match(regex_tts_command_args);
@@ -114,7 +124,7 @@ module.exports = new DisBotCommand({
         const tts_voice_when_provider_is_google = guild_config.tts_voice_google ?? bot_config.default_guild_config.tts_voice_google;
         const tts_voice = tts_arg_potential_voice ?? (tts_provider === 'ibm' ? tts_voice_when_provider_is_ibm : tts_voice_when_provider_is_google);
 
-        const tts_source = (message.attachments.size > 0 ? (await axios.get(message.attachments.first().url)).data : (tts_input ?? '').replace(regex_tts_command_args, ``)).trim();
+        const tts_source = (message_attachment ? (await axios.get(message_attachment.url)).data : (tts_input ?? '').replace(regex_tts_command_args, ``)).trim();
         const tts_chunks = array_chunks(tts_source.split(/\s/g), 100).map(chunk => chunk.join(' '));
 
         for (let chunk_index = 0; chunk_index < tts_chunks.length; chunk_index++) {
