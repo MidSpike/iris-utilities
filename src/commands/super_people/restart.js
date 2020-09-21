@@ -1,7 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { Timer } = require('../../utilities.js');
 
@@ -13,7 +13,7 @@ const { sendNotAllowedCommand, sendConfirmationEmbed } = require('../../libs/mes
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
-const bot_common_name = bot_config.common_name;
+const bot_common_name = bot_config.COMMON_NAME;
 const bot_api_url = process.env.BOT_API_SERVER_URL;
 
 module.exports = new DisBotCommand({

@@ -4,10 +4,10 @@
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 //#endregion local dependencies
 
-const bot_common_name = bot_config.common_name;
+const bot_common_name = bot_config.COMMON_NAME;
 
 module.exports = new DisBotCommand({
     name:'SUMMON',

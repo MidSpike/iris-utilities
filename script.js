@@ -12,7 +12,7 @@ const moment = require('moment-timezone');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const bot_config = require('./config.json');
+const bot_config = require('./config.js');
 
 const { Discord,
         client } = require('./src/libs/bot.js');
@@ -29,40 +29,29 @@ const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
 //#endregion bot files
 
 //#region bot globals
-const bot_owner_id = bot_config.owner_id;
-const bot_common_name = bot_config.common_name;
-const bot_version = bot_config.public_version;
-const bot_website = bot_config.website;
-const bot_default_guild_config = bot_config.default_guild_config;
+const bot_owner_id = bot_config.OWNER_ID;
+const bot_common_name = bot_config.COMMON_NAME;
+const bot_version = bot_config.PUBLIC_VERSION;
+const bot_website = bot_config.WEBSITE;
+const bot_default_guild_config = bot_config.DEFAULT_GUILD_CONFIG;
 const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
 const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
 const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion bot globals
 
 //#region bot channels
-const bot_special_channels = bot_config.special_channels;
+const bot_special_channels = bot_config.SPECIAL_CHANNELS;
 
-const bot_backup_commands_channel_name = bot_special_channels.BOT_COMMANDS.public_name;
+const bot_backup_commands_channel = bot_special_channels.find(ch => ch.id === 'BOT_COMMANDS');
 
-const bot_restart_log_channel_name = bot_special_channels.BOT_RESTARTS.public_name;
-const bot_command_log_channel_name = bot_special_channels.GUILD_COMMANDS.public_name;
-const bot_update_log_channel_name = bot_special_channels.BOT_UPDATES.public_name;
-const bot_members_log_channel_name = bot_special_channels.GUILD_MEMBERS.public_name;
-const bot_invite_log_channel_name = bot_special_channels.GUILD_INVITES.public_name;
-const bot_moderation_log_channel_name = bot_special_channels.GUILD_MODERATION.public_name;
-const bot_reaction_log_channel_name = bot_special_channels.GUILD_REACTIONS.public_name;
-const bot_appeals_log_channel_name = bot_special_channels.GUILD_APPEALS.public_name;
-
-const bot_special_text_channels = [
-    bot_restart_log_channel_name,
-    bot_update_log_channel_name,
-    bot_command_log_channel_name,
-    bot_moderation_log_channel_name,
-    bot_invite_log_channel_name,
-    bot_appeals_log_channel_name,
-    bot_members_log_channel_name,
-    bot_reaction_log_channel_name
-];
+const bot_restart_log_channel = bot_special_channels.find(ch => ch.id === 'BOT_RESTARTS');
+const bot_command_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_COMMANDS');
+const bot_update_log_channel = bot_special_channels.find(ch => ch.id === 'BOT_UPDATES');
+const bot_members_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_MEMBERS');
+const bot_invite_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_INVITES');
+const bot_moderation_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_MODERATION');
+const bot_reaction_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_REACTIONS');
+const bot_appeals_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_APPEALS');
 
 const bot_central_guild_history_channel_id = process.env.BOT_LOGGING_CHANNEL_GUILD_HISTORY_ID;
 const bot_central_anonymous_command_log_channel_id = process.env.BOT_LOGGING_CHANNEL_ANONYMOUS_COMMAND_LOG_ID;
@@ -211,7 +200,7 @@ client.on('ready', async () => {
 
     /* after 1 minute, log to all subscribed servers that a restart has just occurred */
     client.setTimeout(() => {
-        const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel_name);
+        const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel.name);
         guild_restart_logging_channels.forEach(channel => {
             if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
                 channel.send(`${bot_common_name} restarted at ${ready_timestamp}!`);
@@ -386,20 +375,30 @@ client.on('channelCreate', async channel => {
     const guild_config_manipulator = new GuildConfigManipulator(channel.guild.id);
     const guild_config = guild_config_manipulator.config;
     const command_prefix = guild_config.command_prefix;
+    /**
+     * Prevents everyone except this bot from sending messages in the channel
+     * @param {GuildTextChannel} channel a GuildTextChannel
+     */
     function prevent_sending_messages_in_channel(channel) {
         channel.overwritePermissions([
             {id:channel.guild.roles.everyone.id, deny:['SEND_MESSAGES']},
-            {id:channel.guild.me.id, allow:['SEND_MESSAGES']}, // Trust me on this... Somehow this is needed!
-        ], `Don't allow people to send messages in a logging channel!`);
+            {id:channel.guild.me.id, allow:['SEND_MESSAGES']}, // Make sure that the bot retains access if `ADMINISTRATOR` is not present
+        ], `Don't allow people to send messages in a logging channel!`).catch(() => {
+            channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title:'There is an issue!',
+                description:'I was unable to modify the permissions of this channel to only allow myself to send messages in it!'
+            })).catch(console.warn);
+        });
     }
     switch (channel.name) {
-        case bot_backup_commands_channel_name:
+        case bot_backup_commands_channel.name:
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
                 description:`Any ${bot_common_name} commands can be used here by people with appropriate permissions!`
             }));
         break;
-        case bot_appeals_log_channel_name:
+        case bot_appeals_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
@@ -411,35 +410,35 @@ client.on('channelCreate', async channel => {
                 description:`This feature is in BETA!`
             }));
         break;
-        case bot_restart_log_channel_name:
+        case bot_restart_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
                 description:'Now syncing future bot restart history to channel!'
             }));
         break;
-        case bot_update_log_channel_name:
+        case bot_update_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
                 description:'Now syncing future bot update history to channel!'
             }));
         break;
-        case bot_command_log_channel_name:
+        case bot_command_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
                 description:'Now syncing future guild command history to channel!'
             }));
         break;
-        case bot_moderation_log_channel_name:
+        case bot_moderation_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
                 description:'Now syncing future guild moderation history to channel!'
             }));
         break;
-        case bot_invite_log_channel_name:
+        case bot_invite_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
@@ -451,14 +450,14 @@ client.on('channelCreate', async channel => {
                 description:`If I don't have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see invite events for all channels!`
             }));
         break;
-        case bot_members_log_channel_name:
+        case bot_members_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
                 description:'Now syncing future guild member join/leave history to channel!'
             }));
         break;
-        case bot_reaction_log_channel_name:
+        case bot_reaction_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title:'Channel Linked',
@@ -467,7 +466,7 @@ client.on('channelCreate', async channel => {
             channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
                 title:'Warning!',
-                description:`Any reactions added by bots will not be logged for performance reasons!`
+                description:`Any reactions manipulated by bots will not be logged for performance reasons!`
             }));
         break;
     }
@@ -482,7 +481,7 @@ client.on('guildMemberAdd', async (member) => {
 
     if (member.user.partial) member.user.fetch().catch((warning) => console.warn('1599589897074279134', warning));
 
-    const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
+    const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel.name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color:0x00FF00,
@@ -501,7 +500,7 @@ client.on('guildMemberRemove', async (member) => {
 
     if (member.user.partial) member.user.fetch().catch((warning) => console.warn('1599589897074661817', warning));
 
-    const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel_name);
+    const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel.name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color:0xFFFF00,
@@ -526,7 +525,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (!reaction.message.guild) return; // don't continue with direct message reactions
 
     const member = reaction.message.guild.members.cache.get(user.id);
-    const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel_name);
+    const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel.name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color:0x00FF00,
@@ -555,7 +554,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
     if (!reaction.message.guild) return; // don't continue with direct message reactions
 
     const member = reaction.message.guild.members.cache.get(user.id);
-    const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel_name);
+    const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel.name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color:0xFFFF00,
@@ -578,38 +577,49 @@ client.on('messageReactionRemove', async (reaction, user) => {
 client.on('inviteCreate', async (invite) => {
     if (client.$.restarting_bot) return;
 
-    if (!invite.channel?.guild) return;
-    const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel_name);
+    if (!invite.channel?.guild) return; // make sure that invite is for a guild
+
+    const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel.name);
     if (!logging_channel) return;
+
     logging_channel.send(new CustomRichEmbed({
+        color:0x00FF00,
         title:'An Invite Has Been Created!',
         fields:[
-            {name:'Created By', value:`${invite.inviter}`},
+            {name:'Created By', value:`${invite.inviter ?? `\`N/A\``}`},
             {name:'Invite Code', value:`\`${invite.code}\``},
             {name:'Invite URL', value:`<${invite.url}>`}
         ]
     })).catch(() => {
-        console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
+        console.warn(`Unable to send 'inviteCreate' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
 
 client.on('inviteDelete', async (invite) => {
     if (client.$.restarting_bot) return;
 
-    if (!invite.channel?.guild) return;
-    const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel_name);
+    if (!invite.channel?.guild) return; // make sure that invite is for a guild
+
+    const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel.name);
     if (!logging_channel) return;
-    const last_audit_log_deleted_invite_entry = (await invite.channel.guild.fetchAuditLogs({limit:1, type:'INVITE_DELETE'})).entries.first();
-    const person_to_blame = last_audit_log_deleted_invite_entry?.executor ?? 'N/A';
+
+    const guild_audit_logs = await invite.channel.guild.fetchAuditLogs({
+        limit:1,
+        type:'INVITE_DELETE'
+    }).catch((warning) => console.warn('1599589897074427896', warning));
+    const audit_log_deleted_invite = guild_audit_logs?.entries?.first();
+    const person_to_blame = audit_log_deleted_invite?.executor ?? `\`N/A\``;
+
     logging_channel.send(new CustomRichEmbed({
+        color:0xFFFF00,
         title:'An Invite Has Been Deleted!',
         fields:[
-            {name:'Deleted By', value:`${person_to_blame}`},
+            {name:'Deleted By', value:`${audit_log_deleted_invite ? person_to_blame : `${'```'}fix\nI need the \`VIEW_AUDIT_LOG\` permission to tell you who!\n${'```'}`}`},
             {name:'Invite Code', value:`\`${invite.code}\``},
-            {name:'Invite URL', value:`<${invite.url}>`}
+            {name:'Invite URL', value:`~~<${invite.url}>~~`}
         ]
     })).catch(() => {
-        console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
+        console.warn(`Unable to send 'inviteDelete' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
 
@@ -666,7 +676,7 @@ client.on('guildMemberAdd', async (member) => {
                     {id:bot_appeals_guild.roles.everyone.id, deny:['VIEW_CHANNEL']},
                     {id:banned_guild_member.id, allow:['VIEW_CHANNEL'], deny:['SEND_MESSAGES']}
                 ]);
-                guild.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_appeals_log_channel_name).forEach(async guild_purgatory_channel => {
+                guild.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_appeals_log_channel.name).forEach(async guild_purgatory_channel => {
                     await guild_purgatory_channel.send(new CustomRichEmbed({
                         author:{iconURL:collected_message.member.user.displayAvatarURL({dynamic:true}), name:`@${collected_message.member.user.tag} (${collected_message.member.user.id})`},
                         title:'Sent you an apology for being banned',
@@ -931,7 +941,7 @@ client.on('message', async (message) => {
     /* check for guild allowed channels */
     const guild_allowed_channels = guild_config.allowed_channels;
     const fetched_allowed_channels = await Promise.all(guild_allowed_channels.map(async channel_id => await message.guild.channels.resolve(channel_id)?.fetch()));
-    const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel_name;
+    const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel.name;
     const is_guild_allowed_channel = guild_allowed_channels.includes(message.channel.id);
     const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR');
     if (guild_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel && !member_is_immune_from_channel_exclusions) {
@@ -945,7 +955,7 @@ client.on('message', async (message) => {
                     value:`${'```'}\n${fetched_allowed_channels.map(channel => `#${channel.name} (${channel.id})`).join('\n')}\n${'```'}`
                 }, {
                     name:'Notice',
-                    value:`Anyone can use ${bot_common_name} commands in text-channels called \`#${bot_backup_commands_channel_name}\`.`
+                    value:`Anyone can use ${bot_common_name} commands in text-channels called \`#${bot_backup_commands_channel.name}\`.`
                 }, {
                     name:'Notice',
                     value:`Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`
@@ -1015,7 +1025,7 @@ client.on('message', async (message) => {
     central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
 
     /* guild command logging */
-    const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.type === 'text' && channel.name === bot_command_log_channel_name);
+    const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.type === 'text' && channel.name === bot_command_log_channel.name);
     guild_command_logging_channel?.send(new CustomRichEmbed({
         author:{iconURL:message.author.displayAvatarURL({dynamic:true}), name:`@${message.author.tag} (${message.author.id})`},
         title:'Command Used',
@@ -1061,7 +1071,6 @@ client.on('message', async (message) => {
                 discord_command:discord_command,
                 command_args:command_args,
                 clean_command_args:clean_command_args,
-                bot_special_text_channels:bot_special_text_channels,
                 guild_config_manipulator:guild_config_manipulator
             });
         } catch (error) {

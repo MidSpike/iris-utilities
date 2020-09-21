@@ -2,7 +2,7 @@
 
 const nodeEmoji = require('node-emoji');
 
-const bot_config = require('../../config.json');
+const bot_config = require('../../config.js');
 
 const { Timer,
         getReadableTime } = require('../utilities.js');
@@ -432,7 +432,7 @@ async function sendNotAllowedCommand(message) {
     const embed = new CustomRichEmbed({
         color:0xFF00FF,
         title:'Unauthorized Access Detected!',
-        description:`Sorry you aren't allowed to use: ${'```'}\n${message.cleanContent}${'```'}Try contacting a guild admin or an ${bot_config.common_name} admin if you believe this to be in fault.`,
+        description:`Sorry you aren't allowed to use: ${'```'}\n${message.cleanContent}${'```'}Try contacting a guild admin or an ${bot_config.COMMON_NAME} admin if you believe this to be in fault.`,
         footer:null
     }, message);
     try {
@@ -449,7 +449,7 @@ async function sendNotAllowedCommand(message) {
  * @param {Message} custom_log_message 
  */
 function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
-    const moderation_log_channel = admin_message.guild.channels.cache.find(c => c.name === bot_config.special_channels.GUILD_MODERATION.public_name);
+    const moderation_log_channel = admin_message.guild.channels.cache.find(c => c.name === bot_config.SPECIAL_CHANNELS.find(ch => ch.id === 'GUILD_MODERATION').name);
     moderation_log_channel?.send(custom_log_message ?? new CustomRichEmbed({
         title:`An Admin Command Has Been Used!`,
         description:`Command Used:${'```'}\n${admin_message.content}${'```'}`,

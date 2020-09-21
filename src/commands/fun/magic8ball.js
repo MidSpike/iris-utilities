@@ -5,12 +5,12 @@ const { array_random } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const magic8ball_json = require('../../../files/8ball.json');
 //#endregion local dependencies
 
-const bot_common_name = bot_config.common_name;
+const bot_common_name = bot_config.COMMON_NAME;
 const bot_cdn_url = process.env.BOT_CDN_URL;
 
 module.exports = new DisBotCommand({

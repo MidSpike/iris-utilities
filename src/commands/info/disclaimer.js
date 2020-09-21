@@ -1,7 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
@@ -18,7 +18,7 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         await message.channel.send(new CustomRichEmbed({
             title:'Privacy Disclaimer Inbound!',
-            description:`You can view the privacy disclaimer here ${bot_config.github}/blob/master/PRIVACY.md`,
+            description:`You can view the privacy disclaimer here ${bot_config.GITHUB}/blob/master/PRIVACY.md`,
             image:`${bot_cdn_url}/law-and-justice.jpg`
         }, message));
     },

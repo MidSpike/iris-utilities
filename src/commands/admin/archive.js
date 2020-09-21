@@ -1,7 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
@@ -9,8 +9,8 @@ const { sendConfirmationEmbed } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
-const bot_special_channels = bot_config.special_channels;
-const bot_archived_channels_category_name = bot_special_channels.ARCHIVED_CHANNELS_CATEGORY.public_name;
+const bot_special_channels = bot_config.SPECIAL_CHANNELS;
+const bot_archived_channels_category_name = bot_special_channels.find(ch => ch.id === 'ARCHIVED_CHANNELS_CATEGORY').name;
 
 module.exports = new DisBotCommand({
     name:'ARCHIVE',
