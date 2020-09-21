@@ -2,6 +2,7 @@
 
 const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
+
 const { Discord } = require('./bot.js');
 
 //---------------------------------------------------------------------------------------------------------------//
