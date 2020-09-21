@@ -3,7 +3,7 @@
 //#region local dependencies
 const axios = require('axios');
 
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { array_chunks } = require('../../utilities.js');
 
@@ -68,7 +68,7 @@ module.exports = new DisBotCommand({
         if (tts_input.length === 0 && message.attachments.length === 0) {
             message.channel.send(new CustomRichEmbed({
                 title:'TTS Time!',
-                description:`There are a few ways that you can use TTS with ${bot_config.common_name}...\nCheck out the following examples:`,
+                description:`There are a few ways that you can use TTS with ${bot_config.COMMON_NAME}...\nCheck out the following examples:`,
                 fields:[
                     {
                         name:`Simple Usage (Auto Mode Relies on Server Settings)`,
@@ -119,9 +119,9 @@ module.exports = new DisBotCommand({
         const tts_arg_potential_voice = [...Object.keys(google_languages_json), ...Object.keys(ibm_languages_json)].includes(tts_arg) ? tts_arg : undefined;
         const tts_arg_potential_provider = ['ibm', 'google'].includes(tts_arg) ? tts_arg : (Object.keys(google_languages_json).includes(tts_arg_potential_voice) ? 'google' : (Object.keys(ibm_languages_json).includes(tts_arg_potential_voice) ? 'ibm' : undefined));
 
-        const tts_provider = tts_arg_potential_provider ?? guild_config.tts_provider ?? bot_config.default_guild_config.tts_provider;
-        const tts_voice_when_provider_is_ibm = guild_config.tts_voice_ibm ?? bot_config.default_guild_config.tts_voice_ibm;
-        const tts_voice_when_provider_is_google = guild_config.tts_voice_google ?? bot_config.default_guild_config.tts_voice_google;
+        const tts_provider = tts_arg_potential_provider ?? guild_config.tts_provider ?? bot_config.DEFAULT_GUILD_CONFIG.tts_provider;
+        const tts_voice_when_provider_is_ibm = guild_config.tts_voice_ibm ?? bot_config.DEFAULT_GUILD_CONFIG.tts_voice_ibm;
+        const tts_voice_when_provider_is_google = guild_config.tts_voice_google ?? bot_config.DEFAULT_GUILD_CONFIG.tts_voice_google;
         const tts_voice = tts_arg_potential_voice ?? (tts_provider === 'ibm' ? tts_voice_when_provider_is_ibm : tts_voice_when_provider_is_google);
 
         const tts_source = (message_attachment ? (await axios.get(message_attachment.url)).data : (tts_input ?? '').replace(regex_tts_command_args, ``)).trim();
@@ -151,7 +151,7 @@ module.exports = new DisBotCommand({
                     message.channel.send(new CustomRichEmbed({
                         title:'Adding TTS Chunk',
                         description:[
-                            `You told ${bot_config.common_name} to say a lot of words using TTS...`,
+                            `You told ${bot_config.COMMON_NAME} to say a lot of words using TTS...`,
                             `Each TTS Chunk might take a little bit of time to load before playing!`
                         ].join('\n')
                     }, message));

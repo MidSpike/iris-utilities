@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const moment = require('moment-timezone');
 
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { Timer } = require('../../utilities.js');
 
@@ -15,8 +15,8 @@ const { sendNotAllowedCommand, sendConfirmationEmbed } = require('../../libs/mes
 const { isThisBotsOwner } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
-const bot_common_name = bot_config.common_name;
-const bot_update_log_channel_name = bot_config.special_channels.BOT_UPDATES.public_name;
+const bot_common_name = bot_config.COMMON_NAME;
+const bot_update_log_channel_name = bot_config.SPECIAL_CHANNELS.find(ch => ch.id === 'BOT_UPDATES').name;
 const bot_update_log_file = path.join(process.cwd(), process.env.BOT_UPDATE_LOG_FILE);
 
 module.exports = new DisBotCommand({

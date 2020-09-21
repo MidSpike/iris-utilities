@@ -1,7 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { Timer } = require('../../utilities.js');
 
@@ -18,7 +18,7 @@ const { isThisBot,
         botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
-const bot_common_name = bot_config.common_name;
+const bot_common_name = bot_config.COMMON_NAME;
 const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
 
 module.exports = new DisBotCommand({

@@ -1,14 +1,14 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
-const super_perms = bot_config.super_perms;
+const super_perms = bot_config.SUPER_PERMS;
 
 module.exports = new DisBotCommand({
     name:'SUPERPERMISSIONS',

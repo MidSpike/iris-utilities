@@ -1,7 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
@@ -18,7 +18,7 @@ module.exports = new DisBotCommand({
         const bot_invite_url = await client.generateInvite(['ADMINISTRATOR']).catch(console.trace);
         message.channel.send(new CustomRichEmbed({
             title:`Hi there ${message.author.username}!`,
-            description:`If you want to invite me to your server, then click below:\n[Add ${bot_config.common_name} to a discord server](${bot_invite_url})`
+            description:`If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`
         }));
     },
 });

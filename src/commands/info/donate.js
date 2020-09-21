@@ -1,7 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
@@ -20,21 +20,21 @@ module.exports = new DisBotCommand({
                 `I was created with the goal of being free for everyone!`,
                 `But in order to stay free, I need people to support my development!`,
                 `Please consider donating to help keep me free for everyone!`,
-                `Thank you for choosing to use ${bot_config.common_name}!`,
+                `Thank you for choosing to use ${bot_config.COMMON_NAME}!`,
             ].join('\n'),
             fields:[
                 {
                     name:'GitHub',
                     value:[
-                        `${bot_config.github}`,
+                        `${bot_config.GITHUB}`,
                         `(click on the **:heart: Sponsor** button)`,
-                        `100% of your donation goes directly to the development of ${bot_config.common_name}`,
+                        `100% of your donation goes directly to the development of ${bot_config.COMMON_NAME}`,
                     ].join('\n')
                 }, {
                     name:'Patreon',
                     value:[
-                        `${bot_config.patreon}`,
-                        `<95% of your donation goes directly to the development of ${bot_config.common_name}`,
+                        `${bot_config.PATREON}`,
+                        `<95% of your donation goes directly to the development of ${bot_config.COMMON_NAME}`,
                         `>5% of your donation goes to Patreon`,
                     ].join('\n')
                 },

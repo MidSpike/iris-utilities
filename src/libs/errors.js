@@ -2,7 +2,7 @@
 
 const moment = require('moment-timezone');
 
-const bot_config = require('../../config.json');
+const bot_config = require('../../config.js');
 
 const { pseudoUniqueId } = require('../utilities.js');
 
@@ -14,7 +14,7 @@ const { client } = require('./bot.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const bot_common_name = bot_config.common_name;
+const bot_common_name = bot_config.COMMON_NAME;
 const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
 const bot_central_errors_channel_id = process.env.BOT_LOGGING_CHANNEL_ERRORS_ID;
 

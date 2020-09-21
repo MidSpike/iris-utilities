@@ -1,13 +1,13 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 //#endregion local dependencies
 
-const bot_backup_commands_channel_name = bot_config.special_channels.BOT_COMMANDS.public_name;
+const bot_backup_commands_channel_name = bot_config.SPECIAL_CHANNELS.find(ch => ch.id === 'BOT_COMMANDS').name;
 
 module.exports = new DisBotCommand({
     name:'SET_ALLOWED_CHANNELS',

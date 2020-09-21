@@ -19,7 +19,7 @@ const moment = require('moment-timezone');
 
 const splitString = require('split-string');
 
-const bot_config = require('../../../config.json');
+const bot_config = require('../../../config.js');
 
 const { Timer, pseudoUniqueId } = require('../../utilities.js');
 const { logUserError } = require('../../libs/errors.js');
