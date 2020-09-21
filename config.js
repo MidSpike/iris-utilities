@@ -2,7 +2,7 @@
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const PUBLIC_VERSION = 'vS_2020-09-20_0';
+const PUBLIC_VERSION = 'vS_2020-09-21_0';
 
 const SHORT_NAME = 'IRIS';
 const COMMON_NAME = 'I.R.I.S. Utilities';
