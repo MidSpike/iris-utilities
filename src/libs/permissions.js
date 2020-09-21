@@ -32,8 +32,8 @@ function botHasPermissionsInGuild(message, required_permissions=['ADMINISTRATOR'
 }
 
 const isThisBot = (user_id) => user_id === client.user.id;
-const isThisBotsOwner = (user_id) => user_id === bot_config.owner_id;
-const isSuperPerson = (user_id) => bot_config.super_people.find(super_person => user_id === super_person.id) ?? false;
+const isThisBotsOwner = (user_id) => user_id === bot_config.OWNER_ID;
+const isSuperPerson = (user_id) => bot_config.SUPER_PEOPLE.find(super_person => user_id === super_person.id) ?? false;
 const isSuperPersonAllowed = (super_person, permission_flag) => {
     if (super_person) {
         if (isThisBotsOwner(super_person.id)) {
