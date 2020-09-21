@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * Checks to see if the specified value is an Object literal `{}` or a `new Object`
+ * Checks to see if the specified value is an Object literal `{}` or a `new Object` within the same domain
  * @param {*} value 
  * @returns {Boolean} 
  */
