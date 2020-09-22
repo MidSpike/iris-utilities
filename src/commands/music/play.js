@@ -40,12 +40,10 @@ function detect_unsupported_attachment(message_attachment) {
 }
 
 async function detect_remote_mp3(search_query='') {
-    const ends_with_dot_mp3 = search_query.endsWith('.mp3');
-    if (ends_with_dot_mp3) {
-        return true;
-    } else if (validator.isURL(search_query)) {// start mime-check on remote resource
+    if (validator.isURL(search_query)) {
         try {
-            const response_to_url = await forcePromise(axios.head(search_query), 1000, undefined);
+            // check the mime-type of the remote resource
+            const response_to_url = await forcePromise(axios.head(search_query), 500, undefined);
             const content_type = response_to_url?.headers?.['content-type'];
             const is_audio_mpeg = content_type === 'audio/mpeg';
             return is_audio_mpeg;
