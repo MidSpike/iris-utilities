@@ -3,6 +3,8 @@
 require('dotenv').config(); // process.env.*
 require('manakin').global; // colors for Console.*
 
+//---------------------------------------------------------------------------------------------------------------//
+
 const os = require('os'); os.setPriority(0, os.constants.priority.PRIORITY_HIGH);
 
 const request = require('request');
