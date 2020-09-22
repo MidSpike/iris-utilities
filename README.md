@@ -15,7 +15,7 @@ I.R.I.S. originally did not have a gender until a growing number of users starte
 Yes, check out [iris-utilities.com](https://iris-utilities.com/)!
 
 ### Who was I.R.I.S. Utilities created by?
-I.R.I.S. Utilities was created by and is currently maintained by Tyler S. Resch from [MidSpike.Com](https://midspike.com/).
+I.R.I.S. Utilities was created by Tyler S. Resch from [MidSpike.Com](https://midspike.com/).
 
 ### Why is I.R.I.S. Utilities on GitHub?
 There are a few reasons for this:
@@ -23,6 +23,8 @@ There are a few reasons for this:
 1) I decided that I.R.I.S. Utilities is a Discord Bot for the people; therefore, it's source-code should be viewable by the public!
 
 2) Open-source software is good for the end-user: bug fixes, security patches, and general improvements can be quickly generated!
+
+3) By making the code public, I hope to allow people to scrutinize my work to make I.R.I.S. better!
 
 ### Am I allowed to make a Discord Bot from I.R.I.S. Utilities source-code?
 Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code. ([see restrictions below](#legal))
@@ -33,19 +35,27 @@ Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code
 
 ### Development Environment
 - Windows ^v10.2004
-- Node.js ^v14.3.0
+- Node.js ^v14.11.0
 - NPM ^6.14.8
 
 ### Using Experimental ECMAScript Features
-- `??`
-- `?.`
-- `#private_class_fields`
+- nullish coalescing `yin ?? yang`
+- optional chaining `foo?.bar`
+- private class field declarations `this.#private_thing`
+- numeric seperators `const large_number = 1_000_000_000_000;`
 
-### Code-style
-- Try to match what already exists please :)
+### Code Style Guidelines
+- Try to match what already exists please
+- ``' | ` | "`` should always be escaped inside of strings
+- Don't use `var`; use `const` or `let` instead
+- Only use `this` inside of classes
+- snake_case for variables
+- camelCase for functions
+- PascalCase for classes
 
 ### Commenting
 - JSDoc comments for readability
+- Other kinds of comments where applicable
 
 ---
 
