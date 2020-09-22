@@ -296,8 +296,6 @@ client.on('guildUpdate', async (old_guild, new_guild) => {
 });
 
 client.on('guildCreate', async (guild) => {
-    if (client.$.restarting_bot) return;
-
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074386511', warning));
 
     /* log to the central logging server when a guild adds the bot to it */
@@ -351,8 +349,6 @@ client.on('guildCreate', async (guild) => {
 });
 
 client.on('guildDelete', async guild => {
-    if (client.$.restarting_bot) return;
-
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074228380', warning));
 
     /* log to the central logging server when a guild removes the bot from it */
