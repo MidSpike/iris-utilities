@@ -319,7 +319,7 @@ client.on('guildCreate', async (guild) => {
     const potential_bot_commands_channel = viewable_text_channels.filter(c => ['bot-commands', 'commands', 'bot'].includes(c.name)).first();
     const potential_general_channel = viewable_text_channels.filter(c => ['general-chat', 'general', 'chat'].includes(c.name)).first();
     const fallback_first_available_channel = viewable_text_channels.first();
-    const channel_to_send_initial_message = potential_general_channel ?? potential_bot_commands_channel ?? fallback_first_available_channel;
+    const channel_to_send_initial_message = potential_general_channel ?? potential_bot_commands_channel ?? fallback_first_available_channel ?? undefined;
     const new_guild_information_embed = new CustomRichEmbed({
         title:`Hello there ${guild.name}!`,
         description:[
@@ -328,13 +328,13 @@ client.on('guildCreate', async (guild) => {
             `You can use \`${bot_default_guild_config.command_prefix}help\` to see a list of commands that you can use.`,
             `You can **directly message** me to get in touch with my [Support Staff](${bot_support_guild_invite.url})!`,
             `I function most optimally with the **ADMINISTRATOR** permission given to me, **however ADMINISTRATOR is not required for me to work!**`,
-            `There are *special channels* that I can provide to you, use \`${bot_default_guild_config.command_prefix}create_special_channels\` to have me make them for you!`,
+            `There are *special channels* that I can manage for you, use \`${bot_default_guild_config.command_prefix}create_special_channels\` to have me automatically create them for you!`,
             `There might be [additional information on the website](${bot_website}) that may be useful to you!`
         ].join(`\n\n`),
         image:`${bot_cdn_url}/new_guild_information_2020-06-27_1.png`
     });
     try {
-        channel_to_send_initial_message.send(new_guild_information_embed);
+        await channel_to_send_initial_message?.send(new_guild_information_embed);
     } catch {
         console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the guild!`);
         try {
@@ -343,7 +343,7 @@ client.on('guildCreate', async (guild) => {
                 `Hi there ${guild.owner.user.username}!`,
                 `I was unable to send the following message in your server: **${guild.name}**.`
             ].join('\n'));
-            guild_owner_dms.send(new_guild_information_embed);
+            await guild_owner_dms.send(new_guild_information_embed);
         } catch {
             console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the owner!`);
         }
