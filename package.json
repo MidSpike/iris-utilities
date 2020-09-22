@@ -1,7 +1,7 @@
 {
   "name": "iris-utilities",
   "version": "1.0.0",
-  "main": "script.js",
+  "main": "index.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "@discordjs/uws": "^11.149.1",

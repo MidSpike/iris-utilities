@@ -2,7 +2,7 @@
 title I.R.I.S. Utilities Discord Bot
 
 :start_bot
-node --trace-warnings .\script.js
+node --trace-warnings .\index.js
 timeout /T 5 /NOBREAK
 goto :start_bot
 
