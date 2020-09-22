@@ -917,7 +917,7 @@ client.on('message', async (message) => {
         return;
     }
 
-    /* check if the message starts with the command prefix */
+    /* check to see if the message starts with the command prefix */
     if (!message.content.startsWith(command_prefix)) return;
 
     /**********************************************
@@ -1046,28 +1046,52 @@ client.on('message', async (message) => {
 
     /* compare the required access level for the command with the command author's access_level */
     if (command_author_access_level < command.access_level) { // the user doesn't have permission to use this command
-        message.channel.send(new CustomRichEmbed({
-            color:0xFF00FF,
-            title:'Sorry but you do not have permission to use this command!',
-            description:'You must ascend in order to obtain the power you desire.\n\nIf you are a moderator or admin in this server, tell one of your server administrators about the commands below.',
-            fields:[
-                {name:'Setting Bot Moderator Roles', value:`\`\`\`${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\`\`\``},
-                {name:'Setting Bot Admin Roles', value:`\`\`\`${command_prefix}set_admin_roles @role1 @role2 @role3 ...\`\`\``}
-            ]
-        }, message));
+        if (command.access_level < DisBotCommand.access_levels.BOT_SUPER) {
+            /* a restricted guild command has been attempted */
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFF00FF,
+                title: 'Sorry, but you do not have permission to use this command!',
+                description: [
+                    `**Your access level:** ${command_author_access_level}`,
+                    `**Required access level:** ${command.access_level}`,
+                    `**You must ascend in order to obtain the power that you desire!**`,
+                    `*If you are a part of this server's staff, try telling your server's Administrators about the commands below!*`
+                ].join('\n'),
+                fields: [
+                    {
+                        name:'Setting Up Moderator Roles',
+                        value:`${'```'}\n${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\n${'```'}`
+                    }, {
+                        name:'Setting Up Admin Roles',
+                        value:`${'```'}\n${command_prefix}set_admin_roles @role1 @role2 @role3 ...\n${'```'}`
+                    }
+                ]
+            }, message));
+        } else {
+            /* a super or bot owner command has been attempted */
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFF00FF,
+                title: `Oi there, you thought this command wasn't protected?`,
+                description: [
+                    `**Your access level:** ${command_author_access_level}`,
+                    `**Required access level:** ${command.access_level}`,
+                    `**You must ascend in order to obtain the power that you desire!**`,
+                ].join('\n')
+            }, message));
+        }
     } else { // the user has permission to use this command
         /* log any commands residing in the ADMINISTRATOR or GUILD_SETTINGS categories, to the guild */
         if ([DisBotCommander.categories.ADMINISTRATOR, DisBotCommander.categories.GUILD_SETTINGS].includes(command.category)) {
             logAdminCommandsToGuild(message);
         }
-        /* attempt to execute the command, if anything goes wrong; it will logUserError */
+        /* attempt to execute the command, if anything unexpectedly goes wrong; it will logUserError */
         try {
             await command.execute(Discord, client, message, {
-                command_prefix:`${command_prefix}`,
-                discord_command:discord_command,
-                command_args:command_args,
-                clean_command_args:clean_command_args,
-                guild_config_manipulator:guild_config_manipulator
+                command_prefix: `${command_prefix}`,
+                discord_command: discord_command,
+                command_args: command_args,
+                clean_command_args: clean_command_args,
+                guild_config_manipulator: guild_config_manipulator
             });
         } catch (error) {
             logUserError(message, error);
