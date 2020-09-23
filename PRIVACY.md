@@ -22,9 +22,9 @@
     - user information attached to that message: id, name, tag
     - guild information attached to that message: id, name
 
-    #### If you wish to have your command_message_history removed then you can do any of the following:
-    - use command `request_history_deletion`
-    - join the Bot's support guild and contact staff (use command `support_discord` to receive an invite)
+#### If you wish to have your command_message_history removed then you can do any of the following:
+- use command `request_history_deletion`
+- join the Bot's support guild and contact staff (use command `support_discord` to receive an invite)
 
 #### The Bot collects, processes, and stores the following information known as 'guild_config_information':
 - guild: id, name, region, member count, bot count
@@ -33,7 +33,7 @@
 - the last known connection of Bot to guild
 - other various information related to the functionality of Bot commands
 
-    #### A Guild Owner may request their guild_config_information by doing the following:
-    - join the Bot's support guild and contact staff (use command `support_discord` to receive an invite)
+#### A Guild Owner may request their guild_config_information by doing the following:
+- join the Bot's support guild and contact staff (use command `support_discord` to receive an invite)
 
 #### This document will be updated in the future to better inform users of how data is managed and stored in the Bot.
