@@ -2,6 +2,10 @@
 
 //---------------------------------------------------------------------------------------------------------------//
 
+const { Collection } = require('discord.js');
+
+//---------------------------------------------------------------------------------------------------------------//
+
 const PUBLIC_VERSION = 'vS_2020-09-21_1';
 
 const SHORT_NAME = 'IRIS'; // [ a-z | A-Z | 0-9 | - | _ ]
@@ -87,7 +91,7 @@ const SUPER_PERMS = [
     'super_volume',
 ];
 
-const SUPER_PEOPLE = [
+const SUPER_PEOPLE = new Collection([
     {
         id: '163646957783482370',
         name: 'MidSpike',
@@ -129,7 +133,7 @@ const SUPER_PEOPLE = [
         ],
         denied_permissions: []
     }
-];
+].map(super_person => [super_person.id, super_person]));
 
 const DEFAULT_GUILD_CONFIG = {
     command_prefix: '%',
