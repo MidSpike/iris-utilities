@@ -1,4 +1,4 @@
-## Last Updated: 2020-09-21
+## Last Updated: 2020-09-22
 
 #### The following definitions will be used in this document:
 - id = a 'snowflake' used by Discord for identifying users, guilds, emojis, messages, attachments, etc
