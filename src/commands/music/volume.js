@@ -28,7 +28,7 @@ module.exports = new DisBotCommand({
         }
         // See if the bot has an active voice connection shared with the user
         if (message.guild.voice?.connection?.channel?.id === message.member.voice?.channel?.id) {
-            guild_volume_manager.setVolume(parseFloat(command_args[0]) || guild_volume_manager.volume); // Don't use ?? here
+            await guild_volume_manager.setVolume(parseFloat(command_args[0]) || guild_volume_manager.volume); // Don't use ?? here
             sendVolumeControllerEmbed(message.channel.id, message);
         } else {
             message.channel.send(new CustomRichEmbed({

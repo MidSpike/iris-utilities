@@ -210,9 +210,9 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
         {
             emoji_name:'bot_emoji_mute',
             cooldown:1000,
-            callback(options_message, collected_reaction, user) {
+            async callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                guild_volume_manager.toggleMute();
+                await guild_volume_manager.toggleMute();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`
@@ -221,9 +221,9 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
         }, {
             emoji_name:'bot_emoji_volume_down',
             cooldown:1000,
-            callback(options_message, collected_reaction, user) {
+            async callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
-                guild_volume_manager.decreaseVolume();
+                await guild_volume_manager.decreaseVolume();
                 options_message.edit(new CustomRichEmbed({
                     author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
                     title:`Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`
