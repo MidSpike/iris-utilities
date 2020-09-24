@@ -56,12 +56,12 @@ class VolumeManager {
     }
 
     async decreaseVolume(decrease_amount=10, clamp_volume=true) {
-        this.setVolume(this.volume - decrease_amount, undefined, clamp_volume);
+        await this.setVolume(this.volume - decrease_amount, undefined, clamp_volume);
         return [this, decrease_amount];
     }
 
     async increaseVolume(increase_amount=10, clamp_volume=true) {
-        this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
+        await this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
         return [this, increase_amount];
     }
 
@@ -85,7 +85,7 @@ class VolumeManager {
 
     async toggleMute(override=undefined) {
         this.#muted = override ?? !this.muted;
-        this.setVolume(this.muted ? 0 : this.last_volume, false);
+        await this.setVolume(this.muted ? 0 : this.last_volume, false);
         return this;
     }
 }
