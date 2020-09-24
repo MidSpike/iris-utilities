@@ -380,8 +380,14 @@ function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
     const guild_config = guild_config_manipulator.config;
     let show_player_description = guild_config.player_description === 'enabled';
     function makeYTEmbed() {
+        const status_override = guild_queue_manager.queue.length <= 1 ? (
+            guild_queue_manager.loop_enabled ? 'Looping' : (
+                guild_queue_manager.autoplay_enabled ? 'Autoplaying' : undefined
+            )
+        ) : undefined;
+        status = status_override ?? status;
         return new CustomRichEmbed({
-            title:`${guild_queue_manager.loop_enabled ? 'Looping' : (guild_queue_manager.autoplay_enabled ? 'Autoplaying' : status)}: ${videoInfo.videoDetails.title}`,
+            title:`${status}: ${videoInfo.videoDetails.title}`,
             description:(show_player_description ? ([
                 `Author: [${videoInfo.videoDetails.author.name}](${videoInfo.videoDetails.author.channel_url})`,
                 `Uploaded: ${videoInfo.videoDetails.publishDate}`,
