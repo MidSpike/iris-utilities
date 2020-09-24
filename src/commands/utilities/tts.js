@@ -60,9 +60,9 @@ module.exports = new DisBotCommand({
     description:'Text-to-Speech',
     aliases:['tts'],
     async executor(Discord, client, message, opts={}) {
-        const { command_prefix, discord_command, clean_command_args, guild_config_manipulator } = opts;
+        const { command_prefix, discord_command, clean_command_args } = opts;
 
-        const guild_config = guild_config_manipulator.config;
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
         const tts_input = clean_command_args.join(' ').trim();
         if (tts_input.length === 0 && message.attachments.size === 0) {

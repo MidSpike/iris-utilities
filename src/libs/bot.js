@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 
+const { GuildConfigsManager } = require('./GuildConfig.js');
+
 //---------------------------------------------------------------------------------------------------------------//
 
 const client = new Discord.Client({
@@ -23,13 +25,14 @@ const client = new Discord.Client({
 });
 
 client.$ = {
-    lockdown_mode: false,
     restarting_bot: false,
+    lockdown_mode: true,
     guild_lockdowns: new Discord.Collection(),
     dispatchers: new Discord.Collection(),
     queue_managers: new Discord.Collection(),
     volume_managers: new Discord.Collection(),
     audio_controllers: new Discord.Collection(),
+    guild_configs_manager: new GuildConfigsManager(process.env.BOT_GUILD_CONFIGS_FILE),
 };
 
 console.time(`client.login -> client#ready`);

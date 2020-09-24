@@ -67,8 +67,6 @@ const { generateInviteToGuild } = require('./src/libs/invites.js');
 
 const { logAdminCommandsToGuild } = require('./src/libs/messages.js');
 
-const { GuildConfigManipulator } = require('./src/libs/GuildConfig.js');
-
 const { QueueManager } = require('./src/libs/QueueManager.js');
 const { AudioController } = require('./src/libs/AudioController.js');
 const { VolumeManager } = require('./src/libs/VolumeManager.js');
@@ -101,14 +99,7 @@ async function updateGuildConfig(guild) {
 
     if (guild.partial) await guild.fetch().catch((warning) => console.warn('1599589897074799491', warning));
 
-    const guild_config_manipulator = new GuildConfigManipulator(guild.id);
-    const old_guild_config = guild_config_manipulator.config;
-
-    /* the methodology used below can clone a property in all guild configs */
-    // old_guild_config['NEW_PROPERTY_NAME'] = old_guild_config['OLD_PROPERTY_NAME'];
-
-    /* the methodology used below can remove a property from all guild configs */
-    // delete old_guild_config['PROPERTY_NAME'];
+    const old_guild_config = await client.$.guild_configs_manager.fetchConfig(guild.id);
 
     const new_guild_config = {
         ...{ // only write this info upon first addition to the config
@@ -129,7 +120,7 @@ async function updateGuildConfig(guild) {
         }
     };
 
-    guild_config_manipulator.modifyConfig(new_guild_config);
+    client.$.guild_configs_manager.updateConfig(guild.id, new_guild_config);
 
     return; // complete async
 }
@@ -250,15 +241,16 @@ client.on('ready', async () => {
         }, 1000 * 15); // 2) then cycle every 15 seconds
     }, 1000 * 60 * 5); // 1) wait for 5 minutes
 
-    /* consider guilds that the bot cannot access as non-existent */
-    const all_guild_configs = new GuildConfigManipulator(bot_support_guild_id).configs;
-    for (const guild_id of Object.keys(all_guild_configs)) {
-        const guild_exists_to_the_bot = await client.guilds.fetch(guild_id).then(() => true).catch(() => false);
-        if (guild_exists_to_the_bot) continue; // the guild exists to the bot, so continue through the list
-        console.warn(`Guild (${guild_id}) from the guild configs, is not accessible by the bot; it most likely removed the bot!`);
-        const dead_guild_config_manipulator = new GuildConfigManipulator(guild_id);
-        dead_guild_config_manipulator.modifyConfig({'_exists':false});
-    }
+    /** @TODO guild_configs_manager */
+    // /* consider guilds that the bot cannot access as non-existent */
+    // const all_guild_configs = new GuildConfigManipulator(bot_support_guild_id).configs;
+    // for (const guild_id of Object.keys(all_guild_configs)) {
+    //     const guild_exists_to_the_bot = await client.guilds.fetch(guild_id).then(() => true).catch(() => false);
+    //     if (guild_exists_to_the_bot) continue; // the guild exists to the bot, so continue through the list
+    //     console.warn(`Guild (${guild_id}) from the guild configs, is not accessible by the bot; it most likely removed the bot!`);
+    //     const dead_guild_config_manipulator = new GuildConfigManipulator(guild_id);
+    //     dead_guild_config_manipulator.modifyConfig({'_exists':false});
+    // }
 
     /* propagate guild configs and disBotServers */
     async function propagate_guilds() {
@@ -348,7 +340,7 @@ client.on('guildCreate', async (guild) => {
     }
 });
 
-client.on('guildDelete', async guild => {
+client.on('guildDelete', async (guild) => {
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074228380', warning));
 
     /* log to the central logging server when a guild removes the bot from it */
@@ -362,14 +354,13 @@ client.on('guildDelete', async guild => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-client.on('channelCreate', async channel => {
+client.on('channelCreate', async (channel) => {
     if (client.$.restarting_bot) return;
 
     if (channel) channel.fetch().catch((warning) => console.warn('1599589897074960649', warning));
 
     if (channel.type !== 'text') return;
-    const guild_config_manipulator = new GuildConfigManipulator(channel.guild.id);
-    const guild_config = guild_config_manipulator.config;
+    const guild_config = await client.$.guild_configs_manager.fetchConfig(channel.guild.id);
     const command_prefix = guild_config.command_prefix;
     /**
      * Prevents everyone except this bot from sending messages in the channel
@@ -692,7 +683,8 @@ client.on('guildMemberAdd', async (member) => {
 
     if (member.partial) await member.fetch().catch((warning) => console.warn('1599589897074140652', warning));
 
-    const auto_roles = new GuildConfigManipulator(member.guild.id).config.new_member_roles ?? [];
+    const guild_config = await client.$.guild_configs_manager.fetchConfig(member.guild.id)
+    const auto_roles = guild_config.new_member_roles ?? [];
     if (auto_roles.length > 0 && member.guild.me.hasPermission('MANAGE_ROLES')) {
         await Timer(1000); // prevent API abuse
         member.roles.add(auto_roles, 'Adding Auto Roles');
@@ -813,8 +805,7 @@ client.on('message', async (message) => {
     if (guild_lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
     /* register the guild config manipulator and guild config */
-    const guild_config_manipulator = new GuildConfigManipulator(message.guild.id);
-    const guild_config = guild_config_manipulator.config;
+    const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
     /* register the guild command prefix */
     const command_prefix = guild_config.command_prefix ?? bot_default_guild_config.command_prefix;
@@ -1091,8 +1082,7 @@ client.on('message', async (message) => {
                 command_prefix: `${command_prefix}`,
                 discord_command: discord_command,
                 command_args: command_args,
-                clean_command_args: clean_command_args,
-                guild_config_manipulator: guild_config_manipulator
+                clean_command_args: clean_command_args
             });
         } catch (error) {
             logUserError(message, error);

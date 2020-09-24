@@ -12,8 +12,9 @@ module.exports = new DisBotCommand({
     aliases:['set_volume_multiplier'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
         const guild_volume_manager = client.$.volume_managers.get(message.guild.id);
 
@@ -24,7 +25,7 @@ module.exports = new DisBotCommand({
                 title:`Setting New Volume Multiplier`,
                 description:`Old Server Volume Multiplier: ${'```'}\n${old_volume_multiplier}\n${'```'}\nNew Server Volume Multiplier: ${'```'}\n${new_volume_multiplier}\n${'```'}`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 volume_multiplier:new_volume_multiplier
             });
             guild_volume_manager.setVolume(guild_volume_manager.last_volume);

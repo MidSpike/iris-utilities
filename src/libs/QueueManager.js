@@ -8,7 +8,6 @@ const { Timer,
 
 const { createConnection } = require('./createConnection.js');
 const { playStream } = require('./playStream.js');
-const { GuildConfigManipulator } = require('./GuildConfig.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -18,7 +17,7 @@ const { GuildConfigManipulator } = require('./GuildConfig.js');
  * @returns {QueueManager} the `new QueueManager`
  */
 class QueueManager {
-    #guild; // for future usage
+    #guild;
     #allowed_loop_types = ['single', 'multiple', 'shuffle'];
     #queue = [];
     #last_removed = undefined;
@@ -177,8 +176,7 @@ class QueueItemPlayer {
         this.error_callback = typeof error_callback === 'function' ? error_callback : ((error) => {});
         return async () => {
             const guild = this.queue_manager.guild;
-            const guild_config_manipulator = new GuildConfigManipulator(guild.id);
-            const guild_config = guild_config_manipulator.config;
+            const guild_config = await guild.client.$.guild_configs_manager.fetchConfig(guild.id);
             const guild_tts_provider = guild_config.tts_provider;
             const guild_tts_voice = guild_tts_provider === 'ibm' ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
 

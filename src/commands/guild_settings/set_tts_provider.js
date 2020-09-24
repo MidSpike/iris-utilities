@@ -12,8 +12,10 @@ module.exports = new DisBotCommand({
     aliases:['set_tts_provider'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
+
         if (command_args[0]) {
             const old_tts_provider = guild_config.tts_provider;
             const new_tts_provider = command_args[0];
@@ -22,7 +24,7 @@ module.exports = new DisBotCommand({
                     title:`Setting TTS Provider`,
                     description:`Old Server TTS Provider: ${'```'}\n${old_tts_provider}\n${'```'}\nNew Server TTS Provider: ${'```'}\n${new_tts_provider}\n${'```'}`
                 }, message));
-                guild_config_manipulator.modifyConfig({
+                client.$.guild_configs_manager.updateConfig(message.guild.id, {
                     tts_provider:new_tts_provider
                 });
             } else {

@@ -16,13 +16,16 @@ module.exports = new DisBotCommand({
     aliases:['warn'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
-        const { command_prefix, discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { command_prefix, discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const user_warnings = guild_config.user_warnings;
+
         const warning_id = pseudoUniqueId();
         const warning_user = client.users.cache.get(command_args[0]) ?? message.mentions.users.first();
         const warning_reason = command_args.slice(1).join(' ');
         const warning_timestamp = moment();
+
         if (user_warnings.length >= 25) {
             message.channel.send(new CustomRichEmbed({
                 title:`I'm getting a bit crowded with the warnings!`,
@@ -36,7 +39,7 @@ module.exports = new DisBotCommand({
                 description:`${warning_user} you have been warned for:${'```'}\n${warning_reason}\n${'```'}`
             });
             await message.channel.send(warning_message);
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 user_warnings:[
                     ...user_warnings,
                     {
@@ -65,7 +68,10 @@ module.exports = new DisBotCommand({
                 title:`I couldn't find that user!`,
                 description:'Make sure to @mention the user when warning them!',
                 fields:[
-                    {name:`Example`, value:`${'```'}\n${discord_command} @user#0001${'```'}`}
+                    {
+                        name:`Example`,
+                        value:`${'```'}\n${discord_command} @user#0001${'```'}`
+                    }
                 ]
             }, message));
         }

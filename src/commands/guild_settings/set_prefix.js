@@ -12,8 +12,10 @@ module.exports = new DisBotCommand({
     aliases:['set_prefix'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { command_prefix, command_args, discord_command, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { command_prefix, command_args, discord_command } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
+
         if (command_args[0]) {
             if (message.mentions.users.size > 0) {
                 message.channel.send(new CustomRichEmbed({
@@ -29,7 +31,7 @@ module.exports = new DisBotCommand({
                 title:'Setting New Command Prefix',
                 description:`Old Server Command Prefix: ${'```'}\n${old_command_prefix}\n${'```'}\nNew Server Command Prefix: ${'```'}\n${new_command_prefix}\n${'```'}`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_prefix:new_command_prefix
             });
         } else {

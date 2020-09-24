@@ -15,14 +15,19 @@ module.exports = new DisBotCommand({
     aliases:['warnings'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
+
         const user_to_search_for = message.mentions.members.first();
         const all_users_warnings = guild_config.user_warnings;
+
         if ([`clear`].includes(command_args[0])) {
             const user_to_remove_warnings_from = client.users.resolve(user_to_search_for ?? command_args[1]);
             const new_user_warnings = user_to_remove_warnings_from ? all_users_warnings.filter(warning => warning.user_id !== user_to_remove_warnings_from.id) : [];
-            guild_config_manipulator.modifyConfig({user_warnings:new_user_warnings});
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
+                user_warnings:new_user_warnings
+            });
             message.channel.send(new CustomRichEmbed({
                 title:`Removed all warnings ${user_to_remove_warnings_from ? `for @${user_to_remove_warnings_from.tag} ` : ''}in ${message.guild.name}!`
             }, message));

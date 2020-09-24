@@ -13,8 +13,10 @@ module.exports = new DisBotCommand({
     aliases:['set_google_tts_language'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { command_prefix, discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { command_prefix, discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
+
         if (command_args[0]) {
             const old_tts_language = guild_config.tts_voice_google;
             const new_tts_language = command_args[0];
@@ -23,7 +25,7 @@ module.exports = new DisBotCommand({
                     title:`Setting New Google TTS Language`,
                     description:`Old Server Google TTS Language: ${'```'}\n${old_tts_language}\n${'```'}\nNew Server Google TTS Language: ${'```'}\n${new_tts_language}\n${'```'}`
                 }, message));
-                guild_config_manipulator.modifyConfig({
+                client.$.guild_configs_manager.updateConfig(message.guild.id, {
                     tts_voice_google:new_tts_language
                 });
             } else {

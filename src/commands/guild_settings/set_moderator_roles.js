@@ -12,14 +12,16 @@ module.exports = new DisBotCommand({
     aliases:['set_moderator_roles'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, guild_config_manipulator } = opts;
+        const { discord_command } = opts;
+
         const message_mentions = message.mentions.roles;
+
         if (message_mentions.size > 0) {
             message.channel.send(new CustomRichEmbed({
                 title:`Setting New Server Moderator Roles`,
                 description:`New Server Moderator Roles: ${'```'}\n${message_mentions.map(role => role.name).join('\n')}\n${'```'}`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 moderator_roles:message_mentions.map(role => role.id)
             });
         } else {
