@@ -65,7 +65,7 @@ module.exports = new DisBotCommand({
         const guild_config = guild_config_manipulator.config;
 
         const tts_input = clean_command_args.join(' ').trim();
-        if (tts_input.length === 0 && message.attachments.length === 0) {
+        if (tts_input.length === 0 && message.attachments.size === 0) {
             message.channel.send(new CustomRichEmbed({
                 title:'TTS Time!',
                 description:`There are a few ways that you can use TTS with ${bot_config.COMMON_NAME}...\nCheck out the following examples:`,
