@@ -23,7 +23,17 @@ module.exports = new DisBotCommand({
         if (!member) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:'Provide an @user next time!'
+                title:'Provide an @user next time!',
+                description:'This command can prevent a specified member from typing or speaking in any channel!',
+                fields:[
+                    {
+                        name:'Example (putting someone in the jail)',
+                        value:`${'```'}\n${command_prefix}jail @user#0001\n${'```'}`
+                    }, {
+                        name:'Example (removing someone from the jail)',
+                        value:`${'```'}\n${command_prefix}unjail @user#0001\n${'```'}`
+                    }
+                ]
             }, message));
             return;
         }
@@ -33,24 +43,24 @@ module.exports = new DisBotCommand({
             if (isThisBotsOwner(member_id)) return false;
             if (isSuperPerson(member_id)) return false;
 
-            if (staff_id === member_id) return false; // don't allow the staff member to kick themselves
+            if (staff_id === member_id) return false; // don't allow the staff member to jail themselves
 
             const staff_member = message.guild.members.resolve(staff_id);
-            if (!staff_member) throw new Error('`staff_id` must belong to a member in this guild!');
+            if (!staff_member) throw new Error('\`staff_id\` must belong to a member in this guild!');
 
-            const staff_member_can_kick = staff_member.hasPermission('MANAGE_CHANNELS', 'MUTE_MEMBERS');
-            if (!staff_member_can_kick) return false; // they can't kick anyone
+            const staff_member_has_permissions = staff_member.hasPermission('MANAGE_CHANNELS', 'MANAGE_MESSAGES', 'MUTE_MEMBERS');
+            if (!staff_member_has_permissions) return false; // they don't have the required permissions
 
-            const member_being_kicked = message.guild.members.resolve(member_id);
+            const member_being_jailed = message.guild.members.resolve(member_id);
 
-            const staff_member_can_kick_member = staff_member.roles.highest.comparePositionTo(member_being_kicked.roles.highest) > 0;
-            return staff_member_can_kick_member;
+            const staff_member_can_jail_member = staff_member.roles.highest.comparePositionTo(member_being_jailed.roles.highest) > 0;
+            return staff_member_can_jail_member;
         }
 
         if (!staffMemberCanJailMember(message.author.id, member.id)) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:`You aren't allowed to jail/unjail this member!`
+                description:`You aren\'t allowed to jail/unjail ${member}!`
             }, message)).catch(console.warn);
             return;
         }
@@ -58,7 +68,7 @@ module.exports = new DisBotCommand({
         if (member.hasPermission(['ADMINISTRATOR'])) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:`This command doesn't work on members with the \`ADMINISTRATOR\` permission!`
+                description:`This command doesn\'t work on members with the \`ADMINISTRATOR\` permission!`
             }, message));
             return;
         }
