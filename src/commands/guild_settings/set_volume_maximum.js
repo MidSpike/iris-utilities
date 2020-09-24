@@ -12,8 +12,9 @@ module.exports = new DisBotCommand({
     aliases:['set_volume_maximum'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
         const guild_volume_manager = client.$.volume_managers.get(message.guild.id);
 
@@ -28,7 +29,7 @@ module.exports = new DisBotCommand({
                 title:`Setting New Maximum Volume`,
                 description:`Old Server Maximum Volume: ${'```'}\n${old_volume_maximum}\n${'```'}\nNew Server Maximum Volume: ${'```'}\n${new_volume_maximum}\n${'```'}`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 volume_maximum:new_volume_maximum
             });
             guild_volume_manager.setVolume(guild_volume_manager.last_volume);

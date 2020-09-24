@@ -16,8 +16,10 @@ module.exports = new DisBotCommand({
     aliases:['set_allowed_channels'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
+        const { discord_command, command_args } = opts;
+
         const mentioned_channels = message.mentions.channels;
+
         if (mentioned_channels.size > 0) {
             message.channel.send(new CustomRichEmbed({
                 title:`Setting New Allowed Channels`,
@@ -27,14 +29,14 @@ module.exports = new DisBotCommand({
                     {name:'Resetting back to default', value:`You can run \`${discord_command} reset\` in \`#${bot_backup_commands_channel_name}\` to reset this setting!`}
                 ]
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 allowed_channels:mentioned_channels.map(channel => channel.id)
             });
         } else if (command_args[0] === 'reset') {
             message.channel.send(new CustomRichEmbed({
                 title:`Success: removed all limitations on where I can be used!`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 allowed_channels:[]
             });
         } else {

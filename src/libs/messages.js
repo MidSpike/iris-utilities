@@ -9,7 +9,6 @@ const { Timer,
 
 const { client } = require('./bot.js');
 
-const { GuildConfigManipulator } = require('./GuildConfig.js');
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 const { findCustomEmoji,
         constructNumberUsingEmoji } = require('./emoji.js');
@@ -234,7 +233,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
             emoji_name:'bot_emoji_volume_up',
             cooldown:1000,
             async callback(options_message, collected_reaction, user) {
-                const guild_config = new GuildConfigManipulator(guild_id).config;
+                const guild_config = await client.$.guild_configs_manager.fetchConfig(guild_id);
                 removeUserReactionsFromMessage(options_message);
                 const old_volume = guild_volume_manager.volume;
                 const [updated_volume_manager, increase_amount] = await guild_volume_manager.increaseVolume();
@@ -371,13 +370,13 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
  * @param {VideoInfo} videoInfo 
  * @param {String} status 
  */
-function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
+async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
     const guild_id = user_message.guild.id;
 
     const guild_queue_manager = user_message.client.$.queue_managers.get(guild_id);
 
-    const guild_config_manipulator = new GuildConfigManipulator(guild_id);
-    const guild_config = guild_config_manipulator.config;
+    const guild_config = await user_message.client.$.guild_configs_manager.fetchConfig(guild_id);
+
     let show_player_description = guild_config.player_description === 'enabled';
     function makeYTEmbed() {
         const status_override = guild_queue_manager.queue.length <= 1 ? (

@@ -8,7 +8,6 @@ const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand, sendLargeMessage, sendConfirmationEmbed } = require('../../libs/messages.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
-const { GuildConfigManipulator } = require('../../libs/GuildConfig.js');
 //#endregion local dependencies
 
 const bot_command_log_file = path.join(process.cwd(), process.env.BOT_COMMAND_LOG_FILE);
@@ -89,7 +88,7 @@ module.exports = new DisBotCommand({
                 }
             break;
             case 'config':
-                const _guild_config = new GuildConfigManipulator(guild.id).config;
+                const _guild_config = message.client.$.guild_configs_manager.fetchConfig(guild.id);
                 sendLargeMessage(message.channel.id, `${JSON.stringify(_guild_config, null, 2)}`, 'json');
             break;
             case 'usage':

@@ -12,15 +12,14 @@ module.exports = new DisBotCommand({
     aliases:['toggle_player_description'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const player_description = guild_config.player_description === 'enabled';
         if (player_description === true) {
             message.channel.send(new CustomRichEmbed({
                 title:`Player Description: disabled;`,
                 description:`Youtube player descriptions will not be expanded by default.`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 player_description:'disabled'
             });
         } else {
@@ -28,7 +27,7 @@ module.exports = new DisBotCommand({
                 title:`Player Description: enabled;`,
                 description:`Youtube player descriptions will be expanded by default.`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 player_description:'enabled'
             });
         }

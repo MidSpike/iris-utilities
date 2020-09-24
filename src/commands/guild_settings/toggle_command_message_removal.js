@@ -12,15 +12,14 @@ module.exports = new DisBotCommand({
     aliases:['toggle_command_message_removal'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const command_message_removal = guild_config.command_message_removal === 'enabled';
         if (command_message_removal === true) {
             message.channel.send(new CustomRichEmbed({
                 title:`Command Message Removal: disabled;`,
                 description:`When a user uses a command, the user's message will not be removed.`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_message_removal:'disabled'
             });
         } else {
@@ -28,7 +27,7 @@ module.exports = new DisBotCommand({
                 title:`Command Message Removal: enabled;`,
                 description:`When a user uses a command, the user's message will be removed.`
             }, message));
-            guild_config_manipulator.modifyConfig({
+            client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_message_removal:'enabled'
             });
         }

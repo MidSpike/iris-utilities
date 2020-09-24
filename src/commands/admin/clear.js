@@ -17,8 +17,8 @@ module.exports = new DisBotCommand({
     aliases:['clear', 'purge'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { discord_command, command_args } = opts;
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS', 'MANAGE_MESSAGES'])) return;
         if (command_args[0] && !isNaN(parseInt(command_args[0]))) {
             const remove_number = math_clamp(parseInt(command_args[0]), 0, 100);

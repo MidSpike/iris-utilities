@@ -17,11 +17,9 @@ module.exports = new DisBotCommand({
     description:'Stops music playback and disconnects the bot from the voice channel',
     aliases:['stop', 'bye', 'fuckoff', '#{cp}'],
     async executor(Discord, client, message, opts={}) {
-        const { guild_config_manipulator } = opts;
-
         const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
 
-        const guild_config = guild_config_manipulator.config;
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const guild_tts_provider = guild_config.tts_provider;
         const guild_tts_voice = guild_tts_provider === 'ibm' ? guild_config.tts_voice_ibm : guild_config.tts_voice_google;
 

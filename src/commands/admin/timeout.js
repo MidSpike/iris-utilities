@@ -14,8 +14,10 @@ module.exports = new DisBotCommand({
     aliases:['timeout', 'untimeout'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args, guild_config_manipulator } = opts;
-        const guild_config = guild_config_manipulator.config;
+        const { discord_command, command_args } = opts;
+
+        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
+
         if (!botHasPermissionsInGuild(message, ['MANAGE_MESSAGES'])) return;
         if (command_args[0] === 'list') {
             const users_in_timeout = guild_config.users_in_timeout || [];
@@ -60,7 +62,7 @@ module.exports = new DisBotCommand({
                     return;
                 }
                 const users_in_timeout = guild_config.users_in_timeout;
-                guild_config_manipulator.modifyConfig({
+                client.$.guild_configs_manager.updateConfig(message.guild.id, {
                     users_in_timeout:(users_in_timeout.includes(guildMember.id) ? [...users_in_timeout.filter(user_id => user_id !== guildMember.id)] : [...users_in_timeout, guildMember.id])
                 }).then((new_guild_config_manipulator) => {
                     if (new_guild_config_manipulator.config.users_in_timeout.includes(guildMember.id)) {

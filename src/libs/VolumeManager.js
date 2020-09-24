@@ -1,9 +1,6 @@
 'use strict';
 
-const { Timer,
-        math_clamp } = require('../utilities.js');
-
-const { GuildConfigManipulator } = require('./GuildConfig.js');
+const { math_clamp } = require('../utilities.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -13,42 +10,61 @@ const { GuildConfigManipulator } = require('./GuildConfig.js');
  * @returns {VolumeManager} 
  */
 class VolumeManager {
-    #guild = undefined;
+    #guild;
     #muted = false;
     #volume = 50;
-    #safety_multiplier = 0.0040;
+    #safety_multiplier = 0.004;
     #last_volume = 50;
     #fallback_volume = 50;
-    #fallback_guild_volume_multiplier = 0.0040;
-    #fallback_guild_volume_maximum = 100;
+    #fallback_guild_volume_multiplier = 0.004;
+    #fallback_guild_volume_maximum = 200;
+
     constructor(guild) {
         this.#guild = guild;
     }
+
+    get guild() {
+        return this.#guild;
+    }
+
     get muted() {
         return this.#muted;
     }
+
     get volume() {
         return this.#volume;
     }
+
     get last_volume() {
         return this.#last_volume;
     }
+
     get multiplier() {
-        const guild_volume_multiplier = new GuildConfigManipulator(this.#guild.id).config.volume_multiplier ?? this.#fallback_guild_volume_multiplier;
-        return guild_volume_multiplier * this.#safety_multiplier;
+        return new Promise(async (resolve, reject) => {
+            const guild_config = await this.guild.client.$.guild_configs_manager.fetchConfig(this.guild.id);
+            const guild_volume_multiplier = guild_config.volume_multiplier ?? this.#fallback_guild_volume_multiplier;
+            resolve(guild_volume_multiplier * this.#safety_multiplier);
+        });
     }
+
     get maximum() {
-        const guild_volume_maximum = new GuildConfigManipulator(this.#guild.id).config.volume_maximum ?? this.#fallback_guild_volume_maximum;
-        return guild_volume_maximum;
+        return new Promise(async (resolve, reject) => {
+            const guild_config = await this.guild.client.$.guild_configs_manager.fetchConfig(this.guild.id);
+            const guild_volume_maximum = guild_config.volume_maximum ?? this.#fallback_guild_volume_maximum;
+            resolve(guild_volume_maximum);
+        });
     }
+
     async decreaseVolume(decrease_amount=10, clamp_volume=true) {
         this.setVolume(this.volume - decrease_amount, undefined, clamp_volume);
         return [this, decrease_amount];
     }
+
     async increaseVolume(increase_amount=10, clamp_volume=true) {
         this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
         return [this, increase_amount];
     }
+
     /**
      * Sets the volume for a Guild Audio Dispatcher
      * @param {Number} volume_input the volume being passed
@@ -57,15 +73,16 @@ class VolumeManager {
      * @returns {VolumeManager} 
      */
     async setVolume(volume_input=this.#fallback_volume, update_last_volume=true, clamp_volume=true) {
-        if (this.#guild.voice?.connection?.dispatcher?.setVolume) {
+        if (this.guild.voice?.connection?.dispatcher?.setVolume) {
             this.#last_volume = update_last_volume ? this.volume : this.last_volume;
 
-            this.#volume = math_clamp(volume_input, 0, clamp_volume ? this.maximum : Number.MAX_SAFE_INTEGER);
+            this.#volume = math_clamp(volume_input, 0, clamp_volume ? (await this.maximum) : Number.MAX_SAFE_INTEGER);
 
-            this.#guild.voice.connection.dispatcher.setVolume(this.multiplier * this.volume);
+            this.guild.voice.connection.dispatcher.setVolume((await this.multiplier) * this.volume);
         }
         return this;
     }
+
     async toggleMute(override=undefined) {
         this.#muted = override ?? !this.muted;
         this.setVolume(this.muted ? 0 : this.last_volume, false);
