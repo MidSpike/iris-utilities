@@ -241,16 +241,16 @@ client.on('ready', async () => {
         }, 1000 * 15); // 2) then cycle every 15 seconds
     }, 1000 * 60 * 5); // 1) wait for 5 minutes
 
-    /** @TODO guild_configs_manager */
-    // /* consider guilds that the bot cannot access as non-existent */
-    // const all_guild_configs = new GuildConfigManipulator(bot_support_guild_id).configs;
-    // for (const guild_id of Object.keys(all_guild_configs)) {
-    //     const guild_exists_to_the_bot = await client.guilds.fetch(guild_id).then(() => true).catch(() => false);
-    //     if (guild_exists_to_the_bot) continue; // the guild exists to the bot, so continue through the list
-    //     console.warn(`Guild (${guild_id}) from the guild configs, is not accessible by the bot; it most likely removed the bot!`);
-    //     const dead_guild_config_manipulator = new GuildConfigManipulator(guild_id);
-    //     dead_guild_config_manipulator.modifyConfig({'_exists':false});
-    // }
+    /* consider guilds that the bot cannot access as non-existent */
+    const all_guild_configs = client.$.guild_configs_manager.configs;
+    for (const guild_id of all_guild_configs.keys()) {
+        const guild_exists_to_the_bot = await client.guilds.fetch(guild_id).then(() => true).catch(() => false);
+        if (guild_exists_to_the_bot) continue; // the guild exists to the bot, so continue through the list
+        console.warn(`Guild (${guild_id}) from the guild configs, is not accessible by the bot; it most likely removed the bot!`);
+        client.$.guild_configs_manager.updateConfig(guild_id, {
+            '_exists': false
+        });
+    }
 
     /* propagate guild configs and disBotServers */
     async function propagate_guilds() {

@@ -69,6 +69,10 @@ class GuildConfigsManager {
         }, 1000 * 60 * 5);
     }
 
+    get configs() {
+        return this.#configs_in_memory;
+    }
+
     async fetchConfig(guild_id) {
         return this.#configs_in_memory.get(guild_id) ?? {};
     }
@@ -93,6 +97,5 @@ class GuildConfigsManager {
 }
 
 module.exports = {
-    GuildConfigManipulator,
     GuildConfigsManager,
 };
