@@ -101,6 +101,19 @@ module.exports = new DisBotCommand({
             return;
         }
 
+        let voice_connection;
+        try {
+            voice_connection = await createConnection(message.member.voice.channel);
+        } catch {
+            message.channel.send(new CustomRichEmbed({
+                color:0xFFFF00,
+                title:`Welp that's an issue!`,
+                description:`I'm unable to join your voice channel!`
+            }, message));
+        } finally {
+            if (!voice_connection) return; // there is no point in continuing if the bot can't join vc
+        }
+
         const message_attachment = message.attachments.first();
         if (message_attachment && !message_attachment.name.endsWith('.txt')) {
             message.channel.send(new CustomRichEmbed({
@@ -133,7 +146,7 @@ module.exports = new DisBotCommand({
             const tts_chunk_short = tts_chunk.length > 100 ? `${tts_chunk.slice(0, 100)}...` : tts_chunk;
             let tts_chunk_done_resolve;
             const tts_chunk_done = new Promise((resolve, reject) => tts_chunk_done_resolve = resolve);
-            playTTS(message.member.voice.channel, tts_chunk, {
+            playTTS(voice_connection.channel, tts_chunk, {
                 provider:tts_provider,
                 voice:tts_voice,
                 callbacks:{
