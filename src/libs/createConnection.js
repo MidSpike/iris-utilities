@@ -39,8 +39,7 @@ async function createConnection(voice_channel, force_new=false) {
             } else {
                 throw new Error('`voice_channel.joinable` is false!');
             }
-        } catch (error) {
-            console.trace(error);
+        } catch {
             throw new Error(`Unable to join the voice_channel (${voice_channel.id})`);
         }
     }
