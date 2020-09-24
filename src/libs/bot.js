@@ -26,7 +26,7 @@ const client = new Discord.Client({
 
 client.$ = {
     restarting_bot: false,
-    lockdown_mode: true,
+    lockdown_mode: false,
     guild_lockdowns: new Discord.Collection(),
     dispatchers: new Discord.Collection(),
     queue_managers: new Discord.Collection(),
