@@ -1001,9 +1001,10 @@ client.on('message', async (message) => {
         const command_log_entry = {
             guild:`[${message.guild.name}] (${message.guild.id})`,
             user:`[@${message.author.tag}] (${message.author.id})`,
-            channel:`[#${message.channel.name}] (${message.channel.id})`,
+            text_channel:`[#${message.channel.name}] (${message.channel.id})`,
+            voice_channel:`[${message.member.voice?.channel?.name}] (${message.member.voice?.channel?.id})`,
             timestamp:`${command_timestamp}`,
-            command:`${message.content}`
+            command:`${message.content}`,
         };
         console.info({command_log_entry});
         const updated_command_log = [...current_command_logs, command_log_entry];
