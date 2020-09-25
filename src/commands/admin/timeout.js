@@ -44,7 +44,7 @@ module.exports = new DisBotCommand({
                 }, message));
                 return;
             }
-            message.guild.members.fetch(user.id).then(guildMember => {
+            message.guild.members.fetch(user.id).then(async guildMember => {
                 if (isThisBotsOwner(guildMember.id) || isThisBot(guildMember.id)) {
                     message.channel.send(new CustomRichEmbed({
                         color:0xFFFF00,
@@ -61,27 +61,30 @@ module.exports = new DisBotCommand({
                     }, message));
                     return;
                 }
+
                 const users_in_timeout = guild_config.users_in_timeout;
-                client.$.guild_configs_manager.updateConfig(message.guild.id, {
+                await client.$.guild_configs_manager.updateConfig(message.guild.id, {
                     users_in_timeout:(users_in_timeout.includes(guildMember.id) ? [...users_in_timeout.filter(user_id => user_id !== guildMember.id)] : [...users_in_timeout, guildMember.id])
-                }).then((new_guild_config_manipulator) => {
-                    if (new_guild_config_manipulator.config.users_in_timeout.includes(guildMember.id)) {
-                        message.channel.send(new CustomRichEmbed({
-                            title:`@${guildMember.user.tag} has been put into timeout!`,
-                            description:`Do this command again to remove them from timeout.`
-                        }));
-                        logAdminCommandsToGuild(message, new CustomRichEmbed({
-                            title:`@${message.author.tag} (${message.author.id}) put @${guildMember.user.tag} into timeout!`
-                        }));
-                    } else {
-                        message.channel.send(new CustomRichEmbed({
-                            title:`@${guildMember.user.tag} has been removed from timeout!`
-                        }));
-                        logAdminCommandsToGuild(message, new CustomRichEmbed({
-                            title:`@${message.author.tag} (${message.author.id}) removed @${guildMember.user.tag} from timeout!`
-                        }));
-                    }
                 });
+
+                const updated_guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
+
+                if (updated_guild_config.users_in_timeout.includes(guildMember.id)) {
+                    message.channel.send(new CustomRichEmbed({
+                        title:`@${guildMember.user.tag} has been put into timeout!`,
+                        description:`Do this command again to remove them from timeout.`
+                    }));
+                    logAdminCommandsToGuild(message, new CustomRichEmbed({
+                        title:`@${message.author.tag} (${message.author.id}) put @${guildMember.user.tag} into timeout!`
+                    }));
+                } else {
+                    message.channel.send(new CustomRichEmbed({
+                        title:`@${guildMember.user.tag} has been removed from timeout!`
+                    }));
+                    logAdminCommandsToGuild(message, new CustomRichEmbed({
+                        title:`@${message.author.tag} (${message.author.id}) removed @${guildMember.user.tag} from timeout!`
+                    }));
+                }
             }).catch(console.trace);
         }
     },
