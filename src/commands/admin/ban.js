@@ -63,22 +63,27 @@ module.exports = new DisBotCommand({
                 if (isThisBot(user_id)) return false;
                 if (isThisBotsOwner(user_id)) return false;
                 if (isSuperPerson(user_id)) return false;
-    
+
                 if (staff_id === user_id) return false; // Don't allow the staff member to ban themselves
-    
+
                 const staff_member = message.guild.members.resolve(staff_id);
                 if (!staff_member) throw new Error('`staff_id` must belong to a member in this guild!');
-    
+
+                /* the following people have guaranteed access */
+                if (isThisBotsOwner(staff_id)) return true;
+                if (isSuperPerson(staff_id)) return true;
+                if (message.guild.ownerID === staff_id) return true;
+
                 const staff_member_can_ban = staff_member.hasPermission('BAN_MEMBERS');
                 if (!staff_member_can_ban) return false; // They can't ban anyone
-    
+
                 const member_being_banned = message.guild.members.resolve(user_id);
                 if (!member_being_banned) return true; // No need to check role hierarchy if the user isn't in this guild
-    
+
                 const staff_member_can_ban_member = staff_member.roles.highest.comparePositionTo(member_being_banned.roles.highest) > 0;
                 return staff_member_can_ban_member;
             }
-    
+
             if (!staffMemberCanBanUser(message.author.id, user_to_modify.id)) {
                 message.channel.send(new CustomRichEmbed({
                     color:0xFFFF00,
@@ -86,17 +91,17 @@ module.exports = new DisBotCommand({
                 }, message)).catch(console.warn);
                 return;
             }
-    
+
             const confirm_embed = new CustomRichEmbed({
                 title:`Are you sure you want to ban @${user_to_modify.tag}?`
             }, message);
-    
+
             sendConfirmationEmbed(message.author.id, message.channel.id, true, confirm_embed, async () => {
                 const guild_member_to_ban = message.guild.members.resolve(user_to_modify.id);
                 if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
                     const dm_channel = await user_to_modify.createDM();
                     const appeals_guild_invite = await generateInviteToGuild(bot_appeals_guild_id, `Generated using ${discord_command} in ${message.guild.name} (${message.guild.id})`);
-    
+
                     await dm_channel.send(new CustomRichEmbed({
                         color:0xFF00FF,
                         title:`You have been banned from ${message.guild.name}`,
@@ -105,10 +110,10 @@ module.exports = new DisBotCommand({
                             `If **${message.guild.name}** has ${bot_common_name} Appeals enabled, then you can send an apology to them using the **${bot_common_name} Appeals Server**.`
                         ].join('\n')
                     })).catch(console.warn);
-    
+
                     await Timer(1000); // Make sure to send the message before banning them
                 }
-    
+
                 message.guild.members.ban(user_to_modify.id, {
                     reason:`@${message.author.tag} used ${discord_command}`
                 }).then(() => {

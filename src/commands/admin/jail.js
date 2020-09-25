@@ -13,7 +13,7 @@ module.exports = new DisBotCommand({
     category:`${DisBotCommander.categories.HIDDEN}`,
     description:'(un)jails a user in the guild',
     aliases:['jail', 'unjail'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
         if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS', 'MANAGE_ROLES', 'MUTE_MEMBERS'])) return;
@@ -47,6 +47,11 @@ module.exports = new DisBotCommand({
 
             const staff_member = message.guild.members.resolve(staff_id);
             if (!staff_member) throw new Error('\`staff_id\` must belong to a member in this guild!');
+
+            /* the following people have guaranteed access */
+            if (isThisBotsOwner(staff_id)) return true;
+            if (isSuperPerson(staff_id)) return true;
+            if (message.guild.ownerID === staff_id) return true;
 
             const staff_member_has_permissions = staff_member.hasPermission('MANAGE_CHANNELS', 'MANAGE_MESSAGES', 'MUTE_MEMBERS');
             if (!staff_member_has_permissions) return false; // they don't have the required permissions
