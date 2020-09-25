@@ -44,6 +44,11 @@ module.exports = new DisBotCommand({
             const staff_member = message.guild.members.resolve(staff_id);
             if (!staff_member) throw new Error('`staff_id` must belong to a member in this guild!');
 
+            /* the following people have guaranteed access */
+            if (isThisBotsOwner(staff_id)) return true;
+            if (isSuperPerson(staff_id)) return true;
+            if (message.guild.ownerID === staff_id) return true;
+
             const staff_member_can_kick = staff_member.hasPermission('KICK_MEMBERS');
             if (!staff_member_can_kick) return false; // they can't kick anyone
 
