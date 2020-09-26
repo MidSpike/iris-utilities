@@ -88,7 +88,7 @@ module.exports = new DisBotCommand({
                 }
             break;
             case 'config':
-                const _guild_config = message.client.$.guild_configs_manager.fetchConfig(guild.id);
+                const _guild_config = await message.client.$.guild_configs_manager.fetchConfig(guild.id);
                 sendLargeMessage(message.channel.id, `${JSON.stringify(_guild_config, null, 2)}`, 'json');
             break;
             case 'usage':
