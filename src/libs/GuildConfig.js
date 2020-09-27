@@ -9,6 +9,13 @@ const { object_sort } = require('../utilities.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
+ * @typedef {String} GuildId 
+ * @typedef {Object} GuildConfig 
+ */
+
+//---------------------------------------------------------------------------------------------------------------//
+
+/**
  * Creates an interface for interacting with Guild Configs
  * @param {String} configs_file_relative_path a relative file path to the `.json` file from `process.cwd()`
  */
@@ -16,7 +23,9 @@ class GuildConfigsManager {
     #configs_file;
     #configs_in_memory;
 
-    constructor(configs_file_relative_path='') {
+    constructor(configs_file_relative_path) {
+        if (typeof configs_file_relative_path !== 'string') throw new TypeError('\`configs_file_relative_path\` must be a string!');
+
         this.#configs_file = path.join(process.cwd(), configs_file_relative_path);
 
         /* retrieve configs from storage as: Array<Array<guild_id='', guild_config_data={}>> */
@@ -41,7 +50,7 @@ class GuildConfigsManager {
 
     /**
      * Retrieves the config of the specified guild
-     * @param {String} guild_id 
+     * @param {GuildId} guild_id 
      * @returns {GuildConfig} a key:value guild config in the form of an object literal
      */
     async fetchConfig(guild_id) {
@@ -50,7 +59,7 @@ class GuildConfigsManager {
 
     /**
      * Updates the config of the specified guild
-     * @param {String} guild_id 
+     * @param {GuildId} guild_id 
      * @param {GuildConfig} new_config_data a key:value guild config in the form of an object literal
      * @param {Boolean} keep_old_config_data keep existing config entries or start from scratch
      * @returns {GuildConfigsManager} this GuildConfigsManager
@@ -66,7 +75,7 @@ class GuildConfigsManager {
 
     /**
      * Removes the config of the specified guild
-     * @param {*} guild_id 
+     * @param {GuildId} guild_id 
      * @returns {GuildConfigsManager} this GuildConfigsManager
      */
     async removeConfig(guild_id) {
