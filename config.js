@@ -6,7 +6,7 @@ const { Collection } = require('discord.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const PUBLIC_VERSION = 'vS_2020-09-26_0';
+const PUBLIC_VERSION = 'vS_2020-09-27_0';
 
 const SHORT_NAME = 'IRIS'; // [ a-z | A-Z | 0-9 | - | _ ]
 const COMMON_NAME = 'I.R.I.S. Utilities';
