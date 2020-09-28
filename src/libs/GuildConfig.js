@@ -35,10 +35,10 @@ class GuildConfigsManager {
         /* prepare the configs in memory to be stored as a `Discord.Collection` */
         this.#configs_in_memory = new Collection(configs_from_storage);
 
-        /* automatically save the configs from memory to storage every minute */
+        /* automatically save the configs from memory to storage every 30 minutes */
         setInterval(() => {
             this.saveConfigs();
-        }, 1000 * 60 * 1);
+        }, 1000 * 60 * 30);
     }
 
     /**
@@ -69,7 +69,7 @@ class GuildConfigsManager {
         const old_config_data = await this.fetchConfig(guild_id);
         this.#configs_in_memory.set(guild_id, object_sort({
             ...(keep_old_config_data ? old_config_data : {}),
-            ...new_config_data
+            ...new_config_data,
         }));
         return this;
     }
