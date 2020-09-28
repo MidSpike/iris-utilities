@@ -956,6 +956,15 @@ client.on('message', async (message) => {
     /* check to see if the message starts with the command prefix */
     if (!message.content.startsWith(command_prefix)) return;
 
+    /* prevent bot-list guilds from responding to the default command_prefix */
+    const guild_is_a_known_bot_list = bot_config.BOT_LIST_GUILDS.includes(message.guild.id);
+    const guild_is_an_unknown_bot_list = guild_config._bot_count > 250;
+    const guild_command_prefix_is_default = guild_config.command_prefix === bot_config.DEFAULT_GUILD_CONFIG.command_prefix;
+    if ((guild_is_a_known_bot_list || guild_is_an_unknown_bot_list) && guild_command_prefix_is_default) {
+        console.error(`Guild [${message.guild.name}] (${message.guild.id}) should not have the default command_prefix!`);
+        return;
+    }
+
     /**********************************************
      * start handling commands after this comment *
      **********************************************/

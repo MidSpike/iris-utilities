@@ -158,6 +158,11 @@ const DEFAULT_GUILD_CONFIG = {
     tts_voice_google: 'en-us'
 };
 
+const BOT_LIST_GUILDS = [
+    '264445053596991498', // Discord Bot List | Top.gg
+    '446425626988249089', // Bots On Discord
+];
+
 //---------------------------------------------------------------------------------------------------------------//
 
 module.exports = {
@@ -173,4 +178,5 @@ module.exports = {
     SUPER_PERMS: SUPER_PERMS,
     SUPER_PEOPLE: SUPER_PEOPLE,
     DEFAULT_GUILD_CONFIG: DEFAULT_GUILD_CONFIG,
+    BOT_LIST_GUILDS: BOT_LIST_GUILDS,
 };
