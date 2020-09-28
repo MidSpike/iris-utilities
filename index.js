@@ -93,7 +93,7 @@ async function updateGuildConfig(guild) {
     }
 
     if (!guild.available) {
-        console.error(`Guild: ${guild.id} was not available!`);
+        console.error(`Guild (${guild.id}) was not available!`);
         return;
     }
 
@@ -103,21 +103,21 @@ async function updateGuildConfig(guild) {
 
     const new_guild_config = {
         ...{ // only write this info upon first addition to the config
-            '_added_on':`${moment()}`
+            '_added_on': `${moment()}`,
         },
         ...bot_default_guild_config,
         ...old_guild_config,
         ...{ // update the following information
-            '_last_seen_on':`${moment()}`,
-            '_exists':guild.available,
-            '_name':guild.name,
-            '_region':guild.region,
-            '_features':`${guild.features}`,
-            '_owner':`@${guild.owner?.user?.tag} (${guild.owner?.id})`,
-            '_has_permissions':`${guild.me.hasPermission('ADMINISTRATOR') ? 'ADMINISTRATOR' : guild.me.permissions.toArray()}`,
-            '_member_count':guild.members.cache.filter(member => !member.user.bot).size,
-            '_bot_count':guild.members.cache.filter(member => member.user.bot).size
-        }
+            '_last_seen_on': `${moment()}`,
+            '_exists': guild.available,
+            '_name': guild.name,
+            '_region': guild.region,
+            '_features': `${guild.features}`,
+            '_owner': `@${guild.owner?.user?.tag} (${guild.owner?.id})`,
+            '_has_permissions': `${guild.me.hasPermission('ADMINISTRATOR') ? 'ADMINISTRATOR' : guild.me.permissions.toArray()}`,
+            '_member_count': guild.members.cache.filter(member => !member.user.bot).size,
+            '_bot_count': guild.members.cache.filter(member => member.user.bot).size,
+        },
     };
 
     client.$.guild_configs_manager.updateConfig(guild.id, new_guild_config);
@@ -250,11 +250,11 @@ client.on('ready', async () => {
         if (guild_exists_to_the_bot) continue; // the guild exists to the bot, so continue through the list
         console.warn(`Guild (${guild_id}) from the guild configs, is not accessible by the bot; it most likely removed the bot!`);
         client.$.guild_configs_manager.updateConfig(guild_id, {
-            '_exists': false
+            '_exists': false,
         });
     }
 
-    /* propagate guild configs and disBotServers */
+    /* propagate guild configs and `client.$` */
     async function propagate_guilds() {
         console.time(`propagate_guilds()`);
         for (const guild of client.guilds.cache.values()) {
