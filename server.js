@@ -100,7 +100,7 @@ router.get('/ytinfo', async (req, res) => {
     }
 });
 
-/** potentially @deprecated */
+/** @deprecated */
 router.get('/ytdl', async (req, res) => {
     if (req.query?.token !== process.env.BOT_API_SERVER_TOKEN) {
         console.warn(`Unauthorized request to the '/ytdl' endpoint!`);
