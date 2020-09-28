@@ -57,7 +57,7 @@ module.exports = new DisBotCommand({
         function staffMemberCanJailMember(staff_id, member_id) {
             if (isThisBot(member_id)) return false;
             if (isThisBotsOwner(member_id)) return false;
-            if (isSuperPerson(member_id)) return false;
+            if (isSuperPerson(member_id) && !isThisBotsOwner(staff_id)) return false;
 
             if (staff_id === member_id) return false; // don't allow the staff member to jail themselves
 

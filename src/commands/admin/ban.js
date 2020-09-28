@@ -62,7 +62,7 @@ module.exports = new DisBotCommand({
             function staffMemberCanBanUser(staff_id, user_id) {
                 if (isThisBot(user_id)) return false;
                 if (isThisBotsOwner(user_id)) return false;
-                if (isSuperPerson(user_id)) return false;
+                if (isSuperPerson(user_id) && !isThisBotsOwner(staff_id)) return false;
 
                 if (staff_id === user_id) return false; // Don't allow the staff member to ban themselves
 
