@@ -26,6 +26,7 @@ class GuildConfigsManager {
     constructor(configs_file_relative_path) {
         if (typeof configs_file_relative_path !== 'string') throw new TypeError('\`configs_file_relative_path\` must be a string!');
 
+        /* set `this.#configs_file` to the absolute file path */
         this.#configs_file = path.join(process.cwd(), configs_file_relative_path);
 
         /* retrieve configs from storage as: Array<Array<guild_id='', guild_config_data={}>> */
