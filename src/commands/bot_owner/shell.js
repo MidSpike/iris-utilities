@@ -19,34 +19,46 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.BOT_OWNER,
     async executor(Discord, client, message, opts={}) {
         const { discord_command } = opts;
+
         if (!isThisBotsOwner(message.author.id)) {
             sendNotAllowedCommand(message);
             return;
         }
-        const shell_input = message.content.replace(discord_command, ``).trim(); // Removes the discord_command and trims
+
+        const shell_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         console.info(`----------------------------------------------------------------------------------------------------------------`);
         try {
-            const code_to_run = `${shell_input.replace(/\r?\n|\r/g, '').trim()}`; // Removes line-breaks and trims
+            const code_to_run = `${shell_input.replace(/\r?\n|\r/g, '').trim()}`; // removes line-breaks and trims
             console.info(`Running Shell Code:`, code_to_run);
             const shell_output = await eval_shell(`${code_to_run}`);
             console.info(`Output:`, shell_output);
             const shell_output_string = `${shell_output.stdout}`;
             message.reply(new CustomRichEmbed({
-                title:'Evaluated Shell Code',
-                fields:[
-                    {name:'Input', value:`${'```'}\n${discord_command}\n${shell_input}\n${'```'}`},
-                    {name:'Output', value:`${'```'}\n${shell_output_string.length < 1024 ? shell_output_string : `\`Check the console for output!\``}\n${'```'}`}
-                ]
+                title: 'Evaluated Shell Code',
+                fields: [
+                    {
+                        name: 'Input',
+                        value: `${'```'}\n${discord_command}\n${shell_input}\n${'```'}`
+                    }, {
+                        name: 'Output',
+                        value: `${'```'}\n${shell_output_string.length < 1024 ? shell_output_string : `\`Check the console for output!\``}\n${'```'}`
+                    },
+                ],
             }));
         } catch (error) {
             console.trace(error);
             message.reply(new CustomRichEmbed({
-                color:0xFF0000,
-                title:'Evaluated Shell Code Resulted In Error',
-                fields:[
-                    {name:'Input', value:`${'```'}\n${discord_command}\n${shell_input}\n${'```'}`},
-                    {name:'Error', value:`${'```'}\n${error}\n${'```'}\nCheck the console for more information!`}
-                ]
+                color: 0xFF0000,
+                title: 'Evaluated Shell Code Resulted In Error',
+                fields: [
+                    {
+                        name: 'Input',
+                        value: `${'```'}\n${discord_command}\n${shell_input}\n${'```'}`
+                    }, {
+                        name: 'Error',
+                        value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`
+                    },
+                ],
             }));
         }
         console.info(`----------------------------------------------------------------------------------------------------------------`);
