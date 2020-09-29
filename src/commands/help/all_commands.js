@@ -22,7 +22,7 @@ module.exports = new DisBotCommand({
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
             DisBotCommander.categories.ADMINISTRATOR,
-            DisBotCommander.categories.GUILD_SETTINGS
+            DisBotCommander.categories.GUILD_SETTINGS,
         ];
 
         const formated_command_categories = command_categories.map(category_name => {
@@ -38,19 +38,19 @@ module.exports = new DisBotCommand({
             );
 
             return {
-                category_name:`${category_name}`,
-                formatted_commands:formatted_commands
+                category_name: `${category_name}`,
+                formatted_commands: formatted_commands,
             };
         });
 
         const all_commands_fields = formated_command_categories.map(formated_command_category => ({
-            name:`${formated_command_category.category_name}`,
-            value:`${'```'}\n${formated_command_category.formatted_commands.join('\n')}\n${'```'}`
+            name: `${formated_command_category.category_name}`,
+            value: `${'```'}\n${formated_command_category.formatted_commands.join('\n')}\n${'```'}`,
         }));
 
         message.channel.send(new CustomRichEmbed({
-            title:`Here are all of the commands, all at once!`,
-            fields:all_commands_fields
+            title: `Here are all of the commands, all at once!`,
+            fields: all_commands_fields,
         }, message));
     },
 });

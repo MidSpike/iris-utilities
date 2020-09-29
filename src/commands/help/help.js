@@ -28,7 +28,7 @@ module.exports = new DisBotCommand({
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
             DisBotCommander.categories.ADMINISTRATOR,
-            DisBotCommander.categories.GUILD_SETTINGS
+            DisBotCommander.categories.GUILD_SETTINGS,
         ];
 
         const formated_command_categories = command_categories.map(category_name => {
@@ -46,14 +46,14 @@ module.exports = new DisBotCommand({
             );
 
             return {
-                category_name:`${category_name}`,
-                formatted_commands:formatted_commands
+                category_name: `${category_name}`,
+                formatted_commands: formatted_commands,
             };
         });
 
         const all_commands_fields = formated_command_categories.map((formated_command_category, index) => ({
-            name:`${constructNumberUsingEmoji(index+1)} — ${formated_command_category.category_name}`,
-            value:`${'```'}\n${formated_command_category.formatted_commands.join('\n')}\n${'```'}`
+            name: `${constructNumberUsingEmoji(index+1)} — ${formated_command_category.category_name}`,
+            value: `${'```'}\n${formated_command_category.formatted_commands.join('\n')}\n${'```'}`,
         }));
 
         let current_page_number = 1;
@@ -61,16 +61,26 @@ module.exports = new DisBotCommand({
             current_page_number = page_number;
             const help_page_commands_field = all_commands_fields[page_number-1];
             return new CustomRichEmbed({
-                title:`I'm here and ready to help! Navigate this menu for more!`,
-                fields:[
-                    {name:`Help Pages`, value:`${'```'}\n${command_categories.map((command_category, index) => `${index+1} — ${command_category}`).join('\n')}\n${'```'}`},
-                    {name:'\u200b', value:'\u200b'},
+                title: `I\'m here and ready to help! Navigate this menu for more!`,
+                fields: [
+                    {
+                        name: `Help Pages`,
+                        value: `${'```'}\n${command_categories.map((command_category, index) => `${index+1} — ${command_category}`).join('\n')}\n${'```'}`,
+                    }, {
+                        name: '\u200b',
+                        value: '\u200b',
+                    },
                     help_page_commands_field,
                     ...(!message.guild.me.hasPermission('MANAGE_MESSAGES') ? [
-                        {name:'\u200b', value:'\u200b'},
-                        {name:`Help Menu Navigation`, value:`Use the following to navigate the help menu!${'```'}\n${discord_command} PAGE_NUMBER_HERE\n${'```'}`}
-                    ] : [])
-                ]
+                        {
+                            name: '\u200b',
+                            value:'\u200b',
+                        }, {
+                            name: `Help Menu Navigation`,
+                            value: `Use the following to navigate the help menu!${'```'}\n${discord_command} PAGE_NUMBER_HERE\n${'```'}`,
+                        }
+                    ] : []),
+                ],
             }, message);
         }
 
@@ -89,42 +99,42 @@ module.exports = new DisBotCommand({
                 }
                 sendOptionsMessage(message.channel.id, makeHelpEmbed(proccessed_number_input), [
                     {
-                        emoji_name:'bot_emoji_angle_left',
+                        emoji_name: 'bot_emoji_angle_left',
                         callback(options_message) {
                             navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length);
                         }
                     }, {
-                        emoji_name:'bot_emoji_one',
+                        emoji_name: 'bot_emoji_one',
                         callback(options_message) {
                             navigate_page(options_message, 1);
                         }
                     }, {
-                        emoji_name:'bot_emoji_two',
+                        emoji_name: 'bot_emoji_two',
                         callback(options_message) {
                             navigate_page(options_message, 2);
                         }
                     }, {
-                        emoji_name:'bot_emoji_three',
+                        emoji_name: 'bot_emoji_three',
                         callback(options_message) {
                             navigate_page(options_message, 3);
                         }
                     }, {
-                        emoji_name:'bot_emoji_four',
+                        emoji_name: 'bot_emoji_four',
                         callback(options_message) {
                             navigate_page(options_message, 4);
                         }
                     }, {
-                        emoji_name:'bot_emoji_five',
+                        emoji_name: 'bot_emoji_five',
                         callback(options_message) {
                             navigate_page(options_message, 5);
                         }
                     }, {
-                        emoji_name:'bot_emoji_six',
+                        emoji_name: 'bot_emoji_six',
                         callback(options_message) {
                             navigate_page(options_message, 6);
                         }
                     }, {
-                        emoji_name:'bot_emoji_seven',
+                        emoji_name: 'bot_emoji_seven',
                         callback(options_message) {
                             navigate_page(options_message, 7);
                         }
@@ -141,7 +151,7 @@ module.exports = new DisBotCommand({
                     //     }
                     // },
                     {
-                        emoji_name:'bot_emoji_angle_right',
+                        emoji_name: 'bot_emoji_angle_right',
                         callback(options_message) {
                             navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1);
                         }
@@ -159,20 +169,20 @@ module.exports = new DisBotCommand({
             if (specified_command) {
                 const specified_command_aliases = specified_command.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`);
                 message.channel.send(new CustomRichEmbed({
-                    title:`About Command — ${specified_command_input}`,
-                    description:[
+                    title: `About Command — ${specified_command_input}`,
+                    description: [
                         `**Formal Name:** ${specified_command.name}`,
                         `**Category:** ${specified_command.category}`,
                         `**Description:** ${specified_command.description}`,
                         `**Aliases:** \`${specified_command_aliases.join(', ')}\``,
                         `**Access Level:** ${specified_command.access_level}`
-                    ].join('\n')
+                    ].join('\n'),
                 }, message));
             } else {
                 message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`About Command — ${specified_command_input}`,
-                    description:`I couldn't find that command!`
+                    color: 0xFFFF00,
+                    title: `About Command — ${specified_command_input}`,
+                    description: `I couldn\'t find that command!`,
                 }, message));
             }
         }
