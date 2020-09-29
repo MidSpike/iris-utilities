@@ -27,11 +27,9 @@ module.exports = new DisBotCommand({
             const guild = client.guilds.cache.get(command_args[1]) ?? message.guild;
 
             const old_guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
-            console.log({old_guild_lockdown_mode});
 
             client.$.guild_lockdowns.set(message.guild.id, !old_guild_lockdown_mode);
             const new_guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
-            console.log({new_guild_lockdown_mode});
 
             message.channel.send(new CustomRichEmbed({
                 color: 0xFF00FF,
