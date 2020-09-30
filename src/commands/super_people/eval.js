@@ -51,31 +51,45 @@ module.exports = new DisBotCommand({
         const code_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         try {
             console.info(`Running Code:\n`, code_input);
-            const code_with_return = code_input.trim().replace(/((?:.*)(?!\n)(?:.))$/g, `return $1`); // insert 'return' at the beginning of the last line
-            const code_to_run = code_with_return.replace(/\r?\n|\r/g, ``).trim(); // removes line-breaks and trims
+
+            // const code_with_return = code_input.trim().replace(/((?:.*)(?!\n)(?:.))$/g, `return $1`); // insert 'return' at the beginning of the last line
+            const code_to_run = code_input.trim().replace(/\r?\n|\r/g, ``).trim(); // removes line-breaks and trims
             const eval_output = await eval(`(async function() {${code_to_run}})();`);
+
             console.info(`Output:\n`, eval_output);
+
             const eval_output_string = typeof eval_output === 'string' ? eval_output : `${safe_stringify(eval_output, null, 2)}`;
+
             if (discord_command === `${command_prefix}evil`) {
                 /* don't output to the channel for the evil command */
             } else {
                 message.reply(new CustomRichEmbed({
-                    title:'Evaluated Code',
-                    fields:[
-                        {name:'Input', value:`${'```'}\n${discord_command}\n${code_input}\n${'```'}`},
-                        {name:'Output', value:`${'```'}\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`}
-                    ]
+                    title: 'Evaluated Code',
+                    fields: [
+                        {
+                            name: 'Input',
+                            value: `${'```'}\n${discord_command}\n${code_input}\n${'```'}`
+                        }, {
+                            name: 'Output',
+                            value: `${'```'}\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`
+                        },
+                    ],
                 }));
             }
         } catch (error) {
             console.trace(error);
             message.reply(new CustomRichEmbed({
-                color:0xFF0000,
-                title:'Evaluated Code Resulted In Error',
-                fields:[
-                    {name:'Input', value:`${'```'}\n${discord_command}\n${code_input}\n${'```'}`},
-                    {name:'Error', value:`${'```'}\n${error}\n${'```'}\nCheck the console for more information!`}
-                ]
+                color: 0xFF0000,
+                title: 'Evaluated Code Resulted In Error',
+                fields: [
+                    {
+                        name: 'Input',
+                        value: `${'```'}\n${discord_command}\n${code_input}\n${'```'}`
+                    }, {
+                        name: 'Error',
+                        value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`
+                    },
+                ],
             }));
         }
         console.info(`----------------------------------------------------------------------------------------------------------------`);
