@@ -21,9 +21,9 @@ const bot_common_name = bot_config.COMMON_NAME;
 function botHasPermissionsInGuild(message, required_permissions=['ADMINISTRATOR']) {
     if (!message.guild.me.hasPermission(required_permissions)) {// The bot doesn't have permission
         message.channel.send(new CustomRichEmbed({
-            color:0xFF0000,
-            title:'Uh Oh! Something went wrong!',
-            description:`${bot_common_name} is missing the following permission(s):\n${'```'}\n${required_permissions.join('\n')}\n${'```'}You cannot perform this command without ${bot_common_name} having permission!`
+            color: 0xFF0000,
+            title: 'Uh Oh! Something went wrong!',
+            description: `${bot_common_name} is missing the following permission(s):\n${'```'}\n${required_permissions.join('\n')}\n${'```'}You cannot perform this command without ${bot_common_name} having permission!`,
         }, message));
         return false;
     } else {
