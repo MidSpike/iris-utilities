@@ -59,7 +59,6 @@ module.exports = new DisBotCommand({
                 title: `Attempted sending update messsage to ${update_log_channels.size} guilds!`,
             }));
             for (let update_log_channel of update_log_channels.values()) {
-                console.log(update_log_channel);
                 if (update_log_channel.permissionsFor(update_log_channel.guild.me).has('SEND_MESSAGES')) {
                     console.info(`Sent update log to ${update_log_channel.guild.name} (${update_log_channel.guild.id})`);
                     update_log_channel.send(update_message_embed);
