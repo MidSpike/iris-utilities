@@ -13,7 +13,7 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         message.channel.send(new CustomRichEmbed({
-            title:`Hello World! I'm ${client.user.username}!`
+            title: `Hello World! I'm ${client.user.username}!`,
         }));
     },
 });
