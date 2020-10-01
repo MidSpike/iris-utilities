@@ -15,10 +15,10 @@ module.exports = new DisBotCommand({
     aliases:['request_history_deletion'],
     async executor(Discord, client, message, opts={}) {
         const history_deletion_requests_channel = client.channels.cache.get(history_deletion_requests_channel_id);
-        await history_deletion_requests_channel.send(`@${message.author.tag} (${message.author.id}) Requested to have their history deleted!`);
+        await history_deletion_requests_channel.send(`@${message.author.tag} (${message.author.id}) Requested to have their history deleted!`).catch(console.trace);
         message.reply(new CustomRichEmbed({
-            title:'Success! Your command history will be deleted within 24 hours!',
-            description:`Keep in mind that essential data (such as ban records) will not be deleted!`
-        }, message));
+            title: 'Success! Your command history will be deleted within 24 hours!',
+            description: `Keep in mind that essential data (such as ban records) will not be deleted!`,
+        }, message)).catch(console.warn);
     },
 });
