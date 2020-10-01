@@ -26,7 +26,7 @@ module.exports = new DisBotCommand({
         if (user_text.length === 0) {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:`Couldn't Trnaslate:`,
+                title:`Couldn't Translate:`,
                 description:`Try typing a sentence after the command!`,
                 fields:[
                     {name:'Example Usage', value:`${discord_command} hallo dort aus Deutschland!`}

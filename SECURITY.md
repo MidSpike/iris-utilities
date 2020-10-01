@@ -8,7 +8,7 @@ SECURITY - I.R.I.S. Utilities Discord Bot
 ```
 This way I'll know the email is important!
 
-You will recieve a response as soon as your email has been noticed!
+You will receive a response as soon as your email has been noticed!
 
 ## Supported Branches for Reporting Security Vulnerabilities
 | Version | Supported          |

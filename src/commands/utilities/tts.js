@@ -107,7 +107,7 @@ module.exports = new DisBotCommand({
         } catch {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:`Welp that's an issue!`,
+                title:`Whelp that's an issue!`,
                 description:`I'm unable to join your voice channel!`
             }, message));
         } finally {

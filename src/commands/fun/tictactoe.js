@@ -21,7 +21,7 @@ module.exports = new DisBotCommand({
             `789`
         ];
         const game_values = ['⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛'];
-        function contructGameBoard(game_values) {
+        function constructGameBoard(game_values) {
             let new_game_board = `${default_game_board.join('\n')}`;
             for (let index=0; index < game_values.length; index++) {
                 new_game_board = new_game_board.replace(`${index+1}`, `${game_values[index]}`);
@@ -41,7 +41,7 @@ module.exports = new DisBotCommand({
                 title:`${current_player === 'PLAYER_A' ? 'Make a move Player A!' : `It's your turn Player B!`}`,
                 description:`${current_player === 'PLAYER_A' ? 'Player A' : 'Player B'} is the letter \`${current_player === 'PLAYER_A' ? '❌' : '⭕'}\``,
                 fields:[
-                    {name:'Game', value:`${contructGameBoard(game_values)}`},
+                    {name:'Game', value:`${constructGameBoard(game_values)}`},
                     {name:'Buttons', value:`${default_game_board.map(x => constructNumberUsingEmoji(x)).join('\n')}`}
                 ],
                 footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${discord_command}`}

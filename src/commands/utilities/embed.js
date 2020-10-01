@@ -29,19 +29,19 @@ module.exports = new DisBotCommand({
                 const embed_image = validator.isURL(potential_embed_image) ? potential_embed_image : undefined;
                 embed_segments_joined = embed_segments_joined.replace(regex_embed_args, '').replace(regex_embed_args_bounds, '');
                 const embed_segments = embed_segments_joined.split(`\n\n`);
-                const embed_title_desctiption = embed_segments[0].split(`\n`);
-                const embed_title = embed_title_desctiption[0];
-                const embed_desctiption = embed_title_desctiption.slice(1).join('\n');
+                const embed_title_description = embed_segments[0].split(`\n`);
+                const embed_title = embed_title_description[0];
+                const embed_description = embed_title_description.slice(1).join('\n');
                 const embed_fields = embed_segments.slice(1).map(field_joined => ({
                     name:`${field_joined.split('\n')[0]}`,
                     value:`${field_joined.split('\n')[1]}`
                 }));
-                // console.log({embed_segments, embed_title_desctiption, embed_title, embed_desctiption, embed_image, embed_fields});
+                // console.log({embed_segments, embed_title_description, embed_title, embed_description, embed_image, embed_fields});
                 message.channel.send(new CustomRichEmbed({
                     color: 0x000000,
                     author:{iconURL:message.member.user.displayAvatarURL({dynamic:true}), name:`Sent by @${message.member.user.tag} (${message.member.user.id})`},
                     title:`${embed_title}`,
-                    description:`${embed_desctiption}`,
+                    description:`${embed_description}`,
                     image:embed_image,
                     fields:embed_fields,
                     footer:{iconURL:`${bot_cdn_url}/Warning_Sign_2020-07-08_1.png`, text:`This message is not from or endorsed by ${bot_common_name}!`}
