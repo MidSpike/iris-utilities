@@ -15,30 +15,30 @@ module.exports = new DisBotCommand({
     aliases:['donate'],
     async executor(Discord, client, message, opts={}) {
         message.channel.send(new CustomRichEmbed({
-            title:`Hello there ${message.author.username}!`,
-            description:[
+            title: `Hello there ${message.author.username}!`,
+            description: [
                 `I was created with the goal of being free for everyone!`,
                 `But in order to stay free, I need people to support my development!`,
                 `Please consider donating to help keep me free for everyone!`,
                 `Thank you for choosing to use ${bot_config.COMMON_NAME}!`,
             ].join('\n'),
-            fields:[
+            fields: [
                 {
-                    name:'GitHub',
-                    value:[
+                    name: 'GitHub',
+                    value: [
                         `${bot_config.GITHUB}`,
                         `(click on the **:heart: Sponsor** button)`,
                         `100% of your donation goes directly to the development of ${bot_config.COMMON_NAME}`,
-                    ].join('\n')
+                    ].join('\n'),
                 }, {
-                    name:'Patreon',
-                    value:[
+                    name: 'Patreon',
+                    value: [
                         `${bot_config.PATREON}`,
                         `<95% of your donation goes directly to the development of ${bot_config.COMMON_NAME}`,
                         `>5% of your donation goes to Patreon`,
-                    ].join('\n')
+                    ].join('\n'),
                 },
-            ]
+            ],
         }, message));
     },
 });
