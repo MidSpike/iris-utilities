@@ -56,7 +56,7 @@ class QueueManager {
     /**
      * Adds a QueueItem to the Queue
      * @param {QueueItem} item a QueueItem to be added to the queue
-     * @param {Number} insertion_index a postion in the queue (starting at 1) for the item to be added to
+     * @param {Number} insertion_index a position in the queue (starting at 1) for the item to be added to
      * @returns {Promise<QueueManager>} 
      */
     async addItem(item, insertion_index=this.queue.length+1) {
@@ -70,7 +70,7 @@ class QueueManager {
 
     /**
      * Removes an item from the Queue
-     * @param {Number} removal_index a postion in the queue (starting at 1) for an item to be removed from
+     * @param {Number} removal_index a position in the queue (starting at 1) for an item to be removed from
      * @returns {Promise<QueueManager>} 
      */
     async removeItem(removal_index=1) {

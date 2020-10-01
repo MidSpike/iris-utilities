@@ -56,7 +56,7 @@ module.exports = new DisBotCommand({
 
             const update_log_channels = client.channels.cache.filter(channel => channel.name === bot_update_log_channel_name);
             await bot_message.edit(new CustomRichEmbed({
-                title: `Attempted sending update messsage to ${update_log_channels.size} guilds!`,
+                title: `Attempted sending update message to ${update_log_channels.size} guilds!`,
             }));
             for (let update_log_channel of update_log_channels.values()) {
                 if (update_log_channel.permissionsFor(update_log_channel.guild.me).has('SEND_MESSAGES')) {

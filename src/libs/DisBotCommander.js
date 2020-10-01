@@ -18,7 +18,7 @@ function getDiscordCommand(message_content) {
 }
 
 /**
- * Gets an array of command arguments based off of seperating the message_content with spaces
+ * Gets an array of command arguments based off of separating the message_content with spaces
  * @param {String} message_content 
  * @returns {Array<String>} the `command_args` of the command message
  */
@@ -28,7 +28,7 @@ function getDiscordCommandArgs(message_content) {
 }
 
 /**
- * Creates an intance of a command that is usable by this bot
+ * Creates an instance of a command that is usable by this bot
  */
 class DisBotCommand {
     static access_levels = {
