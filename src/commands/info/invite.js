@@ -17,8 +17,8 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const bot_invite_url = await client.generateInvite(['ADMINISTRATOR']).catch(console.trace);
         message.channel.send(new CustomRichEmbed({
-            title:`Hi there ${message.author.username}!`,
-            description:`If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`
-        }));
+            title: `Hi there ${message.author.username}!`,
+            description: `If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`,
+        })).catch(console.warn);
     },
 });
