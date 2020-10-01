@@ -57,7 +57,7 @@ module.exports = new DisBotCommand({
                     message.channel.send(new CustomRichEmbed({
                         color:0xFFFF00,
                         title:'Woah buddy!',
-                        description:`You dont want to put yourself into timeout!`
+                        description:`You don\'t want to put yourself into timeout!`
                     }, message));
                     return;
                 }

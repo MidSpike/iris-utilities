@@ -40,7 +40,7 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: `This is a feedback command!`,
-                description: `Please leave a message with some feedback after \`${discord_command}\`. Exanple: ${'```'}\n${discord_command} wow this is a cool bot!\n${'```'}`,
+                description: `Please leave a message with some feedback after \`${discord_command}\`. Example: ${'```'}\n${discord_command} wow this is a cool bot!\n${'```'}`,
             }, message));
         }
     },

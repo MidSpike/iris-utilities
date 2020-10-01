@@ -1,4 +1,4 @@
-## Last Updated: 2020-09-22
+## Last Updated: 2020-10-01
 
 #### The following definitions will be used in this document:
 - id = a 'snowflake' used by Discord for identifying users, guilds, emojis, messages, attachments, etc
@@ -15,7 +15,7 @@
 - messages (starting with the command_prefix) sent in guild text-based channels
 - messages including `@mentions` of this Bot
 - message reactions on Bot messages
-- message reactions on any non-bot message when a guild has reation-logging enabled
+- message reactions on any non-bot message when a guild has reaction-logging enabled
 - direct messages to this Bot
 - command_message_history includes the following information:
     - the entire message involved (message text, embeds, attachments, etc)

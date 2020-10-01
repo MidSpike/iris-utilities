@@ -31,7 +31,7 @@ module.exports = new DisBotCommand({
             DisBotCommander.categories.GUILD_SETTINGS,
         ];
 
-        const formated_command_categories = command_categories.map(category_name => {
+        const formatted_command_categories = command_categories.map(category_name => {
             const commands_in_category = DisBotCommander.commands.filter(command => command.category === category_name);
 
             const sorted_commands_in_category = commands_in_category.sort((a, b) => a.weight - b.weight);
@@ -51,9 +51,9 @@ module.exports = new DisBotCommand({
             };
         });
 
-        const all_commands_fields = formated_command_categories.map((formated_command_category, index) => ({
-            name: `${constructNumberUsingEmoji(index+1)} — ${formated_command_category.category_name}`,
-            value: `${'```'}\n${formated_command_category.formatted_commands.join('\n')}\n${'```'}`,
+        const all_commands_fields = formatted_command_categories.map((formatted_command_category, index) => ({
+            name: `${constructNumberUsingEmoji(index+1)} — ${formatted_command_category.category_name}`,
+            value: `${'```'}\n${formatted_command_category.formatted_commands.join('\n')}\n${'```'}`,
         }));
 
         let current_page_number = 1;
@@ -89,15 +89,15 @@ module.exports = new DisBotCommand({
         if (specified_command_input.length === 0 || !isNaN(parseInt(specified_command_input))) {
             /* the user specified a page number or is lacking input after the command */
             const page_number_input = parseInt(specified_command_input) || 1;
-            const proccessed_number_input = math_clamp(page_number_input, 1, command_categories.length)
+            const processed_number_input = math_clamp(page_number_input, 1, command_categories.length)
             if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-                message.channel.send(makeHelpEmbed(proccessed_number_input));
+                message.channel.send(makeHelpEmbed(processed_number_input));
             } else {
                 function navigate_page(options_message, page_number=1) {
                     options_message.edit(makeHelpEmbed(page_number));
                     removeUserReactionsFromMessage(options_message);
                 }
-                sendOptionsMessage(message.channel.id, makeHelpEmbed(proccessed_number_input), [
+                sendOptionsMessage(message.channel.id, makeHelpEmbed(processed_number_input), [
                     {
                         emoji_name: 'bot_emoji_angle_left',
                         callback(options_message) {

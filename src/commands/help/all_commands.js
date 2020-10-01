@@ -25,7 +25,7 @@ module.exports = new DisBotCommand({
             DisBotCommander.categories.GUILD_SETTINGS,
         ];
 
-        const formated_command_categories = command_categories.map(category_name => {
+        const formatted_command_categories = command_categories.map(category_name => {
             const commands_in_category = DisBotCommander.commands.filter(command => command.category === category_name);
 
             /**
@@ -43,9 +43,9 @@ module.exports = new DisBotCommand({
             };
         });
 
-        const all_commands_fields = formated_command_categories.map(formated_command_category => ({
-            name: `${formated_command_category.category_name}`,
-            value: `${'```'}\n${formated_command_category.formatted_commands.join('\n')}\n${'```'}`,
+        const all_commands_fields = formatted_command_categories.map(formatted_command_category => ({
+            name: `${formatted_command_category.category_name}`,
+            value: `${'```'}\n${formatted_command_category.formatted_commands.join('\n')}\n${'```'}`,
         }));
 
         message.channel.send(new CustomRichEmbed({

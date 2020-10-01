@@ -9,7 +9,7 @@ const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner } = require('../../
 module.exports = new DisBotCommand({
     name:'AFK',
     category:`${DisBotCommander.categories.ADMINISTRATOR}`,
-    description:'Move a user to the afk channel',
+    description:'Moves a user to the afk channel',
     aliases:['afk'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {

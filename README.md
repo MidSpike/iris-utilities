@@ -6,7 +6,7 @@
 I.R.I.S Utilities is a multi-purpose discord bot that allows you to play music, have fun, and perform various other utility-related tasks.
 
 ### What does I.R.I.S. stand for?
-I.R.I.S. is the **I**nteractive **R**econnaissance **I**nformation **S**ervice and she's here to help!
+I.R.I.S. is the Interactive Reconnaissance Information Service and she's here to help!
 
 ### Why is I.R.I.S. Utilities a "she"?
 I.R.I.S. originally did not have a gender until a growing number of users started calling I.R.I.S. by feminine pronouns.
@@ -42,7 +42,7 @@ Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code
 - nullish coalescing `yin ?? yang`
 - optional chaining `foo?.bar`
 - private class field declarations `this.#private_thing`
-- numeric seperators `const large_number = 1_000_000_000_000;`
+- numeric separators `const large_number = 1_000_000_000_000;`
 
 ### Code Style Guidelines
 - Try to match what already exists please
