@@ -317,7 +317,7 @@ client.on('guildCreate', async (guild) => {
     const new_guild_information_embed = new CustomRichEmbed({
         title: `Hello there ${guild.name}!`,
         description: [
-            `**Thank you for addding me!**`,
+            `**Thank you for adding me!**`,
             `My command prefix is \`${bot_default_guild_config.command_prefix}\` by default!`,
             `You can use \`${bot_default_guild_config.command_prefix}help\` to see a list of commands that you can use.`,
             `You can **directly message** me to get in touch with my [Support Staff](${bot_support_guild_invite.url})!`,
@@ -810,7 +810,7 @@ client.on('message', async (message) => {
                 topic: `${message.author.tag} (${message.author.id}) | ${moment()}`,
             }).catch(console.trace);
             await central_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID).catch(console.trace);
-            await Timer(750); // for some reason Discord.js needs a little bit to recognise the new parent of the channel, therefore this delay exists
+            await Timer(750); // for some reason Discord.js needs a little bit to recognize the new parent of the channel, therefore this delay exists
             await central_dm_channel_with_user.lockPermissions().catch(console.trace);
             await central_dm_channel_with_user.send(new CustomRichEmbed({
                 title: `Opened DM with: ${message.author.tag} (${message.author.id})`,
@@ -1088,7 +1088,7 @@ client.on('message', async (message) => {
     const isSuperWorthy = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
     const isOwnerWorthy = isThisBotsOwner(message.member.id);
 
-    /* set the command author's access_level for each level of worthyness */
+    /* set the command author's access_level for each level of worthiness */
     let command_author_access_level = DisBotCommand.access_levels.GLOBAL_USER;
     if (isGuildModeratorWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_MOD;
     if (isGuildAdminWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_ADMIN;

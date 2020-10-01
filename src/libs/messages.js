@@ -251,7 +251,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
 /**
  * Sends a music controller embed
  * @param {String} channel_id 
- * @param {Messsage|undefined} user_message 
+ * @param {Message|undefined} user_message 
  */
 function sendMusicControllerEmbed(channel_id, user_message=undefined) {
     const guild_id = client.channels.cache.get(channel_id).guild.id;

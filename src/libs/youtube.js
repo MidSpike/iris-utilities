@@ -31,7 +31,7 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
  * then it will attempt one last time by scraping the YouTube website.
  * @param {String} search_query video, url, etc to look up on youtube
  * @param {Number} max_results the max number of results to ask the YouTube API for
- * @param {Number} retry_attempts the amount of Offical YouTube API retry attempts
+ * @param {Number} retry_attempts the amount of Official YouTube API retry attempts
  * @returns {Array<{id:String, link:String, title:String}>|undefined} the number of results is not based on max_results
  */
 async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1) {
@@ -131,7 +131,7 @@ async function playYouTube(message, search_query, playnext=false) {
         } catch {
             message.channel.send(new CustomRichEmbed({
                 color:0xFFFF00,
-                title:`Welp that's an issue!`,
+                title:`Whelp that's an issue!`,
                 description:`I'm unable to join your voice channel!`
             }, message));
         } finally {
