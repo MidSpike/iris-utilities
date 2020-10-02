@@ -45,13 +45,12 @@ module.exports = new DisBotCommand({
                                 inline: true,
                             },
                             { name: `Permissions`, value: `${'```'}\n${member_permissions}\n${'```'}` },
-                            ...array_chunks(
-                                member_roles,
-                                32,
-                            ).map((member_roles_chunk, chunk_index, member_roles_chunks) => ({
-                                name: `Roles ${chunk_index + 1}/${member_roles_chunks.length}`,
-                                value: `${member_roles_chunk.join(' ')}`,
-                            })),
+                            ...array_chunks(member_roles, 32).map(
+                                (member_roles_chunk, chunk_index, member_roles_chunks) => ({
+                                    name: `Roles ${chunk_index + 1}/${member_roles_chunks.length}`,
+                                    value: `${member_roles_chunk.join(' ')}`,
+                                }),
+                            ),
                             { name: `Manageable`, value: `${guildMember.manageable}`, inline: true },
                             { name: `Kickable`, value: `${guildMember.kickable}`, inline: true },
                             { name: `Bannable`, value: `${guildMember.bannable}`, inline: true },
