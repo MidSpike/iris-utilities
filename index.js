@@ -211,25 +211,25 @@ client.on('ready', async () => {
             switch (bot_presence_mode) {
                 case 0:
                     bot_presence_text = `@${client.user.tag}`;
-                break;
+                    break;
                 case 1:
                     bot_presence_text = `Uptime: ${getReadableTime(client.uptime / 1000)}`;
-                break;
+                    break;
                 case 2:
                     bot_presence_text = `👨‍💻${client.users.resolve(bot_owner_id).tag}👑`;
-                break;
+                    break;
                 case 3:
                     bot_presence_text = `@mention me for help!`;
-                break;
+                    break;
                 case 4:
                     bot_presence_text = `${bot_version}`;
-                break;
+                    break;
                 case 5:
                     bot_presence_text = `in ${client.guilds.cache.size} servers!`;
-                break;
+                    break;
                 case 6:
                     bot_presence_text = `with ${client.users.cache.filter(user => !user.bot).size} people!`;
-                break;
+                    break;
             }
             bot_presence_mode += (bot_presence_mode < 6 ? 1 : -6); // incrementally loop the presence mode
             client.user.setPresence({
@@ -297,9 +297,15 @@ client.on('guildCreate', async (guild) => {
     if (central_guild_history_logging_channel) {
         central_guild_history_logging_channel.send(new CustomRichEmbed({
             color: 0x00FF00,
-            author: {iconURL: guild.iconURL(), name: `${guild.name} (${guild.id})`},
+            author: {
+                iconURL: guild.iconURL(),
+                name: `${guild.name} (${guild.id})`,
+            },
             title: `Added ${bot_common_name}!`,
-            footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${moment()}`},
+            footer: {
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                text: `${moment()}`,
+            },
         })).catch(console.warn);
     }
 
@@ -352,9 +358,15 @@ client.on('guildDelete', async (guild) => {
     if (central_guild_history_logging_channel) {
         central_guild_history_logging_channel.send(new CustomRichEmbed({
             color: 0xFFFF00,
-            author: {iconURL: guild.iconURL(), name: `${guild?.name} (${guild?.id})`},
+            author: {
+                iconURL: guild.iconURL(),
+                name: `${guild?.name} (${guild?.id})`,
+            },
             title: `Removed ${bot_common_name}!`,
-            footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${moment()}`},
+            footer: {
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                text: `${moment()}`,
+            },
         })).catch(console.warn);
     }
 });
@@ -397,7 +409,7 @@ client.on('channelCreate', async (channel) => {
                 title: 'Channel Linked',
                 description: `Any ${bot_common_name} commands can be used here by people with appropriate permissions!`,
             }));
-        break;
+            break;
         case bot_appeals_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
@@ -409,35 +421,35 @@ client.on('channelCreate', async (channel) => {
                 title: 'Warning!',
                 description: 'This feature is in BETA!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_restart_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: 'Now syncing future bot restart history to channel!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_update_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: 'Now syncing future bot update history to channel!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_command_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: 'Now syncing future guild command history to channel!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_moderation_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: 'Now syncing future guild moderation history to channel!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_invite_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
@@ -449,14 +461,14 @@ client.on('channelCreate', async (channel) => {
                 title: 'Warning!',
                 description: 'If I don\'t have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see invite events for all channels!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_members_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: 'Now syncing future guild member join/leave history to channel!',
             })).catch(console.warn);
-        break;
+            break;
         case bot_reaction_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
@@ -468,7 +480,7 @@ client.on('channelCreate', async (channel) => {
                 title: 'Warning!',
                 description: 'Any reactions manipulated by bots will not be logged for performance reasons!',
             })).catch(console.warn);
-        break;
+            break;
     }
 });
 
@@ -485,9 +497,15 @@ client.on('guildMemberAdd', async (member) => {
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color: 0x00FF00,
-        author: {iconURL: member.user.displayAvatarURL({dynamic: true}), name: `@${member.user.tag} (${member.user.id})`},
+        author: {
+            iconURL: member.user.displayAvatarURL({ dynamic: true }),
+            name: `@${member.user.tag} (${member.user.id})`,
+        },
         title: 'Joined the server!',
-        footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${moment()}`},
+        footer: {
+            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            text: `${moment()}`,
+        },
     })).catch(() => {
         console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
@@ -504,9 +522,15 @@ client.on('guildMemberRemove', async (member) => {
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color: 0xFFFF00,
-        author: {iconURL: member.user.displayAvatarURL({dynamic: true}), name: `@${member.user.tag} (${member.user.id})`},
+        author: {
+            iconURL: member.user.displayAvatarURL({ dynamic: true }),
+            name: `@${member.user.tag} (${member.user.id})`,
+        },
         title: 'Left the server!',
-        footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${moment()}`},
+        footer: {
+            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            text: `${moment()}`,
+        },
     })).catch(() => {
         console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
@@ -529,15 +553,21 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color: 0x00FF00,
-        author: {iconURL: member.user.displayAvatarURL({dynamic: true}), name: `@${member.user.tag} (${member.user.id})`},
+        author: {
+            iconURL: member.user.displayAvatarURL({ dynamic: true }),
+            name: `@${member.user.tag} (${member.user.id})`,
+        },
         title: 'Added A Message Reaction',
-        description:[
+        description: [
             `Message: [Message Link](${reaction.message.url})`,
             `Reaction Id: \`${reaction.emoji.id}\``,
             `Reaction Markup: \`${reaction.emoji}\``,
             `Reaction Emoji: ${reaction.emoji}`,
         ].join('\n'),
-        footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${moment()}`},
+        footer: {
+            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            text: `${moment()}`,
+        },
     })).catch(() => {
         console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
@@ -558,7 +588,10 @@ client.on('messageReactionRemove', async (reaction, user) => {
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color: 0xFFFF00,
-        author: {iconURL: member.user.displayAvatarURL({dynamic: true}), name: `@${member.user.tag} (${member.user.id})`},
+        author: {
+            iconURL: member.user.displayAvatarURL({ dynamic: true }),
+            name: `@${member.user.tag} (${member.user.id})`,
+        },
         title: 'Removed A Message Reaction',
         description: [
             `Message: [Message Link](${reaction.message.url})`,
@@ -566,7 +599,10 @@ client.on('messageReactionRemove', async (reaction, user) => {
             `Reaction Markup: \`${reaction.emoji}\``,
             `Reaction Emoji: ${reaction.emoji}`,
         ].join('\n'),
-        footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${moment()}`},
+        footer: {
+            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            text: `${moment()}`,
+        },
     })).catch(() => {
         console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
@@ -595,7 +631,7 @@ client.on('inviteCreate', async (invite) => {
             }, {
                 name: 'Invite URL',
                 value: `<${invite.url}>`,
-            }
+            },
         ],
     })).catch(() => {
         console.warn(`Unable to send \'inviteCreate\' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
@@ -630,8 +666,8 @@ client.on('inviteDelete', async (invite) => {
             }, {
                 name: 'Invite URL',
                 value: `~~<${invite.url}>~~`,
-            }
-        ]
+            },
+        ],
     })).catch(() => {
         console.warn(`Unable to send 'inviteDelete' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
@@ -670,7 +706,7 @@ client.on('guildMemberAdd', async (member) => {
                     }, {
                         id: banned_guild_member.id,
                         allow: ['VIEW_CHANNEL'],
-                    }
+                    },
                 ],
             });
 
@@ -684,10 +720,10 @@ client.on('guildMemberAdd', async (member) => {
             })).catch(console.warn);
 
             const collection_filter = (message) => message.author.id === banned_guild_member.id;
-            const message_collector = bot_purgatory_channel.createMessageCollector(collection_filter, {max:1, maxProcessed:1});
+            const message_collector = bot_purgatory_channel.createMessageCollector(collection_filter, { max: 1, maxProcessed: 1 });
             message_collector.on('collect', async (collected_message) => {
                 await bot_purgatory_channel.send(new CustomRichEmbed({
-                    author: {iconURL: collected_message.member.user.displayAvatarURL({dynamic: true}), name: `@${collected_message.member.user.tag} (${collected_message.member.user.id})`},
+                    author: { iconURL: collected_message.member.user.displayAvatarURL({ dynamic: true }), name: `@${collected_message.member.user.tag} (${collected_message.member.user.id})` },
                     title: 'Your apology message has been sent!',
                     description: [
                         `This **does not** mean that the server you apologized to, has seen it or will ever see it.`,
@@ -709,7 +745,10 @@ client.on('guildMemberAdd', async (member) => {
 
                 const guild_purgatory_channel = guild.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_appeals_log_channel.name);
                 await guild_purgatory_channel.send(new CustomRichEmbed({
-                    author: {iconURL: collected_message.member.user.displayAvatarURL({dynamic: true}), name: `@${collected_message.member.user.tag} (${collected_message.member.user.id})`},
+                    author: {
+                        iconURL: collected_message.member.user.displayAvatarURL({ dynamic: true }),
+                        name: `@${collected_message.member.user.tag} (${collected_message.member.user.id})`,
+                    },
                     title: 'Sent you an apology for being banned',
                     description: `${collected_message.cleanContent}`,
                 })).catch(console.warn);
@@ -744,7 +783,7 @@ client.on('message', async (message) => {
     if (message.user?.partial) await message.user.fetch().catch((warning) => console.warn('1599589897074640420', warning));
     if (message.member?.partial) await message.member.fetch().catch((warning) => console.warn('1599589897074997570', warning));
     if (message.guild) await message.guild.fetch().catch((warning) => console.warn('1599589897074678159', warning));
-    
+
     if (message.author.bot) return; // don't interact with bots
 
     if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return; // don't continue when the bot is in lockdown mode
@@ -753,7 +792,10 @@ client.on('message', async (message) => {
         const user_to_dm_from_dm_channel = client.users.cache.get(`${message.channel.name.replace('dm-', '')}`);
         if (!user_to_dm_from_dm_channel) return;
         const dm_embed = new CustomRichEmbed({
-            author: {iconURL: message.author.displayAvatarURL({dynamic: true}), name: `@${message.author.tag} (${message.author.id})`},
+            author: {
+                iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                name: `@${message.author.tag} (${message.author.id})`,
+            },
             description: `${message.cleanContent}`,
             fields: [
                 ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
@@ -762,11 +804,11 @@ client.on('message', async (message) => {
                 })) : []),
             ],
             footer: {
-                iconURL: `${client.user.displayAvatarURL({dynamic: true})}`,
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
                 text: `Support Staff: ${moment()}`,
             },
         });
-        await message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
+        await message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
         try {
             const dm_channel = await user_to_dm_from_dm_channel.createDM();
             await dm_channel.send(dm_embed);
@@ -782,17 +824,20 @@ client.on('message', async (message) => {
     if (message.channel.type === 'dm') {
         const dm_embed = new CustomRichEmbed({
             color: 0xBBBBBB,
-            author: {iconURL: message.author.displayAvatarURL({dynamic: true}), name: `@${message.author.tag} (${message.author.id})`},
+            author: {
+                iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                name: `@${message.author.tag} (${message.author.id})`,
+            },
             description: `${message.cleanContent}`,
             fields: [
-                {name: `Link`, value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})`},
+                { name: `Link`, value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})` },
                 ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
                     name: `Message Attachment:`,
                     value: `[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`,
                 })) : []),
             ],
             footer: {
-                iconURL: `${client.user.displayAvatarURL({dynamic: true})}`,
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
                 text: `[Direct Message]: ${moment()}`,
             },
         });
@@ -871,7 +916,7 @@ client.on('message', async (message) => {
     const guild_users_in_timeout = guild_config.users_in_timeout ?? [];
     if (guild_users_in_timeout.includes(message.author.id)) {
         try {
-            await message.delete({timeout: 500});
+            await message.delete({ timeout: 500 });
             const dm_channel = await message.author.createDM();
             await dm_channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
@@ -895,12 +940,15 @@ client.on('message', async (message) => {
             const _member_is_immune = message.member.hasPermission('ADMINISTRATOR');
             message.channel.send(new CustomRichEmbed({
                 color: (_member_is_immune ? 0x00FF00 : 0xFFFF00),
-                author: {iconURL: message.author.displayAvatarURL({dynamic: true}), name: `@${message.author.tag} (${message.author.id})`},
+                author: {
+                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                    name: `@${message.author.tag} (${message.author.id})`,
+                },
                 title: 'Woah there!',
                 description: `Sending discord invites is not allowed in this guild${_member_is_immune ? ', but you are immune!' : '!'}`,
             })).catch(console.warn);
             if (!_member_is_immune) {
-                await message.delete({timeout: 250}).catch(error => console.warn(`Unable to delete message`, error));
+                await message.delete({ timeout: 250 }).catch(error => console.warn(`Unable to delete message`, error));
             }
         } else {
             message.channel.send(new CustomRichEmbed({
@@ -919,12 +967,15 @@ client.on('message', async (message) => {
             const _member_is_immune = message.member.hasPermission('ADMINISTRATOR');
             message.channel.send(new CustomRichEmbed({
                 color: (_member_is_immune ? 0x00FF00 : 0xFFFF00),
-                author: {iconURL: message.author.displayAvatarURL({dynamic: true}), name: `@${message.author.tag} (${message.author.id})`},
+                author: {
+                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                    name: `@${message.author.tag} (${message.author.id})`,
+                },
                 title: 'Woah there!',
                 description: `Sending links is not allowed in this guild${_member_is_immune ? ', but you are immune!' : '!'}`,
             })).catch(console.warn);
             if (!_member_is_immune) {
-                await message.delete({timeout:250}).catch(error => console.warn(`Unable to delete message`, error));
+                await message.delete({ timeout: 250 }).catch(error => console.warn(`Unable to delete message`, error));
             }
         } else {
             message.channel.send(new CustomRichEmbed({
@@ -972,7 +1023,7 @@ client.on('message', async (message) => {
     /* setup command constants */
     const command_timestamp = moment();
     const discord_command = getDiscordCommand(message.content);
-    const command_args =  getDiscordCommandArgs(message.content);
+    const command_args = getDiscordCommandArgs(message.content);
     const clean_command_args = getDiscordCommandArgs(message.cleanContent);
     const discord_command_without_prefix = discord_command.replace(`${command_prefix}`, ``);
 
@@ -1007,15 +1058,15 @@ client.on('message', async (message) => {
     }
 
     /* check for valid command */
-    const command = DisBotCommander.commands.find(cmd => 
-        cmd.aliases.map(cmd => 
+    const command = DisBotCommander.commands.find(cmd =>
+        cmd.aliases.map(cmd =>
             `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
         ).includes(discord_command)
     );
     if (!command) {
         message.channel.send(new CustomRichEmbed({
-            title:`That command doesn't exist!`,
-            description:`Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
+            title: `That command doesn't exist!`,
+            description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
             fields: [
                 {
                     name: `How to change ${bot_common_name} command prefix`,
@@ -1038,7 +1089,7 @@ client.on('message', async (message) => {
 
     /* command message removal */
     if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
-        message.delete({timeout: 500}).catch(error => console.warn(`Unable to delete message`, error));
+        message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
     }
 
     /* central command logging */
@@ -1054,17 +1105,17 @@ client.on('message', async (message) => {
             timestamp: `${command_timestamp}`,
             command: `${message.content}`,
         };
-        console.info({command_log_entry});
+        console.info({ command_log_entry });
         const updated_command_log = [...current_command_logs, command_log_entry];
-        fs.writeFileSync(current_command_log_file_name, JSON.stringify(updated_command_log, null, 2), {flag: 'w'});
+        fs.writeFileSync(current_command_log_file_name, JSON.stringify(updated_command_log, null, 2), { flag: 'w' });
     } catch (error) {
         console.trace(`Unable to save to command log file!`, error);
     }
 
     /* central anonymous command logging for bot staff */
     const anonymous_command_log_entry = {
-        timestamp:`${command_timestamp}`,
-        command:`${message.content}`,
+        timestamp: `${command_timestamp}`,
+        command: `${message.content}`,
     };
     const central_anonymous_command_logging_channel = client.channels.cache.get(bot_central_anonymous_command_log_channel_id);
     central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
@@ -1073,10 +1124,16 @@ client.on('message', async (message) => {
     const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.type === 'text' && channel.name === bot_command_log_channel.name);
     if (guild_command_logging_channel) {
         guild_command_logging_channel.send(new CustomRichEmbed({
-            author: {iconURL: message.author.displayAvatarURL({dynamic: true}), name: `@${message.author.tag} (${message.author.id})`},
+            author: {
+                iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                name: `@${message.author.tag} (${message.author.id})`,
+            },
             title: 'Command Used',
             description: `${'```'}\n${message.content}\n${'```'}`,
-            footer: {iconURL: `${client.user.displayAvatarURL({dynamic: true})}`, text: `${command_timestamp}`}
+            footer: {
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                text: `${command_timestamp}`,
+            },
         })).catch(console.warn);
     }
 
