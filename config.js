@@ -74,7 +74,7 @@ const SPECIAL_CHANNELS = [
         type: 'text',
         name: 'iris-appeals-log',
         description: 'This channel will allow your server to receive a single \'apology\' message from a user that has been banned via the bot.'
-    }
+    },
 ];
 
 const SUPER_PERMS = [
@@ -96,43 +96,33 @@ const SUPER_PEOPLE = new Collection([
         id: '163646957783482370',
         name: 'MidSpike',
         public: false,
-        allowed_permissions: [
-            '*'
-        ],
+        allowed_permissions: ['*'],
         denied_permissions: []
     }, {
         id: '196254672418373632',
         name: 'Will F.',
         public: true,
-        allowed_permissions: [
-            '*'
-        ],
+        allowed_permissions: ['*'],
         denied_permissions: []
     }, {
         id: '255071492801429504',
         name: 'QuackAttack',
         public: true,
-        allowed_permissions: [
-            '*'
-        ],
+        allowed_permissions: ['*'],
         denied_permissions: []
     }, {
         id: '557744032621658123',
         name: 'ThreeShot',
         public: true,
-        allowed_permissions: [
-            '*'
-        ],
+        allowed_permissions: ['*'],
         denied_permissions: []
     }, {
         id: '686385736269824062',
         name: 'A.Baker',
         public: true,
-        allowed_permissions: [
-            '*'
-        ],
+        allowed_permissions: ['*'],
         denied_permissions: []
-    }
+    },
 ].map(super_person => [super_person.id, super_person]));
 
 const DEFAULT_GUILD_CONFIG = {
@@ -155,7 +145,7 @@ const DEFAULT_GUILD_CONFIG = {
     volume_maximum: 200,
     tts_provider: 'ibm',
     tts_voice_ibm: 'en-US_EmilyV3Voice',
-    tts_voice_google: 'en-us'
+    tts_voice_google: 'en-us',
 };
 
 const BOT_LIST_GUILDS = [
