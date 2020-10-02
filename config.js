@@ -23,58 +23,70 @@ const SPECIAL_CHANNELS = [
         id: 'ARCHIVED_CHANNELS_CATEGORY',
         type: 'category',
         name: 'iris-archived-channels',
-        description: 'Used for organizing archived channels.'
-    }, {
+        description: 'Used for organizing archived channels.',
+    },
+    {
         id: 'SPECIAL_CHANNELS_CATEGORY',
         type: 'category',
         name: 'I.R.I.S. Utilities',
-        description: 'Used for organizing the special channels.'
-    }, {
+        description: 'Used for organizing the special channels.',
+    },
+    {
         id: 'BOT_COMMANDS',
         type: 'text',
         name: 'iris-bot-commands',
-        description: 'Used as a backup-method for using the bot if you incorrectly use the \'set_allowed_channels\' command and accidentally lock yourself out.'
-    }, {
+        description:
+            "Used as a backup-method for using the bot if you incorrectly use the 'set_allowed_channels' command and accidentally lock yourself out.",
+    },
+    {
         id: 'BOT_RESTARTS',
         type: 'text',
         name: 'iris-restart-log',
-        description: 'Useful for keeping track of bot restarts.'
-    }, {
+        description: 'Useful for keeping track of bot restarts.',
+    },
+    {
         id: 'BOT_UPDATES',
         type: 'text',
         name: 'iris-update-log',
-        description: 'Sends out update messages and announcements of new features for the bot to your server!'
-    }, {
+        description: 'Sends out update messages and announcements of new features for the bot to your server!',
+    },
+    {
         id: 'GUILD_COMMANDS',
         type: 'text',
         name: 'iris-command-log',
-        description: 'Logs all of the bot\'s commands entered by members in this server.'
-    }, {
+        description: "Logs all of the bot's commands entered by members in this server.",
+    },
+    {
         id: 'GUILD_MEMBERS',
         type: 'text',
         name: 'iris-member-log',
-        description: 'Sends join/leave messages like the default \'System Channel\' for servers.'
-    }, {
+        description: "Sends join/leave messages like the default 'System Channel' for servers.",
+    },
+    {
         id: 'GUILD_INVITES',
         type: 'text',
         name: 'iris-invite-log',
-        description: 'Used for logging invites created/destroyed by members in the server.'
-    }, {
+        description: 'Used for logging invites created/destroyed by members in the server.',
+    },
+    {
         id: 'GUILD_MODERATION',
         type: 'text',
         name: 'iris-moderation-log',
-        description: 'Used to log when the bot\'s moderation features have been used.'
-    }, {
+        description: "Used to log when the bot's moderation features have been used.",
+    },
+    {
         id: 'GUILD_REACTIONS',
         type: 'text',
         name: 'iris-reaction-log',
-        description: 'Shows when reactions are added to a message by users.'
-    }, {
+        description: 'Shows when reactions are added to a message by users.',
+    },
+    {
         id: 'GUILD_APPEALS',
         type: 'text',
         name: 'iris-appeals-log',
-        description: 'This channel will allow your server to receive a single \'apology\' message from a user that has been banned via the bot.'
-    }
+        description:
+            "This channel will allow your server to receive a single 'apology' message from a user that has been banned via the bot.",
+    },
 ];
 
 const SUPER_PERMS = [
@@ -91,49 +103,45 @@ const SUPER_PERMS = [
     'super_volume',
 ];
 
-const SUPER_PEOPLE = new Collection([
-    {
-        id: '163646957783482370',
-        name: 'MidSpike',
-        public: false,
-        allowed_permissions: [
-            '*'
-        ],
-        denied_permissions: []
-    }, {
-        id: '196254672418373632',
-        name: 'Will F.',
-        public: true,
-        allowed_permissions: [
-            '*'
-        ],
-        denied_permissions: []
-    }, {
-        id: '255071492801429504',
-        name: 'QuackAttack',
-        public: true,
-        allowed_permissions: [
-            '*'
-        ],
-        denied_permissions: []
-    }, {
-        id: '557744032621658123',
-        name: 'ThreeShot',
-        public: true,
-        allowed_permissions: [
-            '*'
-        ],
-        denied_permissions: []
-    }, {
-        id: '686385736269824062',
-        name: 'A.Baker',
-        public: true,
-        allowed_permissions: [
-            '*'
-        ],
-        denied_permissions: []
-    }
-].map(super_person => [super_person.id, super_person]));
+const SUPER_PEOPLE = new Collection(
+    [
+        {
+            id: '163646957783482370',
+            name: 'MidSpike',
+            public: false,
+            allowed_permissions: ['*'],
+            denied_permissions: [],
+        },
+        {
+            id: '196254672418373632',
+            name: 'Will F.',
+            public: true,
+            allowed_permissions: ['*'],
+            denied_permissions: [],
+        },
+        {
+            id: '255071492801429504',
+            name: 'QuackAttack',
+            public: true,
+            allowed_permissions: ['*'],
+            denied_permissions: [],
+        },
+        {
+            id: '557744032621658123',
+            name: 'ThreeShot',
+            public: true,
+            allowed_permissions: ['*'],
+            denied_permissions: [],
+        },
+        {
+            id: '686385736269824062',
+            name: 'A.Baker',
+            public: true,
+            allowed_permissions: ['*'],
+            denied_permissions: [],
+        },
+    ].map((super_person) => [super_person.id, super_person]),
+);
 
 const DEFAULT_GUILD_CONFIG = {
     command_prefix: '%',
@@ -155,7 +163,7 @@ const DEFAULT_GUILD_CONFIG = {
     volume_maximum: 200,
     tts_provider: 'ibm',
     tts_voice_ibm: 'en-US_EmilyV3Voice',
-    tts_voice_google: 'en-us'
+    tts_voice_google: 'en-us',
 };
 
 const BOT_LIST_GUILDS = [

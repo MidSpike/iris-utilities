@@ -9,22 +9,28 @@ const { Discord } = require('./bot.js');
 
 /**
  * Parses message_content for the command used
- * @param {String} message_content 
+ * @param {String} message_content
  * @returns {String} the `discord_command` including the `command_prefix`
  */
 function getDiscordCommand(message_content) {
     if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
-    return message_content.split(/\s/g).filter(item => item !== '')[0].toLowerCase();
+    return message_content
+        .split(/\s/g)
+        .filter((item) => item !== '')[0]
+        .toLowerCase();
 }
 
 /**
  * Gets an array of command arguments based off of separating the message_content with spaces
- * @param {String} message_content 
+ * @param {String} message_content
  * @returns {Array<String>} the `command_args` of the command message
  */
 function getDiscordCommandArgs(message_content) {
     if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
-    return message_content.split(/\s/g).filter(item => item !== '').slice(1);
+    return message_content
+        .split(/\s/g)
+        .filter((item) => item !== '')
+        .slice(1);
 }
 
 /**
@@ -47,29 +53,34 @@ class DisBotCommand {
         description: '',
         aliases: [],
         access_level: DisBotCommand.access_levels.GLOBAL_USER,
-        executor(Discord, client, message, opts={}) {},
+        executor(Discord, client, message, opts = {}) {},
     };
     /**
      * The arguments are an object to allow for easy future expansion
      * @param {Object} cmd an object that must be composed from the properties of this.#cmd_template.
      */
-    constructor(cmd={}) {
+    constructor(cmd = {}) {
         const _cmd = {
             ...this.#cmd_template,
             ...cmd,
         };
 
         /* type checks and basic validation checks */
-        if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new TypeError('`name` must be a valid string!');
-        if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new TypeError('`category` must be a valid string!');
+        if (typeof _cmd.name !== 'string' || _cmd.name.length < 1)
+            throw new TypeError('`name` must be a valid string!');
+        if (typeof _cmd.category !== 'string' || _cmd.category.length < 1)
+            throw new TypeError('`category` must be a valid string!');
         if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new TypeError('`weight` must be a valid number above `0`!');
-        if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new TypeError('`description` must be a valid string!');
-        if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new TypeError('`aliases` must be a valid array!');
+        if (typeof _cmd.description !== 'string' || _cmd.description.length < 1)
+            throw new TypeError('`description` must be a valid string!');
+        if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1)
+            throw new TypeError('`aliases` must be a valid array!');
         if (isNaN(_cmd.access_level)) throw new TypeError('`access_level` must be a valid number!');
         if (typeof _cmd.executor !== 'function') throw new TypeError('`executor` must be a valid function!');
 
         /* advanced validation checks */
-        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new TypeError('`access_level` must be from DisBotCommand.access_levels!');
+        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level))
+            throw new TypeError('`access_level` must be from DisBotCommand.access_levels!');
 
         this.name = _cmd.name;
         this.category = _cmd.category;
@@ -81,13 +92,13 @@ class DisBotCommand {
     }
     /**
      * Executes the command executor
-     * @param {Discord} Discord 
-     * @param {Client} client 
-     * @param {Message} message 
-     * @param {Object} opts 
+     * @param {Discord} Discord
+     * @param {Client} client
+     * @param {Message} message
+     * @param {Object} opts
      * @returns {unknown} whatever is returned from the executed command
      */
-    async execute(Discord, client, message, opts={}) {
+    async execute(Discord, client, message, opts = {}) {
         if (!Discord) throw new Error('`Discord` must be passed to command.execute()!');
         if (!client) throw new Error('`client` must be passed to command.execute()!');
         if (!message) throw new Error('`message` must be passed to command.execute()!');
@@ -124,7 +135,7 @@ class DisBotCommander {
 
     /**
      * Registers a command to the DisBotCommander.commands
-     * @param {DisBotCommand} command 
+     * @param {DisBotCommand} command
      */
     static registerCommand(command) {
         if (command instanceof DisBotCommand) {
@@ -140,10 +151,14 @@ class DisBotCommander {
  * looking for all `.js` files in the `./src/commands/` directory.
  */
 function registerDisBotCommands() {
-    console.info('----------------------------------------------------------------------------------------------------------------');
+    console.info(
+        '----------------------------------------------------------------------------------------------------------------',
+    );
     try {
         const command_files_directory_path = path.join(process.cwd(), './src/commands/');
-        const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
+        const command_files = recursiveReadDirectory(command_files_directory_path).filter((file) =>
+            file.endsWith('.js'),
+        );
         for (const command_file of command_files) {
             console.info(`Registering Command: ${command_file}`);
             const command_file_path = path.join(process.cwd(), './src/commands/', command_file);
@@ -154,7 +169,9 @@ function registerDisBotCommands() {
     } catch (error) {
         console.trace(`An error occurred while registering the commands:`, error);
     }
-    console.info('----------------------------------------------------------------------------------------------------------------');
+    console.info(
+        '----------------------------------------------------------------------------------------------------------------',
+    );
 }
 
 module.exports = {

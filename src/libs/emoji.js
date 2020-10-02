@@ -15,13 +15,13 @@ const zero_to_nine_as_words = ['zero', 'one', 'two', 'three', 'four', 'five', 's
 
 /**
  * Searches for an emoji located in the Bot's Emoji Server
- * @param {String} custom_emoji_name 
+ * @param {String} custom_emoji_name
  * @returns {GuildEmoji|undefined} the guild emoji or unicode emoji
  */
 function findCustomEmoji(custom_emoji_name) {
     if (typeof custom_emoji_name !== 'string') throw new TypeError('`custom_emoji_name` must be a string!');
     const bot_custom_emojis = client.guilds.resolve(emoji_guild_id).emojis.cache;
-    const bot_emoji = bot_custom_emojis.find(emoji => emoji.name === custom_emoji_name);
+    const bot_emoji = bot_custom_emojis.find((emoji) => emoji.name === custom_emoji_name);
     return bot_emoji ?? undefined;
 }
 
@@ -33,7 +33,9 @@ function findCustomEmoji(custom_emoji_name) {
 function constructNumberUsingEmoji(num) {
     if (isNaN(num) && typeof num !== 'string') throw new TypeError('`num` must be a number or a string!');
     const num_as_digits = `${num}`.split('');
-    const array_of_emojis = num_as_digits.map((value) => findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[parseInt(value)]}`));
+    const array_of_emojis = num_as_digits.map((value) =>
+        findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[parseInt(value)]}`),
+    );
     const constructed_emojis_from_number = array_of_emojis.join('');
     return constructed_emojis_from_number;
 }

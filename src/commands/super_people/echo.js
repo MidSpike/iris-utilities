@@ -7,12 +7,12 @@ const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'ECHO',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
-    description:'echo',
-    aliases:['echo'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
-    async executor(Discord, client, message, opts={}) {
+    name: 'ECHO',
+    category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
+    description: 'echo',
+    aliases: ['echo'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
+    async executor(Discord, client, message, opts = {}) {
         const { discord_command } = opts;
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'echo')) {
             sendNotAllowedCommand(message);

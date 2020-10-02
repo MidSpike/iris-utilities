@@ -14,12 +14,12 @@ const { createConnection } = require('../../libs/createConnection.js');
 const bot_api_url = process.env.BOT_API_SERVER_URL;
 
 module.exports = new DisBotCommand({
-    name:'TTS_ARGUMENT',
-    category:`${DisBotCommander.categories.HIDDEN}`,
-    description:'TTS argument',
-    aliases:['tts_argument'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
-    async executor(Discord, client, message, opts={}) {
+    name: 'TTS_ARGUMENT',
+    category: `${DisBotCommander.categories.HIDDEN}`,
+    description: 'TTS argument',
+    aliases: ['tts_argument'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
+    async executor(Discord, client, message, opts = {}) {
         const used_insults = [];
         let insult_count = 1;
         async function tts_insult() {
@@ -32,7 +32,7 @@ module.exports = new DisBotCommand({
             do {
                 insult = (await axios.get(`https://evilinsult.com/generate_insult.php?lang=en&type=json`))?.data;
                 await Timer(500);
-            } while (used_insults.includes(insult.number))
+            } while (used_insults.includes(insult.number));
 
             used_insults.push(insult.number);
 
@@ -42,26 +42,41 @@ module.exports = new DisBotCommand({
             const tts_voice = tts_person ? 'en-GB_KateV3Voice' : 'en-US_HenryV3Voice';
             const tts_text = `${insult.insult}`;
 
-            const tts_url = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(tts_provider)}&lang=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}`;
+            const tts_url = `${bot_api_url}/speech?token=${encodeURIComponent(
+                process.env.BOT_API_SERVER_TOKEN,
+            )}&type=${encodeURIComponent(tts_provider)}&lang=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(
+                tts_text,
+            )}`;
 
             const voice_connection = await createConnection(message.member.voice.channel, false);
 
             const stream_maker = () => tts_url;
-            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
-                if (!message.guild.me.voice?.channel) return;
-                insult_count++;
-                tts_insult();
-            });
+            const player = new QueueItemPlayer(
+                guild_queue_manager,
+                voice_connection,
+                stream_maker,
+                10.0,
+                undefined,
+                () => {
+                    if (!message.guild.me.voice?.channel) return;
+                    insult_count++;
+                    tts_insult();
+                },
+            );
 
-            await guild_queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
-                text: `${tts_text}`,
-                provider: `${tts_provider}`,
-                voice: `${tts_voice}`
-            }));
+            await guild_queue_manager.addItem(
+                new QueueItem('tts', player, `TTS Message`, {
+                    text: `${tts_text}`,
+                    provider: `${tts_provider}`,
+                    voice: `${tts_voice}`,
+                }),
+            );
 
-            message.channel.send(new CustomRichEmbed({
-                title:'Added TTS Insult To The Queue!'
-            }));
+            message.channel.send(
+                new CustomRichEmbed({
+                    title: 'Added TTS Insult To The Queue!',
+                }),
+            );
         }
         tts_insult();
     },

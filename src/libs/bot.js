@@ -8,11 +8,7 @@ const { GuildConfigsManager } = require('./GuildConfig.js');
 
 const client = new Discord.Client({
     disableMentions: 'everyone',
-    partials: [
-        'MESSAGE',
-        'CHANNEL',
-        'REACTION',
-    ],
+    partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
     presence: {
         status: 'online',
         type: 4,

@@ -14,7 +14,14 @@ const { client } = require('./bot.js');
  * @param {Function} error_callback this callback will fire when an error with the stream has occurred
  * @returns {Dispatcher} the `guild_dispatcher` attached to the stream
  */
-function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(voice_connection, dispatcher)=>{}, end_callback=(voice_connection, dispatcher)=>{}, error_callback=(error)=>{}) {
+function playStream(
+    voice_connection,
+    stream,
+    volume_ratio = 1.0,
+    start_callback = (voice_connection, dispatcher) => {},
+    end_callback = (voice_connection, dispatcher) => {},
+    error_callback = (error) => {},
+) {
     if (!voice_connection) throw new Error(`expected a 'voice_connection'`);
     if (!stream) throw new Error(`expected a 'stream'`);
 
@@ -32,7 +39,7 @@ function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(
     const guild_dispatcher = voice_connection.play(stream, {
         type: 'unknown',
         seek: 0,
-        volume: (magic_volume_constant * volume_ratio),
+        volume: magic_volume_constant * volume_ratio,
         highWaterMark: 1, // set to `1` for quick volume adjustments
         fec: true,
     });
@@ -53,9 +60,13 @@ function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(
     });
 
     guild_dispatcher.on('debug', (debug) => {
-        console.log(`----------------------------------------------------------------------------------------------------------------`);
+        console.log(
+            `----------------------------------------------------------------------------------------------------------------`,
+        );
         console.log(debug);
-        console.log(`----------------------------------------------------------------------------------------------------------------`);
+        console.log(
+            `----------------------------------------------------------------------------------------------------------------`,
+        );
     });
 
     return guild_dispatcher;

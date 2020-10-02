@@ -12,12 +12,12 @@ const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'RELOAD',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
-    description:'reloads commands',
-    aliases:['reload'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
-    async executor(Discord, client, message, opts={}) {
+    name: 'RELOAD',
+    category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
+    description: 'reloads commands',
+    aliases: ['reload'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
+    async executor(Discord, client, message, opts = {}) {
         const { command_prefix, command_args } = opts;
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'reload')) {
             sendNotAllowedCommand(message);
@@ -25,18 +25,24 @@ module.exports = new DisBotCommand({
         }
 
         const specified_command_input = `${command_args[0]}`.toLowerCase();
-        const specified_command_input_with_prefix = specified_command_input.startsWith(command_prefix) ? specified_command_input : `${command_prefix}${specified_command_input}`;
-        const command_to_reload = DisBotCommander.commands.find(cmd => 
-            cmd.aliases.map(cmd => 
-                `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
-            ).includes(specified_command_input_with_prefix)
+        const specified_command_input_with_prefix = specified_command_input.startsWith(command_prefix)
+            ? specified_command_input
+            : `${command_prefix}${specified_command_input}`;
+        const command_to_reload = DisBotCommander.commands.find((cmd) =>
+            cmd.aliases
+                .map((cmd) => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`)
+                .includes(specified_command_input_with_prefix),
         );
 
         if (command_to_reload) {
             const command_files_directory_path = path.join(process.cwd(), './src/commands/');
-            const command_files = recursiveReadDirectory(command_files_directory_path).filter(file => file.endsWith('.js'));
+            const command_files = recursiveReadDirectory(command_files_directory_path).filter((file) =>
+                file.endsWith('.js'),
+            );
 
-            const command_file_to_reload = command_files.find(cmd_file_path => path.parse(cmd_file_path).base === `${command_to_reload.name.toLowerCase()}.js`);
+            const command_file_to_reload = command_files.find(
+                (cmd_file_path) => path.parse(cmd_file_path).base === `${command_to_reload.name.toLowerCase()}.js`,
+            );
 
             const command_file_path_to_reload = path.join(process.cwd(), `./src/commands/`, command_file_to_reload);
 

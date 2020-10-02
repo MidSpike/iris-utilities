@@ -10,7 +10,7 @@ const { Timer } = require('../utilities.js');
  * @param {Boolean} force_new whether or not to disconnect the bot from the voice channel before making the new connection
  * @returns {Promise<VoiceConnection|undefined>} a Promise containing a Discord.VoiceConnection
  */
-async function createConnection(voice_channel, force_new=false) {
+async function createConnection(voice_channel, force_new = false) {
     if (!voice_channel) throw new Error(`voice_channel is not defined!`);
 
     let voice_connection;

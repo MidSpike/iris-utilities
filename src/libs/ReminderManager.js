@@ -11,8 +11,8 @@ const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 
 /**
  * Constructs a new reminder to use with the ReminderManager
- * @param {String} user_id 
- * @param {Date} date_time 
+ * @param {String} user_id
+ * @param {Date} date_time
  * @param {String} message the contents of the reminder
  * @returns {Reminder} a new Reminder
  */
@@ -35,17 +35,19 @@ class ReminderManager {
     static add(reminder) {
         this.#reminders = {
             ...this.reminders,
-            [reminder.id]: reminder
+            [reminder.id]: reminder,
         };
 
         Scheduler.scheduleJob(reminder.date_time, async () => {
             const user_to_dm = client.users.cache.get(reminder.user_id);
             if (!user_to_dm) return;
             const dmChannel = await user_to_dm.createDM();
-            dmChannel.send(new CustomRichEmbed({
-                title: 'Here is your reminder!',
-                description: `${reminder.message}`
-            }));
+            dmChannel.send(
+                new CustomRichEmbed({
+                    title: 'Here is your reminder!',
+                    description: `${reminder.message}`,
+                }),
+            );
             this.remove(reminder);
         });
 

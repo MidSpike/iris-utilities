@@ -12,10 +12,12 @@ const { client } = require('./bot.js');
  * for all `.js` files in the `./src/events/` directory.
  */
 function registerDisBotEvents() {
-    console.info('----------------------------------------------------------------------------------------------------------------');
+    console.info(
+        '----------------------------------------------------------------------------------------------------------------',
+    );
     try {
         const event_files_directory_path = path.join(process.cwd(), './src/events/');
-        const event_files = recursiveReadDirectory(event_files_directory_path).filter(file => file.endsWith('.js'));
+        const event_files = recursiveReadDirectory(event_files_directory_path).filter((file) => file.endsWith('.js'));
         for (const event_file of event_files) {
             console.info(`Registering Event: ${event_file}`);
             const event_file_path = path.join(process.cwd(), './src/events/', event_file);
@@ -27,7 +29,9 @@ function registerDisBotEvents() {
     } catch (error) {
         console.trace(`An error occurred while registering the events:`, error);
     }
-    console.info('----------------------------------------------------------------------------------------------------------------');
+    console.info(
+        '----------------------------------------------------------------------------------------------------------------',
+    );
 }
 
 module.exports = {

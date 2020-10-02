@@ -9,8 +9,8 @@ const { object_sort } = require('../utilities.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * @typedef {String} GuildId 
- * @typedef {Object} GuildConfig 
+ * @typedef {String} GuildId
+ * @typedef {Object} GuildConfig
  */
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -24,7 +24,8 @@ class GuildConfigsManager {
     #configs_in_memory;
 
     constructor(configs_file_relative_path) {
-        if (typeof configs_file_relative_path !== 'string') throw new TypeError('\`configs_file_relative_path\` must be a string!');
+        if (typeof configs_file_relative_path !== 'string')
+            throw new TypeError('`configs_file_relative_path` must be a string!');
 
         /* set `this.#configs_file` to the absolute file path */
         this.#configs_file = path.join(process.cwd(), configs_file_relative_path);
@@ -51,7 +52,7 @@ class GuildConfigsManager {
 
     /**
      * Retrieves the config of the specified guild
-     * @param {GuildId} guild_id 
+     * @param {GuildId} guild_id
      * @returns {GuildConfig} a key:value guild config in the form of an object literal
      */
     async fetchConfig(guild_id) {
@@ -60,27 +61,30 @@ class GuildConfigsManager {
 
     /**
      * Updates the config of the specified guild
-     * @param {GuildId} guild_id 
+     * @param {GuildId} guild_id
      * @param {GuildConfig} new_config_data a key:value guild config in the form of an object literal
      * @param {Boolean} keep_old_config_data keep existing config entries or start from scratch
      * @returns {GuildConfigsManager} this GuildConfigsManager
      */
-    async updateConfig(guild_id, new_config_data={}, keep_old_config_data=true) {
+    async updateConfig(guild_id, new_config_data = {}, keep_old_config_data = true) {
         const old_config_data = await this.fetchConfig(guild_id);
-        this.#configs_in_memory.set(guild_id, object_sort({
-            ...(keep_old_config_data ? old_config_data : {}),
-            ...new_config_data,
-        }));
+        this.#configs_in_memory.set(
+            guild_id,
+            object_sort({
+                ...(keep_old_config_data ? old_config_data : {}),
+                ...new_config_data,
+            }),
+        );
         return this;
     }
 
     /**
      * Removes the config of the specified guild
-     * @param {GuildId} guild_id 
+     * @param {GuildId} guild_id
      * @returns {GuildConfigsManager} this GuildConfigsManager
      */
     async removeConfig(guild_id) {
-        this.#configs_in_memory.delete(guild_id)
+        this.#configs_in_memory.delete(guild_id);
         return this;
     }
 

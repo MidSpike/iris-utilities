@@ -6,12 +6,12 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'SET_VOLUME_MAXIMUM',
-    category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
-    description:'sets volume maximum',
-    aliases:['set_volume_maximum'],
-    access_level:DisBotCommand.access_levels.GUILD_ADMIN,
-    async executor(Discord, client, message, opts={}) {
+    name: 'SET_VOLUME_MAXIMUM',
+    category: `${DisBotCommander.categories.GUILD_SETTINGS}`,
+    description: 'sets volume maximum',
+    aliases: ['set_volume_maximum'],
+    access_level: DisBotCommand.access_levels.GUILD_ADMIN,
+    async executor(Discord, client, message, opts = {}) {
         const { discord_command, command_args } = opts;
 
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
@@ -25,17 +25,24 @@ module.exports = new DisBotCommand({
                 message.channel.send(`Please provide a number greater than or equal to \`100\` next time!`);
                 return;
             }
-            message.channel.send(new CustomRichEmbed({
-                title:`Setting New Maximum Volume`,
-                description:`Old Server Maximum Volume: ${'```'}\n${old_volume_maximum}\n${'```'}\nNew Server Maximum Volume: ${'```'}\n${new_volume_maximum}\n${'```'}`
-            }, message));
+            message.channel.send(
+                new CustomRichEmbed(
+                    {
+                        title: `Setting New Maximum Volume`,
+                        description: `Old Server Maximum Volume: ${'```'}\n${old_volume_maximum}\n${'```'}\nNew Server Maximum Volume: ${'```'}\n${new_volume_maximum}\n${'```'}`,
+                    },
+                    message,
+                ),
+            );
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
-                volume_maximum:new_volume_maximum
+                volume_maximum: new_volume_maximum,
             });
             guild_volume_manager.setVolume(guild_volume_manager.last_volume);
         } else {
             message.channel.send(`Please provide a number after the command next time!`);
-            message.channel.send(`Examples:${'```'}\n${discord_command} 100\n${'```'}${'```'}\n${discord_command} 250\n${'```'}${'```'}\n${discord_command} 500\n${'```'}`);
+            message.channel.send(
+                `Examples:${'```'}\n${discord_command} 100\n${'```'}${'```'}\n${discord_command} 250\n${'```'}${'```'}\n${discord_command} 500\n${'```'}`,
+            );
         }
     },
 });

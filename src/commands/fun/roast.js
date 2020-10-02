@@ -10,16 +10,22 @@ const roasts_json = require('../../../files/roasts.json');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'ROAST',
-    category:`${DisBotCommander.categories.FUN}`,
-    description:'Roast people',
-    aliases:['roast'],
-    async executor(Discord, client, message, opts={}) {
+    name: 'ROAST',
+    category: `${DisBotCommander.categories.FUN}`,
+    description: 'Roast people',
+    aliases: ['roast'],
+    async executor(Discord, client, message, opts = {}) {
         if (!message.channel.nsfw) {
-            message.channel.send(new CustomRichEmbed({
-                title:'This command requires an NSFW channel!',
-                description:'Discord Bot List / Top.gg requires that this command can only be executed in a NSFW channel!'
-            }, message));
+            message.channel.send(
+                new CustomRichEmbed(
+                    {
+                        title: 'This command requires an NSFW channel!',
+                        description:
+                            'Discord Bot List / Top.gg requires that this command can only be executed in a NSFW channel!',
+                    },
+                    message,
+                ),
+            );
             return;
         }
         const roaster = message.author;

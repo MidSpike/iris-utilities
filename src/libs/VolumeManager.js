@@ -6,8 +6,8 @@ const { math_clamp } = require('../utilities.js');
 
 /**
  * Creates an interface for controlling and interacting with the Volume of a Guild Audio Dispatcher
- * @param {Guild} guild 
- * @returns {VolumeManager} 
+ * @param {Guild} guild
+ * @returns {VolumeManager}
  */
 class VolumeManager {
     #guild;
@@ -55,12 +55,12 @@ class VolumeManager {
         });
     }
 
-    async decreaseVolume(decrease_amount=10, clamp_volume=true) {
+    async decreaseVolume(decrease_amount = 10, clamp_volume = true) {
         await this.setVolume(this.volume - decrease_amount, undefined, clamp_volume);
         return [this, decrease_amount];
     }
 
-    async increaseVolume(increase_amount=10, clamp_volume=true) {
+    async increaseVolume(increase_amount = 10, clamp_volume = true) {
         await this.setVolume(this.volume + increase_amount, undefined, clamp_volume);
         return [this, increase_amount];
     }
@@ -70,20 +70,20 @@ class VolumeManager {
      * @param {Number} volume_input the volume being passed
      * @param {Boolean} update_last_volume changed the recorded last volume set
      * @param {Boolean} clamp_volume keep the volume within the guild's preferred maximum volume
-     * @returns {VolumeManager} 
+     * @returns {VolumeManager}
      */
-    async setVolume(volume_input=this.#fallback_volume, update_last_volume=true, clamp_volume=true) {
+    async setVolume(volume_input = this.#fallback_volume, update_last_volume = true, clamp_volume = true) {
         if (this.guild.voice?.connection?.dispatcher?.setVolume) {
             this.#last_volume = update_last_volume ? this.volume : this.last_volume;
 
-            this.#volume = math_clamp(volume_input, 0, clamp_volume ? (await this.maximum) : Number.MAX_SAFE_INTEGER);
+            this.#volume = math_clamp(volume_input, 0, clamp_volume ? await this.maximum : Number.MAX_SAFE_INTEGER);
 
             this.guild.voice.connection.dispatcher.setVolume((await this.multiplier) * this.volume);
         }
         return this;
     }
 
-    async toggleMute(override=undefined) {
+    async toggleMute(override = undefined) {
         this.#muted = override ?? !this.muted;
         await this.setVolume(this.muted ? 0 : this.last_volume, false);
         return this;
