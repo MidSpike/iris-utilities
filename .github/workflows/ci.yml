@@ -1,5 +1,7 @@
 name: I.R.I.S Utilities CI
 
+on: [push, pull_request]
+
 jobs:
   prettier:
     name: Prettier
