@@ -5,7 +5,9 @@ require('manakin').global; // colors for Console.*
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const os = require('os'); os.setPriority(0, os.constants.priority.PRIORITY_HIGH);
+const os = require('os');
+os.setPriority(0, os.constants.priority.PRIORITY_HIGH);
+
 const fs = require('fs');
 
 const moment = require('moment-timezone');
