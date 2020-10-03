@@ -339,16 +339,6 @@ client.on('guildCreate', async (guild) => {
         await channel_to_send_initial_message?.send(new_guild_information_embed);
     } catch {
         console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the guild!`);
-        try {
-            const guild_owner_dms = await guild.owner.createDM();
-            await guild_owner_dms.send([
-                `Hi there ${guild.owner.user.username}!`,
-                `I was unable to send the following message in your server: **${guild.name}**.`,
-            ].join('\n'));
-            await guild_owner_dms.send(new_guild_information_embed);
-        } catch {
-            console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the owner!`);
-        }
     }
 });
 
