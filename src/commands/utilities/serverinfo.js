@@ -23,7 +23,7 @@ module.exports = new DisBotCommand({
                 {name:'Discord Id', value:`${guild.id}`},
                 {name:'Name', value:`${guild.name}`},
                 {name:'Region', value:`${guild.region}`},
-                {name:'Owner', value:`<@!${guild.owner.id}>`},
+                {name:'Owner', value:`<@!${guild.owner?.id}>`},
                 {name:'Bots', value:`${guild.members.cache.filter(m => m.user.bot).size}`},
                 {name:'Members', value:`${guild.members.cache.filter(m => !m.user.bot).size}`},
                 {name:'Member Verification Level', value:`${guild.verificationLevel}`},
