@@ -550,14 +550,13 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (user.bot) return; // don't log bots
     if (!reaction.message.guild) return; // don't continue with direct message reactions
 
-    const member = reaction.message.guild.members.cache.get(user.id);
     const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel.name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color: 0x00FF00,
         author: {
-            iconURL: member.user.displayAvatarURL({ dynamic: true }),
-            name: `@${member.user.tag} (${member.user.id})`,
+            iconURL: user.displayAvatarURL({ dynamic: true }),
+            name: `@${user.tag} (${user.id})`,
         },
         title: 'Added A Message Reaction',
         description: [
@@ -585,14 +584,13 @@ client.on('messageReactionRemove', async (reaction, user) => {
     if (user.bot) return; // don't log bots
     if (!reaction.message.guild) return; // don't continue with direct message reactions
 
-    const member = reaction.message.guild.members.cache.get(user.id);
     const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel.name);
     if (!logging_channel) return;
     logging_channel.send(new CustomRichEmbed({
         color: 0xFFFF00,
         author: {
-            iconURL: member.user.displayAvatarURL({ dynamic: true }),
-            name: `@${member.user.tag} (${member.user.id})`,
+            iconURL: user.displayAvatarURL({ dynamic: true }),
+            name: `@${user.tag} (${user.id})`,
         },
         title: 'Removed A Message Reaction',
         description: [
