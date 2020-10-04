@@ -884,7 +884,7 @@ client.on('message', async (message) => {
     const guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
     if (guild_lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
-    /* register the guild config manipulator and guild config */
+    /* register the guild config */
     const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
     /* register the guild command prefix */
