@@ -48,12 +48,21 @@ module.exports = new DisBotCommand({
         }
 
         console.info(`----------------------------------------------------------------------------------------------------------------`);
-        const code_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
+        const eval_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         try {
-            console.info(`Running Code:\n`, code_input);
+            let code_to_run = eval_input;
+            console.info(`Running Code:\n`, code_to_run);
 
-            // const code_with_return = code_input.trim().replace(/((?:.*)(?!\n)(?:.))$/g, `return $1`); // insert 'return' at the beginning of the last line
-            const code_to_run = code_input.trim().replace(/\r?\n|\r/g, ``).trim(); // removes line-breaks and trims
+            if (!code_to_run.match(/\r?\n|\r/g)) { // there is more than one line of code
+                code_to_run = `return ${code_to_run.replace('return', '')}`; // insert 'return' at the beginning of the line
+            }
+
+            code_to_run = code_to_run.replace(/\r?\n|\r/g, ``).trim(); // removes line-breaks and trims
+
+            // code_to_run = code_to_run.replace(/((?:.*)(?!\n)(?:.))$/g, `return $1`); // insert 'return' at the beginning of the last line
+
+            const code_has_return_statement = code_to_run.match(/(return)/g);
+
             const eval_output = await eval(`(async function() {${code_to_run}})();`);
 
             console.info(`Output:\n`, eval_output);
@@ -68,10 +77,22 @@ module.exports = new DisBotCommand({
                     fields: [
                         {
                             name: 'Input',
-                            value: `${'```'}\n${discord_command}\n${code_input}\n${'```'}`
+                            value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`
                         }, {
                             name: 'Output',
-                            value: `${'```'}\n${eval_output_string.length < 1024 ? eval_output_string : `\`Check the console for output!\``}\n${'```'}`
+                            value: [
+                                `${'```'}`,
+                                !code_has_return_statement ? (
+                                    'No return statement was specified!'
+                                ) : (
+                                    eval_output_string.length < 1024 ? (
+                                        eval_output_string
+                                    ) : (
+                                        `\`Check the console for output!\``
+                                    )
+                                ),
+                                `${'```'}`,
+                            ].join('\n'),
                         },
                     ],
                 }));
@@ -84,7 +105,7 @@ module.exports = new DisBotCommand({
                 fields: [
                     {
                         name: 'Input',
-                        value: `${'```'}\n${discord_command}\n${code_input}\n${'```'}`
+                        value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`
                     }, {
                         name: 'Error',
                         value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`
