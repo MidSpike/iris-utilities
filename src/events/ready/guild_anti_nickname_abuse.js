@@ -22,6 +22,7 @@ async function stopDisplayNameAbusers() {
             if (guild.ownerID === member.id) continue; // this feature wont work on a guild owner
 
             const is_suspicious_display_name = member.displayName.startsWith('!');
+
             if (!is_suspicious_display_name) continue; // the user has a 'normal' displayName
 
             await member.setNickname('Invalid DisplayName', 'A suspicious display name was detected and was changed!').catch(console.warn);
