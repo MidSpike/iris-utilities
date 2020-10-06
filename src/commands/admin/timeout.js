@@ -1,6 +1,8 @@
 'use strict';
 
 //#region local dependencies
+const { Timer } = require('../../utilities.js');
+
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { logAdminCommandsToGuild } = require('../../libs/messages.js');
@@ -19,6 +21,22 @@ module.exports = new DisBotCommand({
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
         if (!botHasPermissionsInGuild(message, ['MANAGE_MESSAGES'])) return;
+
+        await message.channel.send({
+            content: `${message.author}`,
+            embed: new CustomRichEmbed({
+                color: 0xFF00FF,
+                title: 'Notice of future command removal',
+                description: [
+                    'The \`timeout\` command will be replaced in the near future by the \`jail\` and \`unjail\` commands.',
+                    `If you want BETA access to the \`jail\` and \`unjail\` commands, simply contact my Support Staff.`,
+                    `You can contact my Support Staff by direct messaging me.`
+                ].join('\n\n'),
+            }),
+        });
+
+        await Timer(5000); // let the user see the message above first
+
         if (command_args[0] === 'list') {
             const users_in_timeout = guild_config.users_in_timeout || [];
             const members_in_timeout = users_in_timeout.map(user_id => client.users.resolve(user_id).tag);
