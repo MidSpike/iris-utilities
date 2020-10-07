@@ -83,7 +83,7 @@ router.get('/ytinfo', async (req, res) => {
 
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(yt_info.videoDetails.author.name, '');
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/((official (video|audio|music|lyrics|lyric)(\s(video|audio|music))*)|(lyrics|lyric))/gi, '');
-                yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/[\/\-\_\\]/g, '');
+                yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/[\/\-\_\\]/g, ' '); // replace these with a space
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/\s+/g, ` `); // replaces many spaces with one space
                 yt_info.videoDetails.title = yt_info.videoDetails.title.trim();
             } catch (error) {
