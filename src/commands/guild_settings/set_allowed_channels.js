@@ -12,6 +12,7 @@ const bot_backup_commands_channel_name = bot_config.SPECIAL_CHANNELS.find(ch => 
 module.exports = new DisBotCommand({
     name:'SET_ALLOWED_CHANNELS',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:3,
     description:'sets allowed channels',
     aliases:['set_allowed_channels'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

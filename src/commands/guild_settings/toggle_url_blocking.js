@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'TOGGLE_URL_BLOCKING',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:16,
     description:'toggles url blocking',
     aliases:['toggle_url_blocking'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

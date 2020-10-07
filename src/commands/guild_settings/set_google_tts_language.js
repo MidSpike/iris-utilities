@@ -9,6 +9,7 @@ const google_languages_json = require('../../../files/google_languages.json');
 module.exports = new DisBotCommand({
     name:'SET_GOOGLE_TTS_LANGUAGE',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:8,
     description:'sets google tts language',
     aliases:['set_google_tts_language'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

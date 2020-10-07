@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'SET_VOLUME_MULTIPLIER',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:11,
     description:'sets volume multiplier',
     aliases:['set_volume_multiplier'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'SET_TTS_PROVIDER',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:7,
     description:'sets tts provider',
     aliases:['set_tts_provider'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

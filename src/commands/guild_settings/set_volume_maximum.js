@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'SET_VOLUME_MAXIMUM',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:10,
     description:'sets volume maximum',
     aliases:['set_volume_maximum'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

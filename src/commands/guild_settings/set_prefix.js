@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'SET_PREFIX',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:2,
     description:'sets prefix',
     aliases:['set_prefix'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
