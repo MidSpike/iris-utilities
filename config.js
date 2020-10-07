@@ -144,7 +144,7 @@ const DEFAULT_GUILD_CONFIG = {
     volume_multiplier: 1,
     volume_maximum: 200,
     tts_provider: 'ibm',
-    tts_voice_ibm: 'en-US_EmilyV3Voice',
+    tts_voice_ibm: 'en-GB_KateV3Voice',
     tts_voice_google: 'en-us',
 };
 
