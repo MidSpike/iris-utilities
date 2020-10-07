@@ -3,13 +3,14 @@
 //#region local dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
     name:'ALL_COMMANDS',
     category:`${DisBotCommander.categories.HELP}`,
     weight:2,
-    description:'Displays a list of all commands',
+    description:'displays all of the commands at once',
     aliases:['all_commands'],
     access_level:DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
@@ -28,10 +29,10 @@ module.exports = new DisBotCommand({
         const formatted_command_categories = command_categories.map(category_name => {
             const commands_in_category = DisBotCommander.commands.filter(command => command.category === category_name);
 
-            /**
-             * Example Output: [`% | %play | %p | %playnext | %pn`, `%search`]
-             */
-            const formatted_commands = commands_in_category.map(command => 
+            const sorted_commands_in_category = commands_in_category.sort((a, b) => a.weight - b.weight);
+
+            /* Example Output: [`% | %play | %p | %playnext | %pn`, `%search`] */
+            const formatted_commands = sorted_commands_in_category.map(command => 
                 command.aliases.map(command_alias => 
                     `${command_prefix}${command_alias.replace('#{cp}', `${command_prefix}`)}`
                 ).join(' | ')
@@ -43,8 +44,8 @@ module.exports = new DisBotCommand({
             };
         });
 
-        const all_commands_fields = formatted_command_categories.map(formatted_command_category => ({
-            name: `${formatted_command_category.category_name}`,
+        const all_commands_fields = formatted_command_categories.map((formatted_command_category, index) => ({
+            name: `${constructNumberUsingEmoji(index+1)} — ${formatted_command_category.category_name}`,
             value: `${'```'}\n${formatted_command_category.formatted_commands.join('\n')}\n${'```'}`,
         }));
 

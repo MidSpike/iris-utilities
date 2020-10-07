@@ -15,7 +15,7 @@ module.exports = new DisBotCommand({
     name:'HELP',
     category:`${DisBotCommander.categories.HELP}`,
     weight:1,
-    description:'Displays a list of commands page by page',
+    description:'displays a list of paginated commands',
     aliases:['help'],
     access_level:DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
@@ -36,9 +36,7 @@ module.exports = new DisBotCommand({
 
             const sorted_commands_in_category = commands_in_category.sort((a, b) => a.weight - b.weight);
 
-            /**
-             * Example Output: [`% | %play | %p | %playnext | %pn`, `%search`]
-             */
+            /* Example Output: [`% | %play | %p | %playnext | %pn`, `%search`] */
             const formatted_commands = sorted_commands_in_category.map(command => 
                 command.aliases.map(command_alias => 
                     `${command_prefix}${command_alias.replace('#{cp}', `${command_prefix}`)}`
