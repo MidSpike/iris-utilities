@@ -23,6 +23,7 @@ const bot_special_text_channels_names = bot_special_text_channels.map(special_ch
 module.exports = new DisBotCommand({
     name:'CREATE_SPECIAL_CHANNELS',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:1,
     description:'Creates special channels',
     aliases:['create_special_channels'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

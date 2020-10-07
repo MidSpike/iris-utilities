@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'TOGGLE_INVITE_BLOCKING',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:17,
     description:'toggles invite blocking',
     aliases:['toggle_invite_blocking'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

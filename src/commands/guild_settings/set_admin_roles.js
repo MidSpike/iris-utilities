@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'SET_ADMIN_ROLES',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:4,
     description:'sets admin roles',
     aliases:['set_admin_roles'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

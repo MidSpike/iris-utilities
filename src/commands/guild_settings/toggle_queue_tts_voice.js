@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'TOGGLE_QUEUE_TTS_VOICE',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:14,
     description:'toggles queue tts voice',
     aliases:['toggle_queue_tts_voice'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

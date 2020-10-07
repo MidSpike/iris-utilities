@@ -9,6 +9,7 @@ const ibm_languages_json = require('../../../files/ibm_languages.json');
 module.exports = new DisBotCommand({
     name:'SET_IBM_TTS_LANGUAGE',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:9,
     description:'sets ibm tts language',
     aliases:['set_ibm_tts_language'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

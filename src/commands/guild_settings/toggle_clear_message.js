@@ -8,6 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'TOGGLE_CLEAR_MESSAGE',
     category:`${DisBotCommander.categories.GUILD_SETTINGS}`,
+    weight:15,
     description:'toggles clear message',
     aliases:['toggle_clear_message'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
