@@ -20,6 +20,7 @@ const { Discord,
         client } = require('./src/libs/bot.js');
 
 const { Timer,
+        math_clamp,
         getReadableTime } = require('./src/utilities.js');
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -106,12 +107,12 @@ async function updateGuildConfig(guild) {
     const new_guild_config = {
         ...{ // only write this info upon first addition to the config
             '_added_on': `${moment()}`,
+            '_existence_score': 0,
         },
         ...bot_default_guild_config,
         ...old_guild_config,
         ...{ // update the following information
             '_last_seen_on': `${moment()}`,
-            '_exists': guild.available,
             '_name': guild.name,
             '_region': guild.region,
             '_features': `${guild.features}`,
@@ -245,17 +246,6 @@ client.on('ready', async () => {
         }, 1000 * 15); // 2) then cycle every 15 seconds
     }, 1000 * 60 * 5); // 1) wait for 5 minutes
 
-    /* consider guilds that the bot cannot access as non-existent */
-    const all_guild_configs = client.$.guild_configs_manager.configs;
-    for (const guild_id of all_guild_configs.keys()) {
-        const guild_exists_to_the_bot = await client.guilds.fetch(guild_id).then(() => true).catch(() => false);
-        if (guild_exists_to_the_bot) continue; // the guild exists to the bot, so continue through the list
-        console.warn(`Guild (${guild_id}) from the guild configs, is not accessible by the bot; it most likely removed the bot!`);
-        client.$.guild_configs_manager.updateConfig(guild_id, {
-            '_exists': false,
-        });
-    }
-
     /* propagate guild configs and `client.$` */
     async function propagate_guilds() {
         console.time(`propagate_guilds()`);
@@ -265,7 +255,7 @@ client.on('ready', async () => {
         }
         console.timeEnd(`propagate_guilds()`);
     }
-    client.setImmediate(propagate_guilds); // immediately after a restart
+    client.setImmediate(() => propagate_guilds()); // immediately after a restart
 
     /* update guild configs every 15 minutes to keep an updated record */
     async function update_guild_configs() {
@@ -275,7 +265,32 @@ client.on('ready', async () => {
         }
         console.timeEnd(`update_guild_configs()`);
     }
-    client.setInterval(update_guild_configs, 1000 * 60 * 15); // every 15 minutes
+    client.setInterval(() => update_guild_configs(), 1000 * 60 * 15); // every 15 minutes
+
+    /* consider guilds that the bot cannot access as non-existent */
+    async function track_guild_existences() {
+        console.time(`track_guild_existences()`);
+        const all_guild_configs = client.$.guild_configs_manager.configs;
+        for (const guild_id of all_guild_configs.keys()) {
+            const guild_exists_to_the_bot = !!client.guilds.resolve(guild_id);
+            const old_guild_existence_score = (await client.$.guild_configs_manager.fetchConfig(guild_id))._existence_score ?? 0;
+            const new_guild_existence_score = math_clamp(old_guild_existence_score + (guild_exists_to_the_bot ? 1 : -1), -100, 100);
+
+            if (new_guild_existence_score < 0) {
+                console.warn(`Guild (${guild_id}) from the guild configs, has not been accessible by the bot; it most likely removed the bot!`);
+            }
+
+            client.$.guild_configs_manager.updateConfig(guild_id, {
+                '_existence_score': new_guild_existence_score
+            });
+        }
+        console.timeEnd(`track_guild_existences()`);
+    }
+    client.setImmediate(() => track_guild_existences()); // immediately after a restart
+    client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 30 minutes
+
+    /* save the guild configs 1 minute after a restart */
+    client.setTimeout(() => client.$.guild_configs_manager.saveConfigs(), 1000 * 60 * 1);
 
     /* finish up preparing the bot */
     client.$.restarting_bot = false; // the bot can be considered done restarting
