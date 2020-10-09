@@ -61,16 +61,19 @@ class GuildConfigsManager {
     /**
      * Updates the config of the specified guild
      * @param {GuildId} guild_id 
-     * @param {GuildConfig} new_config_data a key:value guild config in the form of an object literal
+     * @param {GuildConfig} partial_config_data a key:value partial guild config in the form of an object literal
      * @param {Boolean} keep_old_config_data keep existing config entries or start from scratch
      * @returns {GuildConfigsManager} this GuildConfigsManager
      */
-    async updateConfig(guild_id, new_config_data={}, keep_old_config_data=true) {
+    async updateConfig(guild_id, partial_config_data={}, keep_old_config_data=true) {
         const old_config_data = await this.fetchConfig(guild_id);
-        this.#configs_in_memory.set(guild_id, object_sort({
+
+        const new_config_data = {
             ...(keep_old_config_data ? old_config_data : {}),
-            ...new_config_data,
-        }));
+            ...partial_config_data,
+        };
+
+        this.#configs_in_memory.set(guild_id, object_sort(new_config_data));
         return this;
     }
 
