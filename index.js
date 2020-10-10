@@ -107,7 +107,8 @@ async function updateGuildConfig(guild) {
     const new_guild_config = {
         ...{ // only write this info upon first addition to the config
             '_added_on': `${moment()}`,
-            '_existence_score': 0,
+            '_persistent_existence_count': 0, // [ -100 to 100 ]
+            '_persistent_existence_mode': 'remove', // [ remove | preserve ]
         },
         ...bot_default_guild_config,
         ...old_guild_config,
@@ -273,21 +274,22 @@ client.on('ready', async () => {
         const all_guild_configs = client.$.guild_configs_manager.configs;
         for (const guild_id of all_guild_configs.keys()) {
             const guild_exists_to_the_bot = !!client.guilds.resolve(guild_id);
-            const old_guild_existence_score = (await client.$.guild_configs_manager.fetchConfig(guild_id))._existence_score ?? 0;
-            const new_guild_existence_score = math_clamp(old_guild_existence_score + (guild_exists_to_the_bot ? 1 : -1), -100, 100);
-
-            if (new_guild_existence_score < 0) {
-                console.warn(`Guild (${guild_id}) from the guild configs, has not been accessible by the bot; it most likely removed the bot!`);
-            }
+            const guild_config = await client.$.guild_configs_manager.fetchConfig(guild_id);
+            const old_guild_persistent_existence_count = guild_config._persistent_existence_count ?? 0;
+            const new_guild_persistent_existence_count = math_clamp(old_guild_persistent_existence_count + (guild_exists_to_the_bot ? 1 : -1), -100, 100);
 
             client.$.guild_configs_manager.updateConfig(guild_id, {
-                '_existence_score': new_guild_existence_score
+                '_persistent_existence_count': new_guild_persistent_existence_count,
             });
+
+            if (new_guild_persistent_existence_count === -100 && guild_config._persistent_existence_mode === 'remove') {
+                // client.$.guild_configs_manager.removeConfig(guild_id);
+                console.warn(`Guild (${guild_id}) has been automatically removed from the guild configs!`);
+            }
         }
         console.timeEnd(`track_guild_existences()`);
     }
-    client.setImmediate(() => track_guild_existences()); // immediately after a restart
-    client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 30 minutes
+    client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 15 minutes
 
     /* save the guild configs 1 minute after a restart */
     client.setTimeout(() => client.$.guild_configs_manager.saveConfigs(), 1000 * 60 * 1);
