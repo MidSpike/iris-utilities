@@ -8,9 +8,12 @@ const { Timer } = require('../../utilities.js');
 const { createConnection } = require('../../libs/createConnection.js');
 const { playStream } = require('../../libs/playStream.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendNotAllowedCommand, sendConfirmationEmbed } = require('../../libs/messages.js');
-const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { sendNotAllowedCommand,
+        sendConfirmationEmbed } = require('../../libs/messages.js');
+const { isSuperPerson,
+        isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
 const bot_common_name = bot_config.COMMON_NAME;

@@ -6,7 +6,9 @@ const { Timer } = require('../../utilities.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { logAdminCommandsToGuild } = require('../../libs/messages.js');
-const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner } = require('../../libs/permissions.js');
+const { isThisBot,
+        isThisBotsOwner,
+        botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
