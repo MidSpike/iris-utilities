@@ -7,16 +7,20 @@ const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { logUserError } = require('../../libs/errors.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner, isSuperPerson } = require('../../libs/permissions.js');
+const { DisBotCommander,
+        DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { isThisBot,
+        isThisBotsOwner,
+        isSuperPerson,
+        botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'JAIL',
-    category:`${DisBotCommander.categories.HIDDEN}`,
-    description:'(un)jails a user in the guild',
-    aliases:['jail', 'unjail'],
-    access_level:DisBotCommand.access_levels.GUILD_ADMIN,
+    name: 'JAIL',
+    category: `${DisBotCommander.categories.HIDDEN}`,
+    description: '(un)jails a user in the guild',
+    aliases: ['jail', 'unjail'],
+    access_level: DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
@@ -127,8 +131,8 @@ module.exports = new DisBotCommand({
                                 'MOVE_MEMBERS',
                                 'MUTE_MEMBERS',
                                 'DEAFEN_MEMBERS',
-                            ]
-                        }
+                            ],
+                        },
                     ], `Updated channel permissions to jail @${member.user.tag} (${member.user.id})`);
                 } catch (error) {
                     logUserError(message, error);
@@ -153,7 +157,7 @@ module.exports = new DisBotCommand({
                         ...current_channel_permission_overwrites,
                         {
                             id: member.id,
-                        }
+                        },
                     ], `Updated channel permissions to jail @${member.user.tag} (${member.user.id})`);
                 } catch (error) {
                     logUserError(message, error);
