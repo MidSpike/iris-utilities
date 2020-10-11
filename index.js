@@ -241,8 +241,8 @@ client.on('ready', async () => {
                 type: 4,
                 activity: {
                     type: 'PLAYING',
-                    name: `${bot_presence_text}`
-                }
+                    name: `${bot_presence_text}`,
+                },
             });
         }, 1000 * 15); // 2) then cycle every 15 seconds
     }, 1000 * 60 * 5); // 1) wait for 5 minutes
@@ -825,7 +825,7 @@ client.on('message', async (message) => {
         } catch {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: 'Unable to send messages to this user!'
+                title: 'Unable to send messages to this user!',
             })).catch(console.warn);
         }
     }
@@ -1172,17 +1172,17 @@ client.on('message', async (message) => {
                     `**Your access level:** ${command_author_access_level}`,
                     `**Required access level:** ${command.access_level}`,
                     '**You must ascend in order to obtain the power that you desire!**',
-                    '*If you are a part of this server\'s staff, try telling your server\'s Administrators about the commands below!*'
+                    '*If you are a part of this server\'s staff, try telling your server\'s Administrators about the commands below!*',
                 ].join('\n'),
                 fields: [
                     {
                         name: 'Setting Up Moderator Roles',
-                        value: `${'```'}\n${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\n${'```'}`
+                        value: `${'```'}\n${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\n${'```'}`,
                     }, {
                         name: 'Setting Up Admin Roles',
-                        value: `${'```'}\n${command_prefix}set_admin_roles @role1 @role2 @role3 ...\n${'```'}`
-                    }
-                ]
+                        value: `${'```'}\n${command_prefix}set_admin_roles @role1 @role2 @role3 ...\n${'```'}`,
+                    },
+                ],
             }, message)).catch(console.warn);
         } else {
             /* a super or bot owner command has been attempted */
@@ -1193,7 +1193,7 @@ client.on('message', async (message) => {
                     `**Your access level:** ${command_author_access_level}`,
                     `**Required access level:** ${command.access_level}`,
                     `**You must ascend in order to obtain the power that you desire!**`,
-                ].join('\n')
+                ].join('\n'),
             }, message)).catch(console.warn);
         }
     } else { // the user has permission to use this command
@@ -1207,7 +1207,7 @@ client.on('message', async (message) => {
                 command_prefix: `${command_prefix}`,
                 discord_command: discord_command,
                 command_args: command_args,
-                clean_command_args: clean_command_args
+                clean_command_args: clean_command_args,
             });
         } catch (error) {
             logUserError(message, error);
