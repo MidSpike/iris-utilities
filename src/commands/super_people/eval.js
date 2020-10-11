@@ -4,9 +4,12 @@
 const safe_stringify = require('json-stringify-safe');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand, registerDisBotCommands } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand,
+        DisBotCommander,
+        registerDisBotCommands } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
-const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
+const { isSuperPerson,
+        isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
 //#region eval dependencies
@@ -21,10 +24,12 @@ const splitString = require('split-string');
 
 const bot_config = require('../../../config.js');
 
-const { Timer, pseudoUniqueId } = require('../../utilities.js');
+const { Timer,
+        pseudoUniqueId } = require('../../utilities.js');
 const { logUserError } = require('../../libs/errors.js');
 const { generateInviteToGuild } = require(`../../libs/invites.js`);
-const { sendLargeMessage, sendOptionsMessage } = require('../../libs/messages.js');
+const { sendLargeMessage,
+        sendOptionsMessage } = require('../../libs/messages.js');
 
 const { playStream } = require(`../../libs/playStream.js`);
 const { createConnection } = require(`../../libs/createConnection.js`);
