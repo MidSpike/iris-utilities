@@ -419,7 +419,7 @@ client.on('channelCreate', async (channel) => {
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `Any ${bot_common_name} commands can be used here by people with appropriate permissions!`,
-            }));
+            })).catch(console.warn);
             break;
         case bot_appeals_log_channel.name:
             prevent_sending_messages_in_channel(channel);
@@ -1062,7 +1062,7 @@ client.on('message', async (message) => {
                     value: `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
                 },
             ],
-        }));
+        })).catch(console.warn);
         return;
     }
 
@@ -1080,8 +1080,8 @@ client.on('message', async (message) => {
                 {
                     name: `How to change ${bot_common_name} command prefix`,
                     value: `${'```'}\n${command_prefix}set_prefix NEW_PREFIX_HERE\n${'```'}`,
-                }
-            ]
+                },
+            ],
         }, message)).catch(console.warn);
         return;
     }
