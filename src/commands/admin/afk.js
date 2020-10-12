@@ -16,6 +16,11 @@ module.exports = new DisBotCommand({
     aliases: ['afk'],
     access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
+        /**
+         * Example Command Usage:
+         * command_name member_id_or_mention
+         */
+
         const { command_args } = opts;
 
         if (!botHasPermissionsInGuild(message, ['MOVE_MEMBERS'])) return;
@@ -32,7 +37,7 @@ module.exports = new DisBotCommand({
         if (!member.voice?.channelID) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: 'The user is not in a voice channel!',
+                title: 'That user is not in a voice channel!',
             }, message)).catch(console.warn);
             return;
         }
