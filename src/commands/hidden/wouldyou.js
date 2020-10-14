@@ -1,10 +1,10 @@
 'use strict';
 
 //#region local dependencies
+const axios = require('axios');
+
 const HtmlEntitiesParser = require('html-entities').AllHtmlEntities;
 const htmlEntitiesParser = new HtmlEntitiesParser();
-
-const axios = require('axios');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendConfirmationEmbed } = require('../../libs/messages.js');
@@ -13,11 +13,11 @@ const { DisBotCommand,
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'WOULDYOU',
-    category:`${DisBotCommander.categories.HIDDEN}`,
-    description:'would you ___ if ___?',
-    aliases:['wouldyou'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    name: 'WOULDYOU',
+    category: `${DisBotCommander.categories.HIDDEN}`,
+    description: 'Would you accept that ___ however ___?',
+    aliases: ['wouldyou', 'willyou'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const api_response = await axios.post(`https://api2.willyoupressthebutton.com/api/v2/dilemma/`);
         const response_data = api_response.data;
