@@ -25,6 +25,7 @@ npm
 private
 database
 logging
+temporary
 
 # wildcard for any file / directory starting with '__'
 __*
