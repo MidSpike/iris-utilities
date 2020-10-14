@@ -36,7 +36,7 @@ Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code
 ### Development Environment
 - Windows ^v10.2004
 - Node.js ^v14.11.0
-- NPM ^6.14.8
+- NPM ^7.0.0 (experimental)
 
 ### Using Experimental ECMAScript Features
 - nullish coalescing `yin ?? yang`
@@ -49,8 +49,8 @@ Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code
 - ``' | ` | "`` should always be escaped inside of strings
 - Don't use `var`; use `const` or `let` instead
 - Only use `this` inside of classes
-- snake_case for variables
-- camelCase for functions
+- snake_case for variables and long functions
+- camelCase for short functions
 - PascalCase for classes
 
 ### Commenting
