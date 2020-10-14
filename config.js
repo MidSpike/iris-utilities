@@ -13,6 +13,9 @@ const { Collection } = require('discord.js');
  * - S = Stable
  * - U = Unstable (don't use in production)
  * 
+ * year-month-day:
+ * - based on the US-EAST timezone
+ * 
  * semi-version:
  * - used to denote minor patches to an already released PUBLIC_VERSION
  */
