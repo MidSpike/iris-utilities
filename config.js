@@ -6,7 +6,17 @@ const { Collection } = require('discord.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const PUBLIC_VERSION = 'vS_2020-10-12_0';
+/**
+ * v[status][year]-[month]-[day]_[semi-version]
+ * 
+ * status:
+ * - S = Stable
+ * - U = Unstable (don't use in production)
+ * 
+ * semi-version:
+ * - used to denote minor patches to an already released PUBLIC_VERSION
+ */
+const PUBLIC_VERSION = 'vU_2020-10-13_0';
 
 const SHORT_NAME = 'IRIS'; // [ a-z | A-Z | 0-9 | - | _ ]
 const COMMON_NAME = 'I.R.I.S. Utilities';
