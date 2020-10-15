@@ -36,7 +36,7 @@ class DisBotCommand {
         // GLOBAL_DONATOR: 250, // reserved for potential future usage
         GUILD_MOD: 500,
         GUILD_ADMIN: 1_000,
-        // GUILD_OWNER: 2_500, // reserved for potential future usage
+        GUILD_OWNER: 2_500,
         BOT_SUPER: 5_000,
         BOT_OWNER: 10_000,
     };

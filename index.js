@@ -1151,6 +1151,7 @@ client.on('message', async (message) => {
     const hasGuildAdminRole = message.member.roles.cache.filter(role => guild_config.admin_roles?.includes(role.id)).size > 0;
     const isGuildModeratorWorthy = hasGuildModeratorRole;
     const isGuildAdminWorthy = hasGuildAdminRole || message.member.hasPermission('ADMINISTRATOR');
+    const isGuildOwnerWorthy = message.member.id === message.guild.ownerID;
     const isSuperWorthy = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
     const isOwnerWorthy = isThisBotsOwner(message.member.id);
 
@@ -1158,6 +1159,7 @@ client.on('message', async (message) => {
     let command_author_access_level = DisBotCommand.access_levels.GLOBAL_USER;
     if (isGuildModeratorWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_MOD;
     if (isGuildAdminWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_ADMIN;
+    if (isGuildOwnerWorthy) command_author_access_level = DisBotCommand.access_levels.GUILD_OWNER;
     if (isSuperWorthy) command_author_access_level = DisBotCommand.access_levels.BOT_SUPER;
     if (isOwnerWorthy) command_author_access_level = DisBotCommand.access_levels.BOT_OWNER;
 
