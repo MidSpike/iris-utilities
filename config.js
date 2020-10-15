@@ -96,7 +96,7 @@ const SUPER_PERMS = [
     'restart',
     'reload',
     'blacklist',
-    'guild_admin',
+    'guild_super_user',
     'get_guild',
     'delete_messages',
     'dm',
