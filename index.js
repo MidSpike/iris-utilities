@@ -1152,7 +1152,7 @@ client.on('message', async (message) => {
     const isGuildModeratorWorthy = hasGuildModeratorRole;
     const isGuildAdminWorthy = hasGuildAdminRole || message.member.hasPermission('ADMINISTRATOR');
     const isGuildOwnerWorthy = message.member.id === message.guild.ownerID;
-    const isSuperWorthy = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_admin');
+    const isSuperWorthy = isSuperPersonAllowed(isSuperPerson(message.member.id), 'guild_super_user');
     const isOwnerWorthy = isThisBotsOwner(message.member.id);
 
     /* set the command author's access_level for each level of worthiness */
