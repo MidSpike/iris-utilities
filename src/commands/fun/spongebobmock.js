@@ -17,7 +17,7 @@ module.exports = new DisBotCommand({
     name:'SPONGEBOBMOCK',
     category:`${DisBotCommander.categories.FUN}`,
     description:'mock text like the Spongebob Mock meme',
-    aliases:['spongebobmock', 'mock'],
+    aliases:['spongebobmock', 'spmock', 'mock'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, clean_command_args } = opts;
 
