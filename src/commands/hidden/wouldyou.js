@@ -14,10 +14,10 @@ const { DisBotCommand,
 
 module.exports = new DisBotCommand({
     name: 'WOULDYOU',
-    category: `${DisBotCommander.categories.HIDDEN}`,
+    category: `${DisBotCommander.categories.FUN}`,
     description: 'Would you accept that ___ however ___?',
     aliases: ['wouldyou', 'willyou'],
-    access_level: DisBotCommand.access_levels.BOT_SUPER,
+    access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const api_response = await axios.post(`https://api2.willyoupressthebutton.com/api/v2/dilemma/`);
         const response_data = api_response.data;
