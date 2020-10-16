@@ -1,40 +1,50 @@
 'use strict';
 
 //#region local dependencies
+const { logUserError } = require('../../libs/errors.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'GIVEROLE',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
-    description:'Gives a role',
-    aliases:['giverole'],
-    access_level:DisBotCommand.access_levels.GUILD_ADMIN,
+    name: 'GIVEROLE',
+    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    description: 'gives a specified role to a specified member',
+    aliases: ['giverole'],
+    access_level: DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
+
         if (!botHasPermissionsInGuild(message, ['MANAGE_ROLES'])) return;
-        const user = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
-        const guildMember = await message.guild.members.fetch(user);
-        const role_to_add = message.guild.roles.cache.get(command_args[1]) ?? message.mentions.roles.first();
-        if (guildMember && role_to_add) {
-            const user_is_greater_than_member = message.member.roles.highest.comparePositionTo(guildMember.roles.highest) > 0; // DO NOT TOUCH
-            const user_is_greater_than_role_to_add = message.member.roles.highest.comparePositionTo(role_to_add) >= 0; // DO NOT TOUCH
-            if (user_is_greater_than_member && user_is_greater_than_role_to_add) {
-                guildMember.roles.add(role_to_add).then(guildMember => {
+
+        const member = message.guild.members.cache.get(command_args[0]) ?? message.mentions.members.first();
+        const role = message.guild.roles.cache.get(command_args[1]) ?? message.mentions.roles.first();
+
+        if (member && role) {
+            const staff_highest_role_is_greater_than_member_highest_role = message.member.roles.highest.comparePositionTo(member.roles.highest) > 0;
+            const staff_highest_role_is_greater_than_role = message.member.roles.highest.comparePositionTo(role) > 0;
+
+            if (staff_highest_role_is_greater_than_member_highest_role && staff_highest_role_is_greater_than_role) {
+                member.roles.add(role).then(() => {
                     message.channel.send(new CustomRichEmbed({
-                        title:`Role Manager`,
-                        description:`Added ${role_to_add} to ${guildMember.user.tag}`
-                    }, message));
-                }).catch(console.warn);
+                        title: 'Role Manager',
+                        description: `Added ${role.name} to ${member}!`,
+                    }, message)).catch(console.warn);
+                }).catch((error) => {
+                    logUserError(message, error);
+                });
             } else {
-                message.channel.send(`Something fishy is going on here!`);
-                message.channel.send(`You aren't qualified to hand out this role to them.`);
+                message.channel.send([
+                    'Something fishy is going on here!',
+                    'You aren\'t allowed to give this role to that user.',
+                ].join('\n'));
             }
         } else {
-            message.channel.send('Please specify a user and role to add');
-            message.channel.send(`Example: ${'```'}\n${discord_command} @user#0001 ROLE_HERE${'```'}`);
+            message.channel.send([
+                'Please specify a user and a role for this command!',
+                `Example: ${'```'}\n${discord_command} @user#0001 ROLE_HERE\n${'```'}`,
+            ].join('\n'));
         }
     },
 });
