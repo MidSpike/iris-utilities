@@ -19,7 +19,7 @@ const { Collection } = require('discord.js');
  * semi-version:
  * - used to denote minor patches to an already released PUBLIC_VERSION
  */
-const PUBLIC_VERSION = 'vU_2020-10-14_1';
+const PUBLIC_VERSION = 'vU_2020-10-15_0';
 
 const SHORT_NAME = 'IRIS'; // [ a-z | A-Z | 0-9 | - | _ ]
 const COMMON_NAME = 'I.R.I.S. Utilities';
