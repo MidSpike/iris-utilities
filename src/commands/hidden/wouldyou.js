@@ -32,20 +32,23 @@ module.exports = new DisBotCommand({
         // const dilemma_confirmed = response_data.dilemma.confirmed; // has unknown usage
 
         const dilemma_yay_nay_total = dilemma_yay_count + dilemma_nay_count;
-        const dilemma_yay_percent = Math.floor(dilemma_yay_count / dilemma_yay_nay_total * 100);
-        const dilemma_nay_percent = Math.floor(dilemma_nay_count / dilemma_yay_nay_total * 100);
+        const dilemma_yay_percent = Math.round(dilemma_yay_count / dilemma_yay_nay_total * 100);
+        const dilemma_nay_percent = Math.round(dilemma_nay_count / dilemma_yay_nay_total * 100);
 
         const embed = new CustomRichEmbed({
             title: `Would you? (#${dilemma_id})`,
-            description: `**Would you accept that:**\n${dilemma_situation}\n**however:**\n${dilemma_catch}?`,
+            description: `**Would you accept that:**\n${dilemma_situation}\n**However:**\n${dilemma_catch}?`,
         }, message);
 
         function showResults() {
             message.channel.send(new CustomRichEmbed({
                 title: `Would you? (#${dilemma_id})`,
-                description: `**Would you accept that:**\n${dilemma_situation}\n**however:**\n${dilemma_catch}?`,
+                description: `**Would you accept that:**\n${dilemma_situation}\n**However:**\n${dilemma_catch}?`,
                 fields: [
                     {
+                        name: '\u200b',
+                        value: '\u200b',
+                    }, {
                         name: 'Dilemma Situation Score',
                         value: `${dilemma_yay_count} (${dilemma_yay_percent}%) people said yay!`,
                     }, {
@@ -56,6 +59,6 @@ module.exports = new DisBotCommand({
             }, message));
         }
 
-        sendConfirmationEmbed(message.author.id, message.channel.id, false, embed, showResults, showResults);
+        sendConfirmationEmbed(message.author.id, message.channel.id, true, embed, showResults, showResults);
     },
 });
