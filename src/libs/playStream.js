@@ -27,7 +27,7 @@ function playStream(voice_connection, stream, volume_ratio=1.0, start_callback=(
         });
     }
 
-    const magic_volume_constant = 0.275; // this number effects all volume situations
+    const magic_volume_constant = 0.25; // this number effects all volume situations
 
     const guild_dispatcher = voice_connection.play(stream, {
         type: 'unknown',
