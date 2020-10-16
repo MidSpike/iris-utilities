@@ -6,19 +6,21 @@ const axios = require('axios');
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { QueueItem, QueueItemPlayer } = require('../../libs/QueueManager.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { QueueItem,
+        QueueItemPlayer } = require('../../libs/QueueManager.js');
 const { createConnection } = require('../../libs/createConnection.js');
 //#endregion local dependencies
 
 const bot_api_url = process.env.BOT_API_SERVER_URL;
 
 module.exports = new DisBotCommand({
-    name:'TTS_ARGUMENT',
-    category:`${DisBotCommander.categories.HIDDEN}`,
-    description:'TTS argument',
-    aliases:['tts_argument'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    name: 'TTS_ARGUMENT',
+    category: `${DisBotCommander.categories.HIDDEN}`,
+    description: 'TTS argument',
+    aliases: ['tts_argument'],
+    access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const used_insults = [];
         let insult_count = 1;
@@ -47,20 +49,21 @@ module.exports = new DisBotCommand({
             const voice_connection = await createConnection(message.member.voice.channel, false);
 
             const stream_maker = () => tts_url;
-            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
+
+            const queue_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
                 if (!message.guild.me.voice?.channel) return;
                 insult_count++;
                 tts_insult();
             });
 
-            await guild_queue_manager.addItem(new QueueItem('tts', player, `TTS Message`, {
+            await guild_queue_manager.addItem(new QueueItem('tts', queue_player, `TTS Message`, {
                 text: `${tts_text}`,
                 provider: `${tts_provider}`,
-                voice: `${tts_voice}`
+                voice: `${tts_voice}`,
             }));
 
             message.channel.send(new CustomRichEmbed({
-                title:'Added TTS Insult To The Queue!'
+                title: 'Added TTS Insult To The Queue!',
             }));
         }
         tts_insult();
