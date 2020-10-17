@@ -283,7 +283,7 @@ client.on('ready', async () => {
             });
 
             if (new_guild_persistent_existence_count === -100 && guild_config._persistent_existence_mode === 'remove') {
-                // client.$.guild_configs_manager.removeConfig(guild_id);
+                client.$.guild_configs_manager.removeConfig(guild_id);
                 console.warn(`Guild (${guild_id}) has been automatically removed from the guild configs!`);
             }
         }
