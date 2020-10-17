@@ -28,11 +28,11 @@ module.exports = new DisBotCommand({
         if (text_for_image.length === 0) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: 'Text-To-Image command usage',
-                description: 'This command creates images from the text that you specify.',
+                title: 'That\'s not how you use this command!',
+                description: 'This command can create images from the text that you specify.',
                 fields: [
                     {
-                        name: 'Command Usage',
+                        name: 'Text-To-Image Command Usage',
                         value: `${'```'}\n${discord_command} Hello World!\n${'```'}`,
                     },
                 ],
