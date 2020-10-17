@@ -23,7 +23,7 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { discord_command } = opts;
 
-        const text_for_image = escapeHTML(message.cleanContent.replace(discord_command, '')).replace(/\r?\n|\r/g, '<br />').trim();
+        const text_for_image = escapeHTML(message.cleanContent.replace(discord_command, '')).trim().replace(/\r?\n|\r/g, '<br />');
 
         if (text_for_image.length === 0) {
             message.channel.send(new CustomRichEmbed({
