@@ -5,6 +5,7 @@ const axios = require('axios');
 
 const { Timer } = require('../../utilities.js');
 
+const { logUserError } = require('../../libs/errors.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
@@ -18,25 +19,37 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
 module.exports = new DisBotCommand({
     name: 'TTS_ARGUMENT',
     category: `${DisBotCommander.categories.HIDDEN}`,
-    description: 'TTS argument',
-    aliases: ['tts_argument'],
+    description: 'have two TTS voices insult each other automatically',
+    aliases: ['tts_argument', 'tts_insults'],
     access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const used_insults = [];
         let insult_count = 1;
         async function tts_insult() {
-            if (!message.member.voice?.channel) return;
+            if (!message.member.voice?.channel) {
+                message.channel.send(new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Woah there!',
+                    description: 'You need to be in a voice channel to use this command!',
+                }));
+                return;
+            }
+            if (!message.guild.me.voice?.channel && insult_count > 1) return;
 
             const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
 
             let insult;
-
             do {
-                insult = (await axios.get(`https://evilinsult.com/generate_insult.php?lang=en&type=json`))?.data;
-                await Timer(500);
+                let evil_insult_api_response;
+                try {
+                    evil_insult_api_response = await axios.get(`https://evilinsult.com/generate_insult.php?lang=en&type=json`)
+                } catch (error) {
+                    logUserError(message, error);
+                    return;
+                }
+                insult = evil_insult_api_response.data;
+                await Timer(250); // prevent api abuse
             } while (used_insults.includes(insult.number))
-
-            used_insults.push(insult.number);
 
             const tts_person = Boolean(insult_count & 1); // true | false
 
@@ -50,13 +63,19 @@ module.exports = new DisBotCommand({
 
             const stream_maker = () => tts_url;
 
-            const queue_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
-                if (!message.guild.me.voice?.channel) return;
+            const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
                 insult_count++;
-                tts_insult();
+                if (insult_count < 25) {
+                    tts_insult();
+                } else {
+                    message.channel.send(new CustomRichEmbed({
+                        title: 'Reached 25 TTS insults!',
+                        description: 'Automatically stopping the TTS insult generator!',
+                    }));
+                }
             });
 
-            await guild_queue_manager.addItem(new QueueItem('tts', queue_player, `TTS Message`, {
+            await guild_queue_manager.addItem(new QueueItem('tts', queue_item_player, `TTS Insult`, {
                 text: `${tts_text}`,
                 provider: `${tts_provider}`,
                 voice: `${tts_voice}`,
