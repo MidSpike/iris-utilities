@@ -13,7 +13,7 @@ const { DisBotCommand,
 module.exports = new DisBotCommand({
     name: 'MEMBERLIST',
     category: `${DisBotCommander.categories.HIDDEN}`,
-    description: 'allows you to download the member list for your server',
+    description: 'allows you to download the member list for servers that you own',
     aliases: ['memberlist'],
     access_level: DisBotCommand.access_levels.GUILD_OWNER,
     async executor(Discord, client, message, opts={}) {
@@ -42,9 +42,14 @@ module.exports = new DisBotCommand({
         }
 
         const embed = new CustomRichEmbed({
-            title: 'Do you want to receive the member-list file here?',
+            title: 'Do you want to receive the member-list file (for this server) here?',
             description: [
-                'This command creates a \`.json\` file containing a list of all members in this guild along with their roles.\n',
+                'This command creates a \`.json\` file containing a list of all members in this guild along with their roles.',
+                '\`.json\` files can be viewed as a plain-text file in most text editing programs.',
+                'You can also use a code editor such as VS Code, Notepad++, Atom, etc.',
+                '\n',
+                'It is recommended that you limit the amount of people that are allowed to see this file.',
+                '\n',
                 'If you say yes, the file will be sent to this channel.',
                 'If you say no, the file will be directly messaged to you.',
             ].join('\n'),
