@@ -18,6 +18,7 @@ const { QueueItem,
         QueueItemPlayer } = require('./QueueManager.js');
 const { sendOptionsMessage,
         sendYtDiscordEmbed } = require('./messages.js');
+const { logUserError } = require('./errors.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -49,10 +50,10 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     while (current_search_attempt <= retry_attempts) {
         try {
             const { results } = await youtubeSearch(search_query, {
-                maxResults:max_results,
-                type:'video',
-                regionCode:'US',
-                key:process.env.YOUTUBE_API_TOKEN
+                maxResults: max_results,
+                type: 'video',
+                regionCode: 'US',
+                key: process.env.YOUTUBE_API_TOKEN,
             });
             search_results = results;
         } catch (error) {
@@ -67,12 +68,13 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     /* fallback to scraping the youtube website results */
     if (search_results.length === 0) {
         console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
-        const backup_search_results = (await ytSearchBackup(search_query)).videos;
+        const { videos: backup_search_results } = await ytSearchBackup(search_query);
+
         /* map the unofficial backup results to match the primary results scheme */
         search_results = backup_search_results.map(({ videoId, url, title }) => ({
-            id:`${videoId}`,
-            link:`${url}`,
-            title:`${title}`
+            id: `${videoId}`,
+            link: `${url}`,
+            title: `${title}`,
         }));
     }
 
@@ -123,46 +125,61 @@ async function playYouTube(message, search_query, playnext=false) {
 
     async function _play_as_video(video_id, send_embed=true) {
         if (!video_id) throw new Error(`'video_id' must be defined`);
-        const youtube_playlist_api_response = await axios.get(`${bot_api_url}/ytinfo?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&video_id=${encodeURI(video_id)}`);
-        const yt_video_info = youtube_playlist_api_response?.data;
+
         let voice_connection;
         try {
             voice_connection = await createConnection(voice_channel);
         } catch {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:`Whelp that's an issue!`,
-                description:`I'm unable to join your voice channel!`
+                color: 0xFFFF00,
+                title: 'Whelp that\'s an issue!',
+                description: 'I\'m unable to join your voice channel!',
             }, message));
         } finally {
             if (!voice_connection) return; // there is no point in continuing if the bot can't join vc
         }
-        const stream_maker = async () => {
-            // const bot_ytdl_api_url = `${bot_api_url}/ytdl?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&url=${encodeURIComponent(yt_video_info.videoDetails.video_url)}`;
-            // return bot_ytdl_api_url;
 
+        const bot_api_response = await axios.get(`${bot_api_url}/ytinfo?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&video_id=${encodeURI(video_id)}`);
+        const yt_video_info = bot_api_response?.data;
+
+        if (!yt_video_info.videoDetails) {
+            logUserError(message, new Error('\`yt_video_info.videoDetails\` is not defined!'));
+            return;
+        }
+
+        if (parseInt(yt_video_info.videoDetails.lengthSeconds) === 0) {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title: 'Woah there buddy!',
+                description: 'Live streams aren\'t supported!',
+                fields: [
+                    {
+                        name: 'Offending Live Stream Title',
+                        value: `${yt_video_info.videoDetails.title}`
+                    }, {
+                        name: 'Offending Live Stream URL',
+                        value: `${yt_video_info.videoDetails.video_url}`
+                    },
+                ],
+            }, message));
+            return; // don't allow live streams to play... live streams are buggy
+        }
+
+        if (!search_message.deleted) {
+            await search_message.delete({timeout: 500}).catch(console.warn);
+        }
+
+        const stream_maker = async () => {
             const ytdl_stream = ytdl(`https://youtu.be/${video_id}`, {
                 lang: 'en',
                 filter: 'audioonly',
                 quality: 'highestaudio',
-                highWaterMark: 1<<25 // 32 MB
+                highWaterMark: 1<<25, // 32 MB
             });
             return ytdl_stream;
         };
-        if (parseInt(yt_video_info.videoDetails.lengthSeconds) === 0) {
-            message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:'Woah there buddy!',
-                description:`Live streams aren't supported!`,
-                fields:[
-                    {name:'Offending Live Stream Title', value:`${yt_video_info.videoDetails.title}`},
-                    {name:'Offending Live Stream URL', value:`${yt_video_info.videoDetails.video_url}`}
-                ]
-            }, message));
-            return; // don't allow live streams to play... live streams are buggy
-        }
-        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
-        const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 1.0, () => {
+
+        const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 1.0, () => {
             sendYtDiscordEmbed(message, yt_video_info, 'Playing');
         }, async () => {
             /* handle queue autoplay for youtube videos */
@@ -174,34 +191,51 @@ async function playYouTube(message, search_query, playnext=false) {
         }, (error) => {
             console.trace(`${error ?? 'Unknown Playback Error!'}`);
         });
-        await guild_queue_manager.addItem(new QueueItem('youtube', player, `${yt_video_info.videoDetails.title}`, {videoInfo:yt_video_info}), (playnext ? 2 : undefined));
+
+        const queue_item = new QueueItem('youtube', queue_item_player, `${yt_video_info.videoDetails.title}`, {
+            videoInfo: yt_video_info
+        });
+
+        await guild_queue_manager.addItem(queue_item, (playnext ? 2 : undefined));
+
         if (guild_queue_manager.queue.length > 1 && send_embed) {
             sendYtDiscordEmbed(message, yt_video_info, 'Added');
         }
+
         return; // complete async
     }
 
     async function _play_as_playlist(playlist_id) {
         const yt_playlist_api_url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=25&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`;
         const yt_playlist_response = await axios.get(yt_playlist_api_url);
+
         const playlist_items = yt_playlist_response.data.items;
-        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
+
+        if (!search_message.deleted) {
+            await search_message.delete({timeout: 500}).catch(console.warn);
+        }
+
         const confirmation_embed = new CustomRichEmbed({
-            title:`Do you want this to play as a playlist?`,
-            description:[
+            title: `Do you want this to play as a playlist?`,
+            description: [
                 `${'```'}fix\nWARNING! YOU CAN'T STOP A PLAYLIST FROM ADDING ITEMS!\n${'```'}`,
-                `**If you want this to play as a song; click on the ${findCustomEmoji('bot_emoji_close')}.**`
-            ].join('\n')
+                `**If you want this to play as a song; click on the ${findCustomEmoji('bot_emoji_close')}.**`,
+            ].join('\n'),
         }, message);
+
         sendOptionsMessage(message.channel.id, confirmation_embed, [
             {
-                emoji_name:'bot_emoji_checkmark',
+                emoji_name: 'bot_emoji_checkmark',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({timeout:500}).catch(console.warn);
+                    await options_message.delete({timeout: 500}).catch(console.warn);
+
                     await options_message.channel.send(new CustomRichEmbed({
-                        title:`Started adding ${playlist_items.length} item(s) to the playlist!`
+                        title: `Started adding ${playlist_items.length} item(s) to the playlist!`,
                     }, message));
-                    await createConnection(voice_channel); // connect the bot to vc for the checks below to pass
+
+                    /* connect the bot to vc for the checks below to pass */
+                    await createConnection(voice_channel);
+
                     for (const playlist_item of playlist_items) {
                         /* make sure the bot is still in a voice channel */
                         if (options_message.guild.me?.voice?.connection) {
@@ -212,30 +246,34 @@ async function playYouTube(message, search_query, playnext=false) {
                         }
                         await Timer(10_000); // add an item every 10 seconds
                     }
-                }
+                },
             }, {
-                emoji_name:'bot_emoji_close',
+                emoji_name: 'bot_emoji_close',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({timeout:500}).catch(console.warn);
+                    await options_message.delete({timeout: 500}).catch(console.warn);
+
                     const potential_video_id = await _get_video_id_from_query(search_query);
                     if (potential_video_id) {
                         _play_as_video(potential_video_id);
                     } else {
-                        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
+                        if (!search_message.deleted) {
+                            await search_message.delete({timeout: 500}).catch(console.warn);
+                        }
+
                         message.channel.send(new CustomRichEmbed({
-                            color:0xFFFF00,
-                            title:`Uh Oh! ${message.author.username}`,
-                            description:`I'm unable to play that!`
+                            color: 0xFFFF00,
+                            title: `Uh Oh! ${message.author.username}`,
+                            description: `I'm unable to play that!`,
                         }, message));
                     }
-                }
-            }
+                },
+            },
         ], message.author.id);
     }
 
     const search_message = await message.channel.send(new CustomRichEmbed({
-        title:'Searching YouTube For:',
-        description:`${'```'}\n${search_query}\n${'```'}`
+        title: 'Searching YouTube For:',
+        description: `${'```'}\n${search_query}\n${'```'}`,
     }));
 
     const potential_playlist_id = await _get_playlist_id_from_query(search_query);
@@ -251,15 +289,19 @@ async function playYouTube(message, search_query, playnext=false) {
     } else if (potential_video_id) { // the search_query is a video
         await _play_as_video(potential_video_id);
     } else { // the search_query is unknown
-        if (!search_message.deleted) await search_message.delete({timeout:500}).catch(console.warn);
+        if (!search_message.deleted) {
+            await search_message.delete({timeout: 500}).catch(console.warn);
+        }
+
         message.channel.send(new CustomRichEmbed({
-            color:0xFFFF00,
-            title:`Uh Oh! ${message.author.username}`,
-            description:[
+            color: 0xFFFF00,
+            title: `Uh Oh! ${message.author.username}`,
+            description: [
                 `Your search for the following failed to yield any results!${'```'}\n${search_query}\n${'```'}`,
-                `Try being a bit more specific next time or try searching again!`,
-                `\nSometimes YouTube gets excited by all of the searches and derps out!`
-            ].join('\n')
+                'Try being a bit more specific next time or try searching again!',
+                '\n',
+                'Sometimes YouTube gets excited by all of the searches and derps out!',
+            ].join('\n'),
         }, message));
     }
 }
