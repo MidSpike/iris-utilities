@@ -184,7 +184,7 @@ async function checkForBlacklistedUser(message) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-client.on('ready', async () => {
+client.once('ready', async () => {
     console.timeEnd(`client.login -> client#ready`);
 
     client.$.restarting_bot = true; // the bot is still restarting
@@ -278,12 +278,12 @@ client.on('ready', async () => {
             const old_guild_persistent_existence_count = guild_config._persistent_existence_count ?? 0;
             const new_guild_persistent_existence_count = math_clamp(old_guild_persistent_existence_count + (guild_exists_to_the_bot ? 1 : -1), -100, 100);
 
-            client.$.guild_configs_manager.updateConfig(guild_id, {
+            await client.$.guild_configs_manager.updateConfig(guild_id, {
                 '_persistent_existence_count': new_guild_persistent_existence_count,
             });
 
             if (new_guild_persistent_existence_count === -100 && guild_config._persistent_existence_mode === 'remove') {
-                client.$.guild_configs_manager.removeConfig(guild_id);
+                await client.$.guild_configs_manager.removeConfig(guild_id);
                 console.warn(`Guild (${guild_id}) has been automatically removed from the guild configs!`);
             }
         }
