@@ -1,8 +1,6 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.js');
-
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -17,51 +15,32 @@ const { isThisBot,
 
 module.exports = new DisBotCommand({
     name: 'JAIL',
-    category: `${DisBotCommander.categories.HIDDEN}`,
-    description: '(un)jails a user in the guild',
+    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    description: 'allows staff to jail/unjail a user in the guild',
     aliases: ['jail', 'unjail'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
-        const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
-
-        if (!guild_config.beta_programs.includes('JAIL_COMMAND')) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFF00FF,
-                description: [
-                    'The \`jail\` and \`unjail\` commands are in BETA and only certain Guilds have access to it!',
-                    `If you manage this guild and want access, you must contact ${bot_config.COMMON_NAME} Support Staff!`,
-                ].join('\n\n'),
-            }, message)).catch(console.warn);
-            return;
-        }
-
-        if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS', 'MANAGE_ROLES', 'MUTE_MEMBERS'])) return;
+        if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS', 'MANAGE_MESSAGES', 'MANAGE_ROLES', 'MUTE_MEMBERS'])) return;
 
         const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
 
         if (!member) {
-            await message.channel.send(new CustomRichEmbed({
-                color: 0xFF00FF,
-                title: 'Warning!',
-                description: 'The \`jail\` and \`unjail\` commands are in BETA!',
-            }, message));
-            await Timer(1000);
-            await message.channel.send(new CustomRichEmbed({
+            message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Provide an @user next time!',
-                description: 'This command can prevent a specified member from typing or speaking in any channel!',
-                fields:[
+                description: 'This command can prevent a specified member from typing or speaking in any channel that currently exists!',
+                fields: [
                     {
                         name: 'Example (putting someone in the jail)',
-                        value: `${'```'}\n${command_prefix}jail @user#0001\n${'```'}`
+                        value: `${'```'}\n${command_prefix}jail @user#0001\n${'```'}`,
                     }, {
                         name: 'Example (removing someone from the jail)',
-                        value: `${'```'}\n${command_prefix}unjail @user#0001\n${'```'}`
+                        value: `${'```'}\n${command_prefix}unjail @user#0001\n${'```'}`,
                     },
                 ],
-            }, message));
+            }, message)).catch(console.warn);
             return;
         }
 
@@ -101,14 +80,15 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 description: `This command doesn\'t work on members with the \`ADMINISTRATOR\` permission!`,
-            }, message));
+            }, message)).catch(console.warn);
             return;
         }
 
         if (discord_command === `${command_prefix}jail`) {
             const bot_message = await message.channel.send(new CustomRichEmbed({
                 description: `Adding ${member} to the jail!`,
-            }, message));
+            }, message)).catch(console.warn);
+
             for (const channel of message.guild.channels.cache.values()) {
                 /* clone the current permissions before locking the permissions with the parent channel */
                 const current_channel_permission_overwrites = Array.from(channel.permissionOverwrites.values());
@@ -141,13 +121,15 @@ module.exports = new DisBotCommand({
 
                 await Timer(100); // prevent api abuse
             }
+
             bot_message.edit(new CustomRichEmbed({
                 description: `Added ${member} to the jail!`,
-            }, message));
+            }, message)).catch(console.warn);
         } else { // assuming: discord_command === `${command_prefix}unjail`
             const bot_message = await message.channel.send(new CustomRichEmbed({
                 description: `Removing ${member} from the jail!`,
-            }, message));
+            }, message)).catch(console.warn);
+
             for (const channel of message.guild.channels.cache.values()) {
                 /* clone the current permissions before locking the permissions with the parent channel */
                 const current_channel_permission_overwrites = Array.from(channel.permissionOverwrites.values());
@@ -166,9 +148,10 @@ module.exports = new DisBotCommand({
 
                 await Timer(100); // prevent api abuse
             }
+
             bot_message.edit(new CustomRichEmbed({
                 description: `Removed ${member} from the jail!`,
-            }, message));
+            }, message)).catch(console.warn);
         }
     },
 });
