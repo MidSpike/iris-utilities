@@ -83,7 +83,7 @@ class GuildConfigsManager {
      * @returns {GuildConfigsManager} this GuildConfigsManager
      */
     async removeConfig(guild_id) {
-        this.#configs_in_memory.delete(guild_id)
+        this.#configs_in_memory.delete(guild_id);
         return this;
     }
 
