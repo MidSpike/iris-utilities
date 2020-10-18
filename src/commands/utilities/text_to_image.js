@@ -11,7 +11,7 @@ const { DisBotCommand,
 //#endregion local dependencies
 
 function escapeHTML(text) {
-    return text.replace(`&`, '&amp;').replace(`"`, '&quot;').replace(`'`, '&apos;').replace(`<`, '&lt;').replace(`>`, '&gt;').replace(`/`, '&#47;').replace(`\\`, '&#92;');
+    return text.replace(`&`, '&amp;').replace(`"`, '&quot;').replace(`'`, '&apos;').replace(`\``, '&grave;').replace(`<`, '&lt;').replace(`>`, '&gt;').replace(`/`, '&#47;').replace(`\\`, '&#92;');
 }
 
 module.exports = new DisBotCommand({
@@ -49,33 +49,29 @@ module.exports = new DisBotCommand({
                     <head>
                         <meta charset="UTF-8" />
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                        <link href="https://fonts.googleapis.com/css2?family=Domine:wght@500&display=swap" rel="stylesheet">
                         <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+                            /* @import url('https://fonts.googleapis.com/css2?family=Domine:wght@500&display=swap'); */
+                            @import url('https://fonts.googleapis.com/css2?family=Inconsola:wght@900&display=swap');
                             * {
                                 box-sizing: border-box;
                             }
                             html {
                                 width: auto;
                                 height: auto;
+                                max-width: 500px;
                                 overflow: hidden;
+                                word-wrap: break-word;
                             }
                             body {
-                                position: fixed;
-                                display: block;
-                                top: 0px;
-                                left: 0px;
                                 width: auto;
                                 height: auto;
                                 padding: 10px 15px;
                                 background: #7289da;
                                 color: #ffffff;
                                 font-size: 20px;
-                                font-weight: 500;
-                                font-family: 'Domine', serif;
-                            }
-                            div {
-                                max-width: 500px;
+                                font-weight: 900;
+                                /* font-family: 'Domine', serif; */
+                                font-family: 'Inconsola', monospace;
                             }
                         </style>
                     </head>
