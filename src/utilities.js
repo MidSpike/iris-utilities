@@ -138,9 +138,10 @@ function array_shuffle(array_to_shuffle) {
 function array_chunks(array_of_things, chunk_size) {
     if (!Array.isArray(array_of_things)) throw new TypeError('`array_of_things` must be an array!');
     if (isNaN(chunk_size)) throw new TypeError('`chunk_size` must be a number!');
+    const array_of_things_clone = [...array_of_things];
     let chunks = [];
-    while (array_of_things.length) {
-        chunks.push(array_of_things.splice(0, chunk_size));
+    while (array_of_things_clone.length) {
+        chunks.push(array_of_things_clone.splice(0, chunk_size));
     }
     return chunks;
 }
