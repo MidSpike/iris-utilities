@@ -5,7 +5,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "@discordjs/uws": "^11.149.1",
-    "aki-api": "^5.1.1",
+    "aki-api": "^5.2.0",
     "axios": "^0.20.0",
     "blapi": "^2.0.1",
     "bufferutil": "^4.0.1",
