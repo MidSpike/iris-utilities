@@ -23,7 +23,7 @@ const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
 
 module.exports = new DisBotCommand({
     name:'BAN',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'(un)bans a user in the guild',
     aliases:['ban', 'unban'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

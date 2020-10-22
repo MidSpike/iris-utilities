@@ -23,8 +23,8 @@ const bot_special_text_channels = bot_config.SPECIAL_CHANNELS.filter(special_cha
 
 module.exports = new DisBotCommand({
     name:'INFO',
-    category:`${DisBotCommander.categories.INFO}`,
-    weight:1,
+    category:`${DisBotCommander.categories.HELP_INFO}`,
+    weight:11,
     description:'invites the developer to the server',
     aliases:['info'],
     async executor(Discord, client, message, opts={}) {

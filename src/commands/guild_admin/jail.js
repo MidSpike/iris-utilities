@@ -15,7 +15,7 @@ const { isThisBot,
 
 module.exports = new DisBotCommand({
     name: 'JAIL',
-    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
     description: 'allows staff to jail/unjail a user in the guild',
     aliases: ['jail', 'unjail'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,

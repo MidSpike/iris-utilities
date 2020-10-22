@@ -8,7 +8,7 @@ const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner } = require('../../
 
 module.exports = new DisBotCommand({
     name:'FLEXTAPE',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Mutes and deafens a users voice / audio',
     aliases:['flextape', 'unflextape'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

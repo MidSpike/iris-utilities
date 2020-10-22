@@ -12,7 +12,7 @@ const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner, isSuperPerson } = 
 
 module.exports = new DisBotCommand({
     name:'KICK',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Kicks a user from the guild',
     aliases:['kick'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

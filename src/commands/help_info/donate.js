@@ -9,8 +9,8 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 
 module.exports = new DisBotCommand({
     name:'DONATE',
-    category:`${DisBotCommander.categories.INFO}`,
-    weight:3,
+    category:`${DisBotCommander.categories.HELP_INFO}`,
+    weight:13,
     description:'provides methods of donating to the bot\'s developers',
     aliases:['donate'],
     async executor(Discord, client, message, opts={}) {

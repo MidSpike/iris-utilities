@@ -12,7 +12,7 @@ module.exports = new DisBotCommand({
     aliases:['supercommands'],
     access_level:DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
-        const guild_admin_commands = DisBotCommander.commands.filter(cmd => cmd.category === DisBotCommander.categories.ADMINISTRATOR).map(cmd => cmd.aliases.join(' | '));
+        const guild_admin_commands = DisBotCommander.commands.filter(cmd => cmd.category === DisBotCommander.categories.GUILD_ADMIN).map(cmd => cmd.aliases.join(' | '));
         const guild_settings_commands = DisBotCommander.commands.filter(cmd => cmd.category === DisBotCommander.categories.GUILD_SETTINGS).map(cmd => cmd.aliases.join(' | '));
         const super_people_commands = DisBotCommander.commands.filter(cmd => cmd.category === DisBotCommander.categories.SUPER_PEOPLE).map(cmd => cmd.aliases.join(' | '));
         const bot_owner_commands = DisBotCommander.commands.filter(cmd => cmd.category === DisBotCommander.categories.BOT_OWNER).map(cmd => cmd.aliases.join(' | '));

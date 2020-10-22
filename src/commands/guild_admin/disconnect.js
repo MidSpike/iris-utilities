@@ -9,7 +9,7 @@ const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner } = require('../../
 
 module.exports = new DisBotCommand({
     name:'DISCONNECT',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Disconnects a user from their voice channel',
     aliases:['disconnect'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

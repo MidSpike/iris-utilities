@@ -10,8 +10,8 @@ const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
 
 module.exports = new DisBotCommand({
     name:'SUPPORT_DISCORD',
-    category:`${DisBotCommander.categories.INFO}`,
-    weight:6,
+    category:`${DisBotCommander.categories.HELP_INFO}`,
+    weight:16,
     description:'Generates an invite to the support server',
     aliases:['support_discord'],
     async executor(Discord, client, message, opts={}) {

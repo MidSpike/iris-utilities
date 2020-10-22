@@ -14,7 +14,7 @@ const bot_archived_channels_category_name = bot_special_channels.find(ch => ch.i
 
 module.exports = new DisBotCommand({
     name:'ARCHIVE',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Archive channels',
     aliases:['archive'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,

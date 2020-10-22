@@ -12,7 +12,7 @@ const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 
 module.exports = new DisBotCommand({
     name: 'BANS',
-    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
     description: 'displays all of the banned members in this guild',
     aliases: ['bans'],
     access_level: DisBotCommand.access_levels.GUILD_MOD,

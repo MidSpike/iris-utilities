@@ -12,23 +12,23 @@ const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'HELP',
-    category:`${DisBotCommander.categories.HELP}`,
-    weight:1,
-    description:'displays a list of paginated commands',
-    aliases:['help'],
-    access_level:DisBotCommand.access_levels.GLOBAL_USER,
+    name: 'HELP',
+    category: `${DisBotCommander.categories.HELP_INFO}`,
+    weight: 1,
+    description: 'displays a list of paginated commands',
+    aliases: ['help'],
+    access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
         const command_categories = [
-            DisBotCommander.categories.HELP,
-            DisBotCommander.categories.INFO,
+            DisBotCommander.categories.HELP_INFO,
             DisBotCommander.categories.MUSIC,
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
-            DisBotCommander.categories.ADMINISTRATOR,
+            DisBotCommander.categories.GUILD_ADMIN,
             DisBotCommander.categories.GUILD_SETTINGS,
+            DisBotCommander.categories.GUILD_OWNER,
         ];
 
         const formatted_command_categories = command_categories.map(category_name => {
@@ -76,7 +76,7 @@ module.exports = new DisBotCommand({
                         }, {
                             name: `Help Menu Navigation`,
                             value: `Use the following to navigate the help menu!${'```'}\n${discord_command} PAGE_NUMBER_HERE\n${'```'}`,
-                        }
+                        },
                     ] : []),
                 ],
             }, message);
@@ -100,59 +100,59 @@ module.exports = new DisBotCommand({
                         emoji_name: 'bot_emoji_angle_left',
                         callback(options_message) {
                             navigate_page(options_message, current_page_number > 1 ? current_page_number-1 : command_categories.length);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_one',
                         callback(options_message) {
                             navigate_page(options_message, 1);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_two',
                         callback(options_message) {
                             navigate_page(options_message, 2);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_three',
                         callback(options_message) {
                             navigate_page(options_message, 3);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_four',
                         callback(options_message) {
                             navigate_page(options_message, 4);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_five',
                         callback(options_message) {
                             navigate_page(options_message, 5);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_six',
                         callback(options_message) {
                             navigate_page(options_message, 6);
-                        }
+                        },
                     }, {
                         emoji_name: 'bot_emoji_seven',
                         callback(options_message) {
                             navigate_page(options_message, 7);
-                        }
+                        },
                     },
                     // {
                     //     emoji_name:'bot_emoji_eight',
                     //     callback(options_message) {
                     //         navigate_page(options_message, 8);
-                    //     }
+                    //     },
                     // }, {
                     //     emoji_name:'bot_emoji_nine',
                     //     callback(options_message) {
                     //         navigate_page(options_message, 9);
-                    //     }
+                    //     },
                     // },
                     {
                         emoji_name: 'bot_emoji_angle_right',
                         callback(options_message) {
                             navigate_page(options_message, current_page_number < command_categories.length ? current_page_number+1 : 1);
-                        }
+                        },
                     }
                 ]);
             }
@@ -173,7 +173,7 @@ module.exports = new DisBotCommand({
                         `**Category:** ${specified_command.category}`,
                         `**Description:** ${specified_command.description}`,
                         `**Aliases:** \`${specified_command_aliases.join(', ')}\``,
-                        `**Access Level:** ${specified_command.access_level}`
+                        `**Access Level:** ${specified_command.access_level}`,
                     ].join('\n'),
                 }, message));
             } else {

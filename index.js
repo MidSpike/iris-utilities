@@ -1200,7 +1200,7 @@ client.on('message', async (message) => {
         }
     } else { // the user has permission to use this command
         /* log any commands residing in the ADMINISTRATOR or GUILD_SETTINGS categories, to the guild */
-        if ([DisBotCommander.categories.ADMINISTRATOR, DisBotCommander.categories.GUILD_SETTINGS].includes(command.category)) {
+        if ([DisBotCommander.categories.GUILD_ADMIN, DisBotCommander.categories.GUILD_SETTINGS].includes(command.category)) {
             logAdminCommandsToGuild(message);
         }
         /* attempt to execute the command, if anything unexpectedly goes wrong; it will logUserError */

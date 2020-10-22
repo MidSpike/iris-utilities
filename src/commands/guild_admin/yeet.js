@@ -10,7 +10,7 @@ const { botHasPermissionsInGuild, isThisBotsOwner } = require('../../libs/permis
 
 module.exports = new DisBotCommand({
     name:'YEET',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Yeet people from your voice channel into other voice channels',
     aliases:['yeet'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

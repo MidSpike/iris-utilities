@@ -12,7 +12,7 @@ const { logUserError } = require('../../libs/permissions.js');
 
 module.exports = new DisBotCommand({
     name:'WIPEOUT',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Wipeout a text-channel',
     aliases:['wipeout'],
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
