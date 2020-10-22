@@ -143,6 +143,7 @@ async function playYouTube(message, search_query, playnext=false) {
         const yt_video_info = bot_api_response?.data;
 
         if (!yt_video_info.videoDetails) {
+            console.error('-----', {message, search_query, yt_video_info}, '-----');
             logUserError(message, new Error('\`yt_video_info.videoDetails\` is not defined!'));
             return;
         }
@@ -155,10 +156,10 @@ async function playYouTube(message, search_query, playnext=false) {
                 fields: [
                     {
                         name: 'Offending Live Stream Title',
-                        value: `${yt_video_info.videoDetails.title}`
+                        value: `${yt_video_info.videoDetails.title}`,
                     }, {
                         name: 'Offending Live Stream URL',
-                        value: `${yt_video_info.videoDetails.video_url}`
+                        value: `${yt_video_info.videoDetails.video_url}`,
                     },
                 ],
             }, message));
