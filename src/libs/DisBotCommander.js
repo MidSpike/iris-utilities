@@ -101,13 +101,13 @@ class DisBotCommand {
  */
 class DisBotCommander {
     static categories = {
-        HELP: 'Help Commands',
-        INFO: 'Bot Info',
+        HELP_INFO: 'Help And Information',
         MUSIC: 'YouTube, Music Controls, And More',
         FUN: 'Fun Stuff',
         UTILITIES: 'Utilities',
-        ADMINISTRATOR: 'Administrative Powers',
-        GUILD_SETTINGS: 'Server Management',
+        GUILD_ADMIN: 'Server Administrator Commands',
+        GUILD_SETTINGS: 'Server Configuration And Management',
+        GUILD_OWNER: 'Server Owner Commands',
         SUPER_PEOPLE: 'Super People Commands',
         BOT_OWNER: 'Bot Owner Commands',
         HIDDEN: 'Hidden Commands',

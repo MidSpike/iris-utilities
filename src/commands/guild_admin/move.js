@@ -11,7 +11,7 @@ const { isThisBot,
 
 module.exports = new DisBotCommand({
     name: 'MOVE',
-    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
     description: 'moves a specified user to a specified voice channel',
     aliases: ['move'],
     access_level: DisBotCommand.access_levels.GUILD_MOD,

@@ -13,7 +13,7 @@ const { isThisBot,
 
 module.exports = new DisBotCommand({
     name: 'TIMEOUT',
-    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
     description: 'Puts / Removes users from timeout mode',
     aliases: ['timeout', 'untimeout'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,

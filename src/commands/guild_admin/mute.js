@@ -8,7 +8,7 @@ const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner } = require('../../
 
 module.exports = new DisBotCommand({
     name:'MUTE',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Mutes a users voice',
     aliases:['mute', 'unmute'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

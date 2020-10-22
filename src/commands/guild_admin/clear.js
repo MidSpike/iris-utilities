@@ -12,7 +12,7 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 
 module.exports = new DisBotCommand({
     name:'CLEAR',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Removes a specified number of messages from a guild text-channel',
     aliases:['clear', 'purge'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

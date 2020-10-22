@@ -11,7 +11,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 
 module.exports = new DisBotCommand({
     name:'WARN',
-    category:`${DisBotCommander.categories.ADMINISTRATOR}`,
+    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
     description:'Warns a user',
     aliases:['warn'],
     access_level:DisBotCommand.access_levels.GUILD_MOD,

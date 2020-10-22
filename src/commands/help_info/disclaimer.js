@@ -11,8 +11,8 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 
 module.exports = new DisBotCommand({
     name:'DISCLAIMER',
-    category:`${DisBotCommander.categories.INFO}`,
-    weight:5,
+    category:`${DisBotCommander.categories.HELP_INFO}`,
+    weight:15,
     description:'Shows the user the privacy disclaimer',
     aliases:['disclaimer', 'privacy'],
     async executor(Discord, client, message, opts={}) {

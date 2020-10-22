@@ -7,23 +7,23 @@ const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'ALL_COMMANDS',
-    category:`${DisBotCommander.categories.HELP}`,
-    weight:2,
-    description:'displays all of the commands at once',
-    aliases:['all_commands'],
-    access_level:DisBotCommand.access_levels.GLOBAL_USER,
+    name: 'ALL_COMMANDS',
+    category: `${DisBotCommander.categories.HELP_INFO}`,
+    weight: 2,
+    description: 'displays all of the commands at once',
+    aliases: ['all_commands'],
+    access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix } = opts;
 
         const command_categories = [
-            DisBotCommander.categories.HELP,
-            DisBotCommander.categories.INFO,
+            DisBotCommander.categories.HELP_INFO,
             DisBotCommander.categories.MUSIC,
             DisBotCommander.categories.FUN,
             DisBotCommander.categories.UTILITIES,
-            DisBotCommander.categories.ADMINISTRATOR,
+            DisBotCommander.categories.GUILD_ADMIN,
             DisBotCommander.categories.GUILD_SETTINGS,
+            DisBotCommander.categories.GUILD_OWNER,
         ];
 
         const formatted_command_categories = command_categories.map(category_name => {

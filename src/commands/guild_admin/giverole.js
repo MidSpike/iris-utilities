@@ -9,7 +9,7 @@ const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 
 module.exports = new DisBotCommand({
     name: 'GIVEROLE',
-    category: `${DisBotCommander.categories.ADMINISTRATOR}`,
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
     description: 'gives a specified role to a specified member',
     aliases: ['giverole'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,
