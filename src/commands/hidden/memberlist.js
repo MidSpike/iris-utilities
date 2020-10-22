@@ -12,7 +12,7 @@ const { DisBotCommand,
 
 module.exports = new DisBotCommand({
     name: 'MEMBERLIST',
-    category: `${DisBotCommander.categories.HIDDEN}`,
+    category: `${DisBotCommander.categories.GUILD_OWNER}`,
     description: 'allows you to download the member-list for servers that you own',
     aliases: ['memberlist'],
     access_level: DisBotCommand.access_levels.GUILD_OWNER,
