@@ -28,8 +28,13 @@ const LONG_NAME = 'Interactive Reconnaissance Information Service Utilities';
 const OWNER_ID = '163646957783482370';
 
 const WEBSITE = 'https://iris-utilities.com/';
-const PATREON = 'https://patreon.com/midspike';
 const GITHUB = 'https://github.com/MidSpike/iris-utilities';
+
+const DONATION_SOURCES = {
+    GITHUB: 'https://github.com/sponsors/MidSpike',
+    PAYPAL: 'https://paypal.me/midspike',
+    PATREON: 'https://www.patreon.com/midspike',
+};
 
 const SPECIAL_CHANNELS = [
     {
@@ -178,8 +183,8 @@ module.exports = {
     LONG_NAME: LONG_NAME,
     OWNER_ID: OWNER_ID,
     WEBSITE: WEBSITE,
-    PATREON: PATREON,
     GITHUB: GITHUB,
+    DONATION_SOURCES: DONATION_SOURCES,
     SPECIAL_CHANNELS: SPECIAL_CHANNELS,
     SUPER_PERMS: SUPER_PERMS,
     SUPER_PEOPLE: SUPER_PEOPLE,
