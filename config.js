@@ -158,7 +158,6 @@ const DEFAULT_GUILD_CONFIG = {
     moderator_roles: [],
     allowed_channels: [],
     new_member_roles: [],
-    users_in_timeout: [],
     volume_multiplier: 1,
     volume_maximum: 200,
     tts_provider: 'ibm',

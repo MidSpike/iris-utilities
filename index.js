@@ -921,26 +921,6 @@ client.on('message', async (message) => {
     /* don't allow blacklisted guilds and silently halt execution */
     if (checkForBlacklistedGuild(message.guild)) return;
 
-    /* don't allow users in guild timeout and notify them of their inability to use this bot */
-    const guild_users_in_timeout = guild_config.users_in_timeout ?? [];
-    if (guild_users_in_timeout.includes(message.author.id)) {
-        try {
-            await message.delete({ timeout: 500 });
-            const dm_channel = await message.author.createDM();
-            await dm_channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: `Sorry, but you were put into an indefinite timeout in ${message.guild.name}.`,
-                description: [
-                    'Currently all messages that you are trying to send in that server will be deleted!',
-                    'Please contact an administrator on that discord server to be removed from timeout.',
-                ].join('\n'),
-            }));
-        } catch {
-            /* ignore any errors... they wont matter here */
-        }
-        return;
-    }
-
     /* handle guild invite-blocking */
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
     const contains_invite_link = message.cleanContent.includes(`discord.gg/`) || message.cleanContent.includes('discord.com/invite/') || message.cleanContent.includes(`discord.io/`) || message.cleanContent.includes(`invite.gg/`);
