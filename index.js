@@ -68,7 +68,8 @@ const { logUserError } = require('./src/libs/errors.js');
 
 const { generateInviteToGuild } = require('./src/libs/invites.js');
 
-const { logAdminCommandsToGuild } = require('./src/libs/messages.js');
+const { sendConfirmationEmbed,
+        logAdminCommandsToGuild } = require('./src/libs/messages.js');
 
 const { QueueManager } = require('./src/libs/QueueManager.js');
 const { AudioController } = require('./src/libs/AudioController.js');
@@ -788,14 +789,16 @@ client.on('guildMemberAdd', async (member) => {
 client.on('message', async (message) => {
     if (client.$.restarting_bot) return;
 
+    /* handle potential partial data structures */
     if (message.partial) await message.fetch().catch((warning) => console.warn('1599589897074120198', warning));
-    if (message.user?.partial) await message.user.fetch().catch((warning) => console.warn('1599589897074640420', warning));
-    if (message.member?.partial) await message.member.fetch().catch((warning) => console.warn('1599589897074997570', warning));
+    if (message.author?.partial) await message.author.fetch().catch((warning) => console.warn('1599589897074640420', warning));
     if (message.guild) await message.guild.fetch().catch((warning) => console.warn('1599589897074678159', warning));
 
-    if (message.author.bot) return; // don't interact with bots
+    /* don't interact with bots */
+    if (message.author.bot) return;
 
-    if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return; // don't continue when the bot is in lockdown mode
+    /* don't continue when the bot is in lockdown mode */
+    if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
     if (message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID) {
         const user_to_dm_from_dm_channel = client.users.cache.get(`${message.channel.name.replace('dm-', '')}`);
@@ -817,7 +820,11 @@ client.on('message', async (message) => {
                 text: `Support Staff: ${moment()}`,
             },
         });
-        await message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
+
+        if (message.attachments.size === 0) {
+            await message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
+        }
+
         try {
             const dm_channel = await user_to_dm_from_dm_channel.createDM();
             await dm_channel.send(dm_embed);
@@ -831,46 +838,59 @@ client.on('message', async (message) => {
     }
 
     if (message.channel.type === 'dm') {
-        const dm_embed = new CustomRichEmbed({
-            color: 0xBBBBBB,
-            author: {
-                iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                name: `@${message.author.tag} (${message.author.id})`,
-            },
-            description: `${message.cleanContent}`,
-            fields: [
-                { name: `Link`, value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})` },
-                ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
-                    name: `Message Attachment:`,
-                    value: `[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`,
-                })) : []),
-            ],
-            footer: {
-                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                text: `[Direct Message]: ${moment()}`,
-            },
+        const confirmation_embed = new CustomRichEmbed({
+            title: `Do you wish to send that message to my support staff?`,
+            description: [
+                'My staff will answer any questions as soon as they see it!',
+                'Remember that you can request for your history to be deleted at any time!',
+            ].join('\n\n'),
         });
-        const bot_logging_guild = client.guilds.cache.get(bot_support_guild_id);
-        const potential_central_dm_channel_with_user = bot_logging_guild.channels.cache.find(channel => channel.name === `dm-${message.author.id}`);
-        if (potential_central_dm_channel_with_user) {
-            potential_central_dm_channel_with_user.send(dm_embed).catch(console.warn);
-        } else {
+
+        sendConfirmationEmbed(message.author.id, message.channel.id, true, confirmation_embed, async () => {
+            const bot_support_guild = client.guilds.cache.get(bot_support_guild_id);
+
+            let support_guild_dm_channel_with_user = bot_support_guild.channels.cache.find(channel => channel.type === 'text' && channel.name === `dm-${message.author.id}`);
+
+            if (!support_guild_dm_channel_with_user) {
+                /* create the linking support channel if it doesn't already exist */
+                support_guild_dm_channel_with_user = await bot_support_guild.channels.create(`dm-${message.author.id}`, {
+                    type: 'text',
+                    topic: `${message.author.tag} (${message.author.id}) | ${moment()}`,
+                }).catch(console.trace);
+
+                await support_guild_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID).catch(console.trace);
+                await Timer(1000); // discord.js needs time to recognize the new parent of the channel
+                await support_guild_dm_channel_with_user.lockPermissions().catch(console.trace);
+            }
+
+            await support_guild_dm_channel_with_user.send(new CustomRichEmbed({
+                color: 0xBBBBBB,
+                author: {
+                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                    name: `@${message.author.tag} (${message.author.id})`,
+                },
+                description: `${message.cleanContent}`,
+                fields: [
+                    { name: `Link`, value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})` },
+                    ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
+                        name: `Message Attachment:`,
+                        value: `[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`,
+                    })) : []),
+                ],
+                footer: {
+                    iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                    text: `Direct Message: ${moment()}`,
+                },
+            })).catch(console.warn);
+
             await message.channel.send(new CustomRichEmbed({
-                title: `Opening Chat With ${bot_common_name} Staff`,
-                description: `My staff will answer any questions as soon as they see it!\n\nRemember that you can request for your history to be deleted at any time!`,
-            })).catch(console.warn);
-            const central_dm_channel_with_user = await bot_logging_guild.channels.create(`dm-${message.author.id}`, {
-                type: 'text',
-                topic: `${message.author.tag} (${message.author.id}) | ${moment()}`,
-            }).catch(console.trace);
-            await central_dm_channel_with_user.setParent(process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID).catch(console.trace);
-            await Timer(750); // for some reason Discord.js needs a little bit to recognize the new parent of the channel, therefore this delay exists
-            await central_dm_channel_with_user.lockPermissions().catch(console.trace);
-            await central_dm_channel_with_user.send(new CustomRichEmbed({
-                title: `Opened DM with: ${message.author.tag} (${message.author.id})`,
-            })).catch(console.warn);
-            await central_dm_channel_with_user.send(dm_embed).catch(console.warn);
-        }
+                author: {
+                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                    name: `@${message.author.tag}`,
+                },
+                description: `I sent [this message](${message.url}) to my support staff!`,
+            }));
+        }, undefined);
     }
 });
 
@@ -879,7 +899,7 @@ client.on('message', async (message) => {
 client.on('message', async (message) => {
     /* handle potential partial data structures */
     if (message.partial) await message.fetch().catch((warning) => console.warn('1599589897074884457', warning));
-    if (message.user?.partial) await message.user.fetch().catch((warning) => console.warn('1599589897074181056', warning));
+    if (message.author?.partial) await message.author.fetch().catch((warning) => console.warn('1599589897074181056', warning));
     if (message.member?.partial) await message.member.fetch().catch((warning) => console.warn('1599589897074955328', warning));
     if (message.guild) await message.guild.fetch().catch((warning) => console.warn('1599589897074775229', warning));
 
@@ -903,10 +923,10 @@ client.on('message', async (message) => {
     const guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
     if (guild_lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
-    /* register the guild config */
+    /* fetch the guild config */
     const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
-    /* register the guild command prefix */
+    /* fetch the guild command prefix */
     const command_prefix = guild_config.command_prefix ?? bot_default_guild_config.command_prefix;
 
     /* confirm that the guild command prefix is valid prefix */
