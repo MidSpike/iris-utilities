@@ -9,7 +9,7 @@
     "axios": "^0.20.0",
     "blapi": "^2.0.1",
     "bufferutil": "^4.0.1",
-    "discord.js": "^12.4.0",
+    "discord.js": "^12.4.1",
     "dogeify-js": "git+https://github.com/MidSpike/dogeify.git",
     "dotenv": "^8.2.0",
     "erlpack": "github:discord/erlpack",
