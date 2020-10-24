@@ -68,7 +68,7 @@ const { logUserError } = require('./src/libs/errors.js');
 
 const { generateInviteToGuild } = require('./src/libs/invites.js');
 
-const { sendConfirmationEmbed,
+const { sendConfirmationMessage,
         logAdminCommandsToGuild } = require('./src/libs/messages.js');
 
 const { QueueManager } = require('./src/libs/QueueManager.js');
@@ -846,7 +846,7 @@ client.on('message', async (message) => {
             ].join('\n\n'),
         });
 
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, confirmation_embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, async () => {
             const bot_support_guild = client.guilds.cache.get(bot_support_guild_id);
 
             let support_guild_dm_channel_with_user = bot_support_guild.channels.cache.find(channel => channel.type === 'text' && channel.name === `dm-${message.author.id}`);

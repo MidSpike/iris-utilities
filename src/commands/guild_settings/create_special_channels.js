@@ -7,7 +7,7 @@ const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
@@ -37,7 +37,7 @@ module.exports = new DisBotCommand({
                 {name:'Text Channels', value:`${bot_special_text_channels_names.join('\n')}`}
             ]
         });
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, embed, async () => {
             let success = true;
             const bot_message = await message.channel.send(new CustomRichEmbed({
                 title:`Creating \`${bot_special_channels_category_name}\``
