@@ -36,7 +36,7 @@ Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code
 ### Development Environment
 - Windows ^v10.2004
 - Node.js ^v14.11.0
-- NPM ^7.0.0 (experimental)
+- NPM ^7.0.5
 
 ### Using Experimental ECMAScript Features
 - nullish coalescing `yin ?? yang`
