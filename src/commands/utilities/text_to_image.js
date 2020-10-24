@@ -19,6 +19,7 @@ module.exports = new DisBotCommand({
     category: `${DisBotCommander.categories.UTILITIES}`,
     description: 'converts text to an image',
     aliases: ['text_to_image', 'tti'],
+    cooldown: 5_000,
     access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const { discord_command } = opts;

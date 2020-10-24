@@ -40,31 +40,37 @@ class DisBotCommand {
         BOT_SUPER: 5_000,
         BOT_OWNER: 10_000,
     };
-    #cmd_template = {
+
+    static cmd_template = {
         name: '',
         category: '',
-        weight: 9999,
         description: '',
         aliases: [],
+        weight: 9999,
+        cooldown: 1_000,
         access_level: DisBotCommand.access_levels.GLOBAL_USER,
         executor(Discord, client, message, opts={}) {},
     };
+
+    #cooldown_tracker = new Discord.Collection();
+
     /**
      * The arguments are an object to allow for easy future expansion
-     * @param {Object} cmd an object that must be composed from the properties of this.#cmd_template.
+     * @param {Object} cmd an object that must be composed from the properties of DisBotCommand.cmd_template.
      */
     constructor(cmd={}) {
         const _cmd = {
-            ...this.#cmd_template,
+            ...DisBotCommand.cmd_template,
             ...cmd,
         };
 
         /* type checks and basic validation checks */
         if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new TypeError('`name` must be a valid string!');
         if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new TypeError('`category` must be a valid string!');
-        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new TypeError('`weight` must be a valid number above `0`!');
         if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new TypeError('`description` must be a valid string!');
         if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new TypeError('`aliases` must be a valid array!');
+        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new TypeError('`weight` must be a valid number greater than or equal to `1`!');
+        if (isNaN(_cmd.cooldown) || _cmd.cooldown < 0) throw new TypeError('`cooldown` must be a valid number greater than or equal to `0`!');
         if (isNaN(_cmd.access_level)) throw new TypeError('`access_level` must be a valid number!');
         if (typeof _cmd.executor !== 'function') throw new TypeError('`executor` must be a valid function!');
 
@@ -73,12 +79,14 @@ class DisBotCommand {
 
         this.name = _cmd.name;
         this.category = _cmd.category;
-        this.weight = _cmd.weight;
         this.description = _cmd.description;
         this.aliases = _cmd.aliases;
+        this.weight = _cmd.weight;
+        this.cooldown = _cmd.cooldown;
         this.access_level = _cmd.access_level;
         this.executor = _cmd.executor;
     }
+
     /**
      * Executes the command executor
      * @param {Discord} Discord 
@@ -92,6 +100,17 @@ class DisBotCommand {
         if (!client) throw new Error('`client` must be passed to command.execute()!');
         if (!message) throw new Error('`message` must be passed to command.execute()!');
         if (!opts) throw new Error('`opts` must be passed to command.execute()!');
+
+        /* prevent users from spamming commands via cooldown */
+        const user_cooldown_epoch = this.#cooldown_tracker.get(message.author.id) ?? Date.now() - this.cooldown;
+        if (Date.now() - user_cooldown_epoch < this.cooldown) {
+            console.warn(`${message.author.tag} (${message.author.id}) is trying to spam a command!`);
+            return; // don't execute the command
+        } else {
+            /* set the current time as the last time the user used this command */
+            this.#cooldown_tracker.set(message.author.id, Date.now());
+        }
+
         return await this.executor(Discord, client, message, opts);
     }
 }
