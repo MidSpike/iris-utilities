@@ -15,6 +15,7 @@ module.exports = new DisBotCommand({
     category: `${DisBotCommander.categories.GUILD_OWNER}`,
     description: 'allows you to download the member-list for servers that you own',
     aliases: ['memberlist'],
+    cooldown: 15_000,
     access_level: DisBotCommand.access_levels.GUILD_OWNER,
     async executor(Discord, client, message, opts={}) {
         async function sendMemberListFileToChannel(channel) {
