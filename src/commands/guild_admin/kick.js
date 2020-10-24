@@ -5,7 +5,7 @@ const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendConfirmationEmbed, logAdminCommandsToGuild } = require('../../libs/messages.js');
+const { sendConfirmationMessage, logAdminCommandsToGuild } = require('../../libs/messages.js');
 const { logUserError } = require('../../libs/errors.js');
 const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner, isSuperPerson } = require('../../libs/permissions.js');
 //#endregion local dependencies
@@ -70,7 +70,7 @@ module.exports = new DisBotCommand({
             title:`Are you sure you want to kick @${member_to_kick.tag}?`
         }, message);
 
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, confirm_embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, confirm_embed, async () => {
             const guild_member_to_ban = message.guild.members.resolve(member_to_kick.id);
             if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
                 const dm_channel = await member_to_kick.createDM();

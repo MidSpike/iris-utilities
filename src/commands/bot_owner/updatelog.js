@@ -11,7 +11,7 @@ const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendNotAllowedCommand, sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendNotAllowedCommand, sendConfirmationMessage } = require('../../libs/messages.js');
 const { isThisBotsOwner } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
@@ -38,7 +38,7 @@ module.exports = new DisBotCommand({
             description: `${message.content.replace(discord_command, '').trim()}`,
         });
         message.channel.send(update_message_embed);
-        sendConfirmationEmbed(message.author.id, message.channel.id, false, new CustomRichEmbed({
+        sendConfirmationMessage(message.author.id, message.channel.id, false, new CustomRichEmbed({
             title: 'Are you sure you want to send the update message above?',
         }), async (bot_message) => {
             //#region save update log entries to a file

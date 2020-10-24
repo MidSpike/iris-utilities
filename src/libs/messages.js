@@ -23,16 +23,16 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
  * Breaks apart a large_message and sends it in chunks to a specified channel
  * @param {String} channel_id 
  * @param {String} large_message 
- * @param {String} code_block_lang 
+ * @param {String} code_block_language 
  * @returns {Promise<Array<Message>>} a promise for an array of discord messages
  */
-async function sendLargeMessage(channel_id, large_message, code_block_lang='') {
-    let sent_messages = [];
+async function sendLargeMessage(channel_id, large_message, code_block_language='') {
+    const sent_messages = [];
     const message_chunks = `${large_message}`.match(/[^]{1,1500}/g); // Split the message into 1500 character long chunks
     for (const message_chunk of message_chunks) {
         let sent_message;
         try {
-            sent_message = await client.channels.cache.get(channel_id).send(`${'```'}${code_block_lang}\n${message_chunk}\n${'```'}`);
+            sent_message = await client.channels.cache.get(channel_id).send(`${'```'}${code_block_language}\n${message_chunk}\n${'```'}`);
         } catch (error) {
             console.warn(error);
         } finally {
@@ -47,23 +47,23 @@ const options_message_reactions_template = [
     {
         emoji_name: 'bot_emoji_checkmark',
         cooldown: 1000,
-        callback(options_message, collected_reaction, user) {}
+        callback(options_message, collected_reaction, user) {},
     }, {
         emoji_name: 'bot_emoji_close',
         cooldown: 1000,
-        callback(options_message, collected_reaction, user) {}
-    }
+        callback(options_message, collected_reaction, user) {},
+    },
 ];
 /**
  * Sends a message with clickable reactions for a user to interact with
- * @param {String} channel_id 
- * @param {MessageContents} embed any valid input for channel.send(...)
+ * @param {String} channel_id the id of the channel receiving the options_message
+ * @param {MessageContents} message_contents any valid input for channel.send(...)
  * @param {options_message_reactions_template} reaction_options an object that derives from an `options_message_reactions_template`
- * @param {String} confirmation_user_id the user_id to confirm reaction origin with
+ * @param {String} confirmation_user_id the user_id to confirm the reaction's origin with
  * @returns {Promise<Message>} the options_message after attempting to add all reactions
  */
-async function sendOptionsMessage(channel_id, embed, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
-    const options_message = await client.channels.cache.get(channel_id).send(embed).catch(console.warn);
+async function sendOptionsMessage(channel_id, message_contents, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
+    const options_message = await client.channels.cache.get(channel_id).send(message_contents).catch(console.warn);
     if (!options_message) throw new Error(`Unable to send options_message!`);
 
     for (const reaction_option of reaction_options) { // execute each reaction sequentially
@@ -115,28 +115,27 @@ async function sendOptionsMessage(channel_id, embed, reaction_options=options_me
  * @param {String} confirm_user_id 
  * @param {String} channel_id 
  * @param {Boolean} delete_after_selection 
- * @param {String|MessageEmbed} embed_contents 
+ * @param {MessageContents} message_contents 
  * @param {Function} yes_callback 
  * @param {Function} no_callback 
- * @deprecated 
  */
-function sendConfirmationEmbed(confirm_user_id, channel_id, delete_after_selection=true, embed_contents='Default Embed', yes_callback=(discord_embed)=>{}, no_callback=(discord_embed)=>{}) {
-    sendOptionsMessage(channel_id, embed_contents, [
+function sendConfirmationMessage(confirm_user_id, channel_id, delete_after_selection=true, message_contents='Default Embed', yes_callback=(options_message)=>{}, no_callback=(options_message)=>{}) {
+    sendOptionsMessage(channel_id, message_contents, [
         {
             emoji_name: 'bot_emoji_checkmark',
             cooldown: 1500,
             callback(options_message, collected_reaction, user) {
-                if (delete_after_selection) options_message.delete({timeout:500}).catch(console.warn);
+                if (delete_after_selection) options_message.delete({ timeout: 500 }).catch(console.warn);
                 yes_callback(options_message);
-            }
+            },
         }, {
             emoji_name: 'bot_emoji_close',
             cooldown: 1500,
             callback(options_message, collected_reaction, user) {
-                if (delete_after_selection) options_message.delete({timeout:500}).catch(console.warn);
+                if (delete_after_selection) options_message.delete({ timeout: 500 }).catch(console.warn);
                 no_callback(options_message);
-            }
-        }
+            },
+        },
     ], confirm_user_id);
 }
 
@@ -194,7 +193,7 @@ async function removeMessageFromChannel(channel_id, message_id) {
 }
 
 /**
- * * Sends a volume controller embed
+ * Sends a volume controller embed
  * @param {String} channel_id 
  * @param {Message} user_message 
  */
@@ -468,7 +467,7 @@ function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
 
 module.exports = {
     sendLargeMessage,
-    sendConfirmationEmbed,
+    sendConfirmationMessage,
     sendOptionsMessage,
     removeUserReactionsFromMessage,
     removeAllReactionsFromMessage,

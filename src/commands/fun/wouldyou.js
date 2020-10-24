@@ -7,7 +7,7 @@ const HtmlEntitiesParser = require('html-entities').AllHtmlEntities;
 const htmlEntitiesParser = new HtmlEntitiesParser();
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 //#endregion local dependencies
@@ -59,6 +59,6 @@ module.exports = new DisBotCommand({
             }, message));
         }
 
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, embed, showResults, showResults);
+        sendConfirmationMessage(message.author.id, message.channel.id, true, embed, showResults, showResults);
     },
 });

@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 //#endregion local dependencies
@@ -55,7 +55,7 @@ module.exports = new DisBotCommand({
             ].join('\n'),
         }, message);
 
-        sendConfirmationEmbed(message.author.id, message.channel.id, true, embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, embed, async () => {
             sendMemberListFileToChannel(message.channel);
         }, async () => {
             const dm_channel = await message.author.createDM();

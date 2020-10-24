@@ -5,7 +5,7 @@ const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
@@ -20,7 +20,7 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS'])) return;
-        sendConfirmationEmbed(message.author.id, message.channel.id, false, new CustomRichEmbed({
+        sendConfirmationMessage(message.author.id, message.channel.id, false, new CustomRichEmbed({
             title: 'Do you wish to proceed?',
             description: 'This command will archive this channel and prevent non-staff from viewing it'
         }, message), async (bot_message) => {

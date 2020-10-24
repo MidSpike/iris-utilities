@@ -5,7 +5,7 @@ const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 const { logUserError } = require('../../libs/permissions.js');
 //#endregion local dependencies
@@ -19,7 +19,7 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command } = opts;
         if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS'])) return;
-        sendConfirmationEmbed(message.author.id, message.channel.id, false, new CustomRichEmbed({
+        sendConfirmationMessage(message.author.id, message.channel.id, false, new CustomRichEmbed({
             title:'Be very careful!',
             description:[
                 `**This command will clone this channel and then delete the old one!**`,

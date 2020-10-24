@@ -9,7 +9,7 @@ const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { generateInviteToGuild } = require('../../libs/invites.js');
-const { sendConfirmationEmbed,
+const { sendConfirmationMessage,
         logAdminCommandsToGuild } = require('../../libs/messages.js');
 const { logUserError } = require('../../libs/errors.js');
 const { isThisBot,
@@ -96,7 +96,7 @@ module.exports = new DisBotCommand({
                 title:`Are you sure you want to ban @${user_to_modify.tag}?`
             }, message);
 
-            sendConfirmationEmbed(message.author.id, message.channel.id, true, confirm_embed, async () => {
+            sendConfirmationMessage(message.author.id, message.channel.id, true, confirm_embed, async () => {
                 const guild_member_to_ban = message.guild.members.resolve(user_to_modify.id);
                 if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
                     const dm_channel = await user_to_modify.createDM();

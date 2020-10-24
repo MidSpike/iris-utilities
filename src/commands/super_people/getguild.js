@@ -6,7 +6,7 @@ const moment = require('moment-timezone');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { sendNotAllowedCommand, sendLargeMessage, sendConfirmationEmbed } = require('../../libs/messages.js');
+const { sendNotAllowedCommand, sendLargeMessage, sendConfirmationMessage } = require('../../libs/messages.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
@@ -59,7 +59,7 @@ module.exports = new DisBotCommand({
                     sendLargeMessage(message.channel.id, sorted_guild_members.map(member => `(${member.id}) ${member.user.tag}`).join('\n'));
                 }
                 if (guild_members.size >= 100) {
-                    sendConfirmationEmbed(message.author.id, message.channel.id, true, new CustomRichEmbed({
+                    sendConfirmationMessage(message.author.id, message.channel.id, true, new CustomRichEmbed({
                         title:'There are a lot of members in that guild!',
                         description:`Do you wish to print out ${guild_members.size} members?`
                     }, message), () => {
@@ -77,7 +77,7 @@ module.exports = new DisBotCommand({
                     sendLargeMessage(message.channel.id, sorted_guild_bots.map(member => `(${member.id}) ${member.user.tag}`).join('\n'));
                 }
                 if (guild_bots.size >= 100) {
-                    sendConfirmationEmbed(message.author.id, message.channel.id, true, new CustomRichEmbed({
+                    sendConfirmationMessage(message.author.id, message.channel.id, true, new CustomRichEmbed({
                         title:'There are a lot of bots in that guild!',
                         description:`Do you wish to print out ${guild_bots.size} bots?`
                     }, message), () => {
