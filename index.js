@@ -927,7 +927,7 @@ client.on('message', async (message) => {
     const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
     /* fetch the guild command prefix */
-    const command_prefix = guild_config.command_prefix ?? bot_default_guild_config.command_prefix;
+    const command_prefix = (guild_config.command_prefix ?? bot_default_guild_config.command_prefix)?.toLowerCase();
 
     /* confirm that the guild command prefix is valid prefix */
     if (typeof command_prefix !== 'string' || command_prefix.length === 0) {
@@ -1014,12 +1014,12 @@ client.on('message', async (message) => {
     }
 
     /* check to see if the message starts with the command prefix */
-    if (!message.content.startsWith(command_prefix)) return;
+    if (!message.content.toLowerCase().startsWith(command_prefix)) return;
 
     /* prevent bot-list guilds from responding to the default command_prefix */
     const guild_is_a_known_bot_list = bot_config.BOT_LIST_GUILDS.includes(message.guild.id);
     const guild_is_an_unknown_bot_list = guild_config._bot_count > 250;
-    const guild_command_prefix_is_default = guild_config.command_prefix === bot_config.DEFAULT_GUILD_CONFIG.command_prefix;
+    const guild_command_prefix_is_default = guild_config.command_prefix.toLowerCase() === bot_default_guild_config.command_prefix.toLowerCase();
     if ((guild_is_a_known_bot_list || guild_is_an_unknown_bot_list) && guild_command_prefix_is_default) {
         console.error(`Guild [${message.guild.name}] (${message.guild.id}) should not have the default command_prefix!`);
         return;
@@ -1067,11 +1067,17 @@ client.on('message', async (message) => {
     }
 
     /* check for valid command */
-    const command = DisBotCommander.commands.find(cmd =>
-        cmd.aliases.map(cmd =>
+    const command = DisBotCommander.commands.find(cmd => 
+        cmd.aliases.map(cmd => 
             `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
         ).includes(discord_command)
     );
+
+    console.log({
+        discord_command,
+        command,
+    });
+
     if (!command) {
         message.channel.send(new CustomRichEmbed({
             title: `That command doesn't exist!`,

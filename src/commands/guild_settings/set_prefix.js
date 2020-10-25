@@ -27,7 +27,7 @@ module.exports = new DisBotCommand({
                 return;
             }
             const old_command_prefix = guild_config.command_prefix;
-            const new_command_prefix = command_args[0].replace(/\s/g, '_'); // Replace whitespaces with underscores
+            const new_command_prefix = command_args[0].replace(/\s/g, '_').toLowerCase(); // Replace whitespaces with underscores
             message.channel.send(new CustomRichEmbed({
                 title:'Setting New Command Prefix',
                 description:`Old Server Command Prefix: ${'```'}\n${old_command_prefix}\n${'```'}\nNew Server Command Prefix: ${'```'}\n${new_command_prefix}\n${'```'}`
