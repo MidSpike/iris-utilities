@@ -1073,11 +1073,6 @@ client.on('message', async (message) => {
         ).includes(discord_command)
     );
 
-    console.log({
-        discord_command,
-        command,
-    });
-
     if (!command) {
         message.channel.send(new CustomRichEmbed({
             title: `That command doesn't exist!`,
