@@ -73,8 +73,6 @@ class GuildConfigsManager {
             ...partial_config_data,
         };
 
-        delete new_config_data['users_in_timeout'];
-
         this.#configs_in_memory.set(guild_id, object_sort(new_config_data));
         return this;
     }
