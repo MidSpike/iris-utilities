@@ -26,7 +26,8 @@ const Discord = require('discord.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const { pseudoUniqueId } = require('./src/utilities.js');
+const { Timer,
+        pseudoUniqueId } = require('./src/utilities.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -61,41 +62,49 @@ router.get('/speech', (req, res) => {
 //---------------------------------------------------------------------------------------------------------------//
 
 router.get('/ytinfo', async (req, res) => {
+    res.set({ 'Content-Type': 'application/json' });
     if (req.query?.token !== process.env.BOT_API_SERVER_TOKEN) {
         console.warn(`Unauthorized request to the '/ytinfo' endpoint!`);
         res.status(403);
-        res.set({ 'Content-Type': 'application/json' });
         res.send(JSON.stringify({
             'status': '403',
-            'message': 'bot api token is not valid!'
+            'message': 'bot api token is not valid!',
         }, null, 2));
     } else {
         res.set({ 'Content-Type': 'application/json' });
         if (req.query.video_id) {
             console.info(`[/ytinfo] - video_id:`, req.query.video_id);
-            let yt_info;
-            try {
-                yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`);
 
+            let yt_info;
+            let num_attempts = 0;
+            while (!yt_info && num_attempts < 5) {
+                yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`).catch(console.warn);
+                await Timer(num_attempts * 250);
+                num_attempts++;
+            }
+
+            if (!yt_info) {
+                console.error(`Can't find video info for video id: ${req.query.video_id}`, error);
+                res.status(500);
+            } else {
+                res.status(200);
                 const regex_brackets = /(\<|\>|\(|\)|\[|\]|\{|\})/g;
                 yt_info.videoDetails.title = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.title).replace(regex_brackets, ``)}`;
                 yt_info.videoDetails.author.name = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.author.name).replace(regex_brackets, ``)}`;
-
+    
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(yt_info.videoDetails.author.name, '');
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/((official (video|audio|music|lyrics|lyric)(\s(video|audio|music))*)|(lyrics|lyric))/gi, '');
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/[\/\-\_\\]/g, ' '); // replace these with a space
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/\s+/g, ` `); // replaces many spaces with one space
                 yt_info.videoDetails.title = yt_info.videoDetails.title.trim();
-            } catch (error) {
-                console.trace(`Can't find video info for video id: ${req.query.video_id}`, error);
-                yt_info = {};
-            } finally {
-                res.send(JSON.stringify(yt_info, null, 2));
             }
+
+            res.send(JSON.stringify(yt_info ?? {}, null, 2));
         } else {
+            res.status(400);
             res.send(JSON.stringify({
-                'status': '200',
-                'message': 'Expected parameter \'video_id\' in the query!'
+                'status': '400',
+                'message': 'Expected parameter \'video_id\' in the query!',
             }, null, 2));
         }
     }

@@ -143,7 +143,6 @@ async function playYouTube(message, search_query, playnext=false) {
         const yt_video_info = bot_api_response?.data;
 
         if (!yt_video_info.videoDetails) {
-            console.error('-----', {message, search_query, yt_video_info}, '-----');
             logUserError(message, new Error('\`yt_video_info.videoDetails\` is not defined!'));
             return;
         }
