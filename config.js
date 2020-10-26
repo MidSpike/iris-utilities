@@ -115,31 +115,37 @@ const SUPER_PEOPLE = new Collection([
         name: 'MidSpike',
         public: false,
         allowed_permissions: ['*'],
-        denied_permissions: []
+        denied_permissions: [],
     }, {
         id: '196254672418373632',
         name: 'Will F.',
         public: true,
         allowed_permissions: ['*'],
-        denied_permissions: []
+        denied_permissions: [],
     }, {
         id: '255071492801429504',
         name: 'QuackAttack',
         public: true,
         allowed_permissions: ['*'],
-        denied_permissions: []
+        denied_permissions: [],
     }, {
         id: '557744032621658123',
         name: 'ThreeShot',
         public: true,
         allowed_permissions: ['*'],
-        denied_permissions: []
+        denied_permissions: [],
     }, {
         id: '686385736269824062',
         name: 'A.Baker',
         public: true,
         allowed_permissions: ['*'],
-        denied_permissions: []
+        denied_permissions: [],
+    }, {
+        id: '199641055837159425',
+        name: 'Anthony',
+        public: true,
+        allowed_permissions: ['*'],
+        denied_permissions: [],
     },
 ].map(super_person => [super_person.id, super_person]));
 
