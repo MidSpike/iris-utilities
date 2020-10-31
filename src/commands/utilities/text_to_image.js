@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const fs = require('fs');
 const path = require('path');
 const nodeHtmlToImage = require('node-html-to-image');
@@ -8,7 +8,7 @@ const nodeHtmlToImage = require('node-html-to-image');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 function escapeHTML(text) {
     return text.replace(`&`, '&amp;').replace(`"`, '&quot;').replace(`'`, '&apos;').replace(`\``, '&grave;').replace(`<`, '&lt;').replace(`>`, '&gt;').replace(`/`, '&#47;').replace(`\\`, '&#92;');
@@ -27,7 +27,7 @@ module.exports = new DisBotCommand({
         const user_raw_args_start_end_regex = /(format(\s*?)\{|\})/i;
         const user_raw_args_regex = /(format(\s*?)\{(.|\s)*?\})/i;
         const user_raw_args = message.cleanContent.match(user_raw_args_regex)?.[0] ?? '';
-        console.log({user_raw_args});
+        // console.log({user_raw_args});
 
         const user_args_invalid_regex = /([^a-z0-9\#\_\-])/gi;
         
@@ -36,10 +36,10 @@ module.exports = new DisBotCommand({
                 i.replace(user_args_invalid_regex, '').trim()
             )
         );
-        console.log({user_args});
+        // console.log({user_args});
         
         const user_args_map = new Map(user_args);
-        console.log({user_args_map});
+        // console.log({user_args_map});
 
         let text_for_image = message.cleanContent.replace(user_raw_args_regex, '').trim();
         text_for_image = escapeHTML(text_for_image.replace(discord_command, '')).trim().replace(/\r?\n|\r/g, '<br />');

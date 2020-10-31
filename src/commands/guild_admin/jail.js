@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -11,7 +11,7 @@ const { isThisBot,
         isThisBotsOwner,
         isSuperPerson,
         botHasPermissionsInGuild } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'JAIL',

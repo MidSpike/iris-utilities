@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const safe_stringify = require('json-stringify-safe');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -10,7 +10,7 @@ const { DisBotCommand,
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 //#region eval dependencies
 const os = require('os');
@@ -39,11 +39,11 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
 //#endregion eval dependencies
 
 module.exports = new DisBotCommand({
-    name:'EVAL',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
-    description:'eval',
-    aliases:['eval', 'evil'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    name: 'EVAL',
+    category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
+    description: 'eval',
+    aliases: ['eval', 'evil'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command } = opts;
 
@@ -52,7 +52,7 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        console.info(`----------------------------------------------------------------------------------------------------------------`);
+        console.info('----------------------------------------------------------------------------------------------------------------');
         const eval_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         try {
             let code_to_run = eval_input;
@@ -82,7 +82,7 @@ module.exports = new DisBotCommand({
                     fields: [
                         {
                             name: 'Input',
-                            value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`
+                            value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
                         }, {
                             name: 'Output',
                             value: [
@@ -110,14 +110,14 @@ module.exports = new DisBotCommand({
                 fields: [
                     {
                         name: 'Input',
-                        value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`
+                        value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
                     }, {
                         name: 'Error',
-                        value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`
+                        value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`,
                     },
                 ],
             }));
         }
-        console.info(`----------------------------------------------------------------------------------------------------------------`);
+        console.info('----------------------------------------------------------------------------------------------------------------');
     },
 });
