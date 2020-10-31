@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const bot_config = require('../../../config.js');
 
 const { Timer } = require('../../utilities.js');
@@ -14,17 +14,17 @@ const { sendNotAllowedCommand,
         sendConfirmationMessage } = require('../../libs/messages.js');
 const { isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_common_name = bot_config.COMMON_NAME;
 const bot_api_url = process.env.BOT_API_SERVER_URL;
 
 module.exports = new DisBotCommand({
-    name:'RESTART',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
-    description:'restart',
-    aliases:['restart'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    name: 'RESTART',
+    category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
+    description: 'restart',
+    aliases: ['restart'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'restart')) {
             sendNotAllowedCommand(message);

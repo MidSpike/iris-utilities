@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const fs = require('fs');
 const path = require('path');
 
@@ -8,7 +8,7 @@ const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'MEMBERLIST',
