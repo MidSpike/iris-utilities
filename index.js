@@ -501,7 +501,7 @@ client.on('channelCreate', async (channel) => {
 client.on('guildMemberAdd', async (member) => {
     if (client.$.restarting_bot) return;
 
-    if (isThisBot(member.id)) return; // don't log this bot joining... it can happen oddly enough...
+    if (isThisBot(member.id)) return; // don't log this bot leaving
 
     if (member.user.partial) member.user.fetch().catch((warning) => console.warn('1599589897074279134', warning));
 
@@ -513,20 +513,24 @@ client.on('guildMemberAdd', async (member) => {
             iconURL: member.user.displayAvatarURL({ dynamic: true }),
             name: `@${member.user.tag} (${member.user.id})`,
         },
-        title: 'Joined the server!',
+        description: [
+            `**User**: ${member.user}`,
+            `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
+            `**Flags**: \`${member.user.flags.toArray().join(', ')}\``,
+        ].join('\n'),
         footer: {
             iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-            text: `${moment()}`,
+            text: `Joined • ${moment()}`,
         },
     })).catch(() => {
-        console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
+        console.warn(`Unable to send \'guildMemberAdd\' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
 
 client.on('guildMemberRemove', async (member) => {
     if (client.$.restarting_bot) return;
 
-    if (isThisBot(member.id)) return; // don't log this bot leaving... it can happen oddly enough...
+    if (isThisBot(member.id)) return; // don't log this bot leaving
 
     if (member.user.partial) member.user.fetch().catch((warning) => console.warn('1599589897074661817', warning));
 
@@ -538,13 +542,17 @@ client.on('guildMemberRemove', async (member) => {
             iconURL: member.user.displayAvatarURL({ dynamic: true }),
             name: `@${member.user.tag} (${member.user.id})`,
         },
-        title: 'Left the server!',
+        description: [
+            `**User**: ${member.user}`,
+            `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
+            `**Flags**: \`${member.user.flags.toArray().join(', ')}\``,
+        ].join('\n'),
         footer: {
             iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-            text: `${moment()}`,
+            text: `Left • ${moment()}`,
         },
     })).catch(() => {
-        console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
+        console.warn(`Unable to send \'guildMemberRemove\' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
 
