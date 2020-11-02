@@ -945,9 +945,6 @@ client.on('message', async (message) => {
         return;
     }
 
-    /* don't allow blacklisted users and notify them of their inability to use this bot */
-    if (await checkForBlacklistedUser(message)) return;
-
     /* don't allow blacklisted guilds and silently halt execution */
     if (checkForBlacklistedGuild(message.guild)) return;
 
@@ -1107,11 +1104,6 @@ client.on('message', async (message) => {
         return;
     }
 
-    /* command message removal */
-    if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
-        message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
-    }
-
     /* central command logging */
     try {
         const current_command_log_file_name = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
@@ -1130,6 +1122,14 @@ client.on('message', async (message) => {
         fs.writeFileSync(current_command_log_file_name, JSON.stringify(updated_command_log, null, 2), { flag: 'w' });
     } catch (error) {
         console.trace(`Unable to save to command log file!`, error);
+    }
+
+    /* don't allow blacklisted users and notify them of their inability to use this bot */
+    if (await checkForBlacklistedUser(message)) return;
+
+    /* command message removal */
+    if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
+        message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
     }
 
     /* central anonymous command logging for bot staff */
