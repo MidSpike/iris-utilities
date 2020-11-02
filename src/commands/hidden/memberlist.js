@@ -18,6 +18,10 @@ module.exports = new DisBotCommand({
     cooldown: 15_000,
     access_level: DisBotCommand.access_levels.GUILD_OWNER,
     async executor(Discord, client, message, opts={}) {
+        const { discord_command } = opts;
+        message.reply(`The \`${discord_command}\` is currently broken. Waiting for Discord to resolve the issues on their end.`);
+        return;
+
         async function sendMemberListFileToChannel(channel) {
             const members = await message.guild.members.fetch();
 
