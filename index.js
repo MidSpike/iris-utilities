@@ -208,9 +208,9 @@ client.once('ready', async () => {
     }, 1000 * 60 * 1); // 1 minute
 
     /* after 5 minutes, update the client presence with various helpful information */
-    client.setTimeout(() => {
+    client.setTimeout(async () => {
         let bot_presence_mode = 1;
-        client.setInterval(() => {
+        client.setInterval(async () => {
             let bot_presence_text;
             switch (bot_presence_mode) {
                 case 0:
@@ -220,7 +220,7 @@ client.once('ready', async () => {
                     bot_presence_text = `Uptime: ${getReadableTime(client.uptime / 1000)}`;
                     break;
                 case 2:
-                    bot_presence_text = `👨‍💻${client.users.resolve(bot_owner_id).tag}👑`;
+                    bot_presence_text = `👨‍💻${(await client.users.fetch(bot_owner_id)).tag}👑`;
                     break;
                 case 3:
                     bot_presence_text = `@mention me for help!`;
