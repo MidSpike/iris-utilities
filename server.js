@@ -84,14 +84,14 @@ router.get('/ytinfo', async (req, res) => {
             }
 
             if (!yt_info) {
-                console.error(`Can't find video info for video id: ${req.query.video_id}`, error);
+                console.error(`Can\'t find video info for video id: ${req.query.video_id}`);
                 res.status(500);
             } else {
                 res.status(200);
                 const regex_brackets = /(\<|\>|\(|\)|\[|\]|\{|\})/g;
                 yt_info.videoDetails.title = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.title).replace(regex_brackets, ``)}`;
                 yt_info.videoDetails.author.name = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.author.name).replace(regex_brackets, ``)}`;
-    
+
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(yt_info.videoDetails.author.name, '');
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/((official (video|audio|music|lyrics|lyric)(\s(video|audio|music))*)|(lyrics|lyric))/gi, '');
                 yt_info.videoDetails.title = yt_info.videoDetails.title.replace(/[\/\-\_\\]/g, ' '); // replace these with a space
