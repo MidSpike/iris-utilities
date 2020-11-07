@@ -19,7 +19,7 @@ module.exports = new DisBotCommand({
         if (url_blocking === true) {
             message.channel.send(new CustomRichEmbed({
                 title: 'URL Blocking: disabled;',
-                description: 'URLs sent by members sent in the server will not be automatically deleted.',
+                description: 'URLs sent by members sent in this server will not be automatically deleted.',
             }, message));
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 url_blocking: 'disabled',
@@ -27,7 +27,7 @@ module.exports = new DisBotCommand({
         } else {
             message.channel.send(new CustomRichEmbed({
                 title: 'URL Blocking: enabled;',
-                description: 'URLs sent by members sent in the server will be automatically deleted.',
+                description: 'URLs sent by members sent in this server will be automatically deleted.',
             }, message));
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 url_blocking: 'enabled',
