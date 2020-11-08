@@ -16,6 +16,6 @@ module.exports = new DisBotCommand({
     access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const dm_channel = await message.author.createDM().catch(console.warn);
-        sendLargeMessage(dm_channel.id, JSON.stringify(bot_config.SUPER_PEOPLE, null, 2))
+        sendLargeMessage(dm_channel.id, JSON.stringify(bot_config.SUPER_PEOPLE, null, 2), 'json');
     },
 });
