@@ -38,7 +38,6 @@ const bot_version = bot_config.PUBLIC_VERSION;
 const bot_website = bot_config.WEBSITE;
 const bot_default_guild_config = bot_config.DEFAULT_GUILD_CONFIG;
 const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
-const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
 const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion bot globals
 
