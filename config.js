@@ -148,7 +148,7 @@ const SUPER_PEOPLE = new Collection([
         denied_permissions: [],
     }, {
         id: '159170842528448512',
-        name: 'ross',
+        name: 'Ross',
         public: true,
         allowed_permissions: ['*'],
         denied_permissions: [],
