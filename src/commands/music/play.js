@@ -123,8 +123,7 @@ async function playUserUploadedMP3(message, playnext=false) {
 }
 
 function detect_broadcastify(search_query='') {
-    const is_broadcastify_url = !!search_query.match('https://www.broadcastify.com/webPlayer/')?.[0];
-    return is_broadcastify_url;
+    return !!search_query.match(/((http|https)\:\/\/(www.)*(broadcastify\.com\/)(webPlayer|listen\/feed)\/\d+)/gi);
 }
 
 async function playBroadcastify(message, search_query, playnext=false) {
@@ -132,22 +131,29 @@ async function playBroadcastify(message, search_query, playnext=false) {
 
     const broadcast_id = search_query.match(/(\d+)/)?.[0]; // ID should be numbers only
     if (!broadcast_id) return;
-    const broadcast_url = `https://broadcastify.cdnstream1.com/${broadcast_id}`;
+    const broadcastify_website_url = `https://www.broadcastify.com/listen/feed/${broadcast_id}`;
+    const broadcastify_stream_url = `https://broadcastify.cdnstream1.com/${broadcast_id}`;
     const voice_connection = await createConnection(message.member.voice.channel);
-    const stream_maker = () => `${broadcast_url}`;
-    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
+    const stream_maker = () => `${broadcastify_stream_url}`;
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, () => {
         message.channel.send(new CustomRichEmbed({
-            title:'Playing Broadcastify Stream',
-            description:`[Stream Link - ${broadcast_id}](${broadcast_url})`
+            title: 'Playing Broadcastify Stream',
+            description: [
+                `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+            ].join('\n'),
         }, message));
     }, () => {}, (error) => {
         console.trace(error);
     });
-    guild_queue_manager.addItem(new QueueItem('other', player, `Broadcastify Stream`), (playnext ? 2 : undefined)).then(() => {
+    guild_queue_manager.addItem(new QueueItem('other', player, 'Broadcastify Stream'), (playnext ? 2 : undefined)).then(() => {
         if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
-                title:'Added Broadcastify Stream',
-                description:`[Stream Link - ${broadcast_id}](${broadcast_url})`
+                title: 'Added Broadcastify Stream',
+                description: [
+                    `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                    `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+                ].join('\n'),
             }, message));
         }
     });

@@ -13,10 +13,10 @@ class VolumeManager {
     #guild;
     #muted = false;
     #volume = 50;
-    #safety_multiplier = 0.004;
+    #safety_multiplier = 0.00175;
     #last_volume = 50;
     #fallback_volume = 50;
-    #fallback_guild_volume_multiplier = 0.004;
+    #fallback_guild_volume_multiplier = 1;
     #fallback_guild_volume_maximum = 200;
 
     constructor(guild) {

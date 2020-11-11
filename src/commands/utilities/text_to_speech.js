@@ -53,7 +53,7 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
             end_callback,
             error_callback } = _options.callbacks;
 
-    const queue_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, start_callback, end_callback, error_callback);
+    const queue_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 15.0, start_callback, end_callback, error_callback);
 
     return await guild_queue_manager.addItem(new QueueItem('tts', queue_player, `TTS Message`, {
         text: `${tts_text}`,
