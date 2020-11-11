@@ -63,7 +63,7 @@ module.exports = new DisBotCommand({
 
             const stream_maker = () => tts_url;
 
-            const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, undefined, () => {
+            const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 15.0, undefined, () => {
                 insult_count++;
                 if (insult_count < 25) {
                     tts_insult();
