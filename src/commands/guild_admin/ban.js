@@ -66,7 +66,7 @@ module.exports = new DisBotCommand({
                 if (staff_id === user_id) return false; // Don't allow the staff member to ban themselves
 
                 const staff_member = message.guild.members.resolve(staff_id);
-                if (!staff_member) throw new Error('`staff_id` must belong to a member in this guild!');
+                if (!staff_member) throw new Error('\`staff_id\` must belong to a member in this guild!');
 
                 /* the following people have guaranteed access */
                 if (isThisBotsOwner(staff_id)) return true;
@@ -86,7 +86,7 @@ module.exports = new DisBotCommand({
             if (!staffMemberCanBanUser(message.author.id, user_to_ban.id)) {
                 message.channel.send(new CustomRichEmbed({
                     color: 0xFFFF00,
-                    title: 'You aren\'t allowed to ban this user!'
+                    title: 'You aren\'t allowed to ban this user!',
                 }, message)).catch(console.warn);
                 return;
             }
