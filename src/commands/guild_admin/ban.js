@@ -1,14 +1,11 @@
 'use strict';
 
 //#region local dependencies
-const bot_config = require('../../../config.js');
-
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander,
-        DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { generateInviteToGuild } = require('../../libs/invites.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendConfirmationMessage,
         logAdminCommandsToGuild } = require('../../libs/messages.js');
 const { logUserError } = require('../../libs/errors.js');
@@ -18,44 +15,46 @@ const { isThisBot,
         botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
-const bot_common_name = bot_config.COMMON_NAME;
-const bot_appeals_guild_id = process.env.BOT_APPEALS_GUILD_ID;
-
 module.exports = new DisBotCommand({
-    name:'BAN',
-    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
-    description:'(un)bans a user in the guild',
-    aliases:['ban', 'unban'],
-    access_level:DisBotCommand.access_levels.GUILD_ADMIN,
+    name: 'BAN',
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
+    description: '(un)bans a user in the guild',
+    aliases: ['ban', 'unban'],
+    access_level: DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
         if (!botHasPermissionsInGuild(message, ['BAN_MEMBERS'])) return;
 
-        const user_to_modify = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
+        const user_to_ban = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
 
-        if (!user_to_modify) {
+        if (!user_to_ban) {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:'Provide a @user or user_id next time!',
-                fields:[
-                    {name:'Example Usage', value:`${'```'}\n${discord_command} @user#0001\n${'```'}`},
-                    {name:'Example Usage', value:`${'```'}\n${discord_command} 000000000000000001\n${'```'}`},
-                ]
+                color: 0xFFFF00,
+                title: 'Provide a @user or user_id next time!',
+                fields: [
+                    {
+                        name: 'Example Usage',
+                        value: `${'```'}\n${discord_command} @user#0001\n${'```'}`,
+                    }, {
+                        name: 'Example Usage',
+                        value: `${'```'}\n${discord_command} 000000000000000001\n${'```'}`,
+                    },
+                ],
             }, message)).catch(console.warn);
             return;
         }
 
         if (discord_command === `${command_prefix}unban`) {
-            message.guild.members.unban(user_to_modify, `@${message.author.tag} used the ${discord_command} command!`).then(unbanned_user => {
+            message.guild.members.unban(user_to_ban, `@${message.author.tag} used the ${discord_command} command!`).then(unbanned_user => {
                 message.channel.send(new CustomRichEmbed({
-                    title:`@${unbanned_user.tag} (${unbanned_user.id}) has been unbanned!`
+                    title: `@${unbanned_user.tag} (${unbanned_user.id}) has been unbanned!`,
                 }, message));
             }).catch(() => {
                 message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`An error has occurred!`,
-                    description:`I'm unable to unban that user!`
+                    color: 0xFFFF00,
+                    title: 'An error has occurred!',
+                    description: 'I\'m unable to unban that user!',
                 }, message));
             });
         } else { // assuming: discord_command === `${command_prefix}ban`
@@ -84,44 +83,39 @@ module.exports = new DisBotCommand({
                 return staff_member_can_ban_member;
             }
 
-            if (!staffMemberCanBanUser(message.author.id, user_to_modify.id)) {
+            if (!staffMemberCanBanUser(message.author.id, user_to_ban.id)) {
                 message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`You aren't allowed to ban this user!`
+                    color: 0xFFFF00,
+                    title: 'You aren\'t allowed to ban this user!'
                 }, message)).catch(console.warn);
                 return;
             }
 
             const confirm_embed = new CustomRichEmbed({
-                title:`Are you sure you want to ban @${user_to_modify.tag}?`
+                title: `Are you sure you want to ban @${user_to_ban.tag}?`,
             }, message);
 
             sendConfirmationMessage(message.author.id, message.channel.id, true, confirm_embed, async () => {
-                const guild_member_to_ban = message.guild.members.resolve(user_to_modify.id);
-                if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
-                    const dm_channel = await user_to_modify.createDM();
-                    const appeals_guild_invite = await generateInviteToGuild(bot_appeals_guild_id, `Generated using ${discord_command} in ${message.guild.name} (${message.guild.id})`);
-
+                const guild_member_to_ban = message.guild.members.resolve(user_to_ban.id);
+                if (guild_member_to_ban?.bannable) {
+                    /* the user is in the guild and is bannable */
+                    const dm_channel = await user_to_ban.createDM();
                     await dm_channel.send(new CustomRichEmbed({
-                        color:0xFF00FF,
-                        title:`You have been banned from ${message.guild.name}`,
-                        description:[
-                            `You may have a second chance via the [${bot_common_name} Appeals Server](${appeals_guild_invite.url})`,
-                            `If **${message.guild.name}** has ${bot_common_name} Appeals enabled, then you can send an apology to them using the **${bot_common_name} Appeals Server**.`
-                        ].join('\n')
+                        color: 0xFF00FF,
+                        title: `You have been banned from ${message.guild.name}`,
                     })).catch(console.warn);
 
                     await Timer(1000); // Make sure to send the message before banning them
                 }
 
-                message.guild.members.ban(user_to_modify.id, {
-                    reason:`@${message.author.tag} used ${discord_command}`
+                message.guild.members.ban(user_to_ban.id, {
+                    reason: `@${message.author.tag} used ${discord_command}`,
                 }).then(() => {
                     message.channel.send(new CustomRichEmbed({
-                        title:`@${user_to_modify.tag} has been banned!`
+                        title: `@${user_to_ban.tag} has been banned!`,
                     }, message)).catch(console.warn);
                     logAdminCommandsToGuild(message, new CustomRichEmbed({
-                        title:`@${message.author.tag} (${message.author.id}) banned @${user_to_modify.tag} (${user_to_modify.id}) from the server!`
+                        title: `@${message.author.tag} (${message.author.id}) banned @${user_to_ban.tag} (${user_to_ban.id}) from the server!`,
                     }, message));
                 }).catch(() => {
                     logUserError(message, error);
