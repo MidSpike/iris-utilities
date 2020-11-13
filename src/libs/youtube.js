@@ -180,7 +180,10 @@ async function playYouTube(message, search_query, playnext=false) {
         };
 
         const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.75, () => {
-            sendYtDiscordEmbed(message, yt_video_info, 'Playing');
+            if (!guild_queue_manager.loop_enabled) {
+                /* don't send messages when looping */
+                sendYtDiscordEmbed(message, yt_video_info, 'Playing');
+            }
         }, async () => {
             /* handle queue autoplay for youtube videos */
             if (guild_queue_manager.queue.length === 0 && guild_queue_manager.autoplay_enabled) {
