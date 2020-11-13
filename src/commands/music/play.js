@@ -61,10 +61,13 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${remote_mp3_path}`;
     const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
-        message.channel.send(new CustomRichEmbed({
-            title:'Playing A MP3 File From The Internet',
-            description:`${'```'}\n${remote_mp3_path}\n${'```'}`
-        }, message));
+        if (!guild_queue_manager.loop_enabled) {
+            /* don't send messages when looping */
+            message.channel.send(new CustomRichEmbed({
+                title:'Playing A MP3 File From The Internet',
+                description:`${'```'}\n${remote_mp3_path}\n${'```'}`
+            }, message));
+        }
     }, () => {}, (error) => {
         console.trace(error);
     });
@@ -87,10 +90,13 @@ async function playUserUploadedMP3(message, playnext=false) {
             const voice_connection = await createConnection(message.member.voice.channel);
             const stream_maker = () => `${message_media.attachment}`;
             const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
-                message.channel.send(new CustomRichEmbed({
-                    title:'Playing A MP3 File From Their Computer',
-                    description:`${'```'}\n${message_media.name}${'```'}`
-                }, message));
+                if (!guild_queue_manager.loop_enabled) {
+                    /* don't send messages when looping */
+                    message.channel.send(new CustomRichEmbed({
+                        title:'Playing A MP3 File From Their Computer',
+                        description:`${'```'}\n${message_media.name}${'```'}`
+                    }, message));
+                }
             }, () => {
                 if (message.deletable) {
                     message.delete({timeout:500}).catch(null);
@@ -136,13 +142,16 @@ async function playBroadcastify(message, search_query, playnext=false) {
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${broadcastify_stream_url}`;
     const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, () => {
-        message.channel.send(new CustomRichEmbed({
-            title: 'Playing Broadcastify Stream',
-            description: [
-                `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
-                `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
-            ].join('\n'),
-        }, message));
+        if (!guild_queue_manager.loop_enabled) {
+            /* don't send messages when looping */
+            message.channel.send(new CustomRichEmbed({
+                title: 'Playing Broadcastify Stream',
+                description: [
+                    `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                    `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+                ].join('\n'),
+            }, message));
+        }
     }, () => {}, (error) => {
         console.trace(error);
     });

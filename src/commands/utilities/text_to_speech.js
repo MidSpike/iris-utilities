@@ -73,6 +73,8 @@ module.exports = new DisBotCommand({
 
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
 
+        const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
+
         const tts_input = clean_command_args.join(' ').trim();
         if (tts_input.length === 0 && message.attachments.size === 0) {
             message.channel.send(new CustomRichEmbed({
@@ -175,10 +177,13 @@ module.exports = new DisBotCommand({
                 voice:tts_voice,
                 callbacks: {
                     start_callback() {
-                        message.channel.send(new CustomRichEmbed({
-                            title: 'Playing TTS',
-                            description: `**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`,
-                        }, message));
+                        if (!guild_queue_manager.loop_enabled) {
+                            /* don't send messages when looping */
+                            message.channel.send(new CustomRichEmbed({
+                                title: 'Playing TTS',
+                                description: `**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`,
+                            }, message));
+                        }
                     },
                     end_callback() {
                         tts_chunk_done_resolve();
