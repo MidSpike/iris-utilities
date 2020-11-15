@@ -37,13 +37,13 @@ module.exports = new DisBotCommand({
             const kv_split_by_colons = kv.split(':');
             const k = kv_split_by_colons.slice(0, 1).join(':').trim();
             const v = kv_split_by_colons.slice(1).join(':').trim();
-            console.log({ kv_split_by_colons, kv, k, v });
+            // console.log({ kv_split_by_colons, kv, k, v });
             return [k, v];
         });
         // console.log({user_args});
         
         const user_args_map = new Map(user_args);
-        console.log({user_args_map});
+        // console.log({user_args_map});
 
         let text_for_image = message.cleanContent.replace(user_raw_args_regex, '').trim();
         text_for_image = escapeHTML(text_for_image.replace(discord_command, '')).trim().replace(/\r?\n|\r/g, '<br />');
@@ -64,8 +64,11 @@ module.exports = new DisBotCommand({
                                 `${discord_command} format {`,
                                 ` bg-color: #000000;`,
                                 ` bg-image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
+                                ` text-align: center;`,
+                                ` text-shadow-color: #000000;`,
                                 ` text-color: #FFFFFF;`,
                                 ` text-size: 56px;`,
+                                ` text-weight: 700;`,
                                 ` text-font: "Times New Roman", Times, serif;`,
                                 `}`,
                                 ``,
@@ -77,6 +80,8 @@ module.exports = new DisBotCommand({
                                 ``,
                                 `I'm a happy dog!`,
                             `${'```'}`,
+                            `The \`format\` options consist of pseudo-css properties and values...`,
+                            'This means that any pseudo-css-property that resembles a valid css-property; can in fact, accept corresponding acceptable css-values.',
                         ].join('\n'),
                     },
                 ],
@@ -105,15 +110,17 @@ module.exports = new DisBotCommand({
                             height: auto;
                         }
                         div {
-                            padding: 10px 15px;
+                            padding: 0.25em 0.5em;
                             background-color: ${user_args_map.get('bg-color') ?? '#7289da'};
                             background-image: ${user_args_map.has('bg-image-url') ? `url("${user_args_map.get('bg-image-url')}")` : 'unset'};
                             background-repeat: no-repeat;
                             background-size: cover;
                             background-position: 50% 50%;
+                            text-align: ${user_args_map.get('text-align') ?? 'left'};
+                            text-shadow: 4px 3px 0 ${user_args_map.get('text-shadow-color') ?? '#555555'};
                             color: ${user_args_map.get('text-color') ?? '#ffffff'};
-                            font-size: ${user_args_map.get('text-size') ?? '20px'};
-                            font-weight: 900;
+                            font-size: ${user_args_map.get('text-size') ?? '24px'};
+                            font-weight: ${user_args_map.get('text-weight') ?? '900'};
                             font-family: ${user_args_map.get('text-font') ?? '"Inconsola", monospace'};
                             word-wrap: break-word;
                             white-space: pre;
@@ -124,12 +131,13 @@ module.exports = new DisBotCommand({
                     <div>${text_for_image}</div>
                 </body>
                 <script>
-                    setTimeout(() => {}, 2000);
+                    /* wait a bit for the images to load */
+                    setTimeout(() => {}, 1000);
                 </script>
             </html>
         `;
 
-        console.log({html_for_image});
+        // console.log({html_for_image});
 
         const image = await nodeHtmlToImage({
             type: 'png',
@@ -137,7 +145,8 @@ module.exports = new DisBotCommand({
             html: html_for_image,
             waitUntil: 'load',
             async beforeScreenshot() {
-                await Timer(2000);
+                /* wait a bit for the images to load */
+                await Timer(1000);
                 return;
             },
         });
