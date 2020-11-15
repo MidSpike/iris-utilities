@@ -19,6 +19,20 @@ const { isSuperPerson,
 const bot_common_name = bot_config.COMMON_NAME;
 const bot_api_url = process.env.BOT_API_SERVER_URL;
 
+async function restartBot(client, bot_message) {
+    await bot_message.edit(new CustomRichEmbed({
+        title: `${bot_common_name}: Started Restart Process`,
+    })).catch(console.warn);
+
+    await Timer(500);
+
+    client.destroy(); // destroy the client instance
+
+    await Timer(500);
+
+    process.exit(0); // restart the bot by killing the process
+}
+
 module.exports = new DisBotCommand({
     name: 'RESTART',
     category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
@@ -29,12 +43,6 @@ module.exports = new DisBotCommand({
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'restart')) {
             sendNotAllowedCommand(message);
             return;
-        }
-
-        async function restartBot() {
-            client.destroy(); // destroy the client instance
-            await Timer(500);
-            process.exit(0); // restart the bot by killing the process
         }
 
         const num_active_voices = client.voice.connections?.size;
@@ -56,16 +64,15 @@ module.exports = new DisBotCommand({
             if (voice_channels.length > 0) {
                 await bot_message.edit(new CustomRichEmbed({
                     title: `${bot_common_name}: Sending Restart TTS Announcement`,
-                }));
+                })).catch(console.warn);
 
                 try {
                     const tts_text_english = `My developer told me to restart for updates... Check back in 5 minutes to see if I'm finished updating.`;
                     const tts_url_english = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=en-GB_KateV3Voice&text=${encodeURIComponent(tts_text_english)}`;
                     const tts_broadcast_english = client.voice.createBroadcast();
                     tts_broadcast_english.play(tts_url_english);
-                    for (let vc of voice_channels) {
-                        if (!vc) return;
-                        playStream(await createConnection(vc, true), tts_broadcast_english, 5.0);
+                    for (const vc of voice_channels) {
+                        playStream(await createConnection(vc, true), tts_broadcast_english, 7.5);
                     }
                     await Timer(10000); // let TTS do its thing first
     
@@ -73,9 +80,8 @@ module.exports = new DisBotCommand({
                     const tts_url_spanish = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=es-LA_SofiaV3Voice&text=${encodeURIComponent(tts_text_spanish)}`;
                     const tts_broadcast_spanish = client.voice.createBroadcast();
                     tts_broadcast_spanish.play(tts_url_spanish);
-                    for (let vc of voice_channels) {
-                        if (!vc) return;
-                        playStream(await createConnection(vc, false), tts_broadcast_spanish, 5.0);
+                    for (const vc of voice_channels) {
+                        playStream(await createConnection(vc, false), tts_broadcast_spanish, 7.5);
                     }
                     await Timer(15000); // let TTS do its thing first
     
@@ -83,9 +89,8 @@ module.exports = new DisBotCommand({
                     const tts_url_german = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=de-DE_DieterV3Voice&text=${encodeURIComponent(tts_text_german)}`;
                     const tts_broadcast_german = client.voice.createBroadcast();
                     tts_broadcast_german.play(tts_url_german);
-                    for (let vc of voice_channels) {
-                        if (!vc) return;
-                        playStream(await createConnection(vc, false), tts_broadcast_german, 5.0);
+                    for (const vc of voice_channels) {
+                        playStream(await createConnection(vc, false), tts_broadcast_german, 7.5);
                     }
                     await Timer(13000); // let TTS do its thing first
     
@@ -93,24 +98,17 @@ module.exports = new DisBotCommand({
                     const tts_url_japanese = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=ja-JP_EmiV3Voice&text=${encodeURIComponent(tts_text_japanese)}`;
                     const tts_broadcast_japanese = client.voice.createBroadcast();
                     tts_broadcast_japanese.play(tts_url_japanese);
-                    for (let vc of voice_channels) {
-                        if (!vc) return;
-                        playStream(await createConnection(vc, false), tts_broadcast_japanese, 5.0);
+                    for (const vc of voice_channels) {
+                        playStream(await createConnection(vc, false), tts_broadcast_japanese, 7.5);
                     }
                     await Timer(25000); // let TTS do its thing first
-                } catch {
-                    restartBot();
+                } catch (error) {
+                    console.trace(error);
+                } finally {
+                    restartBot(client, bot_message);
                 }
-
-                await Timer(500);
-
-                await bot_message.edit(new CustomRichEmbed({
-                    title: `${bot_common_name}: Started Restart Process`,
-                }));
-
-                await Timer(500);
-
-                restartBot();
+            } else {
+                restartBot(client, bot_message);
             }
         }, async (bot_message) => {
             await bot_message.delete({timeout: 500});
