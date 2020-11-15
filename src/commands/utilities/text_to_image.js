@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const nodeHtmlToImage = require('node-html-to-image');
 
+const { Timer } = require('../../utilities.js');
+
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
@@ -29,17 +31,19 @@ module.exports = new DisBotCommand({
         const user_raw_args = message.cleanContent.match(user_raw_args_regex)?.[0] ?? '';
         // console.log({user_raw_args});
 
-        const user_args_invalid_regex = /([^a-z0-9\#\_\-])/gi;
+        // const user_args_invalid_regex = /([^a-z0-9\#\_\-])/gi;
         
-        const user_args = user_raw_args.replace(user_raw_args_start_end_regex, '').trim().split(';').map(kv => 
-            kv.split(':').map(i => 
-                i.replace(user_args_invalid_regex, '').trim()
-            )
-        );
+        const user_args = user_raw_args.replace(user_raw_args_start_end_regex, '').trim().split(';').map(kv => {
+            const kv_split_by_colons = kv.split(':');
+            const k = kv_split_by_colons.slice(0, 1).join(':').trim();
+            const v = kv_split_by_colons.slice(1).join(':').trim();
+            console.log({ kv_split_by_colons, kv, k, v });
+            return [k, v];
+        });
         // console.log({user_args});
         
         const user_args_map = new Map(user_args);
-        // console.log({user_args_map});
+        console.log({user_args_map});
 
         let text_for_image = message.cleanContent.replace(user_raw_args_regex, '').trim();
         text_for_image = escapeHTML(text_for_image.replace(discord_command, '')).trim().replace(/\r?\n|\r/g, '<br />');
@@ -55,55 +59,87 @@ module.exports = new DisBotCommand({
                         value: `${'```'}\n${discord_command} Hello World!\n${'```'}`,
                     }, {
                         name: 'Text-To-Image Advanced Usage',
-                        value: `${'```'}\n${discord_command} format{\n bg-color: black;\n text-color: #FF5500;\n text-size: 24px;\n}\nHello World!\n${'```'}`,
+                        value: [
+                            `${'```'}`,
+                                `${discord_command} format {`,
+                                ` bg-color: #000000;`,
+                                ` bg-image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
+                                ` text-color: #FFFFFF;`,
+                                ` text-size: 56px;`,
+                                ` text-font: "Times New Roman", Times, serif;`,
+                                `}`,
+                                ``,
+                                `Hello world! :)`,
+                                ``,
+                                ``,
+                                ``,
+                                ``,
+                                ``,
+                                `I'm a happy dog!`,
+                            `${'```'}`,
+                        ].join('\n'),
                     },
                 ],
             }, message));
             return;
         }
 
+        const html_for_image = `
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Inconsola:wght@900&display=swap');
+                        * {
+                            box-sizing: border-box;
+                        }
+                        html {
+                            display: flex;
+                            width: auto;
+                            height: auto;
+                        }
+                        body {
+                            width: auto;
+                            height: auto;
+                        }
+                        div {
+                            padding: 10px 15px;
+                            background-color: ${user_args_map.get('bg-color') ?? '#7289da'};
+                            background-image: ${user_args_map.has('bg-image-url') ? `url("${user_args_map.get('bg-image-url')}")` : 'unset'};
+                            background-repeat: no-repeat;
+                            background-size: cover;
+                            background-position: 50% 50%;
+                            color: ${user_args_map.get('text-color') ?? '#ffffff'};
+                            font-size: ${user_args_map.get('text-size') ?? '20px'};
+                            font-weight: 900;
+                            font-family: ${user_args_map.get('text-font') ?? '"Inconsola", monospace'};
+                            word-wrap: break-word;
+                            white-space: pre;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div>${text_for_image}</div>
+                </body>
+                <script>
+                    setTimeout(() => {}, 2000);
+                </script>
+            </html>
+        `;
+
+        console.log({html_for_image});
+
         const image = await nodeHtmlToImage({
             type: 'png',
             encoding: 'binary',
-            html: (`
-                <!DOCTYPE html>
-                <html lang="en">
-                    <head>
-                        <meta charset="UTF-8" />
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                        <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Inconsola:wght@900&display=swap');
-                            * {
-                                box-sizing: border-box;
-                            }
-                            html {
-                                display: flex;
-                                width: auto;
-                                height: auto;
-                                max-width: 500px;
-                                overflow: hidden;
-                            }
-                            body {
-                                width: auto;
-                                height: auto;
-                                padding: 10px 15px;
-                                background: ${user_args_map.get('bg-color') ?? '#7289da'};
-                                color: ${user_args_map.get('text-color') ?? '#ffffff'};
-                                font-size: ${user_args_map.get('text-size') ?? '20px'};
-                                font-weight: 900;
-                                font-family: 'Inconsola', monospace;
-                            }
-                            div {
-                                word-wrap: break-word;
-                                white-space: pre;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div>${text_for_image}</div>
-                    </body>
-                </html>
-            `),
+            html: html_for_image,
+            waitUntil: 'load',
+            async beforeScreenshot() {
+                await Timer(2000);
+                return;
+            },
         });
 
         const temp_file_path = path.join(process.cwd(), 'temporary', `Text-To-Image_${Date.now()}.png`);
