@@ -119,8 +119,8 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
  * @param {Function} yes_callback 
  * @param {Function} no_callback 
  */
-function sendConfirmationMessage(confirm_user_id, channel_id, delete_after_selection=true, message_contents='Default Embed', yes_callback=(options_message)=>{}, no_callback=(options_message)=>{}) {
-    sendOptionsMessage(channel_id, message_contents, [
+async function sendConfirmationMessage(confirm_user_id, channel_id, delete_after_selection=true, message_contents='Default Embed', yes_callback=(options_message)=>{}, no_callback=(options_message)=>{}) {
+    const options_message = await sendOptionsMessage(channel_id, message_contents, [
         {
             emoji_name: 'bot_emoji_checkmark',
             cooldown: 1500,
@@ -137,6 +137,8 @@ function sendConfirmationMessage(confirm_user_id, channel_id, delete_after_selec
             },
         },
     ], confirm_user_id);
+
+    return options_message;
 }
 
 /**
