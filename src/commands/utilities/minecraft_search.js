@@ -15,7 +15,7 @@ module.exports = new DisBotCommand({
     name: 'MINECRAFT_SEARCH',
     category: `${DisBotCommander.categories.UTILITIES}`,
     weight: 8,
-    description: 'search minecraft for stuff',
+    description: 'search minecraft for user / server info',
     aliases: ['minecraft_search', 'mc_search'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
@@ -42,7 +42,7 @@ module.exports = new DisBotCommand({
                 }
             }
 
-            if (['profile'].includes(command_args[1])) {
+            if (['info'].includes(command_args[1])) {
                 if (!mc_user_exists()) return;
 
                 const mc_avatar_image = `https://crafatar.com/avatars/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
@@ -88,8 +88,8 @@ module.exports = new DisBotCommand({
                 message.channel.send(new CustomRichEmbed({
                     title: 'Usage details below!',
                     description: [
-                        `Usage: \`${discord_command} user [ profile | skin | cape ] <username>\``,
-                        `Example: \`${discord_command} user profile Notch\``,
+                        `Usage: \`${discord_command} user [ info | skin | cape ] <username>\``,
+                        `Example: \`${discord_command} user info Notch\``,
                     ].join('\n'),
                 }, message)).catch(console.warn);
             }
@@ -158,7 +158,7 @@ module.exports = new DisBotCommand({
                     files: [
                         {
                             attachment: mc_server_info_icon_temp_file_path,
-                            name: mc_server_info_icon_temp_file_name
+                            name: mc_server_info_icon_temp_file_name,
                         },
                     ],
                 }).catch(console.warn);
