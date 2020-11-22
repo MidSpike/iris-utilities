@@ -77,7 +77,8 @@ const { VolumeManager } = require('./src/libs/VolumeManager.js');
 const { isThisBot,
         isThisBotsOwner,
         isSuperPerson,
-        isSuperPersonAllowed } = require('./src/libs/permissions.js');
+        isSuperPersonAllowed,
+        isWhitelistedControlBot } = require('./src/libs/permissions.js');
 
 const { getDiscordCommand,
         getDiscordCommandArgs,
@@ -829,7 +830,7 @@ client.on('message', async (message) => {
     if (message.content.trim().length === 0 && message.attachments.size === 0) return;
 
     /* don't interact with other bots */
-    if (message.author.bot) return;
+    if (message.author.bot && !isWhitelistedControlBot(message.author.id)) return;
 
     /* don't continue when the bot is in lockdown mode */
     if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return;

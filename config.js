@@ -143,6 +143,10 @@ const SUPER_PEOPLE = new Collection([
     },
 ].map(super_person => [super_person.id, super_person]));
 
+const WHITELISTED_CONTROL_BOTS = [
+    '779812072170455050', // I.R.I.S. Alexa Hook
+];
+
 const DEFAULT_GUILD_CONFIG = {
     command_prefix: '%',
     command_message_removal: 'enabled',
@@ -187,6 +191,7 @@ module.exports = {
     SPECIAL_CHANNELS: SPECIAL_CHANNELS,
     SUPER_PERMS: SUPER_PERMS,
     SUPER_PEOPLE: SUPER_PEOPLE,
+    WHITELISTED_CONTROL_BOTS: WHITELISTED_CONTROL_BOTS,
     DEFAULT_GUILD_CONFIG: DEFAULT_GUILD_CONFIG,
     BOT_LIST_GUILDS: BOT_LIST_GUILDS,
 };
