@@ -1,15 +1,16 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
-    name:'FLIPCOIN',
-    category:`${DisBotCommander.categories.FUN}`,
-    description:'flips a virtual coin',
-    aliases:['flipcoin', 'coinflip'],
+    name: 'FLIPCOIN',
+    category: `${DisBotCommander.categories.FUN}`,
+    description: 'flips a virtual coin',
+    aliases: ['flipcoin', 'coinflip'],
     async executor(Discord, client, message, opts={}) {
         function flipCoin() {
             const coin_chance = Math.random();
@@ -18,9 +19,9 @@ module.exports = new DisBotCommand({
         }
         const { coin_facing } = flipCoin();
         message.channel.send(new CustomRichEmbed({
-            title:'Flipped a coin!',
-            description:`**You got __${coin_facing}__**!`,
-            thumbnail:`${process.env.BOT_CDN_URL}/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`
+            title: 'Flipped a coin!',
+            description: `**You got __${coin_facing}__**!`,
+            thumbnail: `${process.env.BOT_CDN_URL}/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`,
         }, message));
     },
 });
