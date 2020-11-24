@@ -6,18 +6,19 @@ const validator = require('validator');
 const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 //#endregion local dependencies
 
 const bot_common_name = bot_config.COMMON_NAME;
 const bot_cdn_url = process.env.BOT_CDN_URL;
 
 module.exports = new DisBotCommand({
-    name:'EMBED',
-    category:`${DisBotCommander.categories.UTILITIES}`,
-    weight:4,
-    description:'Create message embeds via command',
-    aliases:['embed'],
+    name: 'EMBED',
+    category: `${DisBotCommander.categories.UTILITIES}`,
+    weight: 4,
+    description: 'Create message embeds via command',
+    aliases: ['embed'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command } = opts;
         if (message.content.replace(discord_command, ``).trim().length > 0) {
@@ -28,36 +29,45 @@ module.exports = new DisBotCommand({
                 const potential_embed_image = `${embed_segments_joined.match(regex_embed_args)?.[0]}`.replace(regex_embed_args_bounds, '');
                 const embed_image = validator.isURL(potential_embed_image) ? potential_embed_image : undefined;
                 embed_segments_joined = embed_segments_joined.replace(regex_embed_args, '').replace(regex_embed_args_bounds, '');
+
                 const embed_segments = embed_segments_joined.split(`\n\n`);
                 const embed_title_description = embed_segments[0].split(`\n`);
                 const embed_title = embed_title_description[0];
                 const embed_description = embed_title_description.slice(1).join('\n');
                 const embed_fields = embed_segments.slice(1).map(field_joined => ({
-                    name:`${field_joined.split('\n')[0]}`,
-                    value:`${field_joined.split('\n')[1]}`
+                    name: `${field_joined.split('\n')[0]}`,
+                    value: `${field_joined.split('\n')[1]}`,
                 }));
+
                 // console.log({embed_segments, embed_title_description, embed_title, embed_description, embed_image, embed_fields});
+
                 message.channel.send(new CustomRichEmbed({
                     color: 0x000000,
-                    author:{iconURL:message.member.user.displayAvatarURL({dynamic:true}), name:`Sent by @${message.member.user.tag} (${message.member.user.id})`},
-                    title:`${embed_title}`,
-                    description:`${embed_description}`,
-                    image:embed_image,
-                    fields:embed_fields,
-                    footer:{iconURL:`${bot_cdn_url}/Warning_Sign_2020-07-08_1.png`, text:`This message is not from or endorsed by ${bot_common_name}!`}
+                    author: {
+                        iconURL: message.member.user.displayAvatarURL({dynamic: true}),
+                        name: `Sent by @${message.member.user.tag} (${message.member.user.id})`,
+                    },
+                    title: `${embed_title}`,
+                    description: `${embed_description}`,
+                    image: embed_image,
+                    fields: embed_fields,
+                    footer: {
+                        iconURL: `${bot_cdn_url}/Warning_Sign_2020-07-08_1.png`,
+                        text: `This message is not from or endorsed by ${bot_common_name}!`,
+                    },
                 }));
             } catch (error) {
                 console.trace(`Failed to send user-generated embed!`, error);
                 message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`Whoops, something went wrong!`,
-                    description:`Somehow you messed up making the embed and Discord didn't like it!`
+                    color: 0xFFFF00,
+                    title: `Whoops, something went wrong!`,
+                    description: `Somehow you messed up making the embed and Discord didn't like it!`,
                 }, message));
             }
         } else {
             message.channel.send(new CustomRichEmbed({
-                title:`You can use this command to create embeds!`,
-                description:[
+                title: `You can use this command to create embeds!`,
+                description: [
                     `**Try out the following!**`,
                     `${'```'}`,
                     `${discord_command} The title can go here`,
@@ -73,7 +83,7 @@ module.exports = new DisBotCommand({
                     ``,
                     `{{The image URL goes inside of double semi-brackets!}}`,
                     `${'```'}`
-                ].join('\n')
+                ].join('\n'),
             }, message));
         }
     },
