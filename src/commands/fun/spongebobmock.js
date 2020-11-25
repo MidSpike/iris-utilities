@@ -47,12 +47,12 @@ module.exports = new DisBotCommand({
             const { spmock_text,
                     original_text } = api_response.data;
 
-            await Timer(1500);
+            await Timer(2500);
 
             bot_message.edit(new CustomRichEmbed({
                 title: 'Generated Spongebob Mock',
                 description: [
-                    `Told SpongeBob to mock this:${'```'}\n${original_text}\n${'```'}`,
+                    `I told SpongeBob to mock:${'```'}\n${original_text}\n${'```'}`,
                     `into the following:\n${'```'}\n${spmock_text}\n${'```'}`,
                 ].join('\n'),
                 thumbnail: `${bot_cdn_url}/spongebob-mocking.png`,
