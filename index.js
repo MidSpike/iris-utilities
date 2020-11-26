@@ -53,7 +53,6 @@ const bot_members_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD
 const bot_invite_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_INVITES');
 const bot_moderation_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_MODERATION');
 const bot_reaction_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_REACTIONS');
-const bot_appeals_log_channel = bot_special_channels.find(ch => ch.id === 'GUILD_APPEALS');
 
 const bot_central_guild_history_channel_id = process.env.BOT_LOGGING_CHANNEL_GUILD_HISTORY_ID;
 const bot_central_anonymous_command_log_channel_id = process.env.BOT_LOGGING_CHANNEL_ANONYMOUS_COMMAND_LOG_ID;
@@ -389,9 +388,6 @@ client.on('channelCreate', async (channel) => {
 
     if (channel.type !== 'text') return;
 
-    const guild_config = await client.$.guild_configs_manager.fetchConfig(channel.guild.id);
-    const command_prefix = guild_config.command_prefix;
-
     /**
      * Prevents everyone except this bot from sending messages in the channel
      * @param {GuildTextChannel} channel a GuildTextChannel
@@ -418,73 +414,61 @@ client.on('channelCreate', async (channel) => {
         case bot_backup_commands_channel.name:
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: `Any ${bot_common_name} commands can be used here by people with appropriate permissions!`,
-            })).catch(console.warn);
-            break;
-        case bot_appeals_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `Now syncing future \`${command_prefix}ban\` command appeal messages to this channel!`,
-            })).catch(console.warn);
-            channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Warning!',
-                description: 'This feature is in BETA!',
+                description: `${bot_backup_commands_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_restart_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future bot restart history to channel!',
+                description: `${bot_restart_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_update_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future bot update history to channel!',
+                description: `${bot_update_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_command_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future guild command history to channel!',
+                description: `${bot_command_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_moderation_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future guild moderation history to channel!',
+                description: `${bot_moderation_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_invite_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future guild invite history to channel!',
+                description: `${bot_invite_log_channel.description}!`,
             })).catch(console.warn);
             channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Warning!',
-                description: 'If I don\'t have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see invite events for all channels!',
+                description: 'make sure that I have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see all invite events for this guild!',
             })).catch(console.warn);
             break;
         case bot_members_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future guild member join/leave history to channel!',
+                description: `${bot_members_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_reaction_log_channel.name:
             prevent_sending_messages_in_channel(channel);
             channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
-                description: 'Now syncing future guild message reaction history to channel!',
+                description: `${bot_reaction_log_channel.description}!`,
             })).catch(console.warn);
             channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,

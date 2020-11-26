@@ -21,80 +21,104 @@ const { Collection } = require('discord.js');
  */
 const PUBLIC_VERSION = 'vS_2020-11-25_0';
 
-const SHORT_NAME = 'IRIS'; // [ a-z | A-Z | 0-9 | - | _ ]
-const COMMON_NAME = 'I.R.I.S. Utilities';
-const LONG_NAME = 'Interactive Reconnaissance Information Service Utilities';
+/**
+ * The various names given to this bot matching the schemes below
+ */
+const SHORT_NAME = 'IRIS'; // must match the following scheme [ a-z | A-Z | 0-9 | - | _ ]
+const COMMON_NAME = 'I.R.I.S. Utilities'; // to be used in sentences
+const LONG_NAME = 'Interactive Reconnaissance Information Service Utilities'; // a cool acronym to give this bot
 
+/**
+ * The owner of this bot
+ */
 const OWNER_ID = '163646957783482370';
 
+/**
+ * The website for this bot
+ */
 const WEBSITE = 'https://iris-utilities.com/';
+
+/**
+ * The GitHub / Repository location for this bot
+ */
 const GITHUB = 'https://github.com/MidSpike/iris-utilities';
 
+/**
+ * Donation sources are ways to donate to the creator of this bot
+ */
 const DONATION_SOURCES = {
     GITHUB: 'https://github.com/sponsors/MidSpike',
     PAYPAL: 'https://paypal.me/midspike',
     PATREON: 'https://www.patreon.com/midspike',
 };
 
+/**
+ * Special Channels are channels used for logging and various other groupings of this bot's functionality
+ */
 const SPECIAL_CHANNELS = [
     {
         id: 'ARCHIVED_CHANNELS_CATEGORY',
         type: 'category',
         name: 'iris-archived-channels',
-        description: 'Used for organizing archived channels.',
+        description: 'This category is used for organizing archived channels.',
     }, {
         id: 'SPECIAL_CHANNELS_CATEGORY',
         type: 'category',
         name: 'I.R.I.S. Utilities',
-        description: 'Used for organizing the special channels.',
+        description: 'This category is used for organizing the special channels.',
     }, {
         id: 'BOT_COMMANDS',
         type: 'text',
         name: 'iris-bot-commands',
-        description: 'Used as a backup-method for using the bot if you incorrectly use the \'set_allowed_channels\' command and accidentally lock yourself out.',
+        description: 'This channel is used as a backup-method for using this bot when the \'set_allowed_channels\' is improperly used.',
     }, {
         id: 'BOT_RESTARTS',
         type: 'text',
         name: 'iris-restart-log',
-        description: 'Useful for keeping track of bot restarts.',
+        description: 'This channel will log when this bot restarts.',
     }, {
         id: 'BOT_UPDATES',
         type: 'text',
         name: 'iris-update-log',
-        description: 'Sends out update messages and announcements of new features for the bot to your server!',
+        description: 'This channel will show update messages and announcements from the Support Staff for this bot!',
     }, {
         id: 'GUILD_COMMANDS',
         type: 'text',
         name: 'iris-command-log',
-        description: 'Logs all of the bot\'s commands entered by members in this server.',
+        description: 'This channel logs all of the commands (for this bot) entered by members in this guild.',
     }, {
         id: 'GUILD_MEMBERS',
         type: 'text',
         name: 'iris-member-log',
-        description: 'Sends join/leave messages like the default \'System Channel\' for servers.',
+        description: 'This channel will send join/leave messages like Discord\'s default \'System Channel\' logging.',
     }, {
         id: 'GUILD_INVITES',
         type: 'text',
         name: 'iris-invite-log',
-        description: 'Used for logging invites created/destroyed by members in the server.',
+        description: 'This channel will log invites that are created/destroyed by members in this guild.',
     }, {
         id: 'GUILD_MODERATION',
         type: 'text',
         name: 'iris-moderation-log',
-        description: 'Used to log when the bot\'s moderation features have been used.',
+        description: 'This channel is used to log when the bot\'s mod/admin commands have been used in this guild.',
     }, {
         id: 'GUILD_REACTIONS',
         type: 'text',
         name: 'iris-reaction-log',
-        description: 'Shows when reactions are added to a message by users.',
-    }, {
-        id: 'GUILD_APPEALS',
-        type: 'text',
-        name: 'iris-appeals-log',
-        description: 'This channel will allow your server to receive a single \'apology\' message from a user that has been banned via the bot.',
+        description: 'This channel keeps track of reactions that are manipulated by users in this guild.',
     },
 ];
 
+/**
+ * Whitelisted Control Bots are bots that are permitted to execute commands / actions through this bot as if they were a user
+ */
+const WHITELISTED_CONTROL_BOTS = [
+    '779812072170455050', // I.R.I.S. Alexa Hook (owned by: 163646957783482370)
+];
+
+/**
+ * Super Perms are the acceptable permission values for Super People
+ */
 const SUPER_PERMS = [
     '*',
     'evaluate_code',
@@ -109,6 +133,9 @@ const SUPER_PERMS = [
     'super_volume',
 ];
 
+/**
+ * Super People are "Admins" of this bot and have elevated permissions
+ */
 const SUPER_PEOPLE = new Collection([
     {
         id: '163646957783482370',
@@ -143,10 +170,9 @@ const SUPER_PEOPLE = new Collection([
     },
 ].map(super_person => [super_person.id, super_person]));
 
-const WHITELISTED_CONTROL_BOTS = [
-    '779812072170455050', // I.R.I.S. Alexa Hook
-];
-
+/**
+ * The Default Guild Config is the config which is applied to all new guilds be default
+ */
 const DEFAULT_GUILD_CONFIG = {
     command_prefix: '%',
     command_message_removal: 'enabled',
@@ -169,6 +195,9 @@ const DEFAULT_GUILD_CONFIG = {
     tts_voice_google: 'en-us',
 };
 
+/**
+ * The ids of guilds known to be a bot listing service
+ */
 const BOT_LIST_GUILDS = [
     '264445053596991498', // Discord Bot List (https://top.gg/)
     '446425626988249089', // Bots On Discord (https://bots.ondiscord.xyz/)
@@ -189,9 +218,9 @@ module.exports = {
     GITHUB: GITHUB,
     DONATION_SOURCES: DONATION_SOURCES,
     SPECIAL_CHANNELS: SPECIAL_CHANNELS,
+    WHITELISTED_CONTROL_BOTS: WHITELISTED_CONTROL_BOTS,
     SUPER_PERMS: SUPER_PERMS,
     SUPER_PEOPLE: SUPER_PEOPLE,
-    WHITELISTED_CONTROL_BOTS: WHITELISTED_CONTROL_BOTS,
     DEFAULT_GUILD_CONFIG: DEFAULT_GUILD_CONFIG,
     BOT_LIST_GUILDS: BOT_LIST_GUILDS,
 };

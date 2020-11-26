@@ -12,6 +12,7 @@ function postStatsToBotListingServices() {
         'bots.ondiscord.xyz': process.env.BLS_BOTS_ON_DISCORD_TOKEN,
         'discord.bots.gg': process.env.BLS_DISCORD_BOTS_GG_TOKEN,
         'arcane-center.xyz': process.env.BLS_ARCANE_CENTER_TOKEN,
+        'discord.boats': process.env.BLS_DISCORD_BOATS_TOKEN,
     });
 }
 
@@ -19,6 +20,6 @@ module.exports = {
     event_name: 'ready',
     async callback() {
         /* update the bot listing websites at the specified interval below */
-        client.setInterval(postStatsToBotListingServices, 1000 * 60 * 30); // every 30 minutes
+        client.setInterval(() => postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
     }
 };
