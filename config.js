@@ -204,6 +204,7 @@ const BOT_LIST_GUILDS = [
     '439866052684283905', // Discord Boats (https://discord.boats/)
     '110373943822540800', // Discord Bots (https://discord.bots.gg/)
     '561851349831122954', // Arcane Center (https://arcane-center.xyz/)
+    '568567800910839811', // Discord Extreme List (https://discordextremelist.xyz/)
 ];
 
 //---------------------------------------------------------------------------------------------------------------//
