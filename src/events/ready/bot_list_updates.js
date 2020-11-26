@@ -13,6 +13,7 @@ function postStatsToBotListingServices() {
         'discord.bots.gg': process.env.BLS_DISCORD_BOTS_GG_TOKEN,
         'arcane-center.xyz': process.env.BLS_ARCANE_CENTER_TOKEN,
         'discord.boats': process.env.BLS_DISCORD_BOATS_TOKEN,
+        'discordextremelist.xyz': process.env.BLS_DISCORD_EXTREME_LIST,
     });
 }
 
