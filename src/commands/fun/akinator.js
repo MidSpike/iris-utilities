@@ -3,6 +3,7 @@
 //#region local dependencies
 const Akinator_API = require('aki-api').Aki;
 
+const { sendPotentiallyNotSafeForWorkDisclaimer } = require('../../libs/messages.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
