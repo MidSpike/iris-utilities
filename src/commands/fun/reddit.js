@@ -6,6 +6,7 @@ const axios = require('axios');
 const { sendOptionsMessage,
         removeUserReactionsFromMessage } = require('../../libs/messages.js');
 
+const { sendPotentiallyNotSafeForWorkDisclaimer } = require('../../libs/messages.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
@@ -21,13 +22,8 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { clean_command_args } = opts;
 
-        if (!message.channel.nsfw) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'This command requires an NSFW channel!',
-                description: 'Discord Bot List / Top.gg requires that this command can only be executed in a NSFW channel!',
-            }, message));
-            return;
-        }
+        const potentially_nsfw_content_is_accepted = await sendPotentiallyNotSafeForWorkDisclaimer(message);
+        if (!potentially_nsfw_content_is_accepted) return;
 
         const subreddit_to_lookup = clean_command_args[0]?.replace('/r', '');
         axios.post(`https://www.reddit.com/r/${subreddit_to_lookup??'funny'}/top.json?limit=100`).then(async (response) => {
