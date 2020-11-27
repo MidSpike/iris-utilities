@@ -77,9 +77,9 @@ router.get('/ytinfo', async (req, res) => {
 
             let yt_info;
             let num_attempts = 0;
-            while (!yt_info && num_attempts < 5) {
+            while (!yt_info && num_attempts < 2) {
+                await Timer(num_attempts * 2000);
                 yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`).catch(console.warn);
-                await Timer(num_attempts * 250);
                 num_attempts++;
             }
 
