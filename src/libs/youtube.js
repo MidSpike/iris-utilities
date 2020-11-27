@@ -178,6 +178,11 @@ async function playYouTube(message, search_query, playnext=false) {
                 filter: 'audioonly',
                 quality: 'highestaudio',
                 highWaterMark: 1<<25, // 32 MB
+                requestOptions: {
+                    headers: {
+                        cookie: process.env.YTDL_COOKIE,
+                    },
+                },
             });
             return ytdl_stream;
         };
