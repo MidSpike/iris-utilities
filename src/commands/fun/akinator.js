@@ -22,6 +22,9 @@ module.exports = new DisBotCommand({
     description: 'play a game of akinator directly from discord',
     aliases: ['akinator', 'aki'],
     async executor(Discord, client, message, opts={}) {
+        const potentially_nsfw_content_is_accepted = await sendPotentiallyNotSafeForWorkDisclaimer(message);
+        if (!potentially_nsfw_content_is_accepted) return;
+
         let bot_message;
 
         const akinator_api = new Akinator_API('en');
