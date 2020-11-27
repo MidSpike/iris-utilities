@@ -211,10 +211,6 @@ module.exports = new DisBotCommand({
             } else if (detect_broadcastify(command_args.join(' '))) {
                 playBroadcastify(message, command_args.join(' '), playnext);
             } else {
-                if (message.author.id !== '163646957783482370') {
-                    message.reply('YouTube playback functionality is currently locked due to 429 errors from youtube!');
-                    return;
-                }
                 playYouTube(message, command_args.join(' '), playnext);
             }
         } else {
