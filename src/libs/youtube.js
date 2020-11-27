@@ -49,13 +49,16 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     let search_results = [];
     while (current_search_attempt <= retry_attempts) {
         try {
-            const { results } = await youtubeSearch(search_query, {
+            // const { results } = await youtubeSearch(search_query, {
+            const yt_api_response = await youtubeSearch(search_query, {
                 maxResults: max_results,
                 type: 'video',
                 regionCode: 'US',
                 key: process.env.YOUTUBE_API_TOKEN,
             });
-            search_results = results;
+            console.log(yt_api_response);
+            // search_results = results;
+            search_results = yt_api_response.results;
         } catch (error) {
             console.warn(`Failed YouTube API Lookup!`);
         } finally {
