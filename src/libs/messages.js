@@ -450,6 +450,34 @@ async function sendNotAllowedCommand(message) {
 }
 
 /**
+ * Sends a disclaimer for potentially NSFW content
+ * @param {Message} message 
+ * @returns {Promise<true|false>} 
+ */
+async function sendPotentiallyNotSafeForWorkDisclaimer(message) {
+    if (message.channel.nsfw) {
+        /* when called in a nsfw channel, forgo any warnings */
+        return true;
+    } else {
+        /* when called in a non-nsfw channel, display a warning informing the user of potential nsfw-content */
+        return new Promise((resolve, reject) => {
+            const confirmation_embed = new CustomRichEmbed({
+                title: 'This feature might include potentially NSFW content!',
+                description: [
+                    'This is **not** a nsfw channel!',
+                    'By clicking on the checkmark, you affirm that you are **18+ years old** and **accept any responsibility** for content sent.',
+                ].join('\n'),
+            }, message);
+            sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, () => {
+                resolve(true);
+            }, () => {
+                resolve(false);
+            }).catch((error) => reject(error));
+        });
+    }
+}
+
+/**
  * Logs admin commands to a guilds logging channel
  * @param {Message} admin_message 
  * @param {Message} custom_log_message 
@@ -478,5 +506,6 @@ module.exports = {
     sendMusicControllerEmbed,
     sendYtDiscordEmbed,
     sendNotAllowedCommand,
+    sendPotentiallyNotSafeForWorkDisclaimer,
     logAdminCommandsToGuild,
 };
