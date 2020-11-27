@@ -265,102 +265,126 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
     const makeEmbed = () => new CustomRichEmbed({title:`${embed_title}`}, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
-            emoji_name:'bot_emoji_play_pause',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_play_pause',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 if (audio_controller.paused === true) {
                     audio_controller.resume();
                     options_message.edit(new CustomRichEmbed({
-                        author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                        title:`${embed_title}`,
-                        description:'Resumed Music'
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: 'Resumed Music',
                     }));
                 } else if (audio_controller.paused === false) {
                     audio_controller.pause();
                     options_message.edit(new CustomRichEmbed({
-                        author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                        title:`${embed_title}`,
-                        description:'Paused Music'
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: 'Paused Music',
                     }));
                 } else { // There isn't an active connection with music
                     options_message.edit(new CustomRichEmbed({
-                        color:0xFFFF00,
-                        author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                        title:`${embed_title} - Unable to pause or resume music`,
-                        description:'Nothing is playing in the queue right now!'
+                        color: 0xFFFF00,
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title} - Unable to pause or resume music`,
+                        description: 'Nothing is playing in the queue right now!',
                     }));
                 }
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_stop_square',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_stop_square',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 audio_controller.disconnect();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${embed_title}`,
-                    description:'Stopped Music'
+                    author: {
+                        iconURL: user.displayAvatarURL({dynamic: true}),
+                        name: `@${user.tag}`
+                    },
+                    title: `${embed_title}`,
+                    description: 'Stopped Music',
                 }));
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_skip',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_skip',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 audio_controller.skip();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${embed_title}`,
-                    description:'Skipped The Current Item In The Queue'
+                    author: {
+                        iconURL: user.displayAvatarURL({dynamic: true}),
+                        name: `@${user.tag}`
+                    },
+                    title: `${embed_title}`,
+                    description: 'Skipped The Current Item In The Queue',
                 }));
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_shuffle',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_shuffle',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 guild_queue_manager.shuffleItems();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${embed_title}`,
-                    description:'Shuffled The Queue'
+                    author: {
+                        iconURL: user.displayAvatarURL({dynamic: true}),
+                        name: `@${user.tag}`
+                    },
+                    title: `${embed_title}`,
+                    description: 'Shuffled The Queue',
                 }));
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_repeat_all',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_repeat_all',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 guild_queue_manager.setLoopType('multiple');
                 guild_queue_manager.toggleLoop();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${embed_title}`,
-                    description:`${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The Entire Queue`
+                    author: {
+                        iconURL: user.displayAvatarURL({dynamic: true}),
+                        name: `@${user.tag}`
+                    },
+                    title: `${embed_title}`,
+                    description: `${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The Entire Queue`,
                 }));
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_repeat_one',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_repeat_one',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 guild_queue_manager.setLoopType('single');
                 guild_queue_manager.toggleLoop();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${embed_title}`,
-                    description:`${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The First Item In The Queue`
+                    author: {
+                        iconURL: user.displayAvatarURL({dynamic: true}),
+                        name: `@${user.tag}`
+                    },
+                    title: `${embed_title}`,
+                    description: `${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The First Item In The Queue`,
                 }));
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_volume_up',
-            cooldown:500,
+            emoji_name: 'bot_emoji_volume_up',
+            cooldown: 500,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 sendVolumeControllerEmbed(channel_id);
-            }
+            },
         }
     ]);
 }
