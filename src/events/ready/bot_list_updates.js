@@ -14,6 +14,7 @@ function postStatsToBotListingServices() {
         'arcane-center.xyz': process.env.BLS_ARCANE_CENTER_TOKEN,
         'discord.boats': process.env.BLS_DISCORD_BOATS_TOKEN,
         'discordextremelist.xyz': process.env.BLS_DISCORD_EXTREME_LIST,
+        'discordbotlist.com': process.env.BLS_DISCORD_BOT_LIST,
     });
 }
 
