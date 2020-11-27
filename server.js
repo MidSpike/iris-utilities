@@ -78,7 +78,7 @@ router.get('/ytinfo', async (req, res) => {
             let yt_info;
             let num_attempts = 0;
             while (!yt_info && num_attempts < 2) {
-                await Timer(num_attempts * 2000);
+                await Timer(num_attempts * 2_500);
                 yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`, {
                     requestOptions: {
                         headers: {
@@ -95,6 +95,13 @@ router.get('/ytinfo', async (req, res) => {
             } else {
                 res.status(200);
                 const regex_brackets = /(\<|\>|\(|\)|\[|\]|\{|\})/g;
+
+                yt_info.videoDetails.title = yt_info.videoDetails.title ?? '404 not found';
+                console.log('yt_info.videoDetails.title', yt_info.videoDetails.title);
+
+                yt_info.videoDetails.author.name = yt_info.videoDetails.author.name ?? '404 not found';
+                console.log('yt_info.videoDetails.author.name', yt_info.videoDetails.author.name);
+
                 yt_info.videoDetails.title = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.title).replace(regex_brackets, ``)}`;
                 yt_info.videoDetails.author.name = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.author.name).replace(regex_brackets, ``)}`;
 
