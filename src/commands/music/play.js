@@ -7,9 +7,11 @@ const validator = require('validator');
 const { forcePromise } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { QueueItem, QueueItemPlayer } = require('../../libs/QueueManager.js');
+const { QueueItem,
+        QueueItemPlayer } = require('../../libs/QueueManager.js');
 const { createConnection } = require('../../libs/createConnection.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { playYouTube } = require('../../libs/youtube.js');
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
@@ -64,18 +66,18 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
         if (!guild_queue_manager.loop_enabled) {
             /* don't send messages when looping */
             message.channel.send(new CustomRichEmbed({
-                title:'Playing A MP3 File From The Internet',
-                description:`${'```'}\n${remote_mp3_path}\n${'```'}`
+                title: 'Playing A MP3 File From The Internet',
+                description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
             }, message));
         }
     }, () => {}, (error) => {
         console.trace(error);
     });
-    guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name:`${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
+    guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
         if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
-                title:'Added A MP3 File From The Internet',
-                description:`${'```'}\n${remote_mp3_path}\n${'```'}`
+                title: 'Added A MP3 File From The Internet',
+                description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
             }, message));
         }
     });
@@ -93,37 +95,37 @@ async function playUserUploadedMP3(message, playnext=false) {
                 if (!guild_queue_manager.loop_enabled) {
                     /* don't send messages when looping */
                     message.channel.send(new CustomRichEmbed({
-                        title:'Playing A MP3 File From Their Computer',
-                        description:`${'```'}\n${message_media.name}${'```'}`
+                        title: 'Playing A MP3 File From Their Computer',
+                        description: `${'```'}\n${message_media.name}\n${'```'}`,
                     }, message));
                 }
             }, () => {
                 if (message.deletable) {
-                    message.delete({timeout:500}).catch(null);
+                    message.delete({timeout: 500}).catch(null);
                 }
             }, (error) => {
                 console.trace(error);
             });
-            guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name:`${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
+            guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
                 if (guild_queue_manager.queue.length > 1) {
                     message.channel.send(new CustomRichEmbed({
-                        title:'Added A MP3 File From Their Computer',
-                        description:`${'```'}\n${message_media.name}${'```'}`
+                        title: 'Added A MP3 File From Their Computer',
+                        description: `${'```'}\n${message_media.name}\n${'```'}`,
                     }, message));
                 }
             });
         } else {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:'Uh Oh!',
-                description:`I wasn't able to play that mp3 file (if it even was one)!`
+                color: 0xFFFF00,
+                title: 'Uh Oh!',
+                description: 'I wasn\'t able to play that mp3 file (if it even was one)!',
             }, message));
         }
     } else {
         message.channel.send(new CustomRichEmbed({
-            color:0xFFFF00,
-            title:'Did someone try playing an MP3?',
-            description:`Its kinda hard to play an MP3 without one...\nNext time upload an mp3 in the same message!`
+            color: 0xFFFF00,
+            title: 'Did someone try playing an MP3?',
+            description: 'Its kinda hard to play an MP3 without one...\nNext time upload an mp3 in the same message!',
         }, message));
     }
 }
@@ -169,11 +171,12 @@ async function playBroadcastify(message, search_query, playnext=false) {
 }
 
 module.exports = new DisBotCommand({
-    name:'PLAY',
-    category:`${DisBotCommander.categories.MUSIC}`,
-    weight:1,
-    description:'play music from youtube and more',
-    aliases:[`play`, `p`, `playnext`, `pn`, ``],
+    name: 'PLAY',
+    category: `${DisBotCommander.categories.MUSIC}`,
+    weight: 1,
+    description: 'play music from youtube and more',
+    aliases: [`play`, `p`, `playnext`, `pn`, ``],
+    cooldown: 5_000,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
@@ -181,9 +184,9 @@ module.exports = new DisBotCommand({
 
         if (!message.member?.voice?.channel) {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:'Whoops!',
-                description:'You need to be in a voice channel to use this command!'
+                color: 0xFFFF00,
+                title: 'Whoops!',
+                description: 'You need to be in a voice channel to use this command!',
             }, message));
             return;
         }
@@ -192,16 +195,16 @@ module.exports = new DisBotCommand({
         
         if (detect_unsupported_urls(command_args.join(' '))) {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:`Playing music from that website isn't supported!`,
-                description:`Use \`${discord_command}\` to see how to use this command.`
+                color: 0xFFFF00,
+                title: `Playing music from that website isn't supported!`,
+                description: `Use \`${discord_command}\` to see how to use this command.`,
             }));
         } else if (detect_unsupported_attachment(message_attachment)) {
             const message_attachment_extension = message_attachment?.name?.match(/[^.]+$/g)?.[0] ?? 'unknown';
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:`Playing music from files ending in \`.${message_attachment_extension}\` aren't supported!`,
-                description:`Use \`${discord_command}\` to see how to use this command.`
+                color: 0xFFFF00,
+                title: `Playing music from files ending in \`.${message_attachment_extension}\` aren\'t supported!`,
+                description: `Use \`${discord_command}\` to see how to use this command.`,
             }));
         } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
             playUserUploadedMP3(message, playnext);
@@ -215,34 +218,34 @@ module.exports = new DisBotCommand({
             }
         } else {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:`That's just not how you use this command!`,
-                description:`Take a look below to see how you should have done it!`,
-                fields:[
+                color: 0xFFFF00,
+                title: 'That\'s just not how you use this command!',
+                description: 'Take a look below to see how you should have done it!',
+                fields: [
                     {
-                        name:'Playing Videos From YouTube:',
-                        value:[
+                        name: 'Playing Videos From YouTube:',
+                        value: [
                             `${'```'}\n${discord_command} ussr national anthem\n${'```'}`,
-                            `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`
+                            `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`,
                         ].join('')
                     }, {
-                        name:'Playing Playlists From YouTube:',
-                        value:[
+                        name: 'Playing Playlists From YouTube:',
+                        value: [
                             `${'```'}\n${discord_command} https://www.youtube.com/watch?v=CJHJAzVXvgk&list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI&index=1\n${'```'}`,
-                            `${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`
+                            `${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`,
                         ].join('')
                     }, {
-                        name:'Playing Broadcastify URLs:',
-                        value:`${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`
+                        name: 'Playing Broadcastify URLs:',
+                        value: `${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`,
                     }, {
-                        name:'Playing MP3 Files From The Internet:',
-                        value:`${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`
+                        name: 'Playing MP3 Files From The Internet:',
+                        value: `${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`,
                     }, {
-                        name:'Playing MP3 Files From Your Computer:',
-                        value:`${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the .mp3 file to the message)`
-                    }
+                        name: 'Playing MP3 Files From Your Computer:',
+                        value: `${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the .mp3 file to the message)`,
+                    },
                 ],
-                image:`${bot_cdn_url}/mp3_command_usage.png`
+                image: `${bot_cdn_url}/mp3_command_usage.png`,
             }, message));
         }
     },
