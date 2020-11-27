@@ -20,6 +20,8 @@ const recursiveReadDirectory = require('recursive-read-directory');
 const axios = require('axios');
 const moment = require('moment-timezone');
 
+const youtubeSearch = require('youtube-search');
+
 const splitString = require('split-string');
 
 const bot_config = require('../../../config.js');
