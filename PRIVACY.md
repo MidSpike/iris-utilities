@@ -1,5 +1,4 @@
-## Privacy policy
-##### Last updated: 2020-11-28 1:00 PM EST
+## Last updated: 2020-11-28 1:10 PM EST
 
 ---
 
@@ -57,7 +56,7 @@
 
 ---
 
-# Frequently asked questions
+### Frequently asked questions
 
 #### How can I contact the support staff for this bot?
 - Direct message this bot.
