@@ -66,13 +66,13 @@
 - Only the owner of this bot shall have read/write/delete access to stored (non-)anonymous data.
 
 #### Who has access to anonymous stored data?
-- Only the admins (also known as "Super People") of this bot shall have read access to stored anonymous data.
+- Only the admins (also known as "super people") of this bot shall have read access to stored anonymous data.
 
 #### How do I delete my data?
-- Please refer to [User Data](#user-data)
+- Please refer to [User data](#user-data)
 
 #### How do I delete my guild's data?
-- Please refer to [Guild Data](#guild-data)
+- Please refer to [Guild data](#guild-data)
 
 ---
 
