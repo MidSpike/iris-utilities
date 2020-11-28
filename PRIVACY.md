@@ -56,7 +56,7 @@
 
 ---
 
-### Frequently asked questions
+### Frequently asked questions:
 
 #### How can I contact the support staff for this bot?
 - Direct message this bot.
@@ -76,4 +76,4 @@
 
 ---
 
-#### This document will be updated in the future to better inform users of how data is managed and stored in the Bot.
+#### This document will be updated in the future to better inform users of how data is managed and stored in this bot.
