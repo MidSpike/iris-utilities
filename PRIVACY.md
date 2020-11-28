@@ -1,4 +1,4 @@
-## Last Updated: 2020-10-01
+## Last Updated: 2020-11-28
 
 #### The following definitions will be used in this document:
 - id = a 'snowflake' used by Discord for identifying users, guilds, emojis, messages, attachments, etc
@@ -35,5 +35,22 @@
 
 #### A Guild Owner may request their guild_config_information by doing the following:
 - join the Bot's support guild and contact staff (use command `support_discord` to receive an invite)
+
+---
+
+#### Who has access to non-anonymous stored data?
+- Only the Owner of this bot shall have read/write/delete access to stored (non-)anonymous data.
+
+#### Who has access to anonymous stored data?
+- Only Bot Admins (also known as "Super People") of this bot shall have read access to stored anonymous data.
+
+#### How can I contact support for this bot?
+- DM this bot.
+- Use the command `support_discord` to receive an invite to the Support Discord.
+
+### How do I delete my data?
+- You didn't read this document fully, please re-read it.
+
+---
 
 #### This document will be updated in the future to better inform users of how data is managed and stored in the Bot.
