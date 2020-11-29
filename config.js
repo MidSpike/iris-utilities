@@ -7,7 +7,10 @@ const { Collection } = require('discord.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * v[status][year]-[month]-[day]_[semi-version]
+ * The version displayed to users in informative contexts
+ * 
+ * scheme:
+ * - v[status][year]-[month]-[day]_[semi-version]
  * 
  * status:
  * - S = Stable
