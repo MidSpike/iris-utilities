@@ -63,13 +63,13 @@ module.exports = new DisBotCommand({
                             `${'```'}`,
                                 `${discord_command} format {`,
                                 ` bg-color: #000000;`,
-                                ` bg-image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
                                 ` text-align: center;`,
                                 ` text-shadow-color: #000000;`,
                                 ` text-color: #FFFFFF;`,
                                 ` text-size: 56px;`,
                                 ` text-weight: 700;`,
                                 ` text-font: "Times New Roman", Times, serif;`,
+                                ` image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
                                 `}`,
                                 ``,
                                 `Hello world! :)`,
@@ -82,6 +82,23 @@ module.exports = new DisBotCommand({
                             `${'```'}`,
                             `The \`format\` options consist of pseudo-css properties and values...`,
                             'This means that any pseudo-css-property that resembles a valid css-property; can in fact, accept corresponding acceptable css-values.',
+                        ].join('\n'),
+                    }, {
+                        name: 'Text-To-Image Format Options',
+                        value: [
+                            `${'```'}`,
+                                `image-url: <url>;`,
+                                `image-repeat: <css-background-repeat>;`,
+                                `image-size: <css-background-size>;`,
+                                `image-position: <css-background-position>;`,
+                                `bg-color: <css-color>;`,
+                                `text-color: <css-color>;`,
+                                `text-shadow-color: <css-color>;`,
+                                `text-size: <css-font-size>;`,
+                                `text-weight: <css-font-weight>;`,
+                                `text-font: <css-font-family>;`,
+                                `text-align: <css-text-alignment>;`,
+                            `${'```'}`,
                         ].join('\n'),
                     },
                 ],
@@ -112,10 +129,10 @@ module.exports = new DisBotCommand({
                         div {
                             padding: 0.25em 0.5em;
                             background-color: ${user_args_map.get('bg-color') ?? '#7289da'};
-                            background-image: ${user_args_map.has('bg-image-url') ? `url("${user_args_map.get('bg-image-url')}")` : 'unset'};
-                            background-repeat: no-repeat;
-                            background-size: cover;
-                            background-position: 50% 50%;
+                            background-image: ${user_args_map.has('image-url') ? `url("${user_args_map.get('image-url')}")` : 'unset'};
+                            background-repeat: ${user_args_map.get('image-repeat') ?? 'no-repeat'};
+                            background-size: ${user_args_map.get('image-size') ?? 'cover'};
+                            background-position: ${user_args_map.get('image-position') ?? '50% 50%'};
                             text-align: ${user_args_map.get('text-align') ?? 'left'};
                             text-shadow: 4px 3px 0 ${user_args_map.get('text-shadow-color') ?? '#555555'};
                             color: ${user_args_map.get('text-color') ?? '#ffffff'};
