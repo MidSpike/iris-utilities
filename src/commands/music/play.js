@@ -3,6 +3,7 @@
 //#region local dependencies
 const axios = require('axios');
 const validator = require('validator');
+const { default: soundCloudDownloader } = require('soundcloud-downloader');
 
 const { forcePromise } = require('../../utilities.js');
 
@@ -19,7 +20,6 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 
 function detect_unsupported_urls(search_query) {
     if (search_query.includes('spotify.com/')
-     || search_query.includes('soundcloud.com/')
      || search_query.includes('twitter.com/')
      || search_query.includes('facebook.com/')
     ) {
@@ -62,7 +62,7 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
 
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = () => `${remote_mp3_path}`;
-    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 7.5, () => {
         if (!guild_queue_manager.loop_enabled) {
             /* don't send messages when looping */
             message.channel.send(new CustomRichEmbed({
@@ -91,7 +91,7 @@ async function playUserUploadedMP3(message, playnext=false) {
         if (message_media.attachment.endsWith('.mp3')) {
             const voice_connection = await createConnection(message.member.voice.channel);
             const stream_maker = () => `${message_media.attachment}`;
-            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 5.0, () => {
+            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 7.5, () => {
                 if (!guild_queue_manager.loop_enabled) {
                     /* don't send messages when looping */
                     message.channel.send(new CustomRichEmbed({
@@ -170,6 +170,51 @@ async function playBroadcastify(message, search_query, playnext=false) {
     });
 }
 
+function detect_soundcloud(search_query='') {
+    return !!search_query.match(/((http|https)\:\/\/(www.)*(soundcloud\.com\/))/gi);
+}
+
+async function playSoundcloud(message, search_query, playnext=false) {
+    const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
+
+    try {
+        await axios.head(search_query);
+    } catch {
+        message.channel.send(new CustomRichEmbed({
+            color: 0xFFFF00,
+            title: 'Hmm',
+            description: 'I don\'t think that was a valid soundcloud url!',
+        }, message));
+        return;
+    }
+
+    const voice_connection = await createConnection(message.member.voice.channel);
+    const stream_maker = async () => await soundCloudDownloader.download(search_query, process.env.SOUNDCLOUD_CLIENT_ID);
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, () => {
+        if (!guild_queue_manager.loop_enabled) {
+            /* don't send messages when looping */
+            message.channel.send(new CustomRichEmbed({
+                title: 'Playing Soundcloud Stream',
+                description: [
+                    `[Website Link](${search_query})`,
+                ].join('\n'),
+            }, message));
+        }
+    }, () => {}, (error) => {
+        console.trace(error);
+    });
+    guild_queue_manager.addItem(new QueueItem('other', player, 'Soundcloud Stream'), (playnext ? 2 : undefined)).then(() => {
+        if (guild_queue_manager.queue.length > 1) {
+            message.channel.send(new CustomRichEmbed({
+                title: 'Added Soundcloud Stream',
+                description: [
+                    `[Website Link](${search_query})`
+                ].join('\n'),
+            }, message));
+        }
+    });
+}
+
 module.exports = new DisBotCommand({
     name: 'PLAY',
     category: `${DisBotCommander.categories.MUSIC}`,
@@ -213,6 +258,8 @@ module.exports = new DisBotCommand({
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
                 playBroadcastify(message, command_args.join(' '), playnext);
+            } else if (detect_soundcloud(command_args.join(' '))) {
+                playSoundcloud(message, command_args.join(' '), playnext);
             } else {
                 playYouTube(message, command_args.join(' '), playnext);
             }
