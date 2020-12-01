@@ -270,17 +270,15 @@ module.exports = new DisBotCommand({
                 description: 'Take a look below to see how you should have done it!',
                 fields: [
                     {
-                        name: 'Playing Videos From YouTube:',
+                        name: 'Playing Videos & Playlists From YouTube:',
                         value: [
                             `${'```'}\n${discord_command} ussr national anthem\n${'```'}`,
                             `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`,
-                        ].join('')
-                    }, {
-                        name: 'Playing Playlists From YouTube:',
-                        value: [
-                            `${'```'}\n${discord_command} https://www.youtube.com/watch?v=CJHJAzVXvgk&list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI&index=1\n${'```'}`,
                             `${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`,
                         ].join('')
+                    }, {
+                        name: 'Playing Soundcloud URLs:',
+                        value: `${'```'}\n${discord_command} https://soundcloud.com/nfrealmusic/sets/the-search-9\n${'```'}`,
                     }, {
                         name: 'Playing Broadcastify URLs:',
                         value: `${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`,
