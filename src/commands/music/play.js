@@ -7,6 +7,7 @@ const { default: soundCloudDownloader } = require('soundcloud-downloader');
 
 const { forcePromise } = require('../../utilities.js');
 
+const { logUserError } = require('../../libs/errors.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { QueueItem,
         QueueItemPlayer } = require('../../libs/QueueManager.js');
@@ -189,7 +190,17 @@ async function playSoundcloud(message, search_query, playnext=false) {
     }
 
     const voice_connection = await createConnection(message.member.voice.channel);
-    const stream_maker = async () => await soundCloudDownloader.download(search_query, process.env.SOUNDCLOUD_CLIENT_ID);
+    const stream_maker = async () => {
+        let stream;
+        try {
+            stream = await soundCloudDownloader.download(search_query, process.env.SOUNDCLOUD_CLIENT_ID);
+        } catch (error) {
+            logUserError(message, error);
+            throw error;
+        } finally {
+            return stream;
+        }
+    };
     const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, () => {
         if (!guild_queue_manager.loop_enabled) {
             /* don't send messages when looping */
