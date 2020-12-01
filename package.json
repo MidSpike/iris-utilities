@@ -41,7 +41,7 @@
     "translate-google": "git+https://github.com/MidSpike/NODE_GOOGLE_TRANSLATE.git",
     "url-parameter-parser": "^1.0.2",
     "utf-8-validate": "^5.0.3",
-    "validator": "^13.1.17",
+    "validator": "^13.5.1",
     "youtube-playlist": "^1.0.4",
     "youtube-search": "^1.1.4",
     "yt-search": "^2.5.0",
