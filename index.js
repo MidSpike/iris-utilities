@@ -388,89 +388,95 @@ client.on('channelCreate', async (channel) => {
 
     if (channel.type !== 'text') return;
 
+    await Timer(2500); // prevent api abuse
+
     /**
      * Prevents everyone except this bot from sending messages in the channel
      * @param {GuildTextChannel} channel a GuildTextChannel
      */
-    function prevent_sending_messages_in_channel(channel) {
-        channel.overwritePermissions([
-            {
-                id: channel.guild.roles.everyone.id,
-                deny: ['SEND_MESSAGES'],
-            }, {
-                /* Make sure that the bot retains access if `ADMINISTRATOR` is not present */
-                id: channel.guild.me.id,
-                allow: ['SEND_MESSAGES'],
-            },
-        ], `Don't allow people to send messages in a logging channel!`).catch(() => {
-            channel.send(new CustomRichEmbed({
+    async function prevent_sending_messages_in_channel(channel) {
+        try {
+            await channel.overwritePermissions([
+                {
+                    id: channel.guild.roles.everyone.id,
+                    deny: ['SEND_MESSAGES'],
+                }, {
+                    /* Make sure that the bot retains access if `ADMINISTRATOR` is not present */
+                    id: channel.guild.me.id,
+                    allow: ['SEND_MESSAGES'],
+                },
+            ], `Don't allow people to send messages in a logging channel!`);
+        } catch {
+            await channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'There is an issue!',
                 description: 'I was unable to modify the permissions of this channel to only allow myself to send messages in it!',
             })).catch(console.warn);
-        });
+        } finally {
+            return; // complete async
+        }
     }
     switch (channel.name) {
         case bot_backup_commands_channel.name:
-            channel.send(new CustomRichEmbed({
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_backup_commands_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_restart_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_restart_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_update_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_update_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_command_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_command_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_moderation_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_moderation_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_invite_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_invite_log_channel.description}!`,
             })).catch(console.warn);
-            channel.send(new CustomRichEmbed({
+            await channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Warning!',
                 description: 'make sure that I have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see all invite events for this guild!',
             })).catch(console.warn);
             break;
         case bot_members_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_members_log_channel.description}`,
             })).catch(console.warn);
             break;
         case bot_reaction_log_channel.name:
-            prevent_sending_messages_in_channel(channel);
-            channel.send(new CustomRichEmbed({
+            await prevent_sending_messages_in_channel(channel);
+            await channel.send(new CustomRichEmbed({
                 title: 'Channel Linked',
                 description: `${bot_reaction_log_channel.description}!`,
             })).catch(console.warn);
-            channel.send(new CustomRichEmbed({
+            await channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Warning!',
                 description: 'Any reactions manipulated by bots will not be logged for performance reasons!',
