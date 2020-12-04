@@ -12,6 +12,7 @@ module.exports = {
         console.warn(`----------------------------------------------------------------------------------------------------------------`);
         console.warn(`Bot session was invalidated!`);
         console.warn(`----------------------------------------------------------------------------------------------------------------`);
+
         process.exit(1); // stop this process and restart it via the .bat script
-    }
+    },
 };
