@@ -9,7 +9,7 @@ const { DisBotCommand,
 module.exports = new DisBotCommand({
     name: 'TOGGLE_DISCONNECT_TTS_VOICE',
     category: `${DisBotCommander.categories.GUILD_SETTINGS}`,
-    weight: 13,
+    weight: 14,
     description: 'toggles disconnect tts voice',
     aliases: ['toggle_disconnect_tts_voice'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,

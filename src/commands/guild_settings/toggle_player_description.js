@@ -9,7 +9,7 @@ const { DisBotCommand,
 module.exports = new DisBotCommand({
     name: 'TOGGLE_PLAYER_DESCRIPTION',
     category: `${DisBotCommander.categories.GUILD_SETTINGS}`,
-    weight: 18,
+    weight: 19,
     description: 'toggles player description',
     aliases: ['toggle_player_description'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,

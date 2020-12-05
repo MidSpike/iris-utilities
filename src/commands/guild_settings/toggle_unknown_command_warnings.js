@@ -7,30 +7,30 @@ const { DisBotCommand,
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name: 'TOGGLE_INVITE_BLOCKING',
+    name: 'TOGGLE_UNKNOWN_COMMAND_WARNINGS',
     category: `${DisBotCommander.categories.GUILD_SETTINGS}`,
-    weight: 18,
-    description: 'toggles invite blocking for messages sent by users',
-    aliases: ['toggle_invite_blocking'],
+    weight: 13,
+    description: 'toggles sending warnings for unknown commands',
+    aliases: ['toggle_unknown_command_warnings'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
-        const invite_blocking = guild_config.invite_blocking === 'enabled';
-        if (invite_blocking === true) {
+        const unknown_command_warnings = guild_config.unknown_command_warnings === 'enabled';
+        if (unknown_command_warnings === true) {
             message.channel.send(new CustomRichEmbed({
-                title: 'Invite Blocking: disabled;',
-                description: 'Invites sent by members sent in this server will not be automatically deleted.',
+                title: 'Unknown Command Warnings: disabled;',
+                description: 'When a user tries to use an unknown command, the bot will not send an unknown command warning.',
             }, message));
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
-                invite_blocking: 'disabled',
+                unknown_command_warnings: 'disabled',
             });
         } else {
             message.channel.send(new CustomRichEmbed({
-                title: 'Invite Blocking: enabled;',
-                description: 'Invites sent by members sent in this server will be automatically deleted.',
+                title: 'Unknown Command Warnings: enabled;',
+                description: 'When a user tries to use an unknown command, the bot will send an unknown command warning.',
             }, message));
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
-                invite_blocking: 'enabled',
+                unknown_command_warnings: 'enabled',
             });
         }
     },
