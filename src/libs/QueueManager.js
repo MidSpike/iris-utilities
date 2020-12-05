@@ -60,7 +60,7 @@ class QueueManager {
      * @returns {Promise<QueueManager>} 
      */
     async addItem(item, insertion_index=this.queue.length+1) {
-        if (!item) throw new Error('Item is undefined and cannot be added to the queue!');
+        if (!(item instanceof QueueItem)) throw new Error('\`item\` is not an instance of a \`QueueItem\`!');
         this.#queue = array_insert(this.queue, insertion_index-1, item);
         if (this.queue.length === 1 && this.queue[0].player) {
             this.queue[0].player();
@@ -182,53 +182,65 @@ class QueueItemPlayer {
 
             const guild_audio_controller = guild.client.$.audio_controllers.get(guild.id);
 
+            const queue_tts_announcement = () => new Promise((resolve, reject) => {
+                if (guild_config.queue_tts_voice === 'enabled') {
+                    const tts_text = `Now playing: ${this.queue_manager.queue[0].description}`;
+                    const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
+                    playStream(voice_connection, tts_url_stream, 20.0, undefined, () => {
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+            });
+
+            await queue_tts_announcement();
+
             playStream(await createConnection(this.voice_connection.channel), await this.stream_maker(), this.volume_ratio, async () => {
                 await this.start_callback();
             }, async (voice_connection, dispatcher) => {
-                await this.queue_manager.removeItem(1); // remove this item from the queue
+                /* remove this item from the queue */
+                await this.queue_manager.removeItem(1);
+
                 await this.end_callback();
 
-                const queue_is_active = () => this.queue_manager.queue.length > 0 || this.queue_manager.loop_enabled || this.queue_manager.autoplay_enabled;
-                if (!queue_is_active()) { // the bot is not active in vc, so run the disconnect process
-                    await Timer(1000 * 10); // wait 10 seconds before starting the disconnect process
-
-                    const bot_is_active_in_vc = () => voice_connection.voice?.speaking === true;
-
-                    /* loop 20 times at an interval of 1 second (total check time of 20 seconds) to see if vc is active */
-                    for (let vc_check_number = 0; vc_check_number < 20; vc_check_number++) {
-                        if (queue_is_active() || bot_is_active_in_vc()) return;
-                        await Timer(1000);
+                if (this.queue_manager.loop_enabled) { // queue loop is enabled
+                    if (this.queue_manager.loop_type === 'multiple') {
+                        /* add the last removed item to the end of the queue */
+                        await this.queue_manager.addItem(this.queue_manager.last_removed);
+                    } else if (this.queue_manager.loop_type === 'shuffle') {
+                        /* add the last removed item as a shuffled item to play */
+                        const random_queue_insertion = random_range_inclusive(1, this.queue_manager.queue.length);
+                        await this.queue_manager.addItem(this.queue_manager.last_removed, random_queue_insertion);
+                    } else if (this.queue_manager.loop_type === 'single') {
+                        /* add the last removed item as the next item to play */
+                        await this.queue_manager.addItem(this.queue_manager.last_removed, 1);
                     }
+                } else if (this.queue_manager.queue.length > 0) {
+                    this.queue_manager.queue[0].player();
+                } else {
+                    const queue_is_active = () => this.queue_manager.queue.length > 0 || this.queue_manager.loop_enabled || this.queue_manager.autoplay_enabled;
+                    if (!queue_is_active()) {
+                        await Timer(1000 * 10); // wait 10 seconds before starting the disconnect process
 
-                    if (guild_config.disconnect_tts_voice === 'enabled') { // disconnect with TTS
-                        const tts_text = `Disconnecting...`;
-                        const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
-                        playStream(voice_connection, tts_url_stream, 15.0, undefined, () => {
-                            guild_audio_controller.disconnect();
-                        });
-                    } else { // disconnect without TTS
-                        guild_audio_controller.disconnect();
-                    }
-                } else { // the queue is not empty so handle it
-                    if (this.queue_manager.loop_enabled) { // queue loop is enabled
-                        if (this.queue_manager.loop_type === 'multiple') {
-                            this.queue_manager.addItem(this.queue_manager.last_removed); // add the last removed item to the end of the queue
-                        } else if (this.queue_manager.loop_type === 'shuffle') {
-                            const random_queue_insertion = random_range_inclusive(1, this.queue_manager.queue.length);
-                            this.queue_manager.addItem(this.queue_manager.last_removed, random_queue_insertion); // add the last removed item as a shuffled item to play
-                        } else if (this.queue_manager.loop_type === 'single') {
-                            this.queue_manager.addItem(this.queue_manager.last_removed, 1); // add the last removed item as the next item to play
+                        const bot_is_active_in_vc = () => voice_connection.voice?.speaking === true;
+
+                        /* loop 20 times at an interval of 1 second (total check time of 20 seconds) to see if vc is active */
+                        for (let vc_check_number = 0; vc_check_number < 20; vc_check_number++) {
+                            if (queue_is_active() || bot_is_active_in_vc()) return;
+                            await Timer(1000);
                         }
-                    }
-                    if (this.queue_manager.queue.length > 0) { // the queue is not empty so continue playing
-                        if (guild_config.queue_tts_voice === 'enabled') {
-                            const tts_text = `Next Up: ${this.queue_manager.queue[0].description}`;
+
+                        if (guild_config.disconnect_tts_voice === 'enabled') {
+                            /* disconnect with TTS announcement */
+                            const tts_text = `Disconnecting...`;
                             const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
-                            playStream(voice_connection, tts_url_stream, 15.0, undefined, () => {
-                                this.queue_manager.queue[0].player();
+                            playStream(voice_connection, tts_url_stream, 20.0, undefined, () => {
+                                guild_audio_controller.disconnect();
                             });
                         } else {
-                            this.queue_manager.queue[0].player();
+                            /* disconnect without TTS announcement */
+                            guild_audio_controller.disconnect();
                         }
                     }
                 }
