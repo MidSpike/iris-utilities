@@ -187,14 +187,14 @@ async function playYouTube(message, search_query, playnext=false) {
             return ytdl_stream;
         };
 
-        const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.75, () => {
+        const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
             if (!guild_queue_manager.loop_enabled) {
                 /* don't send messages when looping */
                 sendYtDiscordEmbed(message, yt_video_info, 'Playing');
             }
         }, async () => {
             /* handle queue autoplay for youtube videos */
-            if (guild_queue_manager.queue.length === 0 && guild_queue_manager.autoplay_enabled) {
+            if (guild_queue_manager.queue.length >= 1 && guild_queue_manager.autoplay_enabled) {
                 const related_videos_api_response = await axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=id&maxResults=3&relatedToVideoId=${encodeURIComponent(yt_video_info.videoDetails.videoId)}&type=video&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
                 const related_videos = related_videos_api_response.data.items.map(item => item.id.videoId);
 
