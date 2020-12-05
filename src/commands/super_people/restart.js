@@ -67,41 +67,40 @@ module.exports = new DisBotCommand({
                 })).catch(console.warn);
 
                 try {
+                    const tts_broadcast = client.voice.createBroadcast();
+
+                    for (const vc of voice_channels) {
+                        playStream(await createConnection(vc, true), tts_broadcast, 7.5);
+                    }
+
+                    function playStreamAndWait(stream) {
+                        return new Promise(async (resolve, reject) => {
+                            await Timer(1000); // wait a bit before speaking
+                            const tts_broadcast_dispatcher = tts_broadcast.play(stream);
+                            tts_broadcast_dispatcher.on('finish', () => {
+                                resolve();
+                            });
+                            tts_broadcast_dispatcher.on('error', () => {
+                                reject();
+                            });
+                        });
+                    }
+
                     const tts_text_english = `My developer told me to restart for updates... Check back in 5 minutes to see if I'm finished updating.`;
                     const tts_url_english = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=en-GB_KateV3Voice&text=${encodeURIComponent(tts_text_english)}`;
-                    const tts_broadcast_english = client.voice.createBroadcast();
-                    tts_broadcast_english.play(tts_url_english);
-                    for (const vc of voice_channels) {
-                        playStream(await createConnection(vc, true), tts_broadcast_english, 7.5);
-                    }
-                    await Timer(10000); // let TTS do its thing first
+                    await playStreamAndWait(tts_url_english);
     
                     const tts_text_spanish = `Mi desarrollador me dijo que reiniciara las actualizaciones ... Vuelva en 5 minutos para ver si he terminado de actualizar.`;
                     const tts_url_spanish = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=es-LA_SofiaV3Voice&text=${encodeURIComponent(tts_text_spanish)}`;
-                    const tts_broadcast_spanish = client.voice.createBroadcast();
-                    tts_broadcast_spanish.play(tts_url_spanish);
-                    for (const vc of voice_channels) {
-                        playStream(await createConnection(vc, false), tts_broadcast_spanish, 7.5);
-                    }
-                    await Timer(15000); // let TTS do its thing first
+                    await playStreamAndWait(tts_url_spanish);
     
                     const tts_text_german = `Mein Entwickler sagte mir, ich solle für Updates neu starten ... Überprüfen Sie in 5 Minuten erneut, ob ich mit dem Update fertig bin.`;
                     const tts_url_german = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=de-DE_DieterV3Voice&text=${encodeURIComponent(tts_text_german)}`;
-                    const tts_broadcast_german = client.voice.createBroadcast();
-                    tts_broadcast_german.play(tts_url_german);
-                    for (const vc of voice_channels) {
-                        playStream(await createConnection(vc, false), tts_broadcast_german, 7.5);
-                    }
-                    await Timer(13000); // let TTS do its thing first
+                    await playStreamAndWait(tts_url_german);
     
                     const tts_text_japanese = `開発者からアップデートを再開するように言われました... 5分後にもう一度チェックして、アップデートが終了したかどうかを確認してください。`;
                     const tts_url_japanese = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=ibm&lang=ja-JP_EmiV3Voice&text=${encodeURIComponent(tts_text_japanese)}`;
-                    const tts_broadcast_japanese = client.voice.createBroadcast();
-                    tts_broadcast_japanese.play(tts_url_japanese);
-                    for (const vc of voice_channels) {
-                        playStream(await createConnection(vc, false), tts_broadcast_japanese, 7.5);
-                    }
-                    await Timer(25000); // let TTS do its thing first
+                    await playStreamAndWait(tts_url_japanese);
                 } catch (error) {
                     console.trace(error);
                 } finally {

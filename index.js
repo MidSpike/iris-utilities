@@ -976,24 +976,30 @@ client.on('message', async (message) => {
         return;
     }
 
-    /* check for valid command */
+    /* adjust all command aliases for this guild's command prefix */
     const command = DisBotCommander.commands.find(cmd => 
         cmd.aliases.map(cmd => 
             `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`
         ).includes(discord_command)
     );
 
+    /* make sure that the user used a valid command */
     if (!command) {
-        message.channel.send(new CustomRichEmbed({
-            title: `That command doesn't exist!`,
-            description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
-            fields: [
-                {
-                    name: `How to change ${bot_common_name} command prefix`,
-                    value: `${'```'}\n${command_prefix}set_prefix NEW_PREFIX_HERE\n${'```'}`,
-                },
-            ],
-        }, message)).catch(console.warn);
+        if (guild_config.unknown_command_warnings === 'enabled') {
+            message.channel.send(new CustomRichEmbed({
+                title: `That command doesn't exist!`,
+                description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
+                fields: [
+                    {
+                        name: `How to change ${bot_common_name} command prefix`,
+                        value: `${'```'}\n${command_prefix}set_prefix NEW_PREFIX_HERE\n${'```'}`,
+                    }, {
+                        name: 'How to disable this warning message',
+                        value: `${'```'}\n${command_prefix}toggle_unknown_command_warnings\n${'```'}`,
+                    },
+                ],
+            }, message)).catch(console.warn);
+        }
         return;
     }
 

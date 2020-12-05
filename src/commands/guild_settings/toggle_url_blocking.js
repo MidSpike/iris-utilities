@@ -9,7 +9,7 @@ const { DisBotCommand,
 module.exports = new DisBotCommand({
     name: 'TOGGLE_URL_BLOCKING',
     category: `${DisBotCommander.categories.GUILD_SETTINGS}`,
-    weight: 16,
+    weight: 17,
     description: 'toggles url blocking for messages sent by users',
     aliases: ['toggle_url_blocking'],
     access_level: DisBotCommand.access_levels.GUILD_ADMIN,
