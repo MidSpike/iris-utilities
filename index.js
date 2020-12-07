@@ -117,10 +117,8 @@ async function updateGuildConfig(guild) {
             '_name': guild.name,
             '_region': guild.region,
             '_features': `${guild.features}`,
-            '_owner': `@${guild.owner?.user?.tag} (${guild.owner?.id})`,
+            '_owner_id': `${guild.ownerID}`,
             '_has_permissions': `${guild.me.hasPermission('ADMINISTRATOR') ? 'ADMINISTRATOR' : guild.me.permissions.toArray()}`,
-            '_member_count': guild.members.cache.filter(member => !member.user.bot).size,
-            '_bot_count': guild.members.cache.filter(member => member.user.bot).size,
         },
     };
 
