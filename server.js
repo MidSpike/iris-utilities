@@ -97,10 +97,9 @@ router.get('/ytinfo', async (req, res) => {
                 const regex_brackets = /(\<|\>|\(|\)|\[|\]|\{|\})/g;
 
                 yt_info.videoDetails.title = yt_info.videoDetails.title ?? '404 not found';
-                console.log('yt_info.videoDetails.title', yt_info.videoDetails.title);
-
                 yt_info.videoDetails.author.name = yt_info.videoDetails.author.name ?? '404 not found';
-                console.log('yt_info.videoDetails.author.name', yt_info.videoDetails.author.name);
+
+                console.log('yt_info.videoDetails', yt_info.videoDetails);
 
                 yt_info.videoDetails.title = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.title).replace(regex_brackets, ``)}`;
                 yt_info.videoDetails.author.name = `${Discord.Util.escapeMarkdown(yt_info.videoDetails.author.name).replace(regex_brackets, ``)}`;
