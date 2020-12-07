@@ -183,7 +183,7 @@ class QueueItemPlayer {
             const guild_audio_controller = guild.client.$.audio_controllers.get(guild.id);
 
             const queue_tts_announcement = () => new Promise((resolve, reject) => {
-                if (guild_config.queue_tts_voice === 'enabled') {
+                if (this.queue_manager.queue.length > 0 && guild_config.queue_tts_voice === 'enabled') {
                     const tts_text = `Now playing: ${this.queue_manager.queue[0].description}`;
                     const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
                     playStream(voice_connection, tts_url_stream, 20.0, undefined, () => {

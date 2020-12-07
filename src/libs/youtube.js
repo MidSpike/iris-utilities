@@ -194,17 +194,11 @@ async function playYouTube(message, search_query, playnext=false) {
             }
         }, async () => {
             /* handle queue autoplay for youtube videos */
-            if (guild_queue_manager.queue.length >= 1 && guild_queue_manager.autoplay_enabled) {
+            if (guild_queue_manager.autoplay_enabled && guild_queue_manager.queue.length === 0) {
                 const related_videos_api_response = await axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=id&maxResults=3&relatedToVideoId=${encodeURIComponent(yt_video_info.videoDetails.videoId)}&type=video&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
                 const related_videos = related_videos_api_response.data.items.map(item => item.id.videoId);
 
                 const random_related_video_id = array_random(related_videos);
-
-                console.log({
-                    related_videos_api_response,
-                    related_videos,
-                    random_related_video_id,
-                });
 
                 await _play_as_video(random_related_video_id);
             }
