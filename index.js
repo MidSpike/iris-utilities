@@ -945,33 +945,36 @@ client.on('message', async (message) => {
     const discord_command_without_prefix = discord_command.replace(`${command_prefix}`, ``);
 
     /* prevent false positives for non-command matches */
-    if (discord_command_without_prefix.match(/^\d/)) return; // commands can't start with numbers
+    if (discord_command_without_prefix.match(/^\d/)) return; // commands can not start with numbers
 
     /* check for guild allowed channels */
     const guild_allowed_channels = guild_config.allowed_channels;
-    const fetched_allowed_channels = await Promise.all(guild_allowed_channels.map(async channel_id => await message.guild.channels.resolve(channel_id)?.fetch()));
     const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel.name;
     const is_guild_allowed_channel = guild_allowed_channels.includes(message.channel.id);
-    const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR');
-    if (guild_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel && !member_is_immune_from_channel_exclusions) {
-        const dm_channel = await message.author.createDM();
-        dm_channel.send(new CustomRichEmbed({
-            title: `Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
-            description: `The server you tried using me in has setup special channels for me to be used in!`,
-            fields: [
-                {
-                    name: 'Allowed Channels',
-                    value: `${'```'}\n${fetched_allowed_channels.map(channel => `#${channel.name} (${channel.id})`).join('\n')}\n${'```'}`,
-                }, {
-                    name: 'Notice',
-                    value: `Anyone can use ${bot_common_name} commands in text-channels called \`#${bot_backup_commands_channel.name}\`.`,
-                }, {
-                    name: 'Notice',
-                    value: `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
-                },
-            ],
-        })).catch(console.warn);
-        return;
+    const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR') || isThisBotsOwner(message.member.id) || isSuperPerson(message.member.id);
+    if (guild_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel) {
+        if (!member_is_immune_from_channel_exclusions) {
+            const dm_channel = await message.author.createDM();
+            dm_channel.send(new CustomRichEmbed({
+                title: `Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
+                description: 'The server you tried using me in has setup special channels for me to be used in!',
+                fields: [
+                    {
+                        name: 'Allowed Channels',
+                        value: `${guild_allowed_channels.map(channel => `<#${channel.id}>`).join('\n')}`,
+                    }, {
+                        name: 'Notice',
+                        value: [
+                            `Anyone can use ${bot_common_name} commands in text-channels called \`#${bot_backup_commands_channel.name}\`.`,
+                            `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
+                        ].join('\n\n'),
+                    },
+                ],
+            })).catch(console.warn);
+            return;
+        } else {
+            await message.channel.send(`Hey ${message.author}!\nCommands are typically disabled for normal users in this channel, but **you are immune**!`).catch(console.warn);
+        }
     }
 
     /* adjust all command aliases for this guild's command prefix */
