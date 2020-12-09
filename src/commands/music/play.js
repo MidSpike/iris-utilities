@@ -4,6 +4,9 @@
 const axios = require('axios');
 const validator = require('validator');
 const { default: soundCloudDownloader } = require('soundcloud-downloader');
+const spotifyUri = require('spotify-uri');
+
+const { Timer } = require('../../utilities.js');
 
 const { forcePromise } = require('../../utilities.js');
 
@@ -20,7 +23,7 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion local dependencies
 
 function detect_unsupported_urls(search_query) {
-    if (search_query.includes('spotify.com/')
+    if (search_query.includes('vimeo.com/')
      || search_query.includes('twitter.com/')
      || search_query.includes('facebook.com/')
     ) {
@@ -41,6 +44,8 @@ function detect_unsupported_attachment(message_attachment) {
         return false;
     }
 }
+
+//---------------------------------------------------------------------------------------------------------------//
 
 async function detect_remote_mp3(search_query='') {
     if (validator.isURL(search_query)) {
@@ -131,6 +136,8 @@ async function playUserUploadedMP3(message, playnext=false) {
     }
 }
 
+//---------------------------------------------------------------------------------------------------------------//
+
 function detect_broadcastify(search_query='') {
     return !!search_query.match(/((http|https)\:\/\/(www.)*(broadcastify\.com\/)(webPlayer|listen\/feed)\/\d+)/gi);
 }
@@ -170,6 +177,98 @@ async function playBroadcastify(message, search_query, playnext=false) {
         }
     });
 }
+
+//---------------------------------------------------------------------------------------------------------------//
+
+async function get_spotify_access_token() {
+    const base64_encoded_authorization = (new Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`)).toString(`base64`);
+
+    const spotify_auth_response = await axios({
+        url: 'https://accounts.spotify.com/api/token?grant_type=client_credentials',
+        method: 'POST',
+        headers: {
+            'Authorization': `Basic ${base64_encoded_authorization}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    });
+
+    return spotify_auth_response.data.access_token;
+}
+
+function detect_spotify(search_query='') {
+    return !!search_query.match(/((http|https)\:\/\/(open\.)*(spotify\.com\/)(track|album|playlist))/gi);
+}
+
+async function playSpotify(message, search_query, playnext=false) {
+    let parsed_uri_data;
+    try {
+        parsed_uri_data = spotifyUri.parse(search_query);
+    } catch (error) {
+        console.error(error);
+    }
+    console.log('parsed_data', parsed_uri_data);
+
+    if (!parsed_uri_data) {
+        /* nothing could be parsed from the input */
+        message.channel.send(new CustomRichEmbed({
+            color: 0xFFFF00,
+            title: 'Hmm',
+            description: 'I don\'t think that was a valid spotify url!',
+        }, message));
+        return;
+    }
+
+    const spotify_access_token = await get_spotify_access_token();
+
+    async function playSpotifyTrack(spotify_track_id) {
+        const spotify_track_response = await axios.get(`https://api.spotify.com/v1/tracks/${spotify_track_id}?access_token=${spotify_access_token}`);
+        console.log('spotify_track_response.data', spotify_track_response.data);
+
+        const spotify_track_name = spotify_track_response.data.name;
+        const spotify_artists_names = spotify_track_response.data.artists.map(artist => artist.name).join(', ');
+        const spotify_track_name_by_artists = `${spotify_track_name} by ${spotify_artists_names}`;
+
+        playYouTube(message, spotify_track_name_by_artists, playnext);
+    }
+
+    async function playSpotifyTracks(spotify_playlist_id, resource_type) {
+        const spotify_playlist_response = await axios.get(`https://api.spotify.com/v1/${resource_type}s/${spotify_playlist_id}/tracks?access_token=${spotify_access_token}`);
+        console.log('spotify_playlist_response.data', spotify_playlist_response.data);
+
+        const track_ids = spotify_playlist_response.data.items.map(item => resource_type === 'playlist' ? item.track.id : item.id);
+        console.log('track_ids', track_ids);
+
+        if (!message.guild.me?.voice?.connection) {
+            await createConnection(message.member.voice.channel); // make connection
+        }
+
+        for (const track_id of track_ids) {
+            if (message.guild.me?.voice?.connection) {
+                playSpotifyTrack(track_id);
+            } else {
+                break;
+            }
+            await Timer(10_000); // add an item every 10 seconds
+        }
+    }
+
+    if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {
+        playSpotifyTracks(parsed_uri_data.id, parsed_uri_data.type);
+    } else if (parsed_uri_data.type === 'track') {
+        playSpotifyTrack(parsed_uri_data.id);
+    } else {
+        /* the parsed uri is not for a track or playlist */
+        message.channel.send(new CustomRichEmbed({
+            color: 0xFFFF00,
+            title: 'That sucks!',
+            description: 'I can only play spotify track/playlist urls!',
+        }, message));
+        return;
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------//
 
 function detect_soundcloud(search_query='') {
     return !!search_query.match(/((http|https)\:\/\/(www.)*(soundcloud\.com\/))/gi);
@@ -226,6 +325,8 @@ async function playSoundcloud(message, search_query, playnext=false) {
     });
 }
 
+//---------------------------------------------------------------------------------------------------------------//
+
 module.exports = new DisBotCommand({
     name: 'PLAY',
     category: `${DisBotCommander.categories.MUSIC}`,
@@ -265,10 +366,13 @@ module.exports = new DisBotCommand({
         } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
             playUserUploadedMP3(message, playnext);
         } else if (command_args.join('').length > 0) {
+            console.log(detect_spotify(command_args.join(' ')));
             if (await detect_remote_mp3(command_args.join(' '))) {
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
                 playBroadcastify(message, command_args.join(' '), playnext);
+            } else if (detect_spotify(command_args.join(' '))) {
+                playSpotify(message, command_args.join(' '), playnext);
             } else if (detect_soundcloud(command_args.join(' '))) {
                 playSoundcloud(message, command_args.join(' '), playnext);
             } else {
