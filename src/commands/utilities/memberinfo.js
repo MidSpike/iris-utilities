@@ -12,8 +12,8 @@ module.exports = new DisBotCommand({
     name: 'MEMBERINFO',
     category: `${DisBotCommander.categories.UTILITIES}`,
     weight: 10,
-    description: 'Guild Member Information',
-    aliases: ['memberinfo'],
+    description: 'Displays information about a specified guild member',
+    aliases: ['memberinfo', 'userinfo'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
 
@@ -82,7 +82,7 @@ module.exports = new DisBotCommand({
                 fields: [
                     {
                         name: 'Example usage:',
-                        value: `${'```'}\n${discord_command} @user${'```'}`
+                        value: `${'```'}\n${discord_command} @user\n${'```'}`
                     },
                 ],
             }, message));
