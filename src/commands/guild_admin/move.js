@@ -16,12 +16,7 @@ module.exports = new DisBotCommand({
     aliases: ['move'],
     access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
-        /**
-         * Example Command Usage:
-         * command_name member_id_or_mention voice_channel_id
-         */
-
-        const { command_args } = opts;
+        const { discord_command, command_args } = opts;
 
         if (!botHasPermissionsInGuild(message, ['MOVE_MEMBERS'])) return;
 
@@ -47,6 +42,7 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'You must specify a voice channel id after the user mention!',
+                description: `Example:${'```'}\n${discord_command} @user 100000000000000000\n${'```'}`,
             }, message));
             return;
         }
