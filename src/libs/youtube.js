@@ -120,7 +120,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 possible_video_id = undefined;
             }
         } else { // search for the video via the youtube api as a fallback
-            const youtube_search_results = await forceYouTubeSearch(query, 1, 3);
+            const youtube_search_results = await forceYouTubeSearch(query, 1, 2);
             possible_video_id = youtube_search_results[0]?.id;
         }
         return possible_video_id;
