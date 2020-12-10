@@ -245,7 +245,7 @@ async function playYouTube(message, search_query, playnext=false) {
                     await options_message.delete({timeout: 500}).catch(console.warn);
 
                     await options_message.channel.send(new CustomRichEmbed({
-                        title: `Started adding ${playlist_items.length} item(s) to the playlist!`,
+                        title: `Adding ${playlist_items.length} item(s) to the queue!`,
                     }, message));
 
                     /* connect the bot to vc for the checks below to pass */
@@ -259,7 +259,7 @@ async function playYouTube(message, search_query, playnext=false) {
                         } else {
                             break;
                         }
-                        await Timer(10_000); // add an item every 10 seconds
+                        await Timer(30_000); // add an item every 30 seconds
                     }
                 },
             }, {
