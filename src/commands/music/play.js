@@ -389,7 +389,6 @@ module.exports = new DisBotCommand({
         } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
             playUserUploadedMP3(message, playnext);
         } else if (command_args.join('').length > 0) {
-            console.log(detect_spotify(command_args.join(' ')));
             if (await detect_remote_mp3(command_args.join(' '))) {
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
