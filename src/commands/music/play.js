@@ -18,6 +18,7 @@ const { createConnection } = require('../../libs/createConnection.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { playYouTube } = require('../../libs/youtube.js');
+const { sendOptionsMessage } = require('../../libs/messages.js');
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion local dependencies
@@ -239,18 +240,40 @@ async function playSpotify(message, search_query, playnext=false) {
         const track_ids = spotify_playlist_response.data.items.map(item => resource_type === 'playlist' ? item.track.id : item.id);
         console.log('track_ids', track_ids);
 
-        if (!message.guild.me?.voice?.connection) {
-            await createConnection(message.member.voice.channel); // make connection
-        }
+        const confirmation_embed = new CustomRichEmbed({
+            title: `Do you want to play this playlist / album?`,
+            description: `${'```'}fix\nWARNING! YOU CAN'T STOP A PLAYLIST / ALBUM FROM ADDING ITEMS!\n${'```'}`,
+        }, message);
 
-        for (const track_id of track_ids) {
-            if (message.guild.me?.voice?.connection) {
-                playSpotifyTrack(track_id);
-            } else {
-                break;
-            }
-            await Timer(10_000); // add an item every 10 seconds
-        }
+        sendOptionsMessage(message.channel.id, confirmation_embed, [
+            {
+                emoji_name: 'bot_emoji_checkmark',
+                async callback(options_message, collected_reaction, user) {
+                    await options_message.delete({timeout: 500}).catch(console.warn);
+    
+                    await options_message.channel.send(new CustomRichEmbed({
+                        title: `Adding ${track_ids.length} item(s) to the queue!`,
+                    }, message));
+
+                    /* connect the bot to vc for the checks below to pass */
+                    await createConnection(message.member.voice.channel);
+
+                    for (const track_id of track_ids) {
+                        if (options_message.guild.me?.voice?.connection) {
+                            playSpotifyTrack(track_id);
+                        } else {
+                            break;
+                        }
+                        await Timer(30_000); // add an item every 30 seconds
+                    }
+                },
+            }, {
+                emoji_name: 'bot_emoji_close',
+                async callback(options_message, collected_reaction, user) {
+                    await options_message.delete({timeout: 500}).catch(console.warn);
+                },
+            },
+        ], message.author.id);
     }
 
     if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {

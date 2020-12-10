@@ -221,12 +221,12 @@ class QueueItemPlayer {
                 } else {
                     const queue_is_active = () => this.queue_manager.queue.length > 0 || this.queue_manager.loop_enabled || this.queue_manager.autoplay_enabled;
                     if (!queue_is_active()) {
-                        await Timer(1000 * 10); // wait 10 seconds before starting the disconnect process
+                        await Timer(20_000); // wait 20 seconds before starting the disconnect process
 
                         const bot_is_active_in_vc = () => voice_connection.voice?.speaking === true;
 
-                        /* loop 20 times at an interval of 1 second (total check time of 20 seconds) to see if vc is active */
-                        for (let vc_check_number = 0; vc_check_number < 20; vc_check_number++) {
+                        /* loop 40 times at an interval of 1 second (total check time of 40 seconds) to see if vc is active */
+                        for (let vc_check_number = 0; vc_check_number < 40; vc_check_number++) {
                             if (queue_is_active() || bot_is_active_in_vc()) return;
                             await Timer(1000);
                         }
