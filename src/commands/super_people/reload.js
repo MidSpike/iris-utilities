@@ -5,18 +5,20 @@ const fs = require('fs');
 const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
 
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
-const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
+const { isSuperPerson,
+        isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
-    name:'RELOAD',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
-    description:'reloads commands',
-    aliases:['reload'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    name: 'RELOAD',
+    category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
+    description: 'reloads commands',
+    aliases: ['reload'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, command_args } = opts;
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'reload')) {
@@ -52,7 +54,7 @@ module.exports = new DisBotCommand({
                     message.reply(`Unable to Reload Command File: ${command_file_to_reload}`);
                 }
             } else {
-                message.reply(`The command name specified does not have a file!`);
+                message.reply('The command name specified does not have a file!');
             }
         } else {
             message.reply(`Could not find command \`${specified_command_input_with_prefix}\`!`);
