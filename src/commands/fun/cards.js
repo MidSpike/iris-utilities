@@ -1,8 +1,6 @@
 'use strict';
 
 //#region dependencies
-const axios = require('axios');
-
 const { Timer,
         array_make,
         array_random } = require('../../utilities.js');
@@ -11,11 +9,13 @@ const { sendPotentiallyNotSafeForWorkDisclaimer } = require('../../libs/messages
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+
+const cards_against_humanity_json = require('../../../files/cards_against_humanity.json');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'CARDS',
-    category: `${DisBotCommander.categories.FUN}`,
+    category: `${DisBotCommander.categories.HIDDEN}`,
     description: 'Cards Against Humanity',
     aliases: ['cards'],
     async executor(Discord, client, message, opts={}) {
@@ -29,20 +29,23 @@ module.exports = new DisBotCommand({
 
         await Timer(1500);
 
-        const cards_api_res = await axios.get(`https://cards-against-humanity-api.herokuapp.com/sets/Base`);
-        const black_card = array_random(cards_api_res.data.blackCards.filter(card => card.pick === 2));
-        const white_cards = array_make(black_card.pick).map(() => array_random(cards_api_res.data.whiteCards));
+        const black_cards = cards_against_humanity_json.filter(card => card.cardType === 'Q');
+        const white_cards = cards_against_humanity_json.filter(card => card.cardType === 'A');
+
+
+        const selected_black_card = array_random(black_cards.filter(card => card.numAnswers === 2));
+        const selected_white_cards = array_make(selected_black_card.numAnswers).map(() => array_random(white_cards));
 
         bot_message.edit(new CustomRichEmbed({
             title: `Cards Against Humanity`,
             fields: [
                 {
                     name: 'Black Card',
-                    value: `${'```'}\n${black_card.text}\n${'```'}`,
+                    value: `${'```'}\n${selected_black_card.text.replace(/([_]+)/gi, '_____')}\n${'```'}`,
                 },
-                ...white_cards.map(card => ({
+                ...selected_white_cards.map(white_card => ({
                     name: 'White Card',
-                    value: `${'```'}\n${card}\n${'```'}`,
+                    value: `${'```'}\n${white_card.text}\n${'```'}`,
                     inline: true,
                 })),
             ],
