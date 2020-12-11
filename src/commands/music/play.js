@@ -258,13 +258,16 @@ async function playSpotify(message, search_query, playnext=false) {
                     /* connect the bot to vc for the checks below to pass */
                     await createConnection(message.member.voice.channel);
 
+                    let index = 0;
                     for (const track_id of track_ids) {
                         if (options_message.guild.me?.voice?.connection) {
+                            if (index > 25) break; // don't add too many items
                             playSpotifyTrack(track_id);
                         } else {
                             break;
                         }
-                        await Timer(30_000); // add an item every 30 seconds
+                        index++;
+                        await Timer(60_000); // add an item every 60 seconds
                     }
                 },
             }, {
@@ -389,6 +392,14 @@ module.exports = new DisBotCommand({
         } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
             playUserUploadedMP3(message, playnext);
         } else if (command_args.join('').length > 0) {
+            function error_429_message() {
+                message.channel.send(new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: `YouTube and Spotify playback are currently disabled!`,
+                    description: `YouTube is currently refusing to send audio packets to this bot...\n Please try again in a few hours!`,
+                }, message));
+            }
+
             if (await detect_remote_mp3(command_args.join(' '))) {
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
@@ -396,8 +407,10 @@ module.exports = new DisBotCommand({
             } else if (detect_spotify(command_args.join(' '))) {
                 playSpotify(message, command_args.join(' '), playnext);
             } else if (detect_soundcloud(command_args.join(' '))) {
+                return error_429_message();
                 playSoundcloud(message, command_args.join(' '), playnext);
             } else {
+                return error_429_message();
                 playYouTube(message, command_args.join(' '), playnext);
             }
         } else {

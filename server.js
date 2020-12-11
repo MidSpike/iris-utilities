@@ -82,7 +82,7 @@ router.get('/ytinfo', async (req, res) => {
                 yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`, {
                     requestOptions: {
                         headers: {
-                            cookie: process.env.YTDL_COOKIE,
+                            'Cookie': process.env.YTDL_COOKIE,
                         },
                     },
                 }).catch(console.warn);

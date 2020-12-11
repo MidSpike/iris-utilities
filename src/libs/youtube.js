@@ -60,17 +60,17 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
             // search_results = results;
             search_results = yt_api_response.results;
         } catch (error) {
-            console.warn(`Failed YouTube API Lookup!`);
+            console.warn('Failed YouTube API Lookup!');
         } finally {
             if (search_results.length > 0) break;
             else current_search_attempt++;
-            await Timer(1000 + current_search_attempt * 250);
+            await Timer(current_search_attempt * 2000);
         }
     }
 
     /* fallback to scraping the youtube website results */
     if (search_results.length === 0) {
-        console.warn(`YOUTUBE API RATE LIMIT HANDLER ACTIVE!`);
+        console.warn('YOUTUBE API RATE LIMIT HANDLER ACTIVE!');
         const { videos: backup_search_results } = await ytSearchBackup(search_query);
 
         /* map the unofficial backup results to match the primary results scheme */
@@ -120,7 +120,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 possible_video_id = undefined;
             }
         } else { // search for the video via the youtube api as a fallback
-            const youtube_search_results = await forceYouTubeSearch(query, 1, 2);
+            const youtube_search_results = await forceYouTubeSearch(query, 1, 1);
             possible_video_id = youtube_search_results[0]?.id;
         }
         return possible_video_id;
@@ -180,7 +180,10 @@ async function playYouTube(message, search_query, playnext=false) {
                 highWaterMark: 1<<25, // 32 MB
                 requestOptions: {
                     headers: {
-                        cookie: process.env.YTDL_COOKIE,
+                        // 'Cookie': process.env.YTDL_COOKIE,
+                        'accept-language': 'en-US,en;q=0.9',
+                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+                        // 'cookie': 'YSC=5RVS7IhMeyY; VISITOR_INFO1_LIVE=eQrAENdg1RE; CONSENT=WP.28e26b; SID=4gdcnfdj_TJmPOK7hVuvmvb_NWVV79cKHZewsyBqF0LzRiyn12tcH9th-ASXsgjTRTznzw.; __Secure-3PSID=4gdcnfdj_TJmPOK7hVuvmvb_NWVV79cKHZewsyBqF0LzRiynObPiHnElihbgq_Up_9CCXQ.; HSID=ABdZMEgrbYhKTWzoG; SSID=AxWLQZf6sRWBDyP7W; APISID=tsXoT5xnvRQU-Vfp/A4fHXd93A6HXuU7Wt; SAPISID=ikhKstGJdaHiKUY9/AX56B8y1NdBwRJYD5; __Secure-3PAPISID=ikhKstGJdaHiKUY9/AX56B8y1NdBwRJYD5; PREF=f6=80; SIDCC=AJi4QfGQedpINkOj3Zv7mwyZpM87yhwlLxu0UH2e4cXIgxnmntd1Hdt8lK7OAEUmT01Ih8Rj; __Secure-3PSIDCC=AJi4QfEwvY9j6yFPaDRdSJqm5tPpmkNvbRkUcB1pKC2WifcEJEWojqdOw1nAH970CMKvCfavmA',
                     },
                 },
             });
@@ -251,15 +254,18 @@ async function playYouTube(message, search_query, playnext=false) {
                     /* connect the bot to vc for the checks below to pass */
                     await createConnection(voice_channel);
 
+                    let index = 0;
                     for (const playlist_item of playlist_items) {
                         /* make sure the bot is still in a voice channel */
                         if (options_message.guild.me?.voice?.connection) {
+                            if (index > 25) break; // don't add too many items
                             const playlist_item_video_id = playlist_item.snippet.resourceId.videoId;
                             _play_as_video(playlist_item_video_id, false);
                         } else {
                             break;
                         }
-                        await Timer(30_000); // add an item every 30 seconds
+                        index++;
+                        await Timer(60_000); // add an item every 60 seconds
                     }
                 },
             }, {
