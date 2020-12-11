@@ -49,7 +49,6 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
     let search_results = [];
     while (current_search_attempt <= retry_attempts) {
         try {
-            // const { results } = await youtubeSearch(search_query, {
             const yt_api_response = await youtubeSearch(search_query, {
                 maxResults: max_results,
                 type: 'video',
@@ -57,7 +56,6 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
                 key: process.env.YOUTUBE_API_TOKEN,
             });
             console.log(yt_api_response);
-            // search_results = results;
             search_results = yt_api_response.results;
         } catch (error) {
             console.warn('Failed YouTube API Lookup!');
@@ -180,10 +178,10 @@ async function playYouTube(message, search_query, playnext=false) {
                 highWaterMark: 1<<25, // 32 MB
                 requestOptions: {
                     headers: {
-                        // 'Cookie': process.env.YTDL_COOKIE,
-                        'accept-language': 'en-US,en;q=0.9',
-                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
-                        // 'cookie': 'YSC=5RVS7IhMeyY; VISITOR_INFO1_LIVE=eQrAENdg1RE; CONSENT=WP.28e26b; SID=4gdcnfdj_TJmPOK7hVuvmvb_NWVV79cKHZewsyBqF0LzRiyn12tcH9th-ASXsgjTRTznzw.; __Secure-3PSID=4gdcnfdj_TJmPOK7hVuvmvb_NWVV79cKHZewsyBqF0LzRiynObPiHnElihbgq_Up_9CCXQ.; HSID=ABdZMEgrbYhKTWzoG; SSID=AxWLQZf6sRWBDyP7W; APISID=tsXoT5xnvRQU-Vfp/A4fHXd93A6HXuU7Wt; SAPISID=ikhKstGJdaHiKUY9/AX56B8y1NdBwRJYD5; __Secure-3PAPISID=ikhKstGJdaHiKUY9/AX56B8y1NdBwRJYD5; PREF=f6=80; SIDCC=AJi4QfGQedpINkOj3Zv7mwyZpM87yhwlLxu0UH2e4cXIgxnmntd1Hdt8lK7OAEUmT01Ih8Rj; __Secure-3PSIDCC=AJi4QfEwvY9j6yFPaDRdSJqm5tPpmkNvbRkUcB1pKC2WifcEJEWojqdOw1nAH970CMKvCfavmA',
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0',
+                        'Cookie': process.env.YTDL_COOKIE,
+                        'x-youtube-identity-token': process.env.X_YTDL_IDENTITY_TOKEN,
                     },
                 },
             });
