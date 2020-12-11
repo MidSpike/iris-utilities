@@ -43,7 +43,7 @@ router.get('/speech', (req, res) => {
         res.set({ 'Content-Type': 'application/json' });
         res.send(JSON.stringify({
             'status': '403',
-            'message': 'bot api token is not valid!'
+            'message': 'bot api server token is not valid!'
         }, null, 2));
     } else {
         res.status(200);
@@ -68,7 +68,7 @@ router.get('/ytinfo', async (req, res) => {
         res.status(403);
         res.send(JSON.stringify({
             'status': '403',
-            'message': 'bot api token is not valid!',
+            'message': 'bot api server token is not valid!',
         }, null, 2));
     } else {
         res.set({ 'Content-Type': 'application/json' });
@@ -130,7 +130,7 @@ router.get('/ytdl', async (req, res) => {
         res.set({ 'Content-Type': 'application/json' });
         res.send(JSON.stringify({
             'status': '403',
-            'message': 'bot api token is not valid!'
+            'message': 'bot api server token is not valid!'
         }, null, 2));
     } else {
         res.set({ 'Content-Type': 'audio/mpeg' });
@@ -188,7 +188,7 @@ router.get('/translate', async (req, res) => {
         res.set({ 'Content-Type': 'application/json' });
         res.send(JSON.stringify({
             'status': '403',
-            'message': 'bot api token is not valid!'
+            'message': 'bot api server token is not valid!'
         }, null, 2));
     } else {
         res.set({ 'Content-Type': 'application/json' });
@@ -213,7 +213,7 @@ router.get('/spmock', (req, res) => {
         res.set({ 'Content-Type': 'application/json' });
         res.send(JSON.stringify({
             'status': '403',
-            'message': 'bot api token is not valid!'
+            'message': 'bot api server token is not valid!'
         }, null, 2));
     } else {
         res.set({ 'Content-Type': 'application/json' });
