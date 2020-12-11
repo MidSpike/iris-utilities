@@ -407,10 +407,10 @@ module.exports = new DisBotCommand({
             } else if (detect_spotify(command_args.join(' '))) {
                 playSpotify(message, command_args.join(' '), playnext);
             } else if (detect_soundcloud(command_args.join(' '))) {
-                return error_429_message();
+                // return error_429_message();
                 playSoundcloud(message, command_args.join(' '), playnext);
             } else {
-                return error_429_message();
+                // return error_429_message();
                 playYouTube(message, command_args.join(' '), playnext);
             }
         } else {
