@@ -712,7 +712,7 @@ client.on('message', async (message) => {
     if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
     if (message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID) {
-        const user_to_dm_from_dm_channel = client.users.cache.get(`${message.channel.name.replace('dm-', '')}`);
+        const user_to_dm_from_dm_channel = await client.users.fetch(`${message.channel.name.replace('dm-', '')}`).catch(console.warn);
         if (!user_to_dm_from_dm_channel) return;
         const dm_embed = new CustomRichEmbed({
             author: {
