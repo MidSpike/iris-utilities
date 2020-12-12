@@ -19,6 +19,7 @@ const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { playYouTube } = require('../../libs/youtube.js');
 const { sendOptionsMessage } = require('../../libs/messages.js');
+const { isThisBotsOwner } = require('../../libs/permissions.js');
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion local dependencies
@@ -407,10 +408,10 @@ module.exports = new DisBotCommand({
             } else if (detect_spotify(command_args.join(' '))) {
                 playSpotify(message, command_args.join(' '), playnext);
             } else if (detect_soundcloud(command_args.join(' '))) {
-                // return error_429_message();
+                // if (!isThisBotsOwner(message.author.id)) return error_429_message();
                 playSoundcloud(message, command_args.join(' '), playnext);
             } else {
-                // return error_429_message();
+                // if (!isThisBotsOwner(message.author.id)) return error_429_message();
                 playYouTube(message, command_args.join(' '), playnext);
             }
         } else {
