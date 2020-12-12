@@ -23,5 +23,5 @@ module.exports = {
     async callback() {
         /* update the bot listing websites at the specified interval below */
         client.setInterval(() => postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
-    }
+    },
 };
