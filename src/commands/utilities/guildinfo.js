@@ -14,9 +14,13 @@ module.exports = new DisBotCommand({
     weight: 11,
     description: 'Displays information about a specified guild',
     aliases: ['guildinfo', 'serverinfo'],
+    cooldown: 10_000,
     async executor(Discord, client, message, opts={}) {
         const { command_args } = opts;
         const guild = client.guilds.cache.get(command_args[0]) ?? message.guild;
+
+        const guild_members = await guild.members.fetch();
+
         const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map(role => `<@&${role.id}>`);
         message.channel.send(new CustomRichEmbed({
             title: 'Don\'t go wild with this guild information!',
@@ -35,10 +39,10 @@ module.exports = new DisBotCommand({
                     value: `<@!${guild.owner?.id}>`,
                 }, {
                     name: 'Bots',
-                    value: `${guild.members.cache.filter(m => m.user.bot).size}`,
+                    value: `${guild_members.filter(m => m.user.bot).size}`,
                 }, {
                     name: 'Members',
-                    value: `${guild.members.cache.filter(m => !m.user.bot).size}`,
+                    value: `${guild_members.filter(m => !m.user.bot).size}`,
                 }, {
                     name: 'Member Verification Level',
                     value: `${guild.verificationLevel}`,
