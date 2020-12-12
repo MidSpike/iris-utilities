@@ -62,13 +62,14 @@ module.exports = new DisBotCommand({
                         value: [
                             `${'```'}`,
                                 `${discord_command} format {`,
+                                ` import-google-font: Inconsola;`,
                                 ` bg-color: #000000;`,
                                 ` text-align: center;`,
                                 ` text-shadow-color: #000000;`,
                                 ` text-color: #FFFFFF;`,
                                 ` text-size: 56px;`,
                                 ` text-weight: 700;`,
-                                ` text-font: "Times New Roman", Times, serif;`,
+                                ` text-font: Inconsola;`,
                                 ` image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
                                 `}`,
                                 ``,
@@ -87,6 +88,7 @@ module.exports = new DisBotCommand({
                         name: 'Text-To-Image Format Options',
                         value: [
                             `${'```'}`,
+                                `import-google-font: <google-font-name>;`,
                                 `image-url: <url>;`,
                                 `image-repeat: <css-background-repeat>;`,
                                 `image-size: <css-background-size>;`,
@@ -113,7 +115,7 @@ module.exports = new DisBotCommand({
                     <meta charset="UTF-8" />
                     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Inconsola:wght@900&display=swap');
+                        @import url('https://fonts.googleapis.com/css2?family=${user_args_map.get('import-google-font') ?? 'Inconsola'}&display=swap');
                         * {
                             box-sizing: border-box;
                         }
