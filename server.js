@@ -82,7 +82,10 @@ router.get('/ytinfo', async (req, res) => {
                 yt_info = await ytdl.getBasicInfo(`https://youtu.be/${req.query.video_id}`, {
                     requestOptions: {
                         headers: {
+                            'Accept-Language': 'en-US,en;q=0.5',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
                             'Cookie': process.env.YTDL_COOKIE,
+                            'x-youtube-identity-token': process.env.X_YTDL_IDENTITY_TOKEN,
                         },
                     },
                 }).catch(console.warn);

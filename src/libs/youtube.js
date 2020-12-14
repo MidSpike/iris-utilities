@@ -179,7 +179,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 requestOptions: {
                     headers: {
                         'Accept-Language': 'en-US,en;q=0.5',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
                         'Cookie': process.env.YTDL_COOKIE,
                         'x-youtube-identity-token': process.env.X_YTDL_IDENTITY_TOKEN,
                     },
@@ -298,14 +298,15 @@ async function playYouTube(message, search_query, playnext=false) {
     const potential_playlist_id = await _get_playlist_id_from_query(search_query);
     const potential_video_id = await _get_video_id_from_query(search_query);
 
-    if (potential_playlist_id) { // the search_query was a playlist
-        try {
-            await _play_as_playlist(potential_playlist_id);
-        } catch {
-            console.warn(`Issues with YouTube API detected... Falling-back to normal video playback!`);
-            await _play_as_video(potential_video_id);
-        }
-    } else if (potential_video_id) { // the search_query is a video
+    // if (potential_playlist_id) { // the search_query was a playlist
+    //     try {
+    //         await _play_as_playlist(potential_playlist_id);
+    //     } catch {
+    //         console.warn(`Issues with YouTube API detected... Falling-back to normal video playback!`);
+    //         await _play_as_video(potential_video_id);
+    //     }
+    // } else
+    if (potential_video_id) { // the search_query is a video
         await _play_as_video(potential_video_id);
     } else { // the search_query is unknown
         if (!search_message.deleted) {
