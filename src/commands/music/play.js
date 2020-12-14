@@ -280,16 +280,17 @@ async function playSpotify(message, search_query, playnext=false) {
         ], message.author.id);
     }
 
-    if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {
-        playSpotifyTracks(parsed_uri_data.id, parsed_uri_data.type);
-    } else if (parsed_uri_data.type === 'track') {
+    // if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {
+    //     playSpotifyTracks(parsed_uri_data.id, parsed_uri_data.type);
+    // } else
+    if (parsed_uri_data.type === 'track') {
         playSpotifyTrack(parsed_uri_data.id);
     } else {
         /* the parsed uri is not for a track or playlist */
         message.channel.send(new CustomRichEmbed({
             color: 0xFFFF00,
             title: 'That sucks!',
-            description: 'I can only play spotify track/playlist urls!',
+            description: 'I can only play spotify song/track urls!',
         }, message));
         return;
     }
