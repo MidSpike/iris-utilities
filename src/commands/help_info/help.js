@@ -173,6 +173,7 @@ module.exports = new DisBotCommand({
                         `**Category:** ${specified_command.category}`,
                         `**Description:** ${specified_command.description}`,
                         `**Aliases:** \`${specified_command_aliases.join(', ')}\``,
+                        `**Cooldown:** ${specified_command.cooldown}`,
                         `**Access Level:** ${specified_command.access_level}`,
                     ].join('\n'),
                 }, message));
