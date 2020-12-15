@@ -422,12 +422,11 @@ module.exports = new DisBotCommand({
                 description: 'Take a look below to see how you should have done it!',
                 fields: [
                     {
-                        name: 'Playing Videos & Playlists From YouTube:',
+                        name: 'Playing Videos From YouTube:',
                         value: [
                             `${'```'}\n${discord_command} ussr national anthem\n${'```'}`,
                             `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`,
-                            `${'```'}\n${discord_command} https://www.youtube.com/playlist?list=OLAK5uy_nkeSq0KxbS-AoMa0j5Oh2d4IAkACXsrBI\n${'```'}`,
-                        ].join('')
+                        ].join(''),
                     }, {
                         name: 'Playing Soundcloud URLs:',
                         value: `${'```'}\n${discord_command} https://soundcloud.com/nfrealmusic/sets/the-search-9\n${'```'}`,
@@ -439,7 +438,7 @@ module.exports = new DisBotCommand({
                         value: `${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`,
                     }, {
                         name: 'Playing MP3 Files From Your Computer:',
-                        value: `${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the .mp3 file to the message)`,
+                        value: `${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the \`.mp3\` file to the message)`,
                     },
                 ],
                 image: `${bot_cdn_url}/mp3_command_usage.png`,
