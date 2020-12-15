@@ -16,12 +16,10 @@ module.exports = new DisBotCommand({
     aliases: ['guildinfo', 'serverinfo'],
     cooldown: 10_000,
     async executor(Discord, client, message, opts={}) {
-        const { command_args } = opts;
-        const guild = client.guilds.cache.get(command_args[0]) ?? message.guild;
-
+        const guild = message.guild;
         const guild_members = await guild.members.fetch();
-
         const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map(role => `<@&${role.id}>`);
+
         message.channel.send(new CustomRichEmbed({
             title: 'Don\'t go wild with this guild information!',
             fields:[
@@ -77,10 +75,6 @@ module.exports = new DisBotCommand({
                     name: 'Created On',
                     value: `${guild.createdAt}`,
                 },
-                // {
-                //     name: 'Icon',
-                //     value: `[Link](${guild.iconURL({format: 'png', size: 1024, dynamic: true})})`,
-                // },
             ],
             image: guild.iconURL({format: 'png', size: 1024, dynamic: true}),
         }, message));

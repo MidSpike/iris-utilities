@@ -67,10 +67,6 @@ module.exports = new DisBotCommand({
                         name: 'Account Created On',
                         value: `${member.user.createdAt}`,
                     },
-                    // {
-                    //     name: 'Profile Picture',
-                    //     value: `[Link](${member.user.displayAvatarURL({dynamic: true, size: 1024})})`,
-                    // },
                 ],
                 image: member.user.displayAvatarURL({dynamic: true, size: 1024}),
             }, message));
