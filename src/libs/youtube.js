@@ -196,12 +196,25 @@ async function playYouTube(message, search_query, playnext=false) {
         }, async () => {
             /* handle queue autoplay for youtube videos */
             if (guild_queue_manager.autoplay_enabled && guild_queue_manager.queue.length === 0) {
-                const related_videos_api_response = await axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=id&maxResults=3&relatedToVideoId=${encodeURIComponent(yt_video_info.videoDetails.videoId)}&type=video&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
-                const related_videos = related_videos_api_response.data.items.map(item => item.id.videoId);
+                async function find_related_video() {
+                    const related_videos_api_response = await axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=id&maxResults=3&relatedToVideoId=${encodeURIComponent(yt_video_info.videoDetails.videoId)}&type=video&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
+                    const random_related_video = array_random(related_videos_api_response.data.items);
+                    const random_related_video_id = random_related_video.id.videoId;
+                    return random_related_video_id;
+                }
 
-                const random_related_video_id = array_random(related_videos);
+                async function play_related_video() {
+                    const related_video_id = await find_related_video();
 
-                await _play_as_video(random_related_video_id);
+                    /* yes, I know that this is a dumb way to handle 'unavailable' videos */
+                    try {
+                        await _play_as_video(related_video_id);
+                    } catch {
+                        play_related_video();
+                    }
+                }
+
+                play_related_video();
             }
             return; // complete async
         }, (error) => {
