@@ -174,7 +174,7 @@ module.exports = new DisBotCommand({
                 /* show the queue commands */
                 message.channel.send(new CustomRichEmbed({
                     title: 'Here are the possible queue sub-commands',
-                    description: `${'```'}\n${['items | i', 'loop | l', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
+                    description: `${'```'}\n${['items | i', 'loop | l', 'autoplay | a', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
                 }, message));
             }
         } else {
