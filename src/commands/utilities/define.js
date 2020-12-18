@@ -2,7 +2,6 @@
 
 //#region local dependencies
 const axios = require('axios');
-const moment = require('moment-timezone');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
@@ -16,7 +15,7 @@ module.exports = new DisBotCommand({
     description: 'defines english words',
     aliases: ['define'],
     async executor(Discord, client, message, opts={}) {
-        const { discord_command, command_args } = opts;
+        const { command_args } = opts;
         const search_query = command_args.join(' ').trim();
         if (search_query.length > 0) {
             const api_response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${search_query}`).catch((res) => res);
