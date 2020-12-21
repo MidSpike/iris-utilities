@@ -618,7 +618,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
 client.on('inviteCreate', async (invite) => {
     if (client.$.restarting_bot) return;
 
-    if (!invite.channel?.guild) return; // make sure that invite is for a guild
+    if (!invite.channel?.guild) return; // make sure that the invite is for a guild
 
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel.name);
     if (!logging_channel) return;
@@ -646,17 +646,22 @@ client.on('inviteCreate', async (invite) => {
 client.on('inviteDelete', async (invite) => {
     if (client.$.restarting_bot) return;
 
-    if (!invite.channel?.guild) return; // make sure that invite is for a guild
+    if (!invite.channel?.guild) return; // make sure that the invite is for a guild
 
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel.name);
     if (!logging_channel) return;
 
-    const guild_audit_logs = await invite.channel.guild.fetchAuditLogs({
-        limit: 1,
-        type: 'INVITE_DELETE'
-    }).catch((warning) => console.warn('1599589897074427896', warning));
+    const bot_has_audit_log_permission = invite.channel.guild.me.hasPermission(['VIEW_AUDIT_LOG']);
+
+    const guild_audit_logs = bot_has_audit_log_permission ? (
+        await invite.channel.guild.fetchAuditLogs({
+            limit: 1,
+            type: 'INVITE_DELETE',
+        }).catch((warning) => console.warn('1599589897074427896', warning))
+    ) : undefined;
+
     const audit_log_deleted_invite = guild_audit_logs?.entries?.first();
-    const person_to_blame = audit_log_deleted_invite?.executor ?? `\`N/A\``;
+    const person_to_blame = audit_log_deleted_invite ? (audit_log_deleted_invite?.executor ?? `\`N/A\``) : `${'```'}fix\nI need the \`VIEW_AUDIT_LOG\` permission to tell you who!\n${'```'}`;
 
     logging_channel.send(new CustomRichEmbed({
         color: 0xFFFF00,
@@ -664,7 +669,7 @@ client.on('inviteDelete', async (invite) => {
         fields: [
             {
                 name: 'Deleted By',
-                value: `${audit_log_deleted_invite ? person_to_blame : `${'```'}fix\nI need the \`VIEW_AUDIT_LOG\` permission to tell you who!\n${'```'}`}`,
+                value: `${bot_has_audit_log_permission ? person_to_blame : '\`System\`'}`,
             }, {
                 name: 'Invite Code',
                 value: `\`${invite.code}\``,
