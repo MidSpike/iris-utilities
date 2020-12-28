@@ -40,7 +40,7 @@ module.exports = new DisBotCommand({
                 name:`Warning Id: ${user_warning.id}`,
                 value:[
                     `**Staff Id:** ${user_warning.staff_id}`,
-                    `**User:** @${user.tag} (${user.id})`,
+                    `**User:** @${user?.tag} (${user?.id})`,
                     `**Timestamp:** ${user_warning.timestamp})`,
                     `**Reason:** \`${user_warning.reason}\``
                 ].join('\n')
@@ -57,7 +57,7 @@ module.exports = new DisBotCommand({
                     `Do \`${discord_command} clear @user#0001\` to clear all warnings for a specified user!`,
                     `\nPage — ${page_index + 1} / ${pages.length}`
                 ].join('\n'),
-                fields:pages[page_index]
+                fields: (user_warnings_fields.length > 0 ? pages[page_index] : ({name: 'Warnings', value: 'No warnings exist yet!'})),
             }, message);
         }
         sendOptionsMessage(message.channel.id, makeEmbed(), [
