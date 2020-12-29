@@ -1,8 +1,7 @@
 'use strict';
 
 //#region local dependencies
-const HtmlEntitiesParser = require('html-entities').AllHtmlEntities;
-const htmlEntitiesParser = new HtmlEntitiesParser();
+const htmlEntitiesParser = require('html-entities');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,

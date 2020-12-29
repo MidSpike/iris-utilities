@@ -3,8 +3,7 @@
 //#region local dependencies
 const axios = require('axios');
 
-const HtmlEntitiesParser = require('html-entities').AllHtmlEntities;
-const htmlEntitiesParser = new HtmlEntitiesParser();
+const htmlEntitiesParser = require('html-entities');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendConfirmationMessage } = require('../../libs/messages.js');
