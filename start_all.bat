@@ -1,5 +1,7 @@
 @ECHO OFF
 
-start .\start_bot.bat
-start .\start_server.bat
-start .\start_debug_console.bat
+start /wait cmd /c .\start_pre_install.cmd
+
+start .\start_bot.cmd
+start .\start_server.cmd
+start .\start_debug_console.cmd

@@ -31,8 +31,9 @@ temporary
 __*
 
 # Whitelisted Files
-!start_all.bat
-!start_bot.bat
-!start_server.bat
-!start_debug_console.bat
+!start_pre_install.cmd
+!start_all.cmd
+!start_bot.cmd
+!start_server.cmd
+!start_debug_console.cmd
 !start_all_in_wt.cmd
