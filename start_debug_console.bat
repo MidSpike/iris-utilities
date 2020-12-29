@@ -1,4 +1,5 @@
 @ECHO OFF
+
 title I.R.I.S. Utilities Debug Console
 
 :start_debug_console
