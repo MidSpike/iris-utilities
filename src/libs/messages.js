@@ -423,8 +423,8 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
                 `Views: ${videoInfo.videoDetails.viewCount ?? 'n/a'}`,
                 `Link: [https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`,
             ].join('\n')) : `[https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`),
-            thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}`),
-            image:(show_player_description ? `${videoInfo.videoDetails.thumbnail.thumbnails.slice(-1).pop().url}` : undefined)
+            thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.videoDetails.thumbnails.slice(-1).pop().url}`),
+            image:(show_player_description ? `${videoInfo.videoDetails.thumbnails.slice(-1).pop().url}` : undefined)
         }, user_message);
     }
     sendOptionsMessage(user_message.channel.id, makeYTEmbed(), [
