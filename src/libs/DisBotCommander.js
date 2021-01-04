@@ -13,7 +13,7 @@ const { Discord } = require('./bot.js');
  * @returns {String} the `discord_command` including the `command_prefix`
  */
 function getDiscordCommand(message_content) {
-    if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
+    if (typeof message_content !== 'string') throw new TypeError('\`message_content\` must be a valid string!');
     return message_content.split(/\s/g).filter(item => item !== '')[0].toLowerCase();
 }
 
@@ -23,7 +23,7 @@ function getDiscordCommand(message_content) {
  * @returns {Array<String>} the `command_args` of the command message
  */
 function getDiscordCommandArgs(message_content) {
-    if (typeof message_content !== 'string') throw new TypeError('`message_content` must be a valid string!');
+    if (typeof message_content !== 'string') throw new TypeError('\`message_content\` must be a valid string!');
     return message_content.split(/\s/g).filter(item => item !== '').slice(1);
 }
 
@@ -65,17 +65,17 @@ class DisBotCommand {
         };
 
         /* type checks and basic validation checks */
-        if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new TypeError('`name` must be a valid string!');
-        if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new TypeError('`category` must be a valid string!');
-        if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new TypeError('`description` must be a valid string!');
-        if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new TypeError('`aliases` must be a valid array!');
-        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new TypeError('`weight` must be a valid number greater than or equal to `1`!');
-        if (isNaN(_cmd.cooldown) || _cmd.cooldown < 0) throw new TypeError('`cooldown` must be a valid number greater than or equal to `0`!');
-        if (isNaN(_cmd.access_level)) throw new TypeError('`access_level` must be a valid number!');
-        if (typeof _cmd.executor !== 'function') throw new TypeError('`executor` must be a valid function!');
+        if (typeof _cmd.name !== 'string' || _cmd.name.length < 1) throw new TypeError('\`name\` must be a valid string!');
+        if (typeof _cmd.category !== 'string' || _cmd.category.length < 1) throw new TypeError('\`category\` must be a valid string!');
+        if (typeof _cmd.description !== 'string' || _cmd.description.length < 1) throw new TypeError('\`description\` must be a valid string!');
+        if (!Array.isArray(_cmd.aliases) || _cmd.aliases.length < 1) throw new TypeError('\`aliases\` must be a valid array!');
+        if (isNaN(_cmd.weight) || _cmd.weight < 1) throw new TypeError('\`weight\` must be a valid number greater than or equal to \`1\`!');
+        if (isNaN(_cmd.cooldown) || _cmd.cooldown < 0) throw new TypeError('\`cooldown\` must be a valid number greater than or equal to \`0\`!');
+        if (isNaN(_cmd.access_level)) throw new TypeError('\`access_level\` must be a valid number!');
+        if (typeof _cmd.executor !== 'function') throw new TypeError('\`executor\` must be a valid function!');
 
         /* advanced validation checks */
-        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new TypeError('`access_level` must be from DisBotCommand.access_levels!');
+        if (!Object.values(DisBotCommand.access_levels).includes(_cmd.access_level)) throw new TypeError('\`access_level\` must be from DisBotCommand.access_levels!');
 
         this.name = _cmd.name;
         this.category = _cmd.category;
@@ -96,10 +96,10 @@ class DisBotCommand {
      * @returns {unknown} whatever is returned from the executed command
      */
     async execute(Discord, client, message, opts={}) {
-        if (!Discord) throw new Error('`Discord` must be passed to command.execute()!');
-        if (!client) throw new Error('`client` must be passed to command.execute()!');
-        if (!message) throw new Error('`message` must be passed to command.execute()!');
-        if (!opts) throw new Error('`opts` must be passed to command.execute()!');
+        if (!Discord) throw new Error('\`Discord\` must be passed to command.execute()!');
+        if (!client) throw new Error('\`client\` must be passed to command.execute()!');
+        if (!message) throw new Error('\`message\` must be passed to command.execute()!');
+        if (!opts) throw new Error('\`opts\` must be passed to command.execute()!');
 
         /* prevent users from spamming commands via cooldown */
         const user_cooldown_epoch = this.#cooldown_tracker.get(message.author.id) ?? Date.now() - this.cooldown;
@@ -149,7 +149,7 @@ class DisBotCommander {
         if (command instanceof DisBotCommand) {
             this.#commands.set(command.name, command);
         } else {
-            throw new TypeError(`'command' should be an instance of the DisBotCommand type!`);
+            throw new TypeError('\`command\` should be an instance of the \`DisBotCommand\` type!');
         }
     }
 }
@@ -171,7 +171,7 @@ function registerDisBotCommands() {
             DisBotCommander.registerCommand(command_to_register);
         }
     } catch (error) {
-        console.trace(`An error occurred while registering the commands:`, error);
+        console.trace('An error occurred while registering the commands:', error);
     }
     console.info('----------------------------------------------------------------------------------------------------------------');
 }

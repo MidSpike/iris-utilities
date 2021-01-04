@@ -92,9 +92,9 @@ class GuildConfigsManager {
      * @returns {GuildConfigsManager} this GuildConfigsManager
      */
     async saveConfigs() {
-        console.time(`Saving guild configs to storage!`);
+        console.time('Saving guild configs to storage!');
         fs.writeFileSync(this.#configs_file, JSON.stringify(Array.from(this.#configs_in_memory), null, 2));
-        console.timeEnd(`Saving guild configs to storage!`);
+        console.timeEnd('Saving guild configs to storage!');
         return this;
     }
 }

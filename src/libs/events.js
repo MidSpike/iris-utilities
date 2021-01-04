@@ -25,7 +25,7 @@ function registerDisBotEvents() {
             client.on(event_name, callback);
         }
     } catch (error) {
-        console.trace(`An error occurred while registering the events:`, error);
+        console.trace('An error occurred while registering the events:', error);
     }
     console.info('----------------------------------------------------------------------------------------------------------------');
 }

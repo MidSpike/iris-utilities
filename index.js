@@ -91,7 +91,7 @@ const { registerDisBotEvents } = require('./src/libs/events.js');
 
 async function updateGuildConfig(guild) {
     if (!guild) {
-        console.trace('MAJOR ISSUE: `guild` is not defined!');
+        console.trace('MAJOR ISSUE: \`guild\` is not defined!');
         return;
     }
 
@@ -129,7 +129,7 @@ async function updateGuildConfig(guild) {
 
 async function initialize_guild_on_client_$(guild) {
     if (!guild) {
-        console.trace('MAJOR ISSUE: Guild is not defined!');
+        console.trace('MAJOR ISSUE: \`guild\` is not defined!');
         return;
     }
 
@@ -182,7 +182,7 @@ async function checkForBlacklistedUser(message) {
 //---------------------------------------------------------------------------------------------------------------//
 
 client.once('ready', async () => {
-    console.timeEnd(`client.login -> client#ready`);
+    console.timeEnd('client.login -> client#ready');
 
     client.$.restarting_bot = true; // the bot is still restarting
 
@@ -246,22 +246,22 @@ client.once('ready', async () => {
 
     /* propagate guild configs and `client.$` */
     async function propagate_guilds() {
-        console.time(`propagate_guilds()`);
+        console.time('propagate_guilds()');
         for (const guild of client.guilds.cache.values()) {
             await initialize_guild_on_client_$(guild);
             await updateGuildConfig(guild);
         }
-        console.timeEnd(`propagate_guilds()`);
+        console.timeEnd('propagate_guilds()');
     }
     client.setImmediate(() => propagate_guilds()); // immediately after a restart
 
     /* update guild configs every 15 minutes to keep an updated record */
     async function update_guild_configs() {
-        console.time(`update_guild_configs()`);
+        console.time('update_guild_configs()');
         for (const guild of client.guilds.cache.values()) {
             await updateGuildConfig(guild);
         }
-        console.timeEnd(`update_guild_configs()`);
+        console.timeEnd('update_guild_configs()');
     }
     client.setInterval(() => update_guild_configs(), 1000 * 60 * 15); // every 15 minutes
 
@@ -403,7 +403,7 @@ client.on('channelCreate', async (channel) => {
                     id: channel.guild.me.id,
                     allow: ['SEND_MESSAGES'],
                 },
-            ], `Don't allow people to send messages in a logging channel!`);
+            ], 'Don\'t allow people to send messages in a logging channel!');
         } catch {
             await channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
@@ -755,7 +755,7 @@ client.on('message', async (message) => {
 
     if (message.channel.type === 'dm') {
         const confirmation_embed = new CustomRichEmbed({
-            title: `Do you wish to send that message to my support staff?`,
+            title: 'Do you wish to send that message to my support staff?',
             description: [
                 'My staff will answer any questions as soon as they see it!',
                 'Remember that you can request for your history to be deleted at any time!',
@@ -787,9 +787,11 @@ client.on('message', async (message) => {
                 },
                 description: `${message.cleanContent}`,
                 fields: [
-                    { name: `Link`, value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})` },
-                    ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
-                        name: `Message Attachment:`,
+                    {
+                        name: 'Link',
+                        value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})`
+                    }, ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
+                        name: 'Message Attachment:',
                         value: `[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`,
                     })) : []),
                 ],
@@ -993,7 +995,7 @@ client.on('message', async (message) => {
     if (!command) {
         if (guild_config.unknown_command_warnings === 'enabled') {
             message.channel.send(new CustomRichEmbed({
-                title: `That command doesn't exist!`,
+                title: 'That command doesn\'t exist!',
                 description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
                 fields: [
                     {
@@ -1036,7 +1038,7 @@ client.on('message', async (message) => {
         const updated_command_log = [...current_command_logs, command_log_entry];
         fs.writeFileSync(current_command_log_file_name, JSON.stringify(updated_command_log, null, 2), { flag: 'w' });
     } catch (error) {
-        console.trace(`Unable to save to command log file!`, error);
+        console.trace('Unable to save to command log file!', error);
     }
 
     /* don't allow blacklisted users and notify them of their inability to use this bot */
@@ -1044,7 +1046,7 @@ client.on('message', async (message) => {
 
     /* command message removal */
     if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
-        message.delete({ timeout: 500 }).catch(error => console.warn(`Unable to delete message`, error));
+        message.delete({ timeout: 500 }).catch(error => console.warn('Unable to delete message', error));
     }
 
     /* central anonymous command logging for bot staff */
@@ -1116,7 +1118,7 @@ client.on('message', async (message) => {
             /* a super or bot owner command has been attempted */
             message.channel.send(new CustomRichEmbed({
                 color: 0xFF00FF,
-                title: `Oi there, you thought this command wasn't protected?`,
+                title: 'Oi there, you thought this command wasn\'t protected?',
                 description: [
                     `**Your access level:** ${command_author_access_level}`,
                     `**Required access level:** ${command.access_level}`,
