@@ -37,7 +37,7 @@ client.$ = {
     guild_configs_manager: new GuildConfigsManager(process.env.BOT_GUILD_CONFIGS_FILE),
 };
 
-console.time(`client.login -> client#ready`);
+console.time('client.login -> client#ready');
 client.login(process.env.BOT_DISCORD_API_TOKEN);
 
 module.exports = {
