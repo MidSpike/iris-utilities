@@ -9,7 +9,7 @@ const { DisBotCommand,
 module.exports = new DisBotCommand({
     name: 'LOOP',
     category: `${DisBotCommander.categories.MUSIC}`,
-    weight: 14,
+    weight: 10,
     description: 'Loops items in the queue',
     aliases: ['loop', 'l'],
     async executor(Discord, client, message, opts={}) {

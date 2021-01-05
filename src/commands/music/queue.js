@@ -14,7 +14,7 @@ const { sendOptionsMessage,
 module.exports = new DisBotCommand({
     name: 'QUEUE',
     category: `${DisBotCommander.categories.MUSIC}`,
-    weight: 10,
+    weight: 11,
     description: 'used for controlling the queue',
     aliases: ['queue', 'q'],
     async executor(Discord, client, message, opts={}) {
@@ -87,7 +87,7 @@ module.exports = new DisBotCommand({
                                     page_index = queue_pages.length - 1;
                                 }
                                 options_message.edit(makeQueueEmbed());
-                            }
+                            },
                         }, {
                             emoji_name: 'bot_emoji_angle_right',
                             callback(options_message, collected_reaction, user) {
@@ -97,7 +97,7 @@ module.exports = new DisBotCommand({
                                     page_index = 0;
                                 }
                                 options_message.edit(makeQueueEmbed());
-                            }
+                            },
                         }
                     ]);
                 } else if (['autoplay', 'a'].includes(command_args[0])) {
@@ -105,31 +105,6 @@ module.exports = new DisBotCommand({
                     message.channel.send(new CustomRichEmbed({
                         title: `${guild_queue_manager.autoplay_enabled ? 'Enabled' : 'Disabled'} autoplay of related youtube videos in the queue`,
                     }, message));
-                } else if (['loop', 'l'].includes(command_args[0])) {
-                    if (['item', 'i'].includes(command_args[1])) {
-                        await guild_queue_manager.toggleLoop();
-                        await guild_queue_manager.setLoopType('single');
-                        message.channel.send(new CustomRichEmbed({
-                            title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the first item`,
-                        }, message));
-                    } else if (['all', 'a'].includes(command_args[1])) {
-                        await guild_queue_manager.toggleLoop();
-                        await guild_queue_manager.setLoopType('multiple');
-                        message.channel.send(new CustomRichEmbed({
-                            title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the entire queue`,
-                        }, message));
-                    } else if (['shuffle', 's'].includes(command_args[1])) {
-                        await guild_queue_manager.toggleLoop();
-                        await guild_queue_manager.setLoopType('shuffle');
-                        message.channel.send(new CustomRichEmbed({
-                            title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue shuffle looping for the entire queue`,
-                        }, message));
-                    } else {
-                        message.channel.send(new CustomRichEmbed({
-                            title: 'Here are the possible queue loop commands',
-                            description: `${'```'}\n${['i | item', 'a | all', 's | shuffle'].map(item => `${discord_command} ${command_args[0]} [ ${item} ]`).join('\n')}\n${'```'}`,
-                        }, message));
-                    }
                 } else if (['shuffle', 's'].includes(command_args[0])) {
                     await guild_queue_manager.shuffleItems();
                     message.channel.send(new CustomRichEmbed({
@@ -174,7 +149,7 @@ module.exports = new DisBotCommand({
                 /* show the queue commands */
                 message.channel.send(new CustomRichEmbed({
                     title: 'Here are the possible queue sub-commands',
-                    description: `${'```'}\n${['items | i', 'loop | l', 'autoplay | a', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
+                    description: `${'```'}\n${['items | i', 'autoplay | a', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
                 }, message));
             }
         } else {
