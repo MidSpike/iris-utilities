@@ -4,7 +4,6 @@
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
-const { sendMusicControllerEmbed } = require('../../libs/messages.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
@@ -50,7 +49,7 @@ module.exports = new DisBotCommand({
                 description: [
                     'Nothing is playing right now!',
                     'This command can be used when I\'m playing something!'
-                ].join('\n')
+                ].join('\n'),
             }, message));
         }
     },
