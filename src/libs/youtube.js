@@ -33,7 +33,7 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
  * @param {String} search_query video, url, etc to look up on youtube
  * @param {Number} max_results the max number of results to ask the YouTube API for
  * @param {Number} retry_attempts the amount of Official YouTube API retry attempts
- * @returns {Array<{id:String, link:String, title:String}>|undefined} the number of results is not based on max_results
+ * @returns {Array<{id:String, link:String, title:String, channelTitle, channelId}>|undefined} the number of results is not based on max_results
  */
 async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1) {
     if (typeof search_query !== 'string') throw new TypeError('`search_query` must be a string!');
@@ -72,15 +72,18 @@ async function forceYouTubeSearch(search_query, max_results=5, retry_attempts=1)
         const { videos: backup_search_results } = await ytSearchBackup(search_query);
 
         /* map the unofficial backup results to match the primary results scheme */
-        search_results = backup_search_results.map(({ videoId, url, title }) => ({
+        search_results = backup_search_results.map(({ videoId, url, title, author }) => ({
             id: `${videoId}`,
             link: `${url}`,
             title: `${title}`,
+            channelTitle: `${author.name}`,
+            channelId: `${author.url.replace(/(.*\/)/gi, '')}`,
         }));
     }
 
     console.timeEnd(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
-    return search_results ?? []; // force an empty array if nullish
+
+    return (search_results ?? []).slice(0, max_results); // force an empty array if nullish
 }
 
 /**
