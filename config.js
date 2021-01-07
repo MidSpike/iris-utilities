@@ -22,7 +22,7 @@ const { Collection } = require('discord.js');
  * semi-version:
  * - used to denote minor patches to an already released PUBLIC_VERSION
  */
-const PUBLIC_VERSION = 'vS_2020-12-30_0';
+const PUBLIC_VERSION = 'vS_2021-01-07_0';
 
 /**
  * The various names given to this bot matching the schemes below
@@ -138,6 +138,7 @@ const SUPER_PERMS = [
 
 /**
  * Super People are "Admins" of this bot and have elevated permissions
+ * The `public` property is used to denote whether or not to display the user as a "Super Person" in informative contexts
  */
 const SUPER_PEOPLE = new Collection([
     {
