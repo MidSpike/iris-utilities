@@ -12,7 +12,7 @@ const bot_common_name = bot_config.COMMON_NAME;
 module.exports = new DisBotCommand({
     name: 'SUMMON',
     category: `${DisBotCommander.categories.MUSIC}`,
-    weight: 14,
+    weight: 15,
     description: 'Summons the bot to your voice channel',
     aliases: ['summon', 'join'],
     async executor(Discord, client, message, opts={}) {
