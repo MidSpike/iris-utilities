@@ -23,24 +23,24 @@ module.exports = new DisBotCommand({
                 await guild_queue_manager.setLoopType('single');
                 message.channel.send(new CustomRichEmbed({
                     title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the first item`,
-                }, message));
+                }, message)).catch(console.warn);
             } else if (['all', 'a'].includes(command_args[0])) {
                 await guild_queue_manager.toggleLoop();
                 await guild_queue_manager.setLoopType('multiple');
                 message.channel.send(new CustomRichEmbed({
                     title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the entire queue`,
-                }, message));
+                }, message)).catch(console.warn);
             } else if (['shuffle', 's'].includes(command_args[0])) {
                 await guild_queue_manager.toggleLoop();
                 await guild_queue_manager.setLoopType('shuffle');
                 message.channel.send(new CustomRichEmbed({
                     title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue shuffle looping for the entire queue`,
-                }, message));
+                }, message)).catch(console.warn);
             } else {
                 message.channel.send(new CustomRichEmbed({
                     title: 'Here are the possible loop commands',
                     description: `${'```'}\n${['i | item', 'a | all', 's | shuffle'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
-                }, message));
+                }, message)).catch(console.warn);
             }
         } else {
             message.channel.send(new CustomRichEmbed({
@@ -50,7 +50,7 @@ module.exports = new DisBotCommand({
                     'Nothing is playing right now!',
                     'This command can be used when I\'m playing something!'
                 ].join('\n'),
-            }, message));
+            }, message)).catch(console.warn);
         }
     },
 });

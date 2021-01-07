@@ -14,7 +14,7 @@ const { sendOptionsMessage,
 module.exports = new DisBotCommand({
     name: 'QUEUE',
     category: `${DisBotCommander.categories.MUSIC}`,
-    weight: 11,
+    weight: 12,
     description: 'used for controlling the queue',
     aliases: ['queue', 'q'],
     async executor(Discord, client, message, opts={}) {
@@ -100,11 +100,6 @@ module.exports = new DisBotCommand({
                             },
                         }
                     ]);
-                } else if (['autoplay', 'a'].includes(command_args[0])) {
-                    await guild_queue_manager.toggleAutoplay();
-                    message.channel.send(new CustomRichEmbed({
-                        title: `${guild_queue_manager.autoplay_enabled ? 'Enabled' : 'Disabled'} autoplay of related youtube videos in the queue`,
-                    }, message));
                 } else if (['shuffle', 's'].includes(command_args[0])) {
                     await guild_queue_manager.shuffleItems();
                     message.channel.send(new CustomRichEmbed({
@@ -149,7 +144,7 @@ module.exports = new DisBotCommand({
                 /* show the queue commands */
                 message.channel.send(new CustomRichEmbed({
                     title: 'Here are the possible queue sub-commands',
-                    description: `${'```'}\n${['items | i', 'autoplay | a', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
+                    description: `${'```'}\n${['items | i', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
                 }, message));
             }
         } else {
