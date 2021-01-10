@@ -4,13 +4,13 @@
 const htmlEntitiesParser = require('html-entities');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander,
-        DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { removeUserReactionsFromMessage,
-        sendOptionsMessage } = require('../../libs/messages.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { sendOptionsMessage,
+        removeUserReactionsFromMessage } = require('../../libs/messages.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
-const { forceYouTubeSearch,
-        playYouTube } = require('../../libs/youtube.js');
+const { playYouTube,
+        forceYouTubeSearch } = require('../../libs/youtube.js');
 //#endregion local dependencies
 
 module.exports = new DisBotCommand({
@@ -21,6 +21,16 @@ module.exports = new DisBotCommand({
     aliases: ['search'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
+
+        if (!message.member?.voice?.channel) {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title: 'Whoops!',
+                description: 'You need to be in a voice channel to use this command!',
+            }, message));
+            return;
+        }
+
         const search_query = command_args.join(' ').trim();
         if (search_query.length > 0) {
             const search_results = await forceYouTubeSearch(search_query, 9);
@@ -28,7 +38,7 @@ module.exports = new DisBotCommand({
                 emoji_name:`bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][index+1]}`,
                 callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
-                    options_message.delete({timeout:10000}).catch(console.warn);
+                    options_message.delete({ timeout: 10_000 }).catch(console.warn);
                     playYouTube(message, `${search_result.link}`);
                 },
             }));
