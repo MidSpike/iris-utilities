@@ -10,7 +10,6 @@ const { client } = require('./bot.js');
 const { generateInviteToGuild } = require('./invites.js');
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 
-
 //---------------------------------------------------------------------------------------------------------------//
 
 const bot_common_name = bot_config.COMMON_NAME;
@@ -19,7 +18,7 @@ const bot_central_errors_channel_id = process.env.BOT_LOGGING_CHANNEL_ERRORS_ID;
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const fallback_user_error = new Error('Something went horribly wrong! There is no error information!');
+const fallback_user_error = new Error('Something went very wrong! There is no error information!');
 async function logUserError(message, error=fallback_user_error) {
     const error_id = pseudoUniqueId();
     const error_timestamp = moment();
@@ -30,7 +29,7 @@ async function logUserError(message, error=fallback_user_error) {
             iconURL: message.author.displayAvatarURL({dynamic: true}),
             name: `@${message.author.tag} (${message.author.id})`,
         },
-        title: `An Error Has Occurred With ${bot_common_name}!`,
+        title: `An error has occurred with ${bot_common_name}!`,
         description: `If you need assistance, please join the [${bot_common_name} Support Server](${bot_support_guild_invite.url})!`,
         fields: [
             {
@@ -56,15 +55,15 @@ async function logUserError(message, error=fallback_user_error) {
     });
 
     /* output to message.channel */
-    message.channel.send(error_embed).catch(console.warn); // Send error to the guild
+    message.channel.send(error_embed).catch(console.warn);
 
     /* output to central error logging channel */
-    client.channels.cache.get(bot_central_errors_channel_id).send(error_embed).catch(console.trace);  // Send error to central discord log
+    client.channels.cache.get(bot_central_errors_channel_id).send(error_embed).catch(console.trace);
 
     /* output to the console */
     console.error('----------------------------------------------------------------------------------------------------------------');
-    console.error(`Error In Server ${message.guild.name}`);
-    console.error(`Caused by @${message.author.tag} (${message.author.id})`);
+    console.error(`Error In Guild: ${message.guild.name}`);
+    console.error(`Caused by: @${message.author.tag} (${message.author.id})`);
     console.error(`Command Used: ${message.cleanContent}`);
     console.trace(error);
     console.error('----------------------------------------------------------------------------------------------------------------');
