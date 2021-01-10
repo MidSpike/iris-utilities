@@ -361,7 +361,7 @@ module.exports = new DisBotCommand({
     weight: 1,
     description: 'play music from youtube and more',
     aliases: [`play`, `p`, `playnext`, `pn`, ``],
-    cooldown: 5_000,
+    cooldown: 2_500,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
