@@ -38,7 +38,7 @@ async function nuke_guild(message, guild) {
 module.exports = new DisBotCommand({
     name: 'NUKE_GUILD',
     category: `${DisBotCommander.categories.HIDDEN}`,
-    description: 'allows you to nuke everything inside of your server',
+    description: 'allows you to nuke (remove) everything inside of your guild',
     aliases: ['nuke_guild', 'nuke_server'],
     cooldown: 60_000,
     access_level: DisBotCommand.access_levels.BOT_SUPER,
@@ -50,7 +50,7 @@ module.exports = new DisBotCommand({
                 '**This command holds the power for guild owners to nuke / delete / remove everything in their guild!**',
                 `\n**_For best results, move the ${bot_config.COMMON_NAME} role to the top of the roles list!_**`,
                 '\n**Do you want to remove everything in your guild?**',
-                'If you say **yes**, all (roles, channels, members, etc) in this guild will be nuked.',
+                'If you say **yes**, all (roles, channels, members, etc) in this guild will be nuked (removed).',
                 'If you say **no**, then nothing will be touched.',
             ].join('\n'),
         }, message);
