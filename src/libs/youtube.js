@@ -182,9 +182,9 @@ async function playYouTube(message, search_query, playnext=false) {
                 requestOptions: {
                     headers: {
                         'Accept-Language': 'en-US,en;q=0.5',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+                        'User-Agent': process.env.YTDL_USER_AGENT,
                         'Cookie': process.env.YTDL_COOKIE,
-                        'x-youtube-identity-token': process.env.X_YTDL_IDENTITY_TOKEN,
+                        'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
                     },
                 },
             });
