@@ -8,7 +8,7 @@ const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.j
 module.exports = new DisBotCommand({
     name:'TIMESTAMP',
     category:`${DisBotCommander.categories.MUSIC}`,
-    weight:12,
+    weight:14,
     description:'Tells the user the timestamp of what is currently playing',
     aliases:['timestamp', 'ts'],
     async executor(Discord, client, message, opts={}) {
