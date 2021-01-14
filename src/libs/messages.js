@@ -142,6 +142,41 @@ async function sendConfirmationMessage(confirm_user_id, channel_id, delete_after
 }
 
 /**
+ * Sends a captcha code message for the user to respond to with the code
+ * @param {String} confirmation_user_id 
+ * @param {String} channel_id 
+ * @param {Function} success_callback 
+ * @param {Function} failure_callback 
+ * @returns {Message} the captcha message that the bot sent
+ */
+async function sendCaptchaMessage(confirmation_user_id, channel_id, success_callback=(bot_captcha_message, collected_message)=>{}, failure_callback=(bot_captcha_message)=>{}) {
+    const confirmation_timestamp = `${Date.now()}`.slice(7);
+
+    const captcha_code = (new Buffer.from(confirmation_timestamp)).toString('base64');
+    const bot_captcha_message = await client.channels.cache.get(channel_id).send(`<@${confirmation_user_id}>`, new CustomRichEmbed({
+        color: 0xFF00FF,
+        title: 'You must send the CAPTCHA below to continue!',
+        description: `${'```'}\n${captcha_code}\n${'```'}`,
+    })).catch(console.warn);
+
+    const message_collection_filter = (collected_message) => collected_message.author.id === confirmation_user_id && collected_message.cleanContent === captcha_code;
+    const message_collector = bot_captcha_message.channel.createMessageCollector(message_collection_filter, {
+        max: 1,
+        time: 60_000,
+    });
+    message_collector.on('collect', async (collected_message) => {
+        success_callback(bot_captcha_message, collected_message);
+    });
+    message_collector.on('end', (collected_messages) => {
+        if (collected_messages.size === 0) {
+            failure_callback(bot_captcha_message);
+        }
+    });
+
+    return bot_captcha_message;
+}
+
+/**
  * Removes any reactions created by any user on a specified message
  * @param {Message} message 
  * @returns {Promise<void>} 
@@ -523,6 +558,7 @@ module.exports = {
     sendLargeMessage,
     sendConfirmationMessage,
     sendOptionsMessage,
+    sendCaptchaMessage,
     removeUserReactionsFromMessage,
     removeAllReactionsFromMessage,
     removeMessageFromChannel,
