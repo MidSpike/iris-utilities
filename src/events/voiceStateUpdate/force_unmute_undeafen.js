@@ -2,7 +2,7 @@
 
 const { Timer } = require('../../utilities.js');
 
-const { client } = require('../../libs/bot.js');
+const { client } = require('../../libs/discord_client.js');
 
 const { isThisBot } = require('../../libs/permissions.js');
 
