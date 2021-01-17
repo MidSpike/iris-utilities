@@ -1,6 +1,6 @@
 'use strict';
 
-const { client } = require('./bot.js');
+const { client } = require('./discord_client.js');
 
 const bot_config = require('../../config.js');
 

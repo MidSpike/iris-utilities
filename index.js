@@ -17,7 +17,7 @@ const moment = require('moment-timezone');
 const bot_config = require('./config.js');
 
 const { Discord,
-        client } = require('./src/libs/bot.js');
+        client } = require('./src/libs/discord_client.js');
 
 const { Timer,
         math_clamp,

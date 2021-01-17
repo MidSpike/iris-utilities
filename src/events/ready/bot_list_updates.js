@@ -2,7 +2,7 @@
 
 const blapi = require("blapi");
 
-const { client } = require('../../libs/bot.js');
+const { client } = require('../../libs/discord_client.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 

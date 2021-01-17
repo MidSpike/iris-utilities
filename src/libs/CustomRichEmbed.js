@@ -1,7 +1,7 @@
 'use strict';
 
 const { Discord,
-        client } = require('./bot.js');
+        client } = require('./discord_client.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
