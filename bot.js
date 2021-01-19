@@ -206,33 +206,17 @@ client.once('ready', async () => {
 
     /* after 5 minutes, update the client presence with various helpful information */
     client.setTimeout(async () => {
-        let bot_presence_mode = 1;
-        client.setInterval(async () => {
-            let bot_presence_text;
-            switch (bot_presence_mode) {
-                case 0:
-                    bot_presence_text = `@${client.user.tag}`;
-                    break;
-                case 1:
-                    bot_presence_text = `Uptime: ${getReadableTime(client.uptime / 1000)}`;
-                    break;
-                case 2:
-                    bot_presence_text = `👨‍💻${(await client.users.fetch(bot_owner_id)).tag}👑`;
-                    break;
-                case 3:
-                    bot_presence_text = `@mention me for help!`;
-                    break;
-                case 4:
-                    bot_presence_text = `${bot_version}`;
-                    break;
-                case 5:
-                    bot_presence_text = `in ${client.guilds.cache.size} servers!`;
-                    break;
-                case 6:
-                    bot_presence_text = `with ${client.users.cache.filter(user => !user.bot).size} people!`;
-                    break;
-            }
-            bot_presence_mode += (bot_presence_mode < 6 ? 1 : -6); // incrementally loop the presence mode
+        const bot_presence_texts = [
+            `${bot_version}`,
+            `@${client.user.tag}`,
+            `👨‍💻${(await client.users.fetch(bot_owner_id)).tag}👑`,
+            `Uptime: ${getReadableTime(client.uptime / 1000)}`,
+        ];
+
+        let bot_presence_index = 0;
+        client.setInterval(() => {
+            /* incrementally loop the presence mode */
+            const bot_presence_text = bot_presence_texts[bot_presence_index];
             client.user.setPresence({
                 status: 'online',
                 type: 4,
@@ -241,7 +225,8 @@ client.once('ready', async () => {
                     name: `${bot_presence_text}`,
                 },
             });
-        }, 1000 * 15); // 2) then cycle every 15 seconds
+            bot_presence_index = (bot_presence_index < bot_presence_texts.length - 1 ? bot_presence_index + 1 : 0);
+        }, 1000 * 25); // 2) then cycle every 25 seconds
     }, 1000 * 60 * 5); // 1) wait for 5 minutes
 
     /* propagate guild configs and `client.$` */
