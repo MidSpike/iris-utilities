@@ -46,7 +46,7 @@
     "youtube-playlist": "^1.0.4",
     "youtube-search": "^1.1.4",
     "yt-search": "^2.5.2",
-    "ytdl-core": "^4.4.3",
+    "ytdl-core": "^4.4.4",
     "zlib-sync": "^0.1.7"
   },
   "scripts": {
