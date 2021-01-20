@@ -252,7 +252,7 @@ client.once('ready', async () => {
 
     /* consider guilds that the bot cannot access as non-existent */
     async function track_guild_existences() {
-        console.time(`track_guild_existences()`);
+        console.time('track_guild_existences()');
         const all_guild_configs = client.$.guild_configs_manager.configs;
         for (const guild_id of all_guild_configs.keys()) {
             const guild_exists_to_the_bot = !!client.guilds.resolve(guild_id);
@@ -269,7 +269,7 @@ client.once('ready', async () => {
                 console.warn(`Guild (${guild_id}) has been automatically removed from the guild configs!`);
             }
         }
-        console.timeEnd(`track_guild_existences()`);
+        console.timeEnd('track_guild_existences()');
     }
     client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 15 minutes
 
