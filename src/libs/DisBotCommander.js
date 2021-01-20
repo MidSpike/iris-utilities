@@ -101,15 +101,19 @@ class DisBotCommand {
         if (!message) throw new Error('\`message\` must be passed to command.execute()!');
         if (!opts) throw new Error('\`opts\` must be passed to command.execute()!');
 
-        /* prevent users from spamming commands via cooldown */
-        const user_cooldown_epoch = this.#cooldown_tracker.get(message.author.id) ?? Date.now() - this.cooldown;
-        if (Date.now() - user_cooldown_epoch < this.cooldown) {
+        //#region prevent command spam via cooldown
+        const command_execution_epoch = Date.now();
+
+        const user_cooldown_epoch = this.#cooldown_tracker.get(message.author.id) ?? command_execution_epoch - this.cooldown;
+
+        this.#cooldown_tracker.set(message.author.id, command_execution_epoch); // set the current time as the last time the user used this command
+
+        if (command_execution_epoch - user_cooldown_epoch < this.cooldown) {
             console.warn(`${message.author.tag} (${message.author.id}) is trying to spam a command!`);
+            message.reply(`Please don\'t spam commands!\nThis command is on a cooldown of ${this.cooldown / 1000} second(s).`);
             return; // don't execute the command
-        } else {
-            /* set the current time as the last time the user used this command */
-            this.#cooldown_tracker.set(message.author.id, Date.now());
         }
+        //#endregion prevent command spam via cooldown
 
         return await this.executor(Discord, client, message, opts);
     }
