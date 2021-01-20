@@ -31,7 +31,8 @@ const { Timer,
 const { logUserError } = require('../../libs/errors.js');
 const { generateInviteToGuild } = require(`../../libs/invites.js`);
 const { sendLargeMessage,
-        sendOptionsMessage } = require('../../libs/messages.js');
+        sendOptionsMessage,
+        sendCaptchaMessage } = require('../../libs/messages.js');
 
 const { playStream } = require(`../../libs/playStream.js`);
 const { createConnection } = require(`../../libs/createConnection.js`);

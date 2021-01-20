@@ -11,6 +11,7 @@ module.exports = new DisBotCommand({
     category: `${DisBotCommander.categories.HIDDEN}`,
     description: 'used for testing purposes',
     aliases: ['test'],
+    cooldown: 5_000,
     access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         message.channel.send(new CustomRichEmbed({
