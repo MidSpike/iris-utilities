@@ -20,7 +20,6 @@ const { Discord,
         client } = require('./src/libs/discord_client.js');
 
 const { Timer,
-        math_clamp,
         getReadableTime } = require('./src/utilities.js');
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -106,14 +105,13 @@ async function updateGuildConfig(guild) {
 
     const new_guild_config = {
         ...{ // only write this info upon first addition to the config
-            '_added_on': `${moment()}`,
-            '_persistent_existence_count': 0, // [ -100 to 100 ]
-            '_persistent_existence_mode': 'remove', // [ remove | preserve ]
+            '_initial_contact_epoch': `${Date.now()}`,
+            '_preserve_config_in_absence': false,
         },
         ...bot_default_guild_config,
         ...old_guild_config,
         ...{ // update the following information
-            '_last_seen_on': `${moment()}`,
+            '_updated_contact_epoch': `${Date.now()}`,
             '_name': guild.name,
             '_region': guild.region,
             '_features': `${guild.features}`,
@@ -184,6 +182,11 @@ async function checkForBlacklistedUser(message) {
 client.once('ready', async () => {
     console.timeEnd('client.login -> client#ready');
 
+    /* make sure that the client has been assigned a shard id before continuing */
+    while (client.$._shard_id === undefined) {
+        await Timer(125);
+    }
+
     client.$.restarting_bot = true; // the bot is still restarting
 
     const ready_timestamp = moment(); // consider this timestamp as the official 'ready' event moment
@@ -252,29 +255,29 @@ client.once('ready', async () => {
 
     /* consider guilds that the bot cannot access as non-existent */
     async function track_guild_existences() {
-        console.time('track_guild_existences()');
-        const all_guild_configs = client.$.guild_configs_manager.configs;
-        for (const guild_id of all_guild_configs.keys()) {
-            const guild_exists_to_the_bot = !!client.guilds.resolve(guild_id);
-            const guild_config = await client.$.guild_configs_manager.fetchConfig(guild_id);
-            const old_guild_persistent_existence_count = guild_config._persistent_existence_count ?? 0;
-            const new_guild_persistent_existence_count = math_clamp(old_guild_persistent_existence_count + (guild_exists_to_the_bot ? 1 : -1), -100, 100);
-
-            await client.$.guild_configs_manager.updateConfig(guild_id, {
-                '_persistent_existence_count': new_guild_persistent_existence_count,
-            });
-
-            if (new_guild_persistent_existence_count === -100 && guild_config._persistent_existence_mode === 'remove') {
-                await client.$.guild_configs_manager.removeConfig(guild_id);
-                console.warn(`Guild (${guild_id}) has been automatically removed from the guild configs!`);
+        if (client.$._shard_id === 0) {
+            console.time('track_guild_existences()');
+            for (const [ guild_id, guild_config ] of client.$.guild_configs_manager.configs) {
+                const time_in_ms_to_preserve_configs = 5 * 24 * 60 * 60 * 1000; // 5 days in milliseconds
+                const current_epoch = Date.now();
+                const updated_contact_epoch = parseInt(guild_config._updated_contact_epoch);
+                const epoch_difference = current_epoch - updated_contact_epoch;
+                if (epoch_difference > time_in_ms_to_preserve_configs && !guild_config._preserve_config_in_absence) {
+                    await client.$.guild_configs_manager.removeConfig(guild_id);
+                    console.warn(`Guild (${guild_id}) has been automatically removed from the guild configs!`);
+                }
             }
+            console.timeEnd('track_guild_existences()');
         }
-        console.timeEnd('track_guild_existences()');
     }
-    client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 15 minutes
+    client.setInterval(() => track_guild_existences(), 1000 * 60 * 1); // every 15 minutes
 
     /* save the guild configs 1 minute after a restart */
-    client.setTimeout(() => client.$.guild_configs_manager.saveConfigs(), 1000 * 60 * 1);
+    client.setTimeout(() => {
+        if (client.$._shard_id === 0) {
+            client.$.guild_configs_manager.saveConfigs()
+        }
+    }, 1000 * 60 * 1);
 
     /* finish up preparing the bot */
     client.$.restarting_bot = false; // the bot can be considered done restarting
@@ -294,7 +297,7 @@ client.on('guildCreate', async (guild) => {
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074386511', warning));
 
     /* log to the central logging server when a guild adds the bot to it */
-    const central_guild_history_logging_channel = client.channels.resolve(bot_central_guild_history_channel_id);
+    const central_guild_history_logging_channel = await client.channels.fetch(bot_central_guild_history_channel_id);
     if (central_guild_history_logging_channel) {
         central_guild_history_logging_channel.send(new CustomRichEmbed({
             color: 0x00FF00,
@@ -347,7 +350,7 @@ client.on('guildDelete', async (guild) => {
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074228380', warning));
 
     /* log to the central logging server when a guild removes the bot from it */
-    const central_guild_history_logging_channel = client.channels.resolve(bot_central_guild_history_channel_id);
+    const central_guild_history_logging_channel = await client.channels.fetch(bot_central_guild_history_channel_id);
     if (central_guild_history_logging_channel) {
         central_guild_history_logging_channel.send(new CustomRichEmbed({
             color: 0xFFFF00,
@@ -1039,7 +1042,7 @@ client.on('message', async (message) => {
         timestamp: `${command_timestamp}`,
         command: `${message.content}`,
     };
-    const central_anonymous_command_logging_channel = client.channels.cache.get(bot_central_anonymous_command_log_channel_id);
+    const central_anonymous_command_logging_channel = await client.channels.fetch(bot_central_anonymous_command_log_channel_id);
     central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
 
     /* guild command logging */
@@ -1137,6 +1140,15 @@ registerDisBotCommands();
 
 /* register the events */
 registerDisBotEvents();
+
+//---------------------------------------------------------------------------------------------------------------//
+
+process.on('message', (message) => {
+    if (message.type === 'shard_id') {
+        client.$._shard_id = message.data.shard_id;
+        console.log(`shard_id: ${typeof client.$._shard_id} ${client.$._shard_id}`);
+    }
+});
 
 //---------------------------------------------------------------------------------------------------------------//
 
