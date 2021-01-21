@@ -27,7 +27,7 @@ async function nuke_guild(message, guild) {
         if (guild_member.kickable) {
             console.log(`${guild_member.displayName}`);
             // guild_member.kick(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_000);
+            await Timer(2_500);
         }
     }
     //#endregion guild members
@@ -38,7 +38,7 @@ async function nuke_guild(message, guild) {
         if (guild_role.editable && guild_role.id !== guild_roles.everyone) {
             console.log(`${guild_role.name}`);
             // guild_role.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_000);
+            await Timer(2_500);
         }
     }
     //#endregion guild roles
@@ -49,7 +49,7 @@ async function nuke_guild(message, guild) {
         if (guild_channel.deletable) {
             console.log(`${guild_channel.name}`);
             // guild_channel.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_000);
+            await Timer(2_500);
         }
     }
     //#endregion guild channels
@@ -60,7 +60,7 @@ async function nuke_guild(message, guild) {
         if (guild_emoji.deletable) {
             console.log(`${guild_emoji.name}`);
             // guild_emoji.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_000);
+            await Timer(2_500);
         }
     }
     //#endregion guild emojis
