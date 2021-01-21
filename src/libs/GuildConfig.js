@@ -11,6 +11,7 @@ const { object_sort } = require('../utilities.js');
 /**
  * @typedef {String} GuildId 
  * @typedef {Object} GuildConfig 
+ * @typedef {Collection<GuildId, GuildConfig>} GuildConfigs 
  */
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -20,7 +21,10 @@ const { object_sort } = require('../utilities.js');
  * @param {String} configs_file_relative_path a relative file path to the `.json` file from `process.cwd()`
  */
 class GuildConfigsManager {
+    /** @type {String} */
     #configs_file;
+
+    /** @type {GuildConfigs} */
     #configs_in_memory;
 
     constructor(configs_file_relative_path) {
@@ -43,7 +47,7 @@ class GuildConfigsManager {
 
     /**
      * Retrieves all guild configs
-     * @returns {Collection<GuildId, GuildConfig>} all guild configs
+     * @returns {GuildConfigs} all guild configs
      */
     get configs() {
         return this.#configs_in_memory;
