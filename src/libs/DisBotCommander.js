@@ -139,7 +139,7 @@ class DisBotCommander {
     static #commands = new Discord.Collection();
 
     /**
-     * @returns a `Discord.Collection` of commands
+     * @returns {Discord.Collection<String, DisBotCommand>} a `Discord.Collection` of commands
      */
     static get commands() {
         return this.#commands;
