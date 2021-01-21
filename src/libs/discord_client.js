@@ -27,6 +27,7 @@ const client = new Discord.Client({
 });
 
 client.$ = {
+    _shard_id: undefined,
     restarting_bot: false,
     lockdown_mode: false,
     guild_lockdowns: new Discord.Collection(),

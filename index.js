@@ -21,6 +21,15 @@ sharding_manager.on('shardCreate', (shard) => {
     console.log(`----------------------------------------------------------------------------------------------------------------`);
     console.log(`Launched shard: ${shard.id}`);
     console.log(`----------------------------------------------------------------------------------------------------------------`);
+
+    shard.on('ready', () => {
+        shard.send({
+            type: 'shard_id',
+            data: {
+                shard_id: shard.id,
+            },
+        });
+    });
 });
 
 sharding_manager.spawn();
