@@ -209,16 +209,15 @@ client.once('ready', async () => {
 
     /* after 5 minutes, update the client presence with various helpful information */
     client.setTimeout(async () => {
-        const bot_presence_texts = [
-            `${bot_version}`,
-            `@${client.user.tag}`,
-            `👨‍💻${(await client.users.fetch(bot_owner_id)).tag}👑`,
-            `Uptime: ${getReadableTime(client.uptime / 1000)}`,
-        ];
-
+        const { tag: discord_bot_owner_tag } = await client.users.fetch(bot_owner_id);
         let bot_presence_index = 0;
         client.setInterval(() => {
-            /* incrementally loop the presence mode */
+            const bot_presence_texts = [
+                `${bot_version}`,
+                `@${client.user.tag}`,
+                `👨‍💻${discord_bot_owner_tag}👑`,
+                `Uptime: ${getReadableTime(client.uptime / 1000)}`,
+            ];
             const bot_presence_text = bot_presence_texts[bot_presence_index];
             client.user.setPresence({
                 status: 'online',
@@ -229,7 +228,7 @@ client.once('ready', async () => {
                 },
             });
             bot_presence_index = (bot_presence_index < bot_presence_texts.length - 1 ? bot_presence_index + 1 : 0);
-        }, 1000 * 25); // 2) then cycle every 25 seconds
+        }, 1000 * 30); // 2) then cycle every 30 seconds
     }, 1000 * 60 * 5); // 1) wait for 5 minutes
 
     /* propagate guild configs and `client.$` */
