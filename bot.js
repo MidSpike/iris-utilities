@@ -263,7 +263,7 @@ client.once('ready', async () => {
             console.timeEnd('track_guild_existences()');
         }
     }
-    client.setInterval(() => track_guild_existences(), 1000 * 60 * 1); // every 15 minutes
+    client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 15 minutes
 
     /* save the guild configs 1 minute after a restart */
     client.setTimeout(() => {
