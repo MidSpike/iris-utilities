@@ -24,12 +24,6 @@ const { Timer,
 
 //---------------------------------------------------------------------------------------------------------------//
 
-//#region bot files
-const bot_command_log_file = process.env.BOT_COMMAND_LOG_FILE;
-const bot_blacklisted_guilds_file = process.env.BOT_BLACKLISTED_GUILDS_FILE;
-const bot_blacklisted_users_file = process.env.BOT_BLACKLISTED_USERS_FILE;
-//#endregion bot files
-
 //#region bot globals
 const bot_owner_id = bot_config.OWNER_ID;
 const bot_common_name = bot_config.COMMON_NAME;
@@ -150,13 +144,13 @@ async function initialize_guild_on_client_$(guild) {
 //---------------------------------------------------------------------------------------------------------------//
 
 function checkForBlacklistedGuild(guild) {
-    const blacklisted_guilds = JSON.parse(fs.readFileSync(bot_blacklisted_guilds_file));
+    const blacklisted_guilds = JSON.parse(fs.readFileSync(process.env.BOT_BLACKLISTED_GUILDS_FILE));
     const guild_is_blacklisted = blacklisted_guilds.map(blacklisted_guild => blacklisted_guild.id).includes(guild?.id);
     return guild_is_blacklisted ? true : false;
 }
 
 async function checkForBlacklistedUser(message) {
-    const blacklisted_users = JSON.parse(fs.readFileSync(bot_blacklisted_users_file));
+    const blacklisted_users = JSON.parse(fs.readFileSync(process.env.BOT_BLACKLISTED_USERS_FILE));
     if (blacklisted_users.map(blacklisted_user => blacklisted_user.id).includes(message.author.id)) {
         /* prevent blacklisted users from using the bot */
         console.warn(`Blacklisted user tried using ${bot_common_name}: ${message.author.tag} (${message.author.id})`);
@@ -1010,7 +1004,7 @@ client.on('message', async (message) => {
 
     /* central command logging */
     try {
-        const current_command_log_file_name = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
+        const current_command_log_file_name = process.env.BOT_COMMAND_LOG_FILE.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
         const command_log_file_exists = fs.existsSync(current_command_log_file_name);
         const current_command_logs = command_log_file_exists ? JSON.parse(fs.readFileSync(current_command_log_file_name)) : [];
         const command_log_entry = {
