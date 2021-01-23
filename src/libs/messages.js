@@ -63,7 +63,9 @@ const options_message_reactions_template = [
  * @returns {Promise<Message>} the options_message after attempting to add all reactions
  */
 async function sendOptionsMessage(channel_id, message_contents, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
-    const options_message = await client.channels.cache.get(channel_id).send(message_contents).catch(console.warn);
+    const channel = client.channels.resolve(channel_id);
+
+    const options_message = await channel.send(message_contents).catch(console.warn);
     if (!options_message) throw new Error(`Unable to send options_message!`);
 
     for (const reaction_option of reaction_options) { // execute each reaction sequentially
@@ -83,7 +85,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
             /**
              * The most likely exceptions will be:
              *  - the message was deleted and the reaction can't be added
-             *  - the guild denied the bot from adding reactions
+             *  - the bot can't add reactions in this channel
              */
             console.warn(`Unable to add reaction: ${reaction_option_emoji};`);
             break; // there is no reason to continue trying to add reactions after a failed attempt
@@ -102,6 +104,11 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
             const last_time_of_action_was_recent = recent_time_of_action - last_time_of_action < cooldown_time_ms;
             last_time_of_action = Date.now();
             if (last_time_of_action_was_recent) return; // force the user to wait before clicking the button again
+
+            if (client.$.restarting_bot) return;
+            if (client.$.lockdown_mode) return;
+            if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
+
             await Timer(250); // prevent API abuse
             reaction_option.callback(options_message, collected_reaction, user);
         });
@@ -150,10 +157,10 @@ async function sendConfirmationMessage(confirm_user_id, channel_id, delete_after
  * @returns {Message} the captcha message that the bot sent
  */
 async function sendCaptchaMessage(confirmation_user_id, channel_id, success_callback=(bot_captcha_message, collected_message)=>{}, failure_callback=(bot_captcha_message)=>{}) {
-    const confirmation_timestamp = `${Date.now()}`.slice(7);
+    const channel = client.channels.resolve(channel_id);
 
-    const captcha_code = (new Buffer.from(confirmation_timestamp)).toString('base64');
-    const bot_captcha_message = await client.channels.cache.get(channel_id).send(`<@${confirmation_user_id}>`, new CustomRichEmbed({
+    const captcha_code = (new Buffer.from(`${Date.now()}`.slice(7))).toString('base64');
+    const bot_captcha_message = await channel.send(`<@${confirmation_user_id}>`, new CustomRichEmbed({
         color: 0xFF00FF,
         title: 'You must send the CAPTCHA below to continue!',
         description: `${'```'}\n${captcha_code}\n${'```'}`,
@@ -165,10 +172,18 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
         time: 60_000,
     });
     message_collector.on('collect', async (collected_message) => {
+        if (client.$.restarting_bot) return;
+        if (client.$.lockdown_mode) return;
+        if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
+
         success_callback(bot_captcha_message, collected_message);
     });
     message_collector.on('end', (collected_messages) => {
         if (collected_messages.size === 0) {
+            if (client.$.restarting_bot) return;
+            if (client.$.lockdown_mode) return;
+            if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
+
             failure_callback(bot_captcha_message);
         }
     });
