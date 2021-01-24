@@ -190,15 +190,16 @@ client.once('ready', async () => {
     console.log(`----------------------------------------------------------------------------------------------------------------`);
 
     /* after 1 minute, log to all subscribed servers that a restart has just occurred */
-    client.setTimeout(() => {
+    client.setTimeout(async () => {
         const guild_restart_logging_channels = client.channels.cache.filter(channel => channel.type === 'text' && channel.name === bot_restart_log_channel.name);
-        guild_restart_logging_channels.forEach(channel => {
+        for (const [ channel_id, channel ] of guild_restart_logging_channels) {
             if (channel.permissionsFor(channel.guild.me).has('SEND_MESSAGES')) {
                 channel.send(`${bot_common_name} restarted at ${ready_timestamp}!`).catch(console.warn);
             } else {
                 console.warn(`Unable to send restart message to ${channel.name} (${channel.id}) > ${channel.guild.name} (${channel.guild.id})`);
             }
-        });
+            await Timer(250); // prevent api abuse
+        }
     }, 1000 * 60 * 1); // 1 minute
 
     /* after 5 minutes, update the client presence with various helpful information */
@@ -933,37 +934,7 @@ client.on('message', async (message) => {
     const discord_command_without_prefix = discord_command.replace(`${command_prefix}`, ``);
 
     /* prevent false positives for non-command matches */
-    if (discord_command_without_prefix.match(/^\d/)) return; // commands can not start with numbers
-
-    /* check for guild allowed channels */
-    const guild_allowed_channels = guild_config.allowed_channels;
-    const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel.name;
-    const is_guild_allowed_channel = guild_allowed_channels.includes(message.channel.id);
-    const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR') || isThisBotsOwner(message.member.id) || isSuperPerson(message.member.id);
-    if (guild_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel) {
-        if (!member_is_immune_from_channel_exclusions) {
-            const dm_channel = await message.author.createDM();
-            dm_channel.send(new CustomRichEmbed({
-                title: `Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
-                description: 'The server you tried using me in has setup special channels for me to be used in!',
-                fields: [
-                    {
-                        name: 'Allowed Channels',
-                        value: `${guild_allowed_channels.map(channel => `<#${channel.id}>`).join('\n')}`,
-                    }, {
-                        name: 'Notice',
-                        value: [
-                            `Anyone can use ${bot_common_name} commands in text-channels called \`#${bot_backup_commands_channel.name}\`.`,
-                            `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
-                        ].join('\n\n'),
-                    },
-                ],
-            })).catch(console.warn);
-            return;
-        } else {
-            await message.channel.send(`Hey ${message.author}!\nCommands are typically disabled for normal users in this channel, but **you are immune**!`).catch(console.warn);
-        }
-    }
+    if (discord_command_without_prefix.match(/^\d/)) return; // commands cannot start with numbers
 
     /* adjust all command aliases for this guild's command prefix */
     const command = DisBotCommander.commands.find(cmd => 
@@ -1002,6 +973,39 @@ client.on('message', async (message) => {
         return;
     }
 
+    /* don't allow blacklisted users and notify them of their inability to use this bot */
+    if (await checkForBlacklistedUser(message)) return;
+
+    /* check for guild allowed channels */
+    const guild_allowed_channels = guild_config.allowed_channels;
+    const is_not_backup_commands_channel = message.channel.name !== bot_backup_commands_channel.name;
+    const is_guild_allowed_channel = guild_allowed_channels.includes(message.channel.id);
+    const member_is_immune_from_channel_exclusions = message.member.hasPermission('ADMINISTRATOR') || isThisBotsOwner(message.member.id) || isSuperPerson(message.member.id);
+    if (guild_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel) {
+        if (!member_is_immune_from_channel_exclusions) {
+            const dm_channel = await message.author.createDM();
+            dm_channel.send(new CustomRichEmbed({
+                title: `Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
+                description: 'The server you tried using me in has setup special channels for me to be used in!',
+                fields: [
+                    {
+                        name: 'Allowed Channels',
+                        value: `${guild_allowed_channels.map(channel => `<#${channel.id}>`).join('\n')}`,
+                    }, {
+                        name: 'Notice',
+                        value: [
+                            `Anyone can use ${bot_common_name} commands in text-channels named \`#${bot_backup_commands_channel.name}\`.`,
+                            `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
+                        ].join('\n\n'),
+                    },
+                ],
+            })).catch(console.warn);
+            return;
+        } else {
+            await message.channel.send(`Hey ${message.author}!\nCommands are typically disabled for normal users in this channel, but **you are immune**!`).catch(console.warn);
+        }
+    }
+
     /* central command logging */
     try {
         const current_command_log_file_name = process.env.BOT_COMMAND_LOG_FILE.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
@@ -1022,14 +1026,6 @@ client.on('message', async (message) => {
         console.trace('Unable to save to command log file!', error);
     }
 
-    /* don't allow blacklisted users and notify them of their inability to use this bot */
-    if (await checkForBlacklistedUser(message)) return;
-
-    /* command message removal */
-    if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
-        message.delete({ timeout: 500 }).catch(error => console.warn('Unable to delete message', error));
-    }
-
     /* central anonymous command logging for bot staff */
     const anonymous_command_log_entry = {
         timestamp: `${command_timestamp}`,
@@ -1039,7 +1035,7 @@ client.on('message', async (message) => {
     central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
 
     /* guild command logging */
-    const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.type === 'text' && channel.name === bot_command_log_channel.name);
+    const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.isText() && channel.name === bot_command_log_channel.name);
     if (guild_command_logging_channel) {
         guild_command_logging_channel.send(new CustomRichEmbed({
             author: {
@@ -1053,6 +1049,11 @@ client.on('message', async (message) => {
                 text: `${command_timestamp}`,
             },
         })).catch(console.warn);
+    }
+
+    /* command message removal */
+    if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
+        message.delete({ timeout: 500 }).catch((error) => console.warn('Unable to delete message', error));
     }
 
     //#region configure permission handlers for the command
@@ -1145,7 +1146,7 @@ process.on('message', (message) => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-/* prevent the bot from crashing for unhandledRejections */
+/* prevent the process from crashing for unhandledRejections */
 process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`${moment()}`);
@@ -1153,7 +1154,7 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
 });
 
-/* prevent the bot from crashing for uncaughtExceptions */
+/* prevent the process from crashing for uncaughtExceptions */
 process.on('uncaughtException', (error) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`${moment()}`);
