@@ -388,7 +388,7 @@ module.exports = new DisBotCommand({
             const message_attachment_extension = message_attachment?.name?.match(/[^.]+$/g)?.[0] ?? 'unknown';
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: `Playing music from files ending in \`.${message_attachment_extension}\` aren\'t supported!`,
+                title: `Playing music from files ending in \`.${message_attachment_extension}\` isn\'t supported!`,
                 description: `Use \`${discord_command}\` to see how to use this command.`,
             }));
         } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
