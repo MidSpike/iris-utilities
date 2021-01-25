@@ -812,8 +812,8 @@ client.on('message', async (message) => {
     /* don't continue when the bot is in lockdown mode */
     if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
-    /* make sure that the message is from a guild text-channel */
-    if (message.channel.type !== 'text') return;
+    /* make sure that the message is from a guild text-based-channel */
+    if (!(message.guild && message.channel.isText())) return;
 
     /********************************************************************
      * the bot is being used in a guild text-channel after this comment *
