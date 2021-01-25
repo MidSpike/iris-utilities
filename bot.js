@@ -806,7 +806,7 @@ client.on('message', async (message) => {
     /* don't continue if the message is empty and there aren't any attachments */
     if (message.content.trim().length === 0 && message.attachments.size === 0) return;
 
-    /* don't interact with other bots */
+    /* don't interact with non-whitelisted control bots */
     if (message.author.bot && !isWhitelistedControlBot(message.author.id)) return;
 
     /* don't continue when the bot is in lockdown mode */
