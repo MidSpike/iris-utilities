@@ -80,7 +80,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
         let bot_reaction;
         try {
             bot_reaction = await options_message.react(reaction_option_emoji);
-            await Timer(250); // prevent API abuse (250 seems io work best)
+            await Timer(250); // prevent API abuse (250 seems to work best)
         } catch {
             /**
              * The most likely exceptions will be:
