@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
+    "@discordjs/opus": "^0.4.0",
     "aki-api": "^5.2.1",
     "axios": "^0.21.1",
     "blapi": "^2.0.1",
