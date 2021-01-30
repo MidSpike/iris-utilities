@@ -12,6 +12,7 @@ const { client } = require('./discord_client.js');
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 const { findCustomEmoji,
         constructNumberUsingEmoji } = require('./emoji.js');
+const { isThisBotsOwner } = require('./permissions.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -105,8 +106,8 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
             last_time_of_action = Date.now();
             if (last_time_of_action_was_recent) return; // force the user to wait before clicking the button again
 
-            if (client.$.restarting_bot) return;
-            if (client.$.lockdown_mode) return;
+            if (client.$.restarting_bot && !isThisBotsOwner(user.id)) return;
+            if (client.$.lockdown_mode && !isThisBotsOwner(user.id)) return;
             if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
 
             await Timer(250); // prevent API abuse
@@ -172,16 +173,16 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
         time: 60_000,
     });
     message_collector.on('collect', async (collected_message) => {
-        if (client.$.restarting_bot) return;
-        if (client.$.lockdown_mode) return;
+        if (client.$.restarting_bot && !isThisBotsOwner(collected_message.author.id)) return;
+        if (client.$.lockdown_mode && !isThisBotsOwner(collected_message.author.id)) return;
         if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
 
         success_callback(bot_captcha_message, collected_message);
     });
     message_collector.on('end', (collected_messages) => {
         if (collected_messages.size === 0) {
-            if (client.$.restarting_bot) return;
-            if (client.$.lockdown_mode) return;
+            if (client.$.restarting_bot && !isThisBotsOwner(collected_message.author.id)) return;
+            if (client.$.lockdown_mode && !isThisBotsOwner(collected_message.author.id)) return;
             if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
 
             failure_callback(bot_captcha_message);
