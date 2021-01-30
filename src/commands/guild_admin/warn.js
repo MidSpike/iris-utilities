@@ -23,7 +23,7 @@ module.exports = new DisBotCommand({
         const user_warnings = guild_config.user_warnings;
 
         const warning_id = pseudoUniqueId();
-        const warning_user = client.users.cache.get(command_args[0]) ?? message.mentions.users.first();
+        const warning_member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
         const warning_reason = command_args.slice(1).join(' ').trim() || 'no reason specified';
         const warning_timestamp = moment();
 
@@ -34,20 +34,20 @@ module.exports = new DisBotCommand({
             }, message));
         }
 
-        if (warning_user) {
+        if (warning_member) {
             const warning_embed = new CustomRichEmbed({
-                color: 0xFFFF00,
+                color: 0xFF00FF,
                 title: `You have been warned by @${message.author.tag} in ${message.guild.name}!`,
                 description: `You have been warned for:${'```'}\n${warning_reason}\n${'```'}`,
             });
-            await message.channel.send(`${warning_user}`, warning_embed);
+            await message.channel.send(`${warning_member}`, warning_embed);
 
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 user_warnings: [
                     ...user_warnings,
                     {
                         id: `${warning_id}`,
-                        user_id: `${warning_user.id}`,
+                        user_id: `${warning_member.id}`,
                         staff_id: `${message.author.id}`,
                         reason: `${warning_reason}`,
                         timestamp: `${warning_timestamp}`,
@@ -56,16 +56,15 @@ module.exports = new DisBotCommand({
             });
 
             try {
-                const dm_channel = await warning_user.createDM();
+                const dm_channel = await warning_member.user.createDM();
                 await dm_channel.send(warning_embed);
             } catch (error) {
                 console.warn(error);
                 message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: `Failed to send warning to ${warning_user} via DMs!`,
+                    color: 0xFF0000,
+                    description: `Failed to send warning to ${warning_member} via DMs!`,
                 }, message));
             }
-
         } else {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
