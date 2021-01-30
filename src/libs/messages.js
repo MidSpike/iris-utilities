@@ -74,7 +74,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
 
         const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? nodeEmoji.emojify(nodeEmoji.get(reaction_option.emoji_name));
         if (!reaction_option_emoji) {
-            console.error(`An invalid reaction was passed to 'sendOptionsMessage': ${reaction_option.emoji_name}`)
+            console.error(`An invalid reaction was passed to \'sendOptionsMessage\': ${reaction_option.emoji_name}`)
             continue; // the remaining reactions might be valid so continue
         }
 
@@ -111,6 +111,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
             if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
 
             await Timer(250); // prevent API abuse
+
             reaction_option.callback(options_message, collected_reaction, user);
         });
     }
@@ -235,9 +236,9 @@ async function removeMessageFromChannel(channel_id, message_id) {
         if (!channel_containing_message.guild) {
             throw new Error('Message does not reside in a Guild!');
         } else {
-            const recent_messages_in_channel = await channel_containing_message.messages.fetch({limit:100});
+            const recent_messages_in_channel = await channel_containing_message.messages.fetch({ limit: 100 });
             const the_message_to_remove = recent_messages_in_channel.get(message_id);
-            const the_removed_message = await the_message_to_remove?.delete({timeout:500});
+            const the_removed_message = await the_message_to_remove?.delete({ timeout: 500 });
             return the_removed_message;
         }
     } else {
@@ -256,7 +257,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
     const guild_volume_manager = client.$.volume_managers.get(guild_id);
 
     const makeEmbed = () => new CustomRichEmbed({
-        title:`The Current Volume Is: ${constructNumberUsingEmoji(guild_volume_manager.volume)}`
+        title: `The Current Volume Is: ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
     }, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
@@ -266,24 +267,30 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 removeUserReactionsFromMessage(options_message);
                 await guild_volume_manager.toggleMute();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`
+                    author: {
+                        iconURL: user.displayAvatarURL({ dynamic: true }),
+                        name: `@${user.tag}`,
+                    },
+                    title: `${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`,
                 }));
             }
         }, {
-            emoji_name:'bot_emoji_volume_down',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_volume_down',
+            cooldown: 1000,
             async callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 await guild_volume_manager.decreaseVolume();
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`
+                    author: {
+                        iconURL: user.displayAvatarURL({ dynamic: true }),
+                        name: `@${user.tag}`,
+                    },
+                    title: `Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
                 }));
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_volume_up',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_volume_up',
+            cooldown: 1000,
             async callback(options_message, collected_reaction, user) {
                 const guild_config = await client.$.guild_configs_manager.fetchConfig(guild_id);
                 removeUserReactionsFromMessage(options_message);
@@ -291,11 +298,14 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 const [updated_volume_manager, increase_amount] = await guild_volume_manager.increaseVolume();
                 const new_volume = updated_volume_manager.volume;
                 options_message.edit(new CustomRichEmbed({
-                    author:{iconURL:user.displayAvatarURL({dynamic:true}), name:`@${user.tag}`},
-                    title:`Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
-                    description:(new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined)
+                    author: {
+                        iconURL: user.displayAvatarURL({ dynamic: true }),
+                        name: `@${user.tag}`
+                    },
+                    title: `Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
+                    description: (new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined),
                 }));
-            }
+            },
         }
     ]);
 }
@@ -313,7 +323,9 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
 
     const audio_controller = guild_audio_controller;
     const embed_title = 'Audio Controller';
-    const makeEmbed = () => new CustomRichEmbed({title:`${embed_title}`}, user_message);
+    const makeEmbed = () => new CustomRichEmbed({
+        title: `${embed_title}`,
+    }, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
             emoji_name: 'bot_emoji_play_pause',
@@ -324,8 +336,8 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                     audio_controller.resume();
                     options_message.edit(new CustomRichEmbed({
                         author: {
-                            iconURL: user.displayAvatarURL({dynamic: true}),
-                            name: `@${user.tag}`
+                            iconURL: user.displayAvatarURL({ dynamic: true }),
+                            name: `@${user.tag}`,
                         },
                         title: `${embed_title}`,
                         description: 'Resumed Music',
@@ -334,8 +346,8 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                     audio_controller.pause();
                     options_message.edit(new CustomRichEmbed({
                         author: {
-                            iconURL: user.displayAvatarURL({dynamic: true}),
-                            name: `@${user.tag}`
+                            iconURL: user.displayAvatarURL({ dynamic: true }),
+                            name: `@${user.tag}`,
                         },
                         title: `${embed_title}`,
                         description: 'Paused Music',
@@ -344,8 +356,8 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                     options_message.edit(new CustomRichEmbed({
                         color: 0xFFFF00,
                         author: {
-                            iconURL: user.displayAvatarURL({dynamic: true}),
-                            name: `@${user.tag}`
+                            iconURL: user.displayAvatarURL({ dynamic: true }),
+                            name: `@${user.tag}`,
                         },
                         title: `${embed_title} - Unable to pause or resume music`,
                         description: 'Nothing is playing in the queue right now!',
@@ -436,7 +448,7 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                 removeUserReactionsFromMessage(options_message);
                 sendVolumeControllerEmbed(channel_id);
             },
-        }
+        },
     ]);
 }
 
@@ -455,17 +467,18 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
 
     let show_player_description = guild_config.player_description === 'enabled';
     function makeYTEmbed() {
-        const status_override = guild_queue_manager.queue.length <= 1 ? (
+        const video_embed_status = (guild_queue_manager.queue.length <= 1 ? (
             guild_queue_manager.loop_enabled ? 'Looping' : (
-                guild_queue_manager.autoplay_enabled ? 'Autoplaying' : undefined
+                guild_queue_manager.autoplay_enabled ? 'Autoplaying' : status
             )
-        ) : undefined;
-        status = status_override ?? status;
+        ) : status);
+        const video_thumbnails = videoInfo.videoDetails.thumbnails;
+        const video_thumbnail_url = video_thumbnails[video_thumbnails - 1].url;
         return new CustomRichEmbed({
-            title:`${status}: ${videoInfo.videoDetails.title}`,
-            description:(show_player_description ? ([
+            title: `${video_embed_status}: ${videoInfo.videoDetails.title}`,
+            description: (show_player_description ? ([
                 `Author: [${videoInfo.videoDetails.author.name}](${videoInfo.videoDetails.author.channel_url})`,
-                `Uploaded: ${videoInfo.videoDetails.publishDate}`,
+                `Uploaded: ${videoInfo.videoDetails.uploadDate}`,
                 `Duration: ${getReadableTime(parseInt(videoInfo.videoDetails.lengthSeconds))}`,
                 `Age Restricted: ${videoInfo.videoDetails.age_restricted ? 'Yes' : 'No'}`,
                 `Rating: ${((videoInfo.videoDetails.averageRating / 5) * 100).toFixed(2)}% of people like this`,
@@ -474,34 +487,34 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
                 `Views: ${videoInfo.videoDetails.viewCount ?? 'n/a'}`,
                 `Link: [https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`,
             ].join('\n')) : `[https://youtu.be/${videoInfo.videoDetails.videoId}](https://youtu.be/${videoInfo.videoDetails.videoId})`),
-            thumbnail:(show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${videoInfo.videoDetails.thumbnails.slice(-1).pop().url}`),
-            image:(show_player_description ? `${videoInfo.videoDetails.thumbnails.slice(-1).pop().url}` : undefined)
+            thumbnail: (show_player_description ? `${bot_cdn_url}/youtube_logo.png` : `${video_thumbnail_url}`),
+            image: (show_player_description ? `${video_thumbnail_url}` : undefined),
         }, user_message);
     }
     sendOptionsMessage(user_message.channel.id, makeYTEmbed(), [
         {
-            emoji_name:'bot_emoji_information',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_information',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 show_player_description = !show_player_description;
                 options_message.edit(makeYTEmbed());
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_music',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_music',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 sendMusicControllerEmbed(user_message.channel.id);
-            }
+            },
         }, {
-            emoji_name:'bot_emoji_volume_up',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_volume_up',
+            cooldown: 1000,
             callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 sendVolumeControllerEmbed(user_message.channel.id);
-            }
-        }
+            },
+        },
     ]);
 }
 
@@ -511,10 +524,10 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
  */
 async function sendNotAllowedCommand(message) {
     const embed = new CustomRichEmbed({
-        color:0xFF00FF,
-        title:'Unauthorized Access Detected!',
-        description:`Sorry you aren't allowed to use: ${'```'}\n${message.cleanContent}${'```'}Try contacting a guild admin or an ${bot_config.COMMON_NAME} admin if you believe this to be in fault.`,
-        footer:null
+        color: 0xFF00FF,
+        title: 'Unauthorized Access Detected!',
+        description: `Sorry you aren\'t allowed to use: ${'```'}\n${message.cleanContent}${'```'}Try contacting a guild admin or an ${bot_config.COMMON_NAME} admin if you believe this to be in fault.`,
+        footer: null,
     }, message);
     try {
         await message.channel.send(embed);
@@ -560,13 +573,20 @@ async function sendPotentiallyNotSafeForWorkDisclaimer(message) {
 function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
     const moderation_log_channel = admin_message.guild.channels.cache.find(c => c.name === bot_config.SPECIAL_CHANNELS.find(ch => ch.id === 'GUILD_MODERATION').name);
     moderation_log_channel?.send(custom_log_message ?? new CustomRichEmbed({
-        title:`An Admin Command Has Been Used!`,
-        description:`Command Used:${'```'}\n${admin_message.content}${'```'}`,
-        fields:[
-            {name:'Admin', value:`${admin_message.author} (${admin_message.author.id})`},
-            {name:'Channel', value:`${admin_message.channel}`},
-            {name:'Message Link', value:`[Jump To Where The Command Was Used](${admin_message.url})`}
-        ]
+        title: 'An Admin Command Has Been Used!',
+        description: `Command Used:${'```'}\n${admin_message.content}\n${'```'}`,
+        fields: [
+            {
+                name: 'Admin',
+                value: `${admin_message.author} (${admin_message.author.id})`,
+            }, {
+                name: 'Channel',
+                value: `${admin_message.channel}`,
+            }, {
+                name: 'Message Link',
+                value: `[Jump To Where The Command Was Used](${admin_message.url})`,
+            },
+        ],
     }))?.catch(console.warn);
 }
 
