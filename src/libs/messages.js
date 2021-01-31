@@ -473,7 +473,7 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
             )
         ) : status);
         const video_thumbnails = videoInfo.videoDetails.thumbnails;
-        const video_thumbnail_url = video_thumbnails[video_thumbnails - 1].url;
+        const video_thumbnail_url = video_thumbnails[video_thumbnails.length - 1].url;
         return new CustomRichEmbed({
             title: `${video_embed_status}: ${videoInfo.videoDetails.title}`,
             description: (show_player_description ? ([
