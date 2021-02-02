@@ -90,11 +90,27 @@ async function playYouTube(message, search_query, playnext=false) {
 
     /**
      * Fetches a YouTube playlist id from a search query
-     * @param {String} search_query any string that contains a youtube url or search query
+     * @param {String} search_query any string that might contain a youtube url
      * @returns {String|undefined} a playlist id if successful
      */
     async function _get_potential_playlist_id_from_query(search_query) {
         return validator.isURL(search_query) ? urlParser(search_query)?.list : undefined;
+    }
+
+    /**
+     * Fetches a YouTube video id from a search query
+     * @param {String} search_query any string that might contain a youtube url
+     * @returns {String|undefined} a youtube video id or undefined
+     */
+    async function _get_potential_video_id_from_query(search_query) {
+        let potential_video_id;
+        try {
+            potential_video_id = videoIdFromYouTubeURL(search_query);
+        } catch {
+            /* exceptions are thrown for non-youtube URLs */
+            potential_video_id = undefined;
+        }
+        return potential_video_id;
     }
 
     /**
@@ -235,7 +251,7 @@ async function playYouTube(message, search_query, playnext=false) {
         return; // complete async
     }
 
-    async function _play_as_playlist(playlist_id) {
+    async function _play_as_playlist(playlist_id, video_id) {
         const { data: { items: playlist_items } } = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`);
 
         const confirmation_embed = new CustomRichEmbed({
@@ -276,8 +292,8 @@ async function playYouTube(message, search_query, playnext=false) {
             }, {
                 emoji_name: 'bot_emoji_close',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({timeout: 500}).catch(console.warn);
-                    _play_as_video(playlist_items[0].snippet.resourceId.videoId);
+                    await options_message.delete({ timeout: 500 }).catch(console.warn);
+                    _play_as_video(`https://youtu.be/${video_id}`);
                 },
             },
         ], message.author.id);
@@ -289,13 +305,10 @@ async function playYouTube(message, search_query, playnext=false) {
     }));
 
     const potential_playlist_id = await _get_potential_playlist_id_from_query(search_query);
-    if (potential_playlist_id) {
-        try {
-            await _play_as_playlist(potential_playlist_id);
-        } catch {
-            console.warn('Unable to play as a playlist... Attempting to play as a video!');
-            _play_as_video(search_query);
-        }
+    const potential_video_id = await _get_potential_video_id_from_query(search_query);
+
+    if (potential_playlist_id && potential_video_id) {
+        _play_as_playlist(potential_playlist_id, potential_video_id);
     } else {
         _play_as_video(search_query);
     }
