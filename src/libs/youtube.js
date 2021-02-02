@@ -31,8 +31,8 @@ const bot_api_url = process.env.BOT_API_SERVER_URL;
  * If the YouTube API fails more than the specified number of retry_attempts,
  * then it will attempt one last time by scraping the YouTube website.
  * @param {String} search_query video, url, etc to look up on youtube
- * @param {Number} max_results the max number of results to ask the YouTube API for
- * @returns {Array<{id:String, link:String, title:String, channelTitle, channelId}>|undefined} the number of results is not based on max_results
+ * @param {Number} max_results the max number of results to return
+ * @returns {Array<{id:String, link:String, title:String, channelTitle: String, channelId: String}>|undefined} 
  */
 async function forceYouTubeSearch(search_query, max_results=5) {
     if (typeof search_query !== 'string') throw new TypeError('\`search_query\` must be a string!');
@@ -76,7 +76,7 @@ async function forceYouTubeSearch(search_query, max_results=5) {
 
     console.timeEnd(`BENCHMARK: forceYouTubeSearch; ${search_query}`);
 
-    return (search_results ?? []).slice(0, max_results); // force an empty array if nullish
+    return (search_results ?? []).slice(0, max_results);
 }
 
 /**
@@ -88,44 +88,48 @@ async function forceYouTubeSearch(search_query, max_results=5) {
 async function playYouTube(message, search_query, playnext=false) {
     const guild_queue_manager = message.guild.client.$.queue_managers.get(message.guild.id);
 
-    const voice_channel = message.member.voice.channel;
-
     /**
      * Fetches a YouTube playlist id from a search query
-     * @param {String} query any string that might contain a youtube url or search query
+     * @param {String} search_query any string that contains a youtube url or search query
      * @returns {String|undefined} a playlist id if successful
      */
-    async function _get_playlist_id_from_query(query) {
-        return validator.isURL(query) ? urlParser(query)?.list : undefined;
+    async function _get_potential_playlist_id_from_query(search_query) {
+        return validator.isURL(search_query) ? urlParser(search_query)?.list : undefined;
     }
 
     /**
-     * Fetches a YouTube video id from a search query
-     * @param {String} query any string that might contain a youtube url or search query
-     * @returns {String|undefined} a youtube video id or undefined
+     * Fetches a YouTube video from a search query
+     * @param {String} search_query any string that contains a youtube url or search query
+     * @returns {Object|undefined} a video if successful
      */
-    async function _get_video_id_from_query(query) {
-        let possible_video_id;
-        if (validator.isURL(query ?? '')) { // parse the id from the YT url
-            try {
-                possible_video_id = videoIdFromYouTubeURL(query);
-            } catch {
-                /* exceptions are thrown for non-youtube URLs */
-                possible_video_id = undefined;
-            }
-        } else { // search for the video via the youtube api as a fallback
-            const youtube_search_results = await forceYouTubeSearch(query, 1);
-            possible_video_id = youtube_search_results[0]?.id;
-        }
-        return possible_video_id;
+    async function _get_potential_video_from_query(search_query) {
+        const [ potential_video ] = await forceYouTubeSearch(search_query, 1);
+        return potential_video;
     }
 
-    async function _play_as_video(video_id, send_embed=true) {
-        if (!video_id) throw new Error('\'video_id\' must be defined');
+    async function _play_as_video(search_query, send_embed=true) {
+        console.log('_play_as_video:', { search_query, send_embed });
+
+        const potential_video = await _get_potential_video_from_query(search_query);
+        if (!potential_video) {
+            search_message.edit(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title: `Uh Oh! ${message.author.username}`,
+                description: [
+                    `Your search for the following failed to yield any results!${'```'}\n${search_query}\n${'```'}`,
+                    'Try being a bit more specific next time or try searching again!',
+                    '\n',
+                    'Sometimes YouTube gets excited by all of the searches and derps out!',
+                ].join('\n'),
+            }, message)).catch(console.warn);
+            return;
+        }
+
+        const video_id = potential_video.id;
 
         let voice_connection;
         try {
-            voice_connection = await createConnection(voice_channel);
+            voice_connection = await createConnection(message.member.voice.channel);
         } catch {
             search_message.edit(new CustomRichEmbed({
                 color: 0xFFFF00,
@@ -185,20 +189,24 @@ async function playYouTube(message, search_query, playnext=false) {
         }, async () => {
             /* handle queue autoplay for youtube videos */
             if (guild_queue_manager.autoplay_enabled && guild_queue_manager.queue.length === 0) {
-                async function find_related_video() {
-                    const related_videos_api_response = await axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=id&maxResults=3&relatedToVideoId=${encodeURIComponent(yt_video_info.videoDetails.videoId)}&type=video&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
-                    const random_related_video = array_random(related_videos_api_response.data.items);
-                    const random_related_video_id = random_related_video.id.videoId;
+                async function find_related_video_id() {
+                    const { data: { items: related_videos } } = await axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=id&maxResults=10&relatedToVideoId=${encodeURIComponent(yt_video_info.videoDetails.videoId)}&type=video&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
+
+                    /* for some damn reason the first item is NEVER playable */
+                    const playable_related_videos = related_videos.slice(1);
+
+                    const { id: { videoId: random_related_video_id } } = array_random(playable_related_videos);
+
                     return random_related_video_id;
                 }
 
                 async function play_related_video() {
-                    const related_video_id = await find_related_video();
+                    const related_video_id = await find_related_video_id();
 
                     /* yes, I know that this is a dumb way to handle 'unavailable' videos */
-                    try {
-                        await _play_as_video(related_video_id);
-                    } catch {
+                    if (related_video_id) {
+                        _play_as_video(`https://youtu.be/${related_video_id}`);
+                    } else {
                         play_related_video();
                     }
                 }
@@ -220,16 +228,18 @@ async function playYouTube(message, search_query, playnext=false) {
             sendYtDiscordEmbed(message, yt_video_info, 'Added');
         }
 
-        if (search_message.deletable) search_message.delete({ timeout: 500 }).catch(console.warn);
+        if (search_message.deletable) {
+            search_message.delete({ timeout: 500 }).catch(console.warn);
+        }
 
         return; // complete async
     }
 
     async function _play_as_playlist(playlist_id) {
-        const { data: { items: playlist_items } } = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=25&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`);
+        const { data: { items: playlist_items } } = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${playlist_id}&key=${process.env.YOUTUBE_API_TOKEN}`);
 
         const confirmation_embed = new CustomRichEmbed({
-            title: 'Do you want this to play as a playlist?',
+            title: `Do you want this to play all ${playlist_items.length} items in this playlist?`,
             description: [
                 `${'```'}fix\nWARNING! YOU CAN'T STOP A PLAYLIST FROM ADDING ITEMS!\n${'```'}`,
                 `**If you want this to play as a song; click on the ${findCustomEmoji('bot_emoji_close')}.**`,
@@ -247,13 +257,13 @@ async function playYouTube(message, search_query, playnext=false) {
                     }, message)).catch(console.warn);
 
                     /* connect the bot to vc for the checks below to pass */
-                    await createConnection(voice_channel);
+                    await createConnection(message.member.voice.channel);
 
                     let index = 0;
                     for (const playlist_item of playlist_items) {
                         /* make sure the bot is still in a voice channel */
                         if (options_message.guild.me?.voice?.connection) {
-                            if (index > 25) break; // don't add too many items
+                            if (index > 20) break; // don't add too many items
                             const playlist_item_video_id = playlist_item.snippet.resourceId.videoId;
                             _play_as_video(playlist_item_video_id, false);
                         } else {
@@ -267,17 +277,7 @@ async function playYouTube(message, search_query, playnext=false) {
                 emoji_name: 'bot_emoji_close',
                 async callback(options_message, collected_reaction, user) {
                     await options_message.delete({timeout: 500}).catch(console.warn);
-
-                    const potential_video_id = await _get_video_id_from_query(search_query);
-                    if (potential_video_id) {
-                        _play_as_video(potential_video_id);
-                    } else {
-                        search_message.edit(new CustomRichEmbed({
-                            color: 0xFFFF00,
-                            title: `Uh Oh! ${message.author.username}`,
-                            description: `I couldn\'t find a video matching:${'```'}\n${search_query}\n${'```'}`,
-                        }, message)).catch(console.warn);
-                    }
+                    _play_as_video(playlist_items[0].snippet.resourceId.videoId);
                 },
             },
         ], message.author.id);
@@ -288,29 +288,16 @@ async function playYouTube(message, search_query, playnext=false) {
         description: `${'```'}\n${search_query}\n${'```'}`,
     }));
 
-    const potential_playlist_id = await _get_playlist_id_from_query(search_query);
-    const potential_video_id = await _get_video_id_from_query(search_query);
-
+    const potential_playlist_id = await _get_potential_playlist_id_from_query(search_query);
     if (potential_playlist_id) {
         try {
             await _play_as_playlist(potential_playlist_id);
         } catch {
             console.warn('Unable to play as a playlist... Attempting to play as a video!');
-            await _play_as_video(potential_video_id);
+            _play_as_video(search_query);
         }
-    } else if (potential_video_id) {
-        await _play_as_video(potential_video_id);
     } else {
-        search_message.edit(new CustomRichEmbed({
-            color: 0xFFFF00,
-            title: `Uh Oh! ${message.author.username}`,
-            description: [
-                `Your search for the following failed to yield any results!${'```'}\n${search_query}\n${'```'}`,
-                'Try being a bit more specific next time or try searching again!',
-                '\n',
-                'Sometimes YouTube gets excited by all of the searches and derps out!',
-            ].join('\n'),
-        }, message)).catch(console.warn);
+        _play_as_video(search_query);
     }
 }
 
