@@ -10,14 +10,32 @@ module.exports = new DisBotCommand({
     name: 'SKIP',
     category: `${DisBotCommander.categories.MUSIC}`,
     weight: 8,
-    description: 'Allows skipping a song',
+    description: 'allows skipping of item in the queue',
     aliases: ['skip', 's', 'next', 'n'],
-    cooldown: 2_500,
+    cooldown: 5_000,
     async executor(Discord, client, message, opts={}) {
+        if (!message.guild.me.voice.connection) {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title: 'Uh Oh! What are you doing there mate!',
+                description: 'I\'m not in a voice channel!',
+            }, message)).catch(console.warn);
+            return;
+        }
+
+        if (message.member.voice.channelID !== message.guild.me.voice.channelID) {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title: 'Uh Oh! What are you doing there mate!',
+                description: 'You aren\'t in my voice channel!',
+            }, message)).catch(console.warn);
+            return;
+        }
+
         const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
+        await guild_audio_controller.skip();
         message.channel.send(new CustomRichEmbed({
             title: 'Skipped the current song!',
         }, message));
-        guild_audio_controller.skip();
     },
 });
