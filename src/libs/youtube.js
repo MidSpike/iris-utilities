@@ -163,29 +163,13 @@ async function playYouTube(message, search_query, playnext=false) {
             return;
         }
 
-        /* detect and prevent live-streams from playing | live streams are very buggy */
-        if (yt_video_info.videoDetails.isLiveContent) {
-            search_message.edit(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Woah there!',
-                description: 'YouTube live streams aren\'t supported!',
-                fields: [
-                    {
-                        name: 'Offending Live Stream Title',
-                        value: `${yt_video_info.videoDetails.title}`,
-                    }, {
-                        name: 'Offending Live Stream URL',
-                        value: `${yt_video_info.videoDetails.video_url}`,
-                    },
-                ],
-            }, message)).catch(console.warn);
-            return;
-        }
+        /* detect live-streams */
+        const is_livestream = yt_video_info.videoDetails.isLiveContent;
 
         const stream_maker = async () => ytdl(`https://youtu.be/${video_id}`, {
             lang: 'en',
-            filter: 'audioonly',
-            quality: 'highestaudio',
+            filter: (is_livestream ? undefined : 'audioonly'),
+            quality: (is_livestream ? [128, 127, 120, 96, 95, 94, 93] : 'highestaudio'),
             highWaterMark: 1<<25, // 32 MB
             requestOptions: {
                 headers: {
