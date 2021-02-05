@@ -33,21 +33,25 @@ const LONG_NAME = 'Interactive Reconnaissance Information Service Utilities'; //
 
 /**
  * The owner of this bot
+ * (clones / forks are not allowed to edit)
  */
 const OWNER_ID = '163646957783482370';
 
 /**
  * The website for this bot
+ * (clones / forks are not allowed to edit)
  */
 const WEBSITE = 'https://iris-utilities.com/';
 
 /**
  * The GitHub / Repository location for this bot
+ * (clones / forks are not allowed to edit)
  */
 const GITHUB = 'https://github.com/MidSpike/iris-utilities';
 
 /**
  * Donation sources are ways to donate to the creator of this bot
+ * (clones / forks are not allowed to edit)
  */
 const DONATION_SOURCES = {
     GITHUB: 'https://github.com/sponsors/MidSpike',
