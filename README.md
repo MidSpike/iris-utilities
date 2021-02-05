@@ -31,6 +31,13 @@ Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code
 
 ---
 
+## Installation
+
+
+See [installation & usage guide](INSTALLATION.md) and [restrictions](#legal).
+
+---
+
 ## Contributing
 
 See [our guidelines for contributing](CONTRIBUTING.md).
