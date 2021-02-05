@@ -125,63 +125,6 @@ router.get('/ytinfo', async (req, res) => {
     }
 });
 
-/** @deprecated */
-router.get('/ytdl', async (req, res) => {
-    if (req.query?.token !== process.env.BOT_API_SERVER_TOKEN) {
-        console.warn(`Unauthorized request to the '/ytdl' endpoint!`);
-        res.status(403);
-        res.set({ 'Content-Type': 'application/json' });
-        res.send(JSON.stringify({
-            'status': '403',
-            'message': 'bot api server token is not valid!'
-        }, null, 2));
-    } else {
-        res.set({ 'Content-Type': 'audio/mpeg' });
-        if (req.query.url) {
-            try {
-                const ytdl_stream_id = `<${req.query.url}> - (${pseudoUniqueId()})`;
-
-                const ytdl_stream = ytdl(req.query.url, {
-                    'lang': 'en',
-                    'filter': 'audioonly',
-                    'quality': 'highestaudio',
-                    'highWaterMark': 1 << 25 // 32 MB
-                });
-
-                console.time(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
-                ytdl_stream.on('error', (error) => {
-                    console.timeEnd(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
-                    console.trace(`Failed while streaming ${ytdl_stream_id}: `, error);
-                });
-
-                ytdl_stream.on('finish', () => {
-                    console.timeEnd(`[/ytdl] - [YT -> API Server] - ${ytdl_stream_id}`);
-                });
-
-                console.time(`[/ytdl] - [API Server -> Discord Bot] - Stream Time for ${ytdl_stream_id}`);
-                const res_stream = ytdl_stream.pipe(res);
-
-                res_stream.on('error', (error) => {
-                    console.timeEnd(`[/ytdl] - [API Server -> Discord Bot] - Stream Time for ${ytdl_stream_id}`);
-                    console.trace(`Failed while streaming ${ytdl_stream_id}: `, error);
-                });
-
-                res_stream.on('finish', () => {
-                    console.timeEnd(`[/ytdl] - [API Server -> Discord Bot] - Stream Time for ${ytdl_stream_id}`);
-                });
-            } catch (error) {
-                console.trace(`Failed to stream: ${req.query.url}`, error);
-            }
-        } else {
-            res.set({ 'Content-Type': 'application/json' });
-            res.send(JSON.stringify({
-                'status': '200',
-                'message': 'Expected parameter \'url\' in the query!'
-            }, null, 2));
-        }
-    }
-});
-
 //---------------------------------------------------------------------------------------------------------------//
 
 router.get('/translate', async (req, res) => {
