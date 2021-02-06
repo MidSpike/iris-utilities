@@ -18,6 +18,8 @@ const google_languages_json = require('../../../files/google_languages.json');
 const ibm_languages_json = require('../../../files/ibm_languages.json');
 //#endregion local dependencies
 
+const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
+
 const tts_opts_template = {
     provider: '',
     voice: '',
@@ -46,7 +48,7 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
         return error;
     }
 
-    const stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(provider)}&lang=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}`;
+    const stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(provider)}&lang=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}`;
     const stream_maker = () => stream;
 
     const { start_callback,

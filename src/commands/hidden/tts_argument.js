@@ -14,7 +14,7 @@ const { QueueItem,
 const { createConnection } = require('../../libs/createConnection.js');
 //#endregion local dependencies
 
-const bot_api_url = process.env.BOT_API_SERVER_URL;
+const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 module.exports = new DisBotCommand({
     name: 'TTS_ARGUMENT',

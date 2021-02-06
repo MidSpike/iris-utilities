@@ -10,6 +10,7 @@ const { playStream } = require('../../libs/playStream.js');
 //#endregion local dependencies
 
 const bot_common_name = bot_config.COMMON_NAME;
+const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 module.exports = new DisBotCommand({
     name: 'LEAVE',
@@ -51,7 +52,7 @@ module.exports = new DisBotCommand({
 
         if (guild_config.disconnect_tts_voice === 'enabled') {
             /* play TTS before disconnecting */
-            const tts_url_stream = `${process.env.BOT_API_SERVER_URL}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
+            const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
             playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
                 guild_audio_controller.disconnect();
             });
