@@ -699,7 +699,7 @@ client.on('message', async (message) => {
     /* don't continue when the bot is in lockdown mode */
     if (client.$.lockdown_mode && !isThisBotsOwner(message.author.id)) return;
 
-    if (message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID) {
+    if (message.channel.type === 'text' && message.channel.parentID === process.env.CENTRAL_DM_CHANNELS_CATEGORY_ID && message.channel.name.startsWith('dm-')) {
         const user_to_dm_from_dm_channel = await client.users.fetch(`${message.channel.name.replace('dm-', '')}`).catch(console.warn);
         if (!user_to_dm_from_dm_channel) return;
         const dm_embed = new CustomRichEmbed({
