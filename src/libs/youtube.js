@@ -22,7 +22,7 @@ const { logUserError } = require('./errors.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const bot_api_url = process.env.BOT_API_SERVER_URL;
+const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 //---------------------------------------------------------------------------------------------------------------//
 

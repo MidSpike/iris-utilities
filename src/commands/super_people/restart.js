@@ -17,7 +17,7 @@ const { isSuperPerson,
 //#endregion dependencies
 
 const bot_common_name = bot_config.COMMON_NAME;
-const bot_api_url = process.env.BOT_API_SERVER_URL;
+const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 async function restartBot(client, bot_message) {
     await bot_message.edit(new CustomRichEmbed({

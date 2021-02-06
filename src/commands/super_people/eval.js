@@ -38,7 +38,7 @@ const { playStream } = require(`../../libs/playStream.js`);
 const { createConnection } = require(`../../libs/createConnection.js`);
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
-const bot_api_url = process.env.BOT_API_SERVER_URL;
+const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 //#endregion eval dependencies
 
 module.exports = new DisBotCommand({
