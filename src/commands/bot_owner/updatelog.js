@@ -42,6 +42,9 @@ module.exports = new DisBotCommand({
             title: 'Are you sure you want to send the update message above?',
         }), async (bot_message) => {
             //#region save update log entries to a file
+            if (!fs.existsSync(bot_update_log_file)) {
+                fs.writeFileSync(bot_update_log_file, JSON.stringify([], null, 2));
+            }
             const old_updates_log = JSON.parse(fs.readFileSync(bot_update_log_file));
             const update_log_entry = {
                 timestamp: `${moment()}`,

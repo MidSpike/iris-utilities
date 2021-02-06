@@ -1,9 +1,6 @@
 'use strict';
 
 //#region local dependencies
-const fs = require('fs');
-const path = require('path');
-
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
@@ -12,9 +9,6 @@ const { isThisBotsOwner,
         isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion local dependencies
-
-const bot_blacklisted_guilds_file = path.join(process.cwd(), process.env.BOT_BLACKLISTED_GUILDS_FILE);
-const bot_blacklisted_users_file = path.join(process.cwd(), process.env.BOT_BLACKLISTED_USERS_FILE);
 
 module.exports = new DisBotCommand({
     name: 'BLACKLIST',
@@ -53,53 +47,46 @@ module.exports = new DisBotCommand({
                     return;
                 }
 
-                let blacklisted_users = JSON.parse(fs.readFileSync(bot_blacklisted_users_file));
-                if (blacklisted_users.map(blacklisted_user => blacklisted_user.id).includes(user.id)) {
+                if (client.$.blacklisted_users_manager.configs.has(user.id)) {
                     /* remove user from the blacklist */
-                    blacklisted_users = blacklisted_users.filter(blacklisted_user => blacklisted_user.id !== user.id);
+                    await client.$.blacklisted_users_manager.removeConfig(user.id);
                     message.channel.send(new CustomRichEmbed({
                         description: `Removed [${user.tag}] (${user.id}) from blacklist!`,
                     }, message));
                 } else {
                     /* add user to the blacklist */
-                    blacklisted_users = [
-                        ...blacklisted_users,
-                        {
-                            id: user.id,
-                            name: user.tag,
-                            reason: blacklist_reason,
-                        },
-                    ];
+                    await client.$.blacklisted_users_manager.updateConfig(user.id, {
+                        id: user.id,
+                        name: user.tag,
+                        reason: blacklist_reason,
+                    });
                     message.channel.send(new CustomRichEmbed({
                         description: `Blacklisted User [${user.tag}] (${user.id}) for ${blacklist_reason}`,
                     }, message));
                 }
-                fs.writeFileSync(bot_blacklisted_users_file, JSON.stringify(blacklisted_users, null, 4));
+
                 break;
             case 'guild':
                 if (!guild) return;
-                let blacklisted_guilds = JSON.parse(fs.readFileSync(bot_blacklisted_guilds_file));
-                if (blacklisted_guilds.map(blacklisted_guild => blacklisted_guild.id).includes(guild.id)) {
+
+                if (client.$.blacklisted_guilds_manager.configs.has(guild.id)) {
                     /* remove guild from the blacklist */
-                    blacklisted_guilds = blacklisted_guilds.filter(blacklisted_guild => blacklisted_guild.id !== guild.id);
+                    await client.$.blacklisted_users_manager.removeConfig(guild.id);
                     message.channel.send(new CustomRichEmbed({
                         description: `Removed [${guild.name}] (${guild.id}) from blacklist!`,
                     }));
                 } else {
                     /* add guild to the blacklist */
-                    blacklisted_guilds = [
-                        ...blacklisted_guilds,
-                        {
-                            id: guild.id,
-                            name: guild.name,
-                            reason: blacklist_reason,
-                        },
-                    ];
+                    await client.$.blacklisted_guilds_manager.updateConfig(guild.id, {
+                        id: guild.id,
+                        name: guild.name,
+                        reason: blacklist_reason,
+                    });
                     message.channel.send(new CustomRichEmbed({
                         description: `Blacklisted Guild [${guild.name}] (${guild.id}) for ${blacklist_reason}`,
                     }, message));
                 }
-                fs.writeFileSync(bot_blacklisted_guilds_file, JSON.stringify(blacklisted_guilds, null, 4));
+
                 break;
             default:
                 message.channel.send(new CustomRichEmbed({

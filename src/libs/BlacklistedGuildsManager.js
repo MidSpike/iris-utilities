@@ -5,10 +5,10 @@ const { DataConfigsManager } = require('./base/DataConfigsManager.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
- * Creates an interface for interacting with Guild Configs
+ * Creates an interface for interacting with blacklisted guilds
  */
-class GuildConfigsManager extends DataConfigsManager {}
+class BlacklistedGuildsManager extends DataConfigsManager {}
 
 module.exports = {
-    GuildConfigsManager,
+    BlacklistedGuildsManager,
 };

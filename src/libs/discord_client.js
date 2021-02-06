@@ -2,7 +2,9 @@
 
 const Discord = require('discord.js');
 
-const { GuildConfigsManager } = require('./GuildConfig.js');
+const { GuildConfigsManager } = require('./GuildConfigsManager.js');
+const { BlacklistedUsersManager } = require('./BlacklistedUsersManager.js');
+const { BlacklistedGuildsManager } = require('./BlacklistedGuildsManager.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -36,6 +38,8 @@ client.$ = {
     volume_managers: new Discord.Collection(),
     audio_controllers: new Discord.Collection(),
     guild_configs_manager: new GuildConfigsManager(process.env.BOT_GUILD_CONFIGS_FILE),
+    blacklisted_users_manager: new BlacklistedUsersManager(process.env.BOT_BLACKLISTED_USERS_FILE),
+    blacklisted_guilds_manager: new BlacklistedGuildsManager(process.env.BOT_BLACKLISTED_GUILDS_FILE),
 };
 
 console.time('client.login -> client#ready');

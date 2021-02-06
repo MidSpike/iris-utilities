@@ -144,31 +144,32 @@ async function initialize_guild_on_client_$(guild) {
 //---------------------------------------------------------------------------------------------------------------//
 
 function checkForBlacklistedGuild(guild) {
-    const blacklisted_guilds = JSON.parse(fs.readFileSync(process.env.BOT_BLACKLISTED_GUILDS_FILE));
-    const guild_is_blacklisted = blacklisted_guilds.map(blacklisted_guild => blacklisted_guild.id).includes(guild?.id);
-    return guild_is_blacklisted ? true : false;
+    const guild_is_blacklisted = client.$.blacklisted_guilds_manager.configs.has(guild.id);
+    return guild_is_blacklisted;
 }
 
 async function checkForBlacklistedUser(message) {
-    const blacklisted_users = JSON.parse(fs.readFileSync(process.env.BOT_BLACKLISTED_USERS_FILE));
-    if (blacklisted_users.map(blacklisted_user => blacklisted_user.id).includes(message.author.id)) {
-        /* prevent blacklisted users from using the bot */
+    const user_is_blacklisted = client.$.blacklisted_users_manager.configs.has(message.author.id);
+
+    if (user_is_blacklisted) {
         console.warn(`Blacklisted user tried using ${bot_common_name}: ${message.author.tag} (${message.author.id})`);
+
         const embed = new CustomRichEmbed({
             color: 0xFF00FF,
             title: `Sorry but you were blacklisted from using ${bot_common_name}!`,
             description: `You can try appealing in the ${bot_common_name} Support Server\n*(an invite is available on the [website](${bot_config.WEBSITE}))*`,
-        });
-        const dm_channel = await message.author.createDM().catch(() => {
-            /* the bot is unable to DM to blacklisted user, so send it to the guild instead */
+        }, message);
+
+        try {
+            const dm_channel = await message.author.createDM();
+            await dm_channel.send(embed);
+        } catch {
+            /* the bot is unable to DM the blacklisted user, so send it to the guild instead */
             message.channel.send(embed).catch(console.warn);
-        });
-        await dm_channel.send(embed).catch(console.warn);
-        return true;
-    } else {
-        /* allow non-blacklisted users to use the bot */
-        return false;
+        }
     }
+
+    return user_is_blacklisted;
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -1008,9 +1009,14 @@ client.on('message', async (message) => {
 
     /* central command logging */
     try {
-        const current_command_log_file_name = process.env.BOT_COMMAND_LOG_FILE.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
-        const command_log_file_exists = fs.existsSync(current_command_log_file_name);
-        const current_command_logs = command_log_file_exists ? JSON.parse(fs.readFileSync(current_command_log_file_name)) : [];
+        const current_command_log_file_path = process.env.BOT_COMMAND_LOG_FILE.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
+
+        if (!fs.existsSync(current_command_log_file_path)) {
+            fs.writeFileSync(current_command_log_file_path, JSON.stringify([], null, 2));
+        }
+
+        const current_command_logs = JSON.parse(fs.readFileSync(current_command_log_file_path));
+
         const command_log_entry = {
             guild: `[${message.guild.name}] (${message.guild.id})`,
             user: `[@${message.author.tag}] (${message.author.id})`,
@@ -1020,8 +1026,10 @@ client.on('message', async (message) => {
             command: `${message.content}`,
         };
         console.info({ command_log_entry });
+
         const updated_command_log = [...current_command_logs, command_log_entry];
-        fs.writeFileSync(current_command_log_file_name, JSON.stringify(updated_command_log, null, 2), { flag: 'w' });
+
+        fs.writeFileSync(current_command_log_file_path, JSON.stringify(updated_command_log, null, 2));
     } catch (error) {
         console.trace('Unable to save to command log file!', error);
     }
