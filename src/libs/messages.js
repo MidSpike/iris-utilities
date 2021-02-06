@@ -109,6 +109,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
             if (client.$.restarting_bot && !isThisBotsOwner(user.id)) return;
             if (client.$.lockdown_mode && !isThisBotsOwner(user.id)) return;
             if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
+            if (client.$.blacklisted_users_manager.configs.has(user.id)) return;
 
             await Timer(250); // prevent API abuse
 
@@ -177,6 +178,7 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
         if (client.$.restarting_bot && !isThisBotsOwner(collected_message.author.id)) return;
         if (client.$.lockdown_mode && !isThisBotsOwner(collected_message.author.id)) return;
         if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
+        if (client.$.blacklisted_users_manager.configs.has(collected_message.author.id)) return;
 
         success_callback(bot_captcha_message, collected_message);
     });
@@ -185,6 +187,7 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
             if (client.$.restarting_bot && !isThisBotsOwner(collected_message.author.id)) return;
             if (client.$.lockdown_mode && !isThisBotsOwner(collected_message.author.id)) return;
             if (channel.guild && client.$.guild_lockdowns.get(channel.guild.id)) return;
+            if (client.$.blacklisted_users_manager.configs.has(collected_message.author.id)) return;
 
             failure_callback(bot_captcha_message);
         }
