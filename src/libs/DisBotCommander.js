@@ -46,7 +46,7 @@ class DisBotCommand {
         category: '',
         description: '',
         aliases: [],
-        weight: 9999,
+        weight: 1_000_000,
         cooldown: 1_000,
         access_level: DisBotCommand.access_levels.GLOBAL_USER,
         executor(Discord, client, message, opts={}) {},

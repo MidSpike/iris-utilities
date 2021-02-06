@@ -51,7 +51,7 @@ async function forceYouTubeSearch(search_query, max_results=5) {
             regionCode: 'US',
             key: process.env.YOUTUBE_API_TOKEN,
         });
-        console.log({ primary_search_results });
+        console.log('primary_search_results.length', primary_search_results.length);
         search_results = primary_search_results;
     } catch (error) {
         console.warn('Failed YouTube API Lookup!');
@@ -62,7 +62,7 @@ async function forceYouTubeSearch(search_query, max_results=5) {
         console.warn('forceYouTubeSearch: Fallback method is active!');
 
         const { videos: backup_search_results } = await youtubeSearchBackup(search_query);
-        console.log({ backup_search_results });
+        console.log('backup_search_results.length', backup_search_results.length);
 
         /* map the unofficial backup results to partially match the primary results scheme */
         search_results = backup_search_results.map(({ videoId, url, title, author }) => ({
@@ -146,7 +146,8 @@ async function playYouTube(message, search_query, playnext=false) {
         let voice_connection;
         try {
             voice_connection = await createConnection(message.member.voice.channel);
-        } catch {
+        } catch (error) {
+            console.trace(error);
             search_message.edit(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Well that\'s an issue!',
