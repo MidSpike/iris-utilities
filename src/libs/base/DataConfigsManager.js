@@ -33,6 +33,11 @@ class DataConfigsManager {
         /* set `this.#configs_file` to the absolute file path */
         this.#configs_file = path.join(process.cwd(), configs_file_relative_path);
 
+        /* create the configs file if it does not already exist */
+        if (!fs.existsSync(this.#configs_file)) {
+            fs.writeFileSync(this.#configs_file, JSON.stringify([], null, 2));
+        }
+
         /* retrieve configs from storage as: Array<Array<data_config_id='', data_config={}>> */
         const configs_from_storage = JSON.parse(fs.readFileSync(this.#configs_file));
 
