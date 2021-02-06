@@ -143,37 +143,6 @@ async function initialize_guild_on_client_$(guild) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-function checkForBlacklistedGuild(guild) {
-    const guild_is_blacklisted = client.$.blacklisted_guilds_manager.configs.has(guild.id);
-    return guild_is_blacklisted;
-}
-
-async function checkForBlacklistedUser(message) {
-    const user_is_blacklisted = client.$.blacklisted_users_manager.configs.has(message.author.id);
-
-    if (user_is_blacklisted) {
-        console.warn(`Blacklisted user tried using ${bot_common_name}: ${message.author.tag} (${message.author.id})`);
-
-        const embed = new CustomRichEmbed({
-            color: 0xFF00FF,
-            title: `Sorry but you were blacklisted from using ${bot_common_name}!`,
-            description: `You can try appealing in the ${bot_common_name} Support Server\n*(an invite is available on the [website](${bot_config.WEBSITE}))*`,
-        }, message);
-
-        try {
-            const dm_channel = await message.author.createDM();
-            await dm_channel.send(embed);
-        } catch {
-            /* the bot is unable to DM the blacklisted user, so send it to the guild instead */
-            message.channel.send(embed).catch(console.warn);
-        }
-    }
-
-    return user_is_blacklisted;
-}
-
-//---------------------------------------------------------------------------------------------------------------//
-
 client.once('ready', async () => {
     console.timeEnd('client.login -> client#ready');
 
@@ -837,7 +806,7 @@ client.on('message', async (message) => {
     }
 
     /* don't allow blacklisted guilds and silently halt execution */
-    if (checkForBlacklistedGuild(message.guild)) return;
+    if (client.$.blacklisted_guilds_manager.configs.has(message.guild.id)) return;
 
     /* handle guild invite-blocking */
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
@@ -974,8 +943,26 @@ client.on('message', async (message) => {
         return;
     }
 
-    /* don't allow blacklisted users and notify them of their inability to use this bot */
-    if (await checkForBlacklistedUser(message)) return;
+    /* don't allow blacklisted users, notify them of their inability to use this bot, and silently halt execution */
+    if (client.$.blacklisted_users_manager.configs.has(message.author.id)) {
+        console.warn(`Blacklisted user tried using ${bot_common_name}: ${message.author.tag} (${message.author.id})`);
+
+        const blacklisted_user_embed = new CustomRichEmbed({
+            color: 0xFF00FF,
+            title: `Sorry but you were blacklisted from using ${bot_common_name}!`,
+            description: `You can try appealing in the ${bot_common_name} Support Server\n*(an invite is available on the [website](${bot_config.WEBSITE}))*`,
+        }, message);
+
+        try {
+            const dm_channel = await message.author.createDM();
+            await dm_channel.send(blacklisted_user_embed);
+        } catch {
+            /* the bot is unable to DM the blacklisted user, so send it to the guild instead */
+            message.channel.send(blacklisted_user_embed).catch(console.warn);
+        }
+
+        return;
+    }
 
     /* check for guild allowed channels */
     const guild_allowed_channels = guild_config.allowed_channels;
