@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const fs = require('fs');
 const path = require('path');
 const moment = require('moment-timezone');
@@ -10,10 +10,10 @@ const bot_config = require('../../../config.js');
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand, sendConfirmationMessage } = require('../../libs/messages.js');
 const { isThisBotsOwner } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_common_name = bot_config.COMMON_NAME;
 const bot_update_log_channel_name = bot_config.SPECIAL_CHANNELS.find(ch => ch.id === 'BOT_UPDATES').name;

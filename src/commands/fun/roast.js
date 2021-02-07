@@ -1,13 +1,13 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { sendPotentiallyNotSafeForWorkDisclaimer } = require('../../libs/messages.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 
 const { array_random } = require('../../utilities.js');
 
 const roasts_json = require('../../../files/roasts.json');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'ROAST',

@@ -1,11 +1,11 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
+//#endregion dependencies
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 

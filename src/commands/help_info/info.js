@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { getReadableTime } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -9,7 +9,7 @@ const { DisBotCommander,
 const { findCustomEmoji } = require('../../libs/emoji.js');
 
 const bot_config = require('../../../config.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_website = bot_config.WEBSITE;
 const bot_github = bot_config.GITHUB;

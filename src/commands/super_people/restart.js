@@ -1,7 +1,7 @@
 'use strict';
 
 //#region dependencies
-const bot_config = require('../../../config.js');
+const { COMMON_NAME: bot_common_name } = require('../../../config.js');
 
 const { Timer } = require('../../utilities.js');
 
@@ -16,7 +16,6 @@ const { isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion dependencies
 
-const bot_common_name = bot_config.COMMON_NAME;
 const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 async function restartBot(client, bot_message) {
@@ -26,11 +25,13 @@ async function restartBot(client, bot_message) {
 
     await Timer(500);
 
-    client.destroy(); // destroy the client instance
+    client.destroy(); // destroy the client
 
     await Timer(500);
 
-    process.exit(0); // restart the bot by killing the process
+    process.exit(0); // kill the process
+
+    /* restart will automatically occur via the batch / shell script */
 }
 
 module.exports = new DisBotCommand({

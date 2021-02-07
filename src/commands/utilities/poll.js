@@ -1,12 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { findCustomEmoji,
         constructNumberUsingEmoji } = require('../../libs/emoji.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 

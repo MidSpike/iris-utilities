@@ -1,12 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const bot_config = require('../../../config.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const super_perms = bot_config.SUPER_PERMS;
 

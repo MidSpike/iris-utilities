@@ -1,15 +1,15 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isThisBotsOwner } = require('../../libs/permissions.js');
 
 const util = require('util');
 const child_process = require('child_process');
 const eval_shell = util.promisify(child_process.exec);
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name:'SHELL',

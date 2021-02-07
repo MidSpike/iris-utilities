@@ -1,13 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
+const { COMMON_NAME: bot_common_name } = require('../../../config.js');
+
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-
-const bot_config = require('../../../config.js');
-//#endregion local dependencies
-
-const bot_common_name = bot_config.COMMON_NAME;
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'SUMMON',

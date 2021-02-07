@@ -1,9 +1,9 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name:'ROLEINFO',

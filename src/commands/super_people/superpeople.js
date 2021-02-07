@@ -1,12 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const bot_config = require('../../../config.js');
 
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendLargeMessage } = require('../../libs/messages.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'SUPERPEOPLE',

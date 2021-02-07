@@ -1,17 +1,19 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendMusicControllerEmbed } = require('../../libs/messages.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
-    name:'CONTROLS',
-    category:`${DisBotCommander.categories.MUSIC}`,
-    weight:3,
-    description:'Opens the music controls menu',
-    aliases:['controls', 'c'],
+    name: 'CONTROLS',
+    category: `${DisBotCommander.categories.MUSIC}`,
+    weight: 3,
+    description: 'Opens the music controls menu',
+    aliases: ['controls', 'c'],
+    cooldown: 5_000,
     async executor(Discord, client, message, opts={}) {
         const guild_queue_manager = client.$.queue_managers.get(message.guild.id);
 
@@ -19,9 +21,9 @@ module.exports = new DisBotCommand({
             sendMusicControllerEmbed(message.channel.id, message);
         } else {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:`Uh Oh! What are you doing there mate!`,
-                description:`Nothing is playing right now!\nTry using this command when I'm playing something!`
+                color: 0xFFFF00,
+                title: 'Nothing is playing right now!',
+                description: 'Try using this command when I\'m playing something!',
             }, message));
         }
     },

@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const axios = require('axios');
 
 const bot_config = require('../../../config.js');
@@ -16,7 +16,7 @@ const { DisBotCommand,
 
 const google_languages_json = require('../../../files/google_languages.json');
 const ibm_languages_json = require('../../../files/ibm_languages.json');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 

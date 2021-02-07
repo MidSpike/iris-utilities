@@ -1,11 +1,11 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { createConnection } = require('../../libs/createConnection.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'REPLAY',

@@ -1,12 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 const { random_range_inclusive, array_make } = require('../../utilities.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name:'ROLLDICE',

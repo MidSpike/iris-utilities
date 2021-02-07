@@ -1,14 +1,14 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { Timer } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 const { logUserError } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name:'WIPEOUT',

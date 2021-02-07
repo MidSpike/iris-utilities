@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { array_chunks,
         string_ellipses } = require('../../utilities.js');
 
@@ -9,7 +9,7 @@ const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendOptionsMessage,
         removeUserReactionsFromMessage } = require('../../libs/messages.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'QUEUE',

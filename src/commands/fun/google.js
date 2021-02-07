@@ -1,12 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const googleIt = require('google-it');
 
 const { sendPotentiallyNotSafeForWorkDisclaimer } = require('../../libs/messages.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'GOOGLE',

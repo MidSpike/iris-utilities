@@ -1,12 +1,12 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const axios = require('axios');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 

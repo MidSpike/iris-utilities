@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { math_clamp } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -9,7 +9,7 @@ const { DisBotCommander,
 const { removeUserReactionsFromMessage,
         sendOptionsMessage } = require('../../libs/messages.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'HELP',

@@ -1,11 +1,11 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { generateInviteToGuild } = require('../../libs/invites.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_central_feedback_channel_id = process.env.BOT_LOGGING_CHANNEL_COMMUNITY_FEEDBACK_ID;
 const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
