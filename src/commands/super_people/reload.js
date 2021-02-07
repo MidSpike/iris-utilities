@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const fs = require('fs');
 const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
@@ -11,7 +11,7 @@ const { DisBotCommand,
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'RELOAD',

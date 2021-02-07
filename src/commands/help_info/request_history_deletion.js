@@ -1,13 +1,13 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const moment = require('moment-timezone');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendConfirmationMessage } = require('../../libs/messages.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const history_deletion_requests_channel_id = process.env.BOT_LOGGING_CHANNEL_HISTORY_DELETION_REQUESTS_ID;
 

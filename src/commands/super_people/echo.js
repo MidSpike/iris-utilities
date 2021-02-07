@@ -1,10 +1,10 @@
 'use strict';
 
-//#region local dependencies
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+//#region dependencies
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name:'ECHO',

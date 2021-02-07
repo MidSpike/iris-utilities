@@ -1,10 +1,10 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { sendNotAllowedCommand, sendLargeMessage } = require('../../libs/messages.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name:'GETGUILDS',

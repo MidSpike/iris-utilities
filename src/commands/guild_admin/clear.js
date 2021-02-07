@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { math_clamp } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -8,7 +8,7 @@ const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 const { logUserError } = require('../../libs/errors.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 

@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const axios = require('axios');
 const validator = require('validator');
 const { default: soundCloudDownloader } = require('soundcloud-downloader');
@@ -22,7 +22,7 @@ const { sendOptionsMessage } = require('../../libs/messages.js');
 const { isThisBotsOwner } = require('../../libs/permissions.js');
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
-//#endregion local dependencies
+//#endregion dependencies
 
 function detect_unsupported_urls(search_query) {
     if (search_query.includes('vimeo.com/')

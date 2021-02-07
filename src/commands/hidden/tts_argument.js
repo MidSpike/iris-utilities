@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const axios = require('axios');
 
 const { Timer } = require('../../utilities.js');
@@ -12,7 +12,7 @@ const { DisBotCommand,
 const { QueueItem,
         QueueItemPlayer } = require('../../libs/QueueManager.js');
 const { createConnection } = require('../../libs/createConnection.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 

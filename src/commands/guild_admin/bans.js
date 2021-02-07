@@ -1,14 +1,14 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { array_chunks } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 const { sendOptionsMessage, removeUserReactionsFromMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'BANS',

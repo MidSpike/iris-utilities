@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const Akinator_API = require('aki-api').Aki;
 
 const { sendPotentiallyNotSafeForWorkDisclaimer } = require('../../libs/messages.js');
@@ -13,7 +13,7 @@ const { sendOptionsMessage,
 const { findCustomEmoji,
         zero_to_nine_as_words,
         constructNumberUsingEmoji } = require('../../libs/emoji.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
 

@@ -1,6 +1,6 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const { math_clamp } = require('../../utilities.js');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
@@ -10,7 +10,7 @@ const { DisBotCommand,
 const { isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'SUPERVOLUME',

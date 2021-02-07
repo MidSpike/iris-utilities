@@ -1,17 +1,17 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const htmlEntitiesParser = require('html-entities');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendOptionsMessage,
         removeUserReactionsFromMessage } = require('../../libs/messages.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 const { playYouTube,
         forceYouTubeSearch } = require('../../libs/youtube.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 module.exports = new DisBotCommand({
     name: 'SEARCH',
@@ -35,7 +35,7 @@ module.exports = new DisBotCommand({
         if (search_query.length > 0) {
             const search_results = await forceYouTubeSearch(search_query, 9);
             const reactions = search_results.map((search_result, index) => ({
-                emoji_name:`bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][index+1]}`,
+                emoji_name: `bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][index+1]}`,
                 callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     options_message.delete({ timeout: 10_000 }).catch(console.warn);

@@ -1,14 +1,14 @@
 'use strict';
 
-//#region local dependencies
+//#region dependencies
 const path = require('path');
 const moment = require('moment-timezone');
 
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommander, DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand, sendLargeMessage, sendConfirmationMessage } = require('../../libs/messages.js');
 const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
-//#endregion local dependencies
+//#endregion dependencies
 
 const bot_command_log_file = path.join(process.cwd(), process.env.BOT_COMMAND_LOG_FILE);
 

@@ -1,15 +1,14 @@
 'use strict';
 
-//#region local dependencies
-const bot_config = require('../../../config.js');
+//#region dependencies
+const { COMMON_NAME: bot_common_name } = require('../../../config.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { playStream } = require('../../libs/playStream.js');
-//#endregion local dependencies
+//#endregion dependencies
 
-const bot_common_name = bot_config.COMMON_NAME;
 const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 module.exports = new DisBotCommand({
@@ -30,17 +29,17 @@ module.exports = new DisBotCommand({
         if (!voice_connection) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: `You can't disconnect me!`,
-                description: `I'm not even in a voice channel!`,
+                title: 'You can\'t disconnect me!',
+                description: 'I\'m not in a voice channel!',
             }, message));
             return;
         }
 
         if (voice_connection.channel.id !== message.member.voice.channel?.id) {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title: `You can't disconnect me!`,
-                description: `You aren't in my voice channel!`,
+                color: 0xFFFF00,
+                title: 'You can\'t disconnect me!',
+                description: 'You aren\'t in my voice channel!',
             }, message));
             return;
         }
@@ -51,7 +50,7 @@ module.exports = new DisBotCommand({
         }, message));
 
         if (guild_config.disconnect_tts_voice === 'enabled') {
-            /* play TTS before disconnecting */
+            /* play tts before disconnecting */
             const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
             playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
                 guild_audio_controller.disconnect();
