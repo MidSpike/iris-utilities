@@ -455,7 +455,7 @@ client.on('guildMemberAdd', async (member) => {
         description: [
             `**User**: ${member.user}`,
             `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
-            `**Flags**: \`${member.user.flags.toArray().join(', ')}\``,
+            `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
         ].join('\n'),
         footer: {
             iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
@@ -484,7 +484,7 @@ client.on('guildMemberRemove', async (member) => {
         description: [
             `**User**: ${member.user}`,
             `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
-            `**Flags**: \`${member.user.flags.toArray().join(', ')}\``,
+            `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
         ].join('\n'),
         footer: {
             iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
