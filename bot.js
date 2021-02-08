@@ -789,6 +789,9 @@ client.on('message', async (message) => {
      * the bot is being used in a guild text-channel after this comment *
      ********************************************************************/
 
+    /* don't allow blacklisted guilds and silently halt execution */
+    if (client.$.blacklisted_guilds_manager.configs.has(message.guild.id)) return;
+
     /* don't continue when the guild is in lockdown mode */
     const guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
     if (guild_lockdown_mode && !isThisBotsOwner(message.author.id)) return;
@@ -804,9 +807,6 @@ client.on('message', async (message) => {
         console.error(`Guild (${message.guild.id}) has an invalid command prefix: ${command_prefix}; manual fixing is required!`);
         return;
     }
-
-    /* don't allow blacklisted guilds and silently halt execution */
-    if (client.$.blacklisted_guilds_manager.configs.has(message.guild.id)) return;
 
     /* handle guild invite-blocking */
     const guild_invite_blocking_enabled = guild_config.invite_blocking === 'enabled';
