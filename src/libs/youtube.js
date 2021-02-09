@@ -86,6 +86,8 @@ async function forceYouTubeSearch(search_query, max_results=5) {
  * @param {Boolean} playnext 
  */
 async function playYouTube(message, search_query, playnext=false) {
+    const voice_channel = message.member.voice.channel;
+
     const guild_queue_manager = message.guild.client.$.queue_managers.get(message.guild.id);
 
     /**
@@ -145,7 +147,7 @@ async function playYouTube(message, search_query, playnext=false) {
 
         let voice_connection;
         try {
-            voice_connection = await createConnection(message.member.voice.channel);
+            voice_connection = await createConnection(voice_channel);
         } catch (error) {
             console.trace(error);
             search_message.edit(new CustomRichEmbed({
