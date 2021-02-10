@@ -3,10 +3,12 @@
 //#region dependencies
 const { array_chunks } = require('../../utilities.js');
 
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { sendOptionsMessage,
+        removeUserReactionsFromMessage } = require('../../libs/messages.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
-const { sendOptionsMessage, removeUserReactionsFromMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion dependencies
 
@@ -22,11 +24,11 @@ module.exports = new DisBotCommand({
         const guild_bans = await message.guild.fetchBans();
 
         const page_fields = guild_bans.map(guild_ban => ({
-            name: `Ban Record`,
+            name: 'Ban Record',
             value: [
                 `${'```'}\n`,
-                `User: ${guild_ban.user.tag} (${guild_ban.user.id})`,
-                `Reason: ${guild_ban.reason ?? 'N/A'}`,
+                `User: @${guild_ban.user.tag} (${guild_ban.user.id})`,
+                `Reason: ${guild_ban.reason ?? 'no reason was found'}`,
                 `\n${'```'}`,
             ].join('\n'),
         }));
@@ -35,11 +37,11 @@ module.exports = new DisBotCommand({
 
         let page_index = 0;
         function makeEmbed() {
-            const bans_page = pages[page_index];
+            const bans_page = pages[page_index] ?? [];
             return new CustomRichEmbed({
-                title: `Here are the bans in this guild, 10 at a time!`,
+                title: 'Here are the bans in this guild, 10 at a time!',
                 description: [
-                    `Displaying ${constructNumberUsingEmoji(bans_page.length)} / ${constructNumberUsingEmoji(`${page_fields.length}`)} bans!`,
+                    `Displaying ${constructNumberUsingEmoji(bans_page.length)} / ${constructNumberUsingEmoji(`${guild_bans.size}`)} bans!`,
                     `Page — ${constructNumberUsingEmoji(page_index + 1)} / ${constructNumberUsingEmoji(pages.length)}`,
                 ].join('\n'),
                 fields: bans_page,
