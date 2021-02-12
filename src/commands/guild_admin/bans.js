@@ -23,6 +23,13 @@ module.exports = new DisBotCommand({
 
         const guild_bans = await message.guild.fetchBans();
 
+        if (guild_bans.size === 0) {
+            message.channel.send(new CustomRichEmbed({
+                title: 'This guild doesn\'t have any bans!',
+            }, message));
+            return;
+        }
+
         const page_fields = guild_bans.map(guild_ban => ({
             name: 'Ban Record',
             value: [
