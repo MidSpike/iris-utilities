@@ -277,7 +277,9 @@ async function playSpotify(message, search_query, playnext=false) {
                     await options_message.delete({timeout: 500}).catch(console.warn);
                 },
             },
-        ], message.author.id);
+        ], {
+            confirmation_user_id: message.author.id,
+        });
     }
 
     // if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {

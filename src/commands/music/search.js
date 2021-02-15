@@ -54,7 +54,9 @@ module.exports = new DisBotCommand({
                     return `${constructNumberUsingEmoji(index+1)} — ${channel_section}\n${title_section}`;
                 }).join('\n\n'),
             }, message);
-            const bot_message = await sendOptionsMessage(message.channel.id, embed, reactions, message.author.id);
+            const bot_message = await sendOptionsMessage(message.channel.id, embed, reactions, {
+                confirmation_user_id: message.author.id,
+            });
             client.setTimeout(() => { // Wait 2 minutes before removing the search menu
                 if (bot_message.deletable) {
                     bot_message.delete({ timeout: 500 }).catch(console.warn);
