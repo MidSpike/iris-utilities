@@ -283,7 +283,9 @@ async function playYouTube(message, search_query, playnext=false) {
                     _play_as_video(`https://youtu.be/${video_id}`);
                 },
             },
-        ], message.author.id);
+        ], {
+            confirmation_user_id: message.author.id,
+        });
     }
 
     const search_message = await message.channel.send(new CustomRichEmbed({

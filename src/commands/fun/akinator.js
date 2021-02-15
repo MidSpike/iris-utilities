@@ -107,7 +107,9 @@ module.exports = new DisBotCommand({
             if (bot_message) {
                 await bot_message.edit(options_embed);
             } else {
-                bot_message = await sendOptionsMessage(message.channel.id, options_embed, reactions, message.author.id);
+                bot_message = await sendOptionsMessage(message.channel.id, options_embed, reactions, {
+                    confirmation_user_id: message.author.id,
+                });
             }
         }
 

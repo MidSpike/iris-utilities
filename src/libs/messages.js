@@ -60,10 +60,22 @@ const options_message_reactions_template = [
  * @param {String} channel_id the id of the channel receiving the options_message
  * @param {MessageContents} message_contents any valid input for channel.send(...)
  * @param {options_message_reactions_template} reaction_options an object that derives from an `options_message_reactions_template`
- * @param {String} confirmation_user_id the user_id to confirm the reaction's origin with
+ * @param {Object} opts additional options
+ * @param {String?} opts.confirmation_user_id the user_id to confirm the reaction's origin with
+ * @param {Boolean?} opts.auto_cleanup_reactions whether or not to auto-remove reactions after the `auto_cleanup_time`
+ * @param {Number?} opts.auto_cleanup_timeout (default: 5 * 60_000) amount of ms to wait for
  * @returns {Promise<Message>} the options_message after attempting to add all reactions
  */
-async function sendOptionsMessage(channel_id, message_contents, reaction_options=options_message_reactions_template, confirmation_user_id=undefined) {
+async function sendOptionsMessage(channel_id, message_contents, reaction_options=options_message_reactions_template, opts={}) {
+    const _opts = {
+        ...{
+            confirmation_user_id: undefined,
+            auto_cleanup_reactions: true,
+            auto_cleanup_timeout: 25 * 60_000, // 25 minutes
+        },
+        ...opts,
+    };
+
     const channel = client.channels.resolve(channel_id);
 
     const options_message = await channel.send(message_contents).catch(console.warn);
@@ -97,7 +109,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
         const options_message_reaction_collector = options_message.createReactionCollector((user_reaction, user) => {
             const is_not_bot = !user.bot;
             const emoji_matches = bot_reaction.emoji.name === user_reaction.emoji.name;
-            const confirmation_user_matches = confirmation_user_id ? confirmation_user_id === user.id : true;
+            const confirmation_user_matches = _opts.confirmation_user_id ? _opts.confirmation_user_id === user.id : true;
             return (is_not_bot && emoji_matches && confirmation_user_matches);
         });
         options_message_reaction_collector.on('collect', async (collected_reaction, user) => {
@@ -117,19 +129,25 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
         });
     }
 
+    if (_opts.auto_cleanup_reactions) {
+        setTimeout(() => {
+            removeAllReactionsFromMessage(options_message);
+        }, _opts.auto_cleanup_timeout);
+    }
+
     return options_message;
 }
 
 /**
  * Sends an embed with buttons for the user to click on
- * @param {String} confirm_user_id 
+ * @param {String} confirmation_user_id 
  * @param {String} channel_id 
  * @param {Boolean} delete_after_selection 
  * @param {MessageContents} message_contents 
  * @param {Function} yes_callback 
  * @param {Function} no_callback 
  */
-async function sendConfirmationMessage(confirm_user_id, channel_id, delete_after_selection=true, message_contents='Default Embed', yes_callback=(options_message)=>{}, no_callback=(options_message)=>{}) {
+async function sendConfirmationMessage(confirmation_user_id, channel_id, delete_after_selection=true, message_contents='Default Embed', yes_callback=(options_message)=>{}, no_callback=(options_message)=>{}) {
     const options_message = await sendOptionsMessage(channel_id, message_contents, [
         {
             emoji_name: 'bot_emoji_checkmark',
@@ -146,7 +164,9 @@ async function sendConfirmationMessage(confirm_user_id, channel_id, delete_after
                 no_callback(options_message);
             },
         },
-    ], confirm_user_id);
+    ], {
+        confirmation_user_id: confirmation_user_id,
+    });
 
     return options_message;
 }
