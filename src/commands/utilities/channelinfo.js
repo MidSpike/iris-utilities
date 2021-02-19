@@ -1,36 +1,115 @@
 'use strict';
 
 //#region dependencies
+const moment = require('moment-timezone');
+
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
-    name:'CHANNELINFO',
-    category:`${DisBotCommander.categories.UTILITIES}`,
-    weight:12,
-    description:'Channel Information',
-    aliases:['channelinfo'],
+    name: 'CHANNELINFO',
+    category: `${DisBotCommander.categories.UTILITIES}`,
+    weight: 12,
+    description: 'displays information about a specified channel',
+    aliases: ['channelinfo'],
     async executor(Discord, client, message, opts={}) {
-        const { command_args } = opts;
-        const channel = client.channels.resolve(command_args[0]) ?? message.channel;
-        await channel.fetch().catch(console.warn);
-        message.channel.send(new CustomRichEmbed({
-            title:`Don't go wild with this channel information!`,
-            fields:[
-                {name:'Discord Id', value:`${channel.id}`},
-                {name:'Name', value:`${channel.name}`},
-                {name:'Type', value:`${channel.type}`},
-                {name:'Position', value:`${channel.position ?? 'N/A'}`},
-                {name:'Parent', value:`${channel?.parent?.name ?? 'N/A'}`},
-                {name:'Members', value:`${channel.type === 'voice' ? (channel?.members?.map(m => `${m}`)?.join(' ') ?? 'N/A') : 'N/A'}`},
-                {name:`Deletable`, value:`${channel?.deletable ?? 'N/A'}`},
-                {name:`Editable`, value:`${channel?.editable ?? 'N/A'}`},
-                {name:`Joinable`, value:`${channel?.joinable ?? 'N/A'}`},
-                {name:`Speakable`, value:`${channel?.speakable ?? 'N/A'}`},
-                {name:`Manageable`, value:`${channel?.manageable ?? 'N/A'}`},
-                {name:'Created On', value:`${channel.createdAt}`},
-            ]
-        }, message));
+        const { discord_command, command_args } = opts;
+
+        const channel = message.guild.channels.resolve(command_args[0]) ?? message.mentions.channels.first() ?? message.channel;
+        if (channel) {
+            await channel.fetch().catch(console.warn); // cache the channel
+            message.channel.send(new CustomRichEmbed({
+                title: 'Don\'t go wild with this channel information!',
+                fields: [
+                    {
+                        name: 'Name',
+                        value: `${'```'}\n${channel.name}\n${'```'}`,
+                        inline: false,
+                    }, {
+                        name: 'Snowflake',
+                        value: `${'```'}\n${channel.id}\n${'```'}`,
+                        inline: false,
+                    }, {
+                        name: 'Creation Date',
+                        value: `${'```'}\n${moment(channel.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                        inline: false,
+                    },
+
+                    {
+                        name: 'Type',
+                        value: `\`${channel.type}\``,
+                        inline: true,
+                    }, {
+                        name: 'Position',
+                        value: `\`${channel.position}\``,
+                        inline: true,
+                    },
+
+                    ...(channel.parent ? [
+                        {
+                            name: 'Parent Snowflake',
+                            value: `\`${channel.parent.id}\``,
+                            inline: true,
+                        },
+                    ] : []),
+
+                    {
+                        name: 'Deletable',
+                        value: `\`${channel.deletable ?? 'N/A'}\``,
+                        inline: true,
+                    }, {
+                        name: 'Editable',
+                        value: `\`${channel.editable ?? 'N/A'}\``,
+                        inline: true,
+                    }, {
+                        name: 'Manageable',
+                        value: `\`${channel.manageable ?? 'N/A'}\``,
+                        inline: true,
+                    },
+
+                    ...(!channel.parent ? [
+                        {
+                            name: '\u200b',
+                            value: '\u200b',
+                            inline: true,
+                        },
+                    ] : []),
+
+                    ...(channel.type === 'voice' ? [
+                        {
+                            name: 'Joinable',
+                            value: `\`${channel.joinable}\``,
+                            inline: true,
+                        }, {
+                            name: 'Speakable',
+                            value: `\`${channel.speakable}\``,
+                            inline: true,
+                        }, {
+                            name: '\u200b',
+                            value: '\u200b',
+                            inline: true,
+                        }, {
+                            name: 'Members',
+                            value: `${channel.members.size > 15 ? '\`more than 15 people\`' : channel.members.map(m => `${m}`)?.join(' - ')}`,
+                            inline: false,
+                        },
+                    ] : []),
+                ],
+            }, message));
+        } else {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                title: 'Uh Oh!',
+                description: 'That was an invalid channel #mention or id!',
+                fields: [
+                    {
+                        name: 'Example usage:',
+                        value: `${'```'}\n${discord_command} #channel\n${'```'}`,
+                    },
+                ],
+            }, message));
+        }
     },
 });
