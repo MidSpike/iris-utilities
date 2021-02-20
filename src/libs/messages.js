@@ -613,6 +613,42 @@ function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
     }))?.catch(console.warn);
 }
 
+/**
+ * Check channel for permissions to send (messages / embeds / files / reactions / emojis).  
+ * Also try to inform the user of the missing permissions.
+ * @param {Guild} guild 
+ * @param {Channel} channel 
+ * @param {Message} message 
+ * @returns {Boolean} `true` when missing permissions
+ */
+async function notifyWhenMissingSendPermissions(guild, channel, message) {
+    const required_send_permissions = [ 'SEND_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES', 'ADD_REACTIONS', 'USE_EXTERNAL_EMOJIS' ];
+    const missing_send_permissions = channel.permissionsFor(guild.me).missing(required_send_permissions);
+
+    if (missing_send_permissions.length > 0) {
+        const missing_send_permissions_warning_embed = new CustomRichEmbed({
+            color: 0xFF0000,
+            title: 'Something isn\'t right here!',
+            description: [
+                'I am missing the following permission(s):',
+                `${missing_send_permissions.map(item => ` - \`${item}\``).join('\n')}`,
+                `Please give me the above permission(s) as they are essential to how I send messages and interactive content!`,
+            ].join('\n\n'),
+        }, message);
+
+        try {
+            await message.reply(missing_send_permissions_warning_embed);
+        } catch {
+            const dm_channel = await message.author.createDM().catch(() => null);
+            await dm_channel?.send(missing_send_permissions_warning_embed)?.catch(() => null);
+        }
+
+        return true;
+    } else {
+        return false;
+    }
+}
+
 module.exports = {
     sendLargeMessage,
     sendConfirmationMessage,
@@ -627,4 +663,5 @@ module.exports = {
     sendNotAllowedCommand,
     sendPotentiallyNotSafeForWorkDisclaimer,
     logAdminCommandsToGuild,
+    notifyWhenMissingSendPermissions,
 };
