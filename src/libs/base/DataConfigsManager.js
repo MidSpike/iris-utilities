@@ -1,5 +1,7 @@
 'use strict';
 
+//---------------------------------------------------------------------------------------------------------------//
+
 const fs = require('fs');
 const path = require('path');
 const { Collection } = require('discord.js');
@@ -21,25 +23,25 @@ const { object_sort } = require('../../utilities.js');
  * @param {String} configs_file_relative_path a relative file path to the `.json` file from `process.cwd()`
  */
 class DataConfigsManager {
-    /** @type {String} */
-    #configs_file;
+    /** @type {String} the absolute file path to the data configs file */
+    #configs_file_path;
 
-    /** @type {DataConfigs} */
+    /** @type {DataConfigs} all data configs that are stored in memory */
     #configs_in_memory;
 
     constructor(configs_file_relative_path) {
         if (typeof configs_file_relative_path !== 'string') throw new TypeError('\`configs_file_relative_path\` must be a string!');
 
-        /* set `this.#configs_file` to the absolute file path */
-        this.#configs_file = path.join(process.cwd(), configs_file_relative_path);
+        /* set `this.#configs_file_path` to the absolute file path */
+        this.#configs_file_path = path.join(process.cwd(), configs_file_relative_path);
 
         /* create the configs file if it does not already exist */
-        if (!fs.existsSync(this.#configs_file)) {
-            fs.writeFileSync(this.#configs_file, JSON.stringify([], null, 2));
+        if (!fs.existsSync(this.#configs_file_path)) {
+            fs.writeFileSync(this.#configs_file_path, JSON.stringify([], null, 2));
         }
 
         /* retrieve configs from storage as: Array<Array<data_config_id='', data_config={}>> */
-        const configs_from_storage = JSON.parse(fs.readFileSync(this.#configs_file));
+        const configs_from_storage = JSON.parse(fs.readFileSync(this.#configs_file_path));
 
         /* prepare the configs in memory to be stored as a `Discord.Collection` */
         this.#configs_in_memory = new Collection(configs_from_storage);
@@ -101,12 +103,15 @@ class DataConfigsManager {
      * @returns {DataConfigsManager} this DataConfigsManager
      */
     async saveConfigs() {
-        console.time('Saving data configs to storage!');
-        fs.writeFileSync(this.#configs_file, JSON.stringify(Array.from(this.#configs_in_memory), null, 2));
-        console.timeEnd('Saving data configs to storage!');
+        const data_config_filename = path.basename(this.#configs_file_path);
+        console.time(`Saving data configs to storage as ${data_config_filename}`);
+        fs.writeFileSync(this.#configs_file_path, JSON.stringify(Array.from(this.#configs_in_memory), null, 2));
+        console.timeEnd(`Saving data configs to storage as ${data_config_filename}`);
         return this;
     }
 }
+
+//---------------------------------------------------------------------------------------------------------------//
 
 module.exports = {
     DataConfigsManager,
