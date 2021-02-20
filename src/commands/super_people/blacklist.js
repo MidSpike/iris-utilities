@@ -18,15 +18,16 @@ module.exports = new DisBotCommand({
     access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts = {}) {
         const { discord_command, command_args } = opts;
+
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'blacklist')) {
             sendNotAllowedCommand(message);
             return;
         }
-        const user = client.users.cache.get(command_args[1]) ?? message.mentions.users.first();
-        const guild = client.guilds.cache.get(command_args[1]);
+
         const blacklist_reason = command_args.slice(2).join(' ') || 'Unknown Reason';
         switch (`${command_args[0]}`.toLowerCase()) {
             case 'user':
+                const user = (await client.users.fetch(command_args[1]).catch(() => null)) ?? message.mentions.users.first();
                 if (!user) return;
 
                 if (isThisBotsOwner(user.id)) {
@@ -67,6 +68,7 @@ module.exports = new DisBotCommand({
 
                 break;
             case 'guild':
+                const guild = client.guilds.resolve(command_args[1]);
                 if (!guild) return;
 
                 if (client.$.blacklisted_guilds_manager.configs.has(guild.id)) {
