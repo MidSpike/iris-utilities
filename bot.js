@@ -60,7 +60,8 @@ const { logUserError } = require('./src/libs/errors.js');
 const { generateInviteToGuild } = require('./src/libs/invites.js');
 
 const { sendConfirmationMessage,
-        logAdminCommandsToGuild } = require('./src/libs/messages.js');
+        logAdminCommandsToGuild,
+        notifyWhenMissingSendPermissions } = require('./src/libs/messages.js');
 
 const { QueueManager } = require('./src/libs/QueueManager.js');
 const { AudioController } = require('./src/libs/AudioController.js');
@@ -884,6 +885,10 @@ client.on('message', async (message) => {
         return;
     }
 
+    /**********************************************
+     * start handling commands after this comment *
+     **********************************************/
+
     /* check to see if the message starts with the command prefix */
     if (!message.content.toLowerCase().startsWith(command_prefix)) return;
 
@@ -894,10 +899,6 @@ client.on('message', async (message) => {
         console.error(`Guild [${message.guild.name}] (${message.guild.id}) should not have the default command_prefix!`);
         return;
     }
-
-    /**********************************************
-     * start handling commands after this comment *
-     **********************************************/
 
     /* setup command constants */
     const command_timestamp = moment();
@@ -919,6 +920,7 @@ client.on('message', async (message) => {
     /* make sure that the user used a valid command */
     if (!command) {
         if (guild_config.unknown_command_warnings === 'enabled') {
+            if (await notifyWhenMissingSendPermissions(message.guild, message.channel, message)) return;
             message.channel.send(new CustomRichEmbed({
                 title: 'That command doesn\'t exist!',
                 description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
@@ -935,6 +937,8 @@ client.on('message', async (message) => {
         }
         return;
     }
+
+    if (await notifyWhenMissingSendPermissions(message.guild, message.channel, message)) return;
 
     /* block commands when restarting */
     if (client.$.restarting_bot) {
