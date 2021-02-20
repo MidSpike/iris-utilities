@@ -54,7 +54,7 @@ async function forceYouTubeSearch(search_query, max_results=5) {
         console.log('primary_search_results.length', primary_search_results.length);
         search_results = primary_search_results;
     } catch (error) {
-        console.warn('Failed YouTube API Lookup!');
+        console.warn('Failed YouTube API Lookup!', error);
     }
 
     /* fallback to scraping the youtube website for results */
