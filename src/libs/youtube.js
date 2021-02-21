@@ -27,6 +27,31 @@ const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SER
 //---------------------------------------------------------------------------------------------------------------//
 
 /**
+ * Fetches a YouTube playlist id from a search query
+ * @param {String} search_query any string that might contain a youtube url
+ * @returns {String|undefined} a playlist id if successful
+ */
+async function get_potential_playlist_id_from_query(search_query) {
+    return validator.isURL(search_query) ? urlParser(search_query)?.list : undefined;
+}
+
+/**
+ * Fetches a YouTube video id from a search query
+ * @param {String} search_query any string that might contain a youtube url
+ * @returns {String|undefined} a youtube video id or undefined
+ */
+async function get_potential_video_id_from_query(search_query) {
+    let potential_video_id;
+    try {
+        potential_video_id = videoIdFromYouTubeURL(search_query);
+    } catch {
+        /* exceptions are thrown for non-youtube URLs */
+        potential_video_id = undefined;
+    }
+    return potential_video_id;
+}
+
+/**
  * Searches YouTube using the YT API and returns an array of search results.
  * If the YouTube API fails more than the specified number of retry_attempts,
  * then it will attempt one last time by scraping the YouTube website.
@@ -43,18 +68,33 @@ async function forceYouTubeSearch(search_query, max_results=5) {
 
     let search_results = [];
 
-    /* try to use the official YouTube API */
-    try {
-        const { results: primary_search_results } = await youtubeSearch(search_query, {
-            maxResults: max_results,
-            type: 'video',
-            regionCode: 'US',
-            key: process.env.YOUTUBE_API_TOKEN,
-        });
-        console.log('primary_search_results.length', primary_search_results.length);
-        search_results = primary_search_results;
-    } catch (error) {
-        console.warn('Failed YouTube API Lookup!', error);
+    const potential_video_id = await get_potential_video_id_from_query(search_query);
+    console.log({ potential_video_id });
+
+    /* try to use the official YouTube APIs */
+    if (potential_video_id) {
+        /* uses the `https://www.googleapis.com/youtube/v3/videos` api */
+        try {
+            const { data: { items: primary_search_results } } = await axios.get(`https://www.googleapis.com/youtube/v3/videos?part=id,snippet&regionCode=US&maxResults=1&id=${encodeURIComponent(potential_video_id)}&key=${encodeURIComponent(process.env.YOUTUBE_API_TOKEN)}`);
+            console.log('primary_search_results.length', primary_search_results.length);
+            search_results = primary_search_results;
+        } catch (error) {
+            console.warn('Failed YouTube API Videos Lookup!', error);
+        }
+    } else {
+        /* uses the `https://www.googleapis.com/youtube/v3/search` api */
+        try {
+            const { results: primary_search_results } = await youtubeSearch(search_query, {
+                maxResults: max_results,
+                type: 'video',
+                regionCode: 'US',
+                key: process.env.YOUTUBE_API_TOKEN,
+            });
+            console.log('primary_search_results.length', primary_search_results.length);
+            search_results = primary_search_results;
+        } catch (error) {
+            console.warn('Failed YouTube API Search Lookup!', error);
+        }
     }
 
     /* fallback to scraping the youtube website for results */
@@ -90,45 +130,10 @@ async function playYouTube(message, search_query, playnext=false) {
 
     const guild_queue_manager = message.guild.client.$.queue_managers.get(message.guild.id);
 
-    /**
-     * Fetches a YouTube playlist id from a search query
-     * @param {String} search_query any string that might contain a youtube url
-     * @returns {String|undefined} a playlist id if successful
-     */
-    async function _get_potential_playlist_id_from_query(search_query) {
-        return validator.isURL(search_query) ? urlParser(search_query)?.list : undefined;
-    }
-
-    /**
-     * Fetches a YouTube video id from a search query
-     * @param {String} search_query any string that might contain a youtube url
-     * @returns {String|undefined} a youtube video id or undefined
-     */
-    async function _get_potential_video_id_from_query(search_query) {
-        let potential_video_id;
-        try {
-            potential_video_id = videoIdFromYouTubeURL(search_query);
-        } catch {
-            /* exceptions are thrown for non-youtube URLs */
-            potential_video_id = undefined;
-        }
-        return potential_video_id;
-    }
-
-    /**
-     * Fetches a YouTube video from a search query
-     * @param {String} search_query any string that contains a youtube url or search query
-     * @returns {Object|undefined} a video if successful
-     */
-    async function _get_potential_video_from_query(search_query) {
-        const [ potential_video ] = await forceYouTubeSearch(search_query, 1);
-        return potential_video;
-    }
-
     async function _play_as_video(search_query, send_embed=true) {
         console.log('_play_as_video:', { search_query, send_embed });
 
-        const potential_video = await _get_potential_video_from_query(search_query);
+        const [ potential_video ] = await forceYouTubeSearch(search_query, 1);
         if (!potential_video) {
             search_message.edit(new CustomRichEmbed({
                 color: 0xFFFF00,
@@ -293,8 +298,8 @@ async function playYouTube(message, search_query, playnext=false) {
         description: `${'```'}\n${search_query}\n${'```'}`,
     }));
 
-    const potential_playlist_id = await _get_potential_playlist_id_from_query(search_query);
-    const potential_video_id = await _get_potential_video_id_from_query(search_query);
+    const potential_playlist_id = await get_potential_playlist_id_from_query(search_query);
+    const potential_video_id = await get_potential_video_id_from_query(search_query);
 
     if (potential_playlist_id && potential_video_id) {
         _play_as_playlist(potential_playlist_id, potential_video_id);
