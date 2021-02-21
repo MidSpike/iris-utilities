@@ -7,7 +7,8 @@ const bot_config = require('../../config.js');
 const { Timer,
         getReadableTime } = require('../utilities.js');
 
-const { client } = require('./discord_client.js');
+const { Discord,
+        client } = require('./discord_client.js');
 
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 const { findCustomEmoji,
@@ -17,6 +18,45 @@ const { isThisBotsOwner } = require('./permissions.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
+
+//---------------------------------------------------------------------------------------------------------------//
+
+/**
+ * Removes any reactions created by any user on a specified message
+ * @param {Message} message 
+ * @returns {Promise<void>} 
+ */
+async function removeUserReactionsFromMessage(message) {
+    await Timer(250); // prevent API abuse
+    if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+        const message_reactions = message.reactions.cache;
+        for (const message_reaction of message_reactions.values()) {
+            const reaction_users = message_reaction.users.cache.filter(user => !user.bot); // don't interact with bots
+            for (const reaction_user of reaction_users.values()) {
+                message_reaction.users.remove(reaction_user);
+                if (reaction_users.size > 0) await Timer(250); // prevent API abuse
+            }
+        }
+    }
+}
+
+/**
+ * Removes any reactions created by a user on a specified message
+ * @param {Message} message 
+ * @returns {Promise<Message>} 
+ */
+async function removeAllReactionsFromMessage(message) {
+    await Timer(250); // prevent API abuse
+
+    /* check if a message was supplied */
+    if (!(message instanceof Discord.Message)) throw new TypeError('\`message\` was not an instance of a \`Discord.Message\`');
+
+    /* check if the bot can remove message all reactions */
+    if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) return undefined;
+
+    /* attempt to remove all message reactions and return the message */
+    return await message.reactions.removeAll().catch(() => message);
+}
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -216,58 +256,7 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
     return bot_captcha_message;
 }
 
-/**
- * Removes any reactions created by any user on a specified message
- * @param {Message} message 
- * @returns {Promise<void>} 
- */
-async function removeUserReactionsFromMessage(message) {
-    await Timer(250); // prevent API abuse
-    if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-        const message_reactions = message.reactions.cache;
-        for (const message_reaction of message_reactions.values()) {
-            const reaction_users = message_reaction.users.cache.filter(user => !user.bot); // don't interact with bots
-            for (const reaction_user of reaction_users.values()) {
-                message_reaction.users.remove(reaction_user);
-                if (reaction_users.size > 0) await Timer(250); // prevent API abuse
-            }
-        }
-    }
-}
-
-/**
- * Removes any reactions created by a user on a specified message
- * @param {Message} message 
- * @returns {Promise<Message>} 
- */
-async function removeAllReactionsFromMessage(message) {
-    await Timer(250); // prevent API abuse
-    if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-        return await message.reactions.removeAll();
-    }
-}
-
-/**
- * Removes a specified message from a specified channel
- * @param {String} channel_id 
- * @param {String} message_id 
- * @returns {Promise<Message>} 
- */
-async function removeMessageFromChannel(channel_id, message_id) {
-    const channel_containing_message = client.channels.cache.get(channel_id);
-    if (channel_containing_message) {
-        if (!channel_containing_message.guild) {
-            throw new Error('Message does not reside in a Guild!');
-        } else {
-            const recent_messages_in_channel = await channel_containing_message.messages.fetch({ limit: 100 });
-            const the_message_to_remove = recent_messages_in_channel.get(message_id);
-            const the_removed_message = await the_message_to_remove?.delete({ timeout: 500 });
-            return the_removed_message;
-        }
-    } else {
-        throw new Error('Channel not found!');
-    }
-}
+//---------------------------------------------------------------------------------------------------------------//
 
 /**
  * Sends a volume controller embed
@@ -541,6 +530,8 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
     ]);
 }
 
+//---------------------------------------------------------------------------------------------------------------//
+
 /**
  * Sends the "Unauthorized Access Detected" message when a user shouldn't have access
  * @param {Message} message 
@@ -588,6 +579,8 @@ async function sendPotentiallyNotSafeForWorkDisclaimer(message) {
     }
 }
 
+//---------------------------------------------------------------------------------------------------------------//
+
 /**
  * Logs admin commands to a guilds logging channel
  * @param {Message} admin_message 
@@ -612,6 +605,8 @@ function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
         ],
     }))?.catch(console.warn);
 }
+
+//---------------------------------------------------------------------------------------------------------------//
 
 /**
  * Check channel for permissions to send (messages / embeds / files / reactions / emojis).  
@@ -649,6 +644,8 @@ async function notifyWhenMissingSendPermissions(guild, channel, message) {
     }
 }
 
+//---------------------------------------------------------------------------------------------------------------//
+
 module.exports = {
     sendLargeMessage,
     sendConfirmationMessage,
@@ -656,7 +653,6 @@ module.exports = {
     sendCaptchaMessage,
     removeUserReactionsFromMessage,
     removeAllReactionsFromMessage,
-    removeMessageFromChannel,
     sendVolumeControllerEmbed,
     sendMusicControllerEmbed,
     sendYtDiscordEmbed,
