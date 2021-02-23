@@ -21,26 +21,39 @@ module.exports = new DisBotCommand({
 
         const google_search_query = clean_command_args.join(' ').trim();
         const bot_message = await message.channel.send(new CustomRichEmbed({
-            title: `Searching Google For:`,
+            title: 'Searching Google For:',
             description: `${'```'}\n${google_search_query}\n${'```'}`,
         }, message));
 
         try {
             const google_search_results = await googleIt({
                 'options': {
-                    'no-display': true
+                    'no-display': true,
                 },
-                'query': google_search_query
+                'query': google_search_query,
             });
 
-            bot_message.edit(new CustomRichEmbed({
-                title: `Searched Google For:`,
-                description: `${'```'}\n${google_search_query}\n${'```'}`,
-                fields: google_search_results.map(result => ({
-                    name: `${result.title}`,
-                    value: `<${result.link}>\n${result.snippet}`,
-                })),
-            }, message));
+            console.log({ google_search_results });
+
+            if (google_search_results.length > 0) {
+                bot_message.edit(new CustomRichEmbed({
+                    title: 'Searched Google For:',
+                    description: `${'```'}\n${google_search_query}\n${'```'}`,
+                    fields: google_search_results.map(result => ({
+                        name: `${result.title}`,
+                        value: `<${result.link}>\n${result.snippet}`,
+                    })),
+                }, message));
+            } else {
+                bot_message.edit(new CustomRichEmbed({
+                    color: 0xFF0000,
+                    title: 'Something went wrong!',
+                    description: [
+                        'Google most likely changed their stuff, so now this stuff is broken.',
+                        'Try asking the maintainer of [github:PatNeedham/google-it](https://github.com/PatNeedham/google-it) to fix the issue!',
+                    ].join('\n'),
+                }, message));
+            }
         } catch (error) {
             console.trace(error);
         }
