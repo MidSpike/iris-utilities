@@ -59,7 +59,7 @@ module.exports = new DisBotCommand({
         const eval_input = message.content.replace(discord_command, ``).trim(); // removes the discord_command and trims
         try {
             let code_to_run = eval_input;
-            console.info(`Running Code:\n`, code_to_run);
+            console.info('Running Code:\n', code_to_run);
 
             if (!code_to_run.match(/\r?\n|\r/g)) { // there is more than one line of code
                 code_to_run = `return ${code_to_run.replace('return', '')}`; // insert 'return' at the beginning of the line
@@ -96,14 +96,15 @@ module.exports = new DisBotCommand({
                                     eval_output_string.length < 1024 ? (
                                         eval_output_string
                                     ) : (
-                                        `\`Check the console for output!\``
+                                        '\`Check the console for output!\`'
                                     )
                                 ),
                                 `${'```'}`,
                             ].join('\n'),
                         },
                     ],
-                }));
+                    footer: null,
+                }, message));
             }
         } catch (error) {
             console.trace(error);
