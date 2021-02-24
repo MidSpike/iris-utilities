@@ -111,7 +111,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
         ...{
             confirmation_user_id: undefined,
             auto_cleanup_reactions: true,
-            auto_cleanup_timeout: 25 * 60_000, // 25 minutes
+            auto_cleanup_timeout: 5 * 60_000, // 5 minutes
         },
         ...opts,
     };
