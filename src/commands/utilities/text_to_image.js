@@ -12,8 +12,40 @@ const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 //#endregion dependencies
 
+/**
+ * Escape un-unwanted html
+ * @param {String} text 
+ * @returns {String} 
+ */
 function escapeHTML(text) {
-    return text.replace(`&`, '&amp;').replace(`"`, '&quot;').replace(`'`, '&apos;').replace(`\``, '&grave;').replace(`<`, '&lt;').replace(`>`, '&gt;').replace(`/`, '&#47;').replace(`\\`, '&#92;');
+    return text.replace(`&`, '&amp;')
+               .replace(`"`, '&quot;')
+               .replace(`'`, '&apos;')
+               .replace(`\``, '&grave;')
+               .replace(`<`, '&lt;')
+               .replace(`>`, '&gt;')
+               .replace(`/`, '&#47;')
+               .replace(`\\`, '&#92;');
+}
+
+/**
+ * Escape un-unwanted css properties
+ * @param {String} text 
+ * @returns {String} 
+ */
+function escapeCSSProperty(text) {
+    return text.replace(/([^a-zA-Z\-])/gi, ''); // anything not an alpha character nor a '-'
+}
+
+/**
+ * Escape un-unwanted css values
+ * @param {String} text 
+ * @returns {String} 
+ */
+function escapeCSSValue(text) {
+    return text.replace(/((\:(?!\/\/))|((?<!\:)\/\/))/gi, '') // removes any ':' or '/' unless it is '://'
+               .replace(/(\\|\<|\>|\;|\'|\")/gi, '') // removes any '\', '<', '>', ';', `'`, '"'
+               .replace(/(\`|\~|\!|\@|\$|\^|\*|\(|\))/gi, ''); // removes any '`', '~', '!', '@', '$', '^', '*', '(', ')'
 }
 
 module.exports = new DisBotCommand({
@@ -35,15 +67,15 @@ module.exports = new DisBotCommand({
         
         const user_args = user_raw_args.replace(user_raw_args_start_end_regex, '').trim().split(';').map(kv => {
             const kv_split_by_colons = kv.split(':');
-            const k = kv_split_by_colons.slice(0, 1).join(':').trim();
-            const v = kv_split_by_colons.slice(1).join(':').trim();
+            const k = escapeCSSProperty(kv_split_by_colons.slice(0, 1).join(':').trim());
+            const v = escapeCSSValue(kv_split_by_colons.slice(1).join(':').trim());
             // console.log({ kv_split_by_colons, kv, k, v });
             return [k, v];
         });
         // console.log({user_args});
         
         const user_args_map = new Map(user_args);
-        // console.log({user_args_map});
+        // console.log({ user_args_map });
 
         let text_for_image = message.cleanContent.replace(user_raw_args_regex, '').trim();
         text_for_image = escapeHTML(text_for_image.replace(discord_command, '')).trim().replace(/\r?\n|\r/g, '<br />');
@@ -156,7 +188,7 @@ module.exports = new DisBotCommand({
             </html>
         `;
 
-        // console.log({html_for_image});
+        // console.log({ html_for_image });
 
         const image = await nodeHtmlToImage({
             type: 'png',
