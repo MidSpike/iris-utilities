@@ -54,7 +54,8 @@ router.get('/speech', (req, res) => {
         if (speak_type === 'google') {
             gtts(speak_lang).stream(speak_msg).pipe(res);
         } else if (speak_type === 'ibm') {
-            request.get(`${process.env.IBM_TTS_API_URL}?voice=${encodeURI(speak_lang)}&text=${encodeURI(speak_msg)}&download=true&accept=audio%2Fmp3`).pipe(res);
+            console.warn('TTS TEST');
+            request.get(`${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(speak_lang)}&text=${encodeURIComponent(speak_msg)}&download=true&accept=audio%2Fmp3`).pipe(res);
         }
     }
 });

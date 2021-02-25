@@ -57,11 +57,18 @@ module.exports = new DisBotCommand({
             const tts_voice = tts_person ? 'en-GB_KateV3Voice' : 'en-US_HenryV3Voice';
             const tts_text = `${insult.insult}`;
 
-            const tts_url = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(tts_provider)}&lang=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}`;
-
+            
             const voice_connection = await createConnection(message.member.voice.channel, false);
-
-            const stream_maker = () => tts_url;
+            
+            const stream_url = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(tts_provider)}&lang=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}`;
+            const stream_maker = async () => {
+                const { data: response_stream } = await axios({
+                    method: 'get',
+                    url: stream_url,
+                    responseType: 'stream',
+                });
+                return response_stream;
+            };
 
             const queue_item_player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 15.0, undefined, () => {
                 insult_count++;

@@ -48,8 +48,14 @@ async function playTTS(voice_channel, tts_text='Hello World! This Is The Default
         return error;
     }
 
-    const stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(provider)}&lang=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}`;
-    const stream_maker = () => stream;
+    const stream_maker = async () => {
+        const { data: response_stream } = await axios({
+            method: 'get',
+            url: `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(provider)}&lang=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}`,
+            responseType: 'stream',
+        });
+        return response_stream;
+    };
 
     const { start_callback,
             end_callback,

@@ -1,6 +1,8 @@
 'use strict';
 
 //#region dependencies
+const axios = require('axios');
+
 const { COMMON_NAME: bot_common_name } = require('../../../config.js');
 
 const { Timer } = require('../../utilities.js');
@@ -71,19 +73,22 @@ module.exports = new DisBotCommand({
                     const tts_broadcast = client.voice.createBroadcast();
 
                     for (const vc of voice_channels) {
-                        playStream(await createConnection(vc, true), tts_broadcast, 7.5);
+                        playStream(await createConnection(vc, true), tts_broadcast, 15.0);
                     }
 
-                    function playStreamAndWait(stream) {
+                    function playStreamAndWait(stream_url) {
                         return new Promise(async (resolve, reject) => {
                             await Timer(1000); // wait a bit before speaking
-                            const tts_broadcast_dispatcher = tts_broadcast.play(stream);
-                            tts_broadcast_dispatcher.on('finish', () => {
-                                resolve();
+
+                            const { data: response_stream } = await axios({
+                                method: 'get',
+                                url: stream_url,
+                                responseType: 'stream',
                             });
-                            tts_broadcast_dispatcher.on('error', () => {
-                                reject();
-                            });
+
+                            const tts_broadcast_dispatcher = tts_broadcast.play(response_stream);
+                            tts_broadcast_dispatcher.on('finish', () => resolve());
+                            tts_broadcast_dispatcher.on('error', () => reject());
                         });
                     }
 

@@ -1,5 +1,9 @@
 'use strict';
 
+//---------------------------------------------------------------------------------------------------------------//
+
+const axios = require('axios');
+
 const { Timer,
         isObject,
         array_insert,
@@ -186,13 +190,20 @@ class QueueItemPlayer {
 
             const guild_audio_controller = guild.client.$.audio_controllers.get(guild.id);
 
-            const queue_tts_announcement = () => new Promise((resolve, reject) => {
+            const queue_tts_announcement = () => new Promise(async (resolve, reject) => {
                 if (this.queue_manager.queue.length > 0 && guild_config.queue_tts_voice === 'enabled') {
                     const tts_text = `Now playing: ${this.queue_manager.queue[0].description}`;
                     const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
-                    playStream(voice_connection, tts_url_stream, 30.0, undefined, () => {
-                        resolve();
-                    });
+                    const stream_maker = async () => {
+                        const { data: response_stream } = await axios({
+                            method: 'get',
+                            url: tts_url_stream,
+                            responseType: 'stream',
+                        });
+                        return response_stream;
+                    };
+                    const stream = await stream_maker();
+                    playStream(voice_connection, stream, 15.0, undefined, () => resolve());
                 } else {
                     resolve();
                 }
@@ -200,7 +211,9 @@ class QueueItemPlayer {
 
             await queue_tts_announcement();
 
-            playStream(await createConnection(this.voice_connection.channel), await this.stream_maker(), this.volume_ratio, async () => {
+            const stream = await this.stream_maker();
+
+            playStream(await createConnection(this.voice_connection.channel), stream, this.volume_ratio, async () => {
                 await this.start_callback();
             }, async (voice_connection, dispatcher) => {
                 /* remove this item from the queue */
@@ -237,9 +250,17 @@ class QueueItemPlayer {
 
                         if (guild_config.disconnect_tts_voice === 'enabled') {
                             /* disconnect with TTS announcement */
-                            const tts_text = `Disconnecting...`;
-                            const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent(tts_text)}`;
-                            playStream(voice_connection, tts_url_stream, 30.0, undefined, () => {
+                            const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('Disconnecting...')}`;
+                            const stream_maker = async () => {
+                                const { data: response_stream } = await axios({
+                                    method: 'get',
+                                    url: tts_url_stream,
+                                    responseType: 'stream',
+                                });
+                                return response_stream;
+                            };
+                            const stream = await stream_maker();
+                            playStream(voice_connection, stream, 15.0, undefined, () => {
                                 guild_audio_controller.disconnect();
                             });
                         } else {
@@ -249,6 +270,7 @@ class QueueItemPlayer {
                     }
                 }
             }, (error) => {
+                console.error({ error });
                 this.error_callback(error);
             });
         };
