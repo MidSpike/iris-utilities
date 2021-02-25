@@ -1,6 +1,8 @@
 'use strict';
 
 //#region dependencies
+const axios = require('axios');
+
 const { COMMON_NAME: bot_common_name } = require('../../../config.js');
 
 const { DisBotCommand,
@@ -51,8 +53,17 @@ module.exports = new DisBotCommand({
 
         if (guild_config.disconnect_tts_voice === 'enabled') {
             /* play tts before disconnecting */
-            const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('disconnecting')}`;
-            playStream(voice_connection, tts_url_stream, 10.0, undefined, () => {
+            const tts_url_stream = `${bot_api_url}/speech?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&type=${encodeURIComponent(guild_tts_provider)}&lang=${encodeURIComponent(guild_tts_voice)}&text=${encodeURIComponent('Disconnecting...')}`;
+            const stream_maker = async () => {
+                const { data: response_stream } = await axios({
+                    method: 'get',
+                    url: tts_url_stream,
+                    responseType: 'stream',
+                });
+                return response_stream;
+            };
+            const stream = await stream_maker();
+            playStream(voice_connection, stream, 15.0, undefined, () => {
                 guild_audio_controller.disconnect();
             });
         } else {
