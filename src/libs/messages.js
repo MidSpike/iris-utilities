@@ -273,8 +273,8 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
     }, user_message);
     sendOptionsMessage(channel_id, makeEmbed(), [
         {
-            emoji_name:'bot_emoji_mute',
-            cooldown:1000,
+            emoji_name: 'bot_emoji_mute',
+            cooldown: 1000,
             async callback(options_message, collected_reaction, user) {
                 removeUserReactionsFromMessage(options_message);
                 await guild_volume_manager.toggleMute();
@@ -285,7 +285,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                     },
                     title: `${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`,
                 }));
-            }
+            },
         }, {
             emoji_name: 'bot_emoji_volume_down',
             cooldown: 1000,
@@ -312,13 +312,13 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 options_message.edit(new CustomRichEmbed({
                     author: {
                         iconURL: user.displayAvatarURL({ dynamic: true }),
-                        name: `@${user.tag}`
+                        name: `@${user.tag}`,
                     },
                     title: `Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
                     description: (new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined),
                 }));
             },
-        }
+        },
     ]);
 }
 
