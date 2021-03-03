@@ -69,8 +69,17 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
     const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
 
     const voice_connection = await createConnection(message.member.voice.channel);
-    const stream_maker = () => `${remote_mp3_path}`;
-    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 7.5, () => {
+    const stream_url = `${remote_mp3_path}`;
+    const stream_maker = async () => {
+        const { data: response_stream } = await axios({
+            method: 'get',
+            url: stream_url,
+            responseType: 'stream',
+        });
+        return response_stream;
+    };
+
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
         if (!guild_queue_manager.loop_enabled) {
             /* don't send messages when looping */
             message.channel.send(new CustomRichEmbed({
@@ -98,8 +107,16 @@ async function playUserUploadedMP3(message, playnext=false) {
     if (message_media) {
         if (message_media.attachment.endsWith('.mp3')) {
             const voice_connection = await createConnection(message.member.voice.channel);
-            const stream_maker = () => `${message_media.attachment}`;
-            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 7.5, () => {
+            const stream_url = `${message_media.attachment}`;
+            const stream_maker = async () => {
+                const { data: response_stream } = await axios({
+                    method: 'get',
+                    url: stream_url,
+                    responseType: 'stream',
+                });
+                return response_stream;
+            };
+            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
                 if (!guild_queue_manager.loop_enabled) {
                     /* don't send messages when looping */
                     message.channel.send(new CustomRichEmbed({
@@ -251,7 +268,7 @@ async function playSpotify(message, search_query, playnext=false) {
                 emoji_name: 'bot_emoji_checkmark',
                 async callback(options_message, collected_reaction, user) {
                     await options_message.delete({timeout: 500}).catch(console.warn);
-    
+
                     await options_message.channel.send(new CustomRichEmbed({
                         title: `Adding ${track_ids.length} item(s) to the queue!`,
                     }, message));
@@ -282,10 +299,9 @@ async function playSpotify(message, search_query, playnext=false) {
         });
     }
 
-    // if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {
-    //     playSpotifyTracks(parsed_uri_data.id, parsed_uri_data.type);
-    // } else
-    if (parsed_uri_data.type === 'track') {
+    if (parsed_uri_data.type === 'playlist' || parsed_uri_data.type === 'album') {
+        playSpotifyTracks(parsed_uri_data.id, parsed_uri_data.type);
+    } else if (parsed_uri_data.type === 'track') {
         playSpotifyTrack(parsed_uri_data.id);
     } else {
         /* the parsed uri is not for a track or playlist */

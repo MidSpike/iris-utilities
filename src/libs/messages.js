@@ -264,19 +264,25 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
  * @param {Message} user_message 
  */
 function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
-    const guild_id = client.channels.cache.get(channel_id).guild.id;
+    const channel = client.channels.resolve(channel_id);
+    const guild = channel.guild;
 
-    const guild_volume_manager = client.$.volume_managers.get(guild_id);
+    const guild_volume_manager = client.$.volume_managers.get(guild.id);
 
     const makeEmbed = () => new CustomRichEmbed({
         title: `The Current Volume Is: ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
     }, user_message);
-    sendOptionsMessage(channel_id, makeEmbed(), [
+    sendOptionsMessage(channel.id, makeEmbed(), [
         {
             emoji_name: 'bot_emoji_mute',
             cooldown: 1000,
             async callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 await guild_volume_manager.toggleMute();
                 options_message.edit(new CustomRichEmbed({
                     author: {
@@ -290,7 +296,12 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_volume_down',
             cooldown: 1000,
             async callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 await guild_volume_manager.decreaseVolume();
                 options_message.edit(new CustomRichEmbed({
                     author: {
@@ -304,10 +315,15 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_volume_up',
             cooldown: 1000,
             async callback(options_message, collected_reaction, user) {
-                const guild_config = await client.$.guild_configs_manager.fetchConfig(guild_id);
+                if (!guild.me.voice?.channelID) return;
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
+                const guild_config = await client.$.guild_configs_manager.fetchConfig(guild.id);
                 const old_volume = guild_volume_manager.volume;
-                const [updated_volume_manager, increase_amount] = await guild_volume_manager.increaseVolume();
+                const [ updated_volume_manager, increase_amount ] = await guild_volume_manager.increaseVolume();
                 const new_volume = updated_volume_manager.volume;
                 options_message.edit(new CustomRichEmbed({
                     author: {
@@ -328,22 +344,29 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
  * @param {Message|undefined} user_message 
  */
 function sendMusicControllerEmbed(channel_id, user_message=undefined) {
-    const guild_id = client.channels.cache.get(channel_id).guild.id;
+    const channel = client.channels.resolve(channel_id);
+    const guild = channel.guild;
 
-    const guild_audio_controller = client.$.audio_controllers.get(guild_id);
-    const guild_queue_manager = client.$.queue_managers.get(guild_id);
+    const guild_audio_controller = client.$.audio_controllers.get(guild.id);
+    const guild_queue_manager = client.$.queue_managers.get(guild.id);
 
     const audio_controller = guild_audio_controller;
     const embed_title = 'Audio Controller';
     const makeEmbed = () => new CustomRichEmbed({
         title: `${embed_title}`,
     }, user_message);
-    sendOptionsMessage(channel_id, makeEmbed(), [
+    sendOptionsMessage(channel.id, makeEmbed(), [
         {
             emoji_name: 'bot_emoji_play_pause',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 if (audio_controller.paused === true) {
                     audio_controller.resume();
                     options_message.edit(new CustomRichEmbed({
@@ -380,7 +403,13 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_stop_square',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 audio_controller.disconnect();
                 options_message.edit(new CustomRichEmbed({
                     author: {
@@ -395,7 +424,13 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_skip',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 audio_controller.skip();
                 options_message.edit(new CustomRichEmbed({
                     author: {
@@ -410,7 +445,13 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_shuffle',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 guild_queue_manager.shuffleItems();
                 options_message.edit(new CustomRichEmbed({
                     author: {
@@ -425,7 +466,13 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_repeat_all',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 guild_queue_manager.setLoopType('multiple');
                 guild_queue_manager.toggleLoop();
                 options_message.edit(new CustomRichEmbed({
@@ -441,7 +488,13 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_repeat_one',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 guild_queue_manager.setLoopType('single');
                 guild_queue_manager.toggleLoop();
                 options_message.edit(new CustomRichEmbed({
@@ -457,8 +510,14 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
             emoji_name: 'bot_emoji_volume_up',
             cooldown: 500,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
-                sendVolumeControllerEmbed(channel_id);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
+                sendVolumeControllerEmbed(channel.id);
             },
         },
     ]);
@@ -471,11 +530,12 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
  * @param {String} status 
  */
 async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
-    const guild_id = user_message.guild.id;
+    const channel = user_message.channel;
+    const guild = user_message.guild;
 
-    const guild_queue_manager = user_message.client.$.queue_managers.get(guild_id);
+    const guild_queue_manager = user_message.client.$.queue_managers.get(guild.id);
 
-    const guild_config = await user_message.client.$.guild_configs_manager.fetchConfig(guild_id);
+    const guild_config = await user_message.client.$.guild_configs_manager.fetchConfig(guild.id);
 
     let show_player_description = guild_config.player_description === 'enabled';
     function makeYTEmbed() {
@@ -503,12 +563,18 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
             image: (show_player_description ? `${video_thumbnail_url}` : undefined),
         }, user_message);
     }
-    sendOptionsMessage(user_message.channel.id, makeYTEmbed(), [
+    sendOptionsMessage(channel.id, makeYTEmbed(), [
         {
             emoji_name: 'bot_emoji_information',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
                 show_player_description = !show_player_description;
                 options_message.edit(makeYTEmbed());
             },
@@ -516,15 +582,27 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
             emoji_name: 'bot_emoji_music',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
-                sendMusicControllerEmbed(user_message.channel.id);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
+                sendMusicControllerEmbed(channel.id);
             },
         }, {
             emoji_name: 'bot_emoji_volume_up',
             cooldown: 1000,
             callback(options_message, collected_reaction, user) {
+                if (!guild.me.voice?.channelID) return;
+
                 removeUserReactionsFromMessage(options_message);
-                sendVolumeControllerEmbed(user_message.channel.id);
+
+                const member = guild.members.resolve(user);
+                if (guild.me.voice?.channelID !== member.voice?.channelID) return;
+
+                sendVolumeControllerEmbed(channel.id);
             },
         },
     ]);
