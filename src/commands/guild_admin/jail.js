@@ -60,7 +60,11 @@ module.exports = new DisBotCommand({
             if (isSuperPerson(staff_id)) return true;
             if (message.guild.ownerID === staff_id) return true;
 
-            const staff_member_has_permissions = staff_member.hasPermission('MANAGE_CHANNELS', 'MANAGE_MESSAGES', 'MUTE_MEMBERS');
+            const staff_member_has_permissions = staff_member.permissions.has([
+                Discord.Permissions.FLAGS.MANAGE_CHANNELS,
+                Discord.Permissions.FLAGS.MANAGE_MESSAGES,
+                Discord.Permissions.FLAGS.MUTE_MEMBERS,
+            ]);
             if (!staff_member_has_permissions) return false; // they don't have the required permissions
 
             const member_being_jailed = message.guild.members.resolve(member_id);
@@ -77,7 +81,7 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        if (member.hasPermission(['ADMINISTRATOR'])) {
+        if (member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR)) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 description: `This command doesn\'t work on members with the \`ADMINISTRATOR\` permission!`,

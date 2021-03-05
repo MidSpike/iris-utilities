@@ -69,7 +69,7 @@ module.exports = new DisBotCommand({
                         value: '\u200b',
                     },
                     help_page_commands_field,
-                    ...(!message.guild.me.hasPermission('MANAGE_MESSAGES') ? [
+                    ...(!message.guild.me.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES) ? [
                         {
                             name: '\u200b',
                             value:'\u200b',
@@ -88,7 +88,7 @@ module.exports = new DisBotCommand({
             /* the user specified a page number or is lacking input after the command */
             const page_number_input = parseInt(specified_command_input) || 1;
             const processed_number_input = math_clamp(page_number_input, 1, command_categories.length)
-            if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+            if (!message.guild.me.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) {
                 message.channel.send(makeHelpEmbed(processed_number_input));
             } else {
                 function navigate_page(options_message, page_number=1) {

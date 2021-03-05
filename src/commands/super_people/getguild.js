@@ -47,7 +47,7 @@ module.exports = new DisBotCommand({
             break;
             case 'managers':
                 message.channel.send(`Here are the guild managers for: ${guild.id}`);
-                const guild_managers = guild.members.cache.filter(m => !m.user.bot && m.hasPermission(['MANAGE_GUILD']));
+                const guild_managers = guild.members.cache.filter(m => !(m.user.bot || m.user.system) && m.permissions.has(Discord.Permissions.FLAGS.MANAGE_GUILD));
                 const sorted_guild_managers = guild_managers.sort((a, b) => b.roles.highest.position - a.roles.highest.position);
                 sendLargeMessage(message.channel.id, sorted_guild_managers.map(member => `(${member.id}) ${member.user.tag}`).join('\n'));
             break;

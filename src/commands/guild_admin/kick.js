@@ -59,7 +59,7 @@ module.exports = new DisBotCommand({
             if (isSuperPerson(staff_id)) return true;
             if (message.guild.ownerID === staff_id) return true;
 
-            const staff_member_can_kick = staff_member.hasPermission('KICK_MEMBERS');
+            const staff_member_can_kick = staff_member.permissions.has(Discord.Permissions.FLAGS.KICK_MEMBERS);
             if (!staff_member_can_kick) return false; // they can't kick anyone
 
             const member_being_kicked = message.guild.members.resolve(member_id);

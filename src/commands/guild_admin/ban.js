@@ -73,7 +73,7 @@ module.exports = new DisBotCommand({
                 if (isSuperPerson(staff_id)) return true;
                 if (message.guild.ownerID === staff_id) return true;
 
-                const staff_member_can_ban = staff_member.hasPermission('BAN_MEMBERS');
+                const staff_member_can_ban = staff_member.permissions.has(Discord.Permissions.FLAGS.BAN_MEMBERS);
                 if (!staff_member_can_ban) return false; // They can't ban anyone
 
                 const member_being_banned = message.guild.members.resolve(user_id);

@@ -1,6 +1,6 @@
 'use strict';
 
-const { client } = require('./discord_client.js');
+const { Discord, client } = require('./discord_client.js');
 
 const bot_config = require('../../config.js');
 
@@ -15,15 +15,19 @@ const bot_common_name = bot_config.COMMON_NAME;
 /**
  * Checks if the bot has the specified permissions in that guild and will auto notify the user if it does not
  * @param {Message} message 
- * @param {Array<String>} required_perms 
+ * @param {Discord.PermissionResolvable[]} required_perms 
  * @returns {Boolean} 
  */
-function botHasPermissionsInGuild(message, required_permissions=['ADMINISTRATOR']) {
-    if (!message.guild.me.hasPermission(required_permissions)) {// The bot doesn't have permission
+function botHasPermissionsInGuild(message, required_permissions=[Discord.Permissions.FLAGS.ADMINISTRATOR]) {
+    if (!message.guild.me.permissions.has(required_permissions)) {
         message.channel.send(new CustomRichEmbed({
             color: 0xFF0000,
             title: 'Uh Oh! Something went wrong!',
-            description: `${bot_common_name} is missing the following permission(s):\n${'```'}\n${required_permissions.join('\n')}\n${'```'}You cannot perform this command without ${bot_common_name} having permission!`,
+            description: [
+                `${bot_common_name} is missing the following permission(s):`,
+                `\n${'```'}\n${required_permissions.join('\n')}\n${'```'}`,
+                `You cannot perform this command when I don\'t have teh required permission(s)!`,
+            ].join(''),
         }, message));
         return false;
     } else {
