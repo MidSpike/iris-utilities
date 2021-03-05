@@ -73,10 +73,10 @@ module.exports = new DisBotCommand({
 
                 if (client.$.blacklisted_guilds_manager.configs.has(guild.id)) {
                     /* remove guild from the blacklist */
-                    await client.$.blacklisted_users_manager.removeConfig(guild.id);
+                    await client.$.blacklisted_guilds_manager.removeConfig(guild.id);
                     message.channel.send(new CustomRichEmbed({
                         description: `Removed [${guild.name}] (${guild.id}) from blacklist!`,
-                    }));
+                    }, message));
                 } else {
                     /* add guild to the blacklist */
                     await client.$.blacklisted_guilds_manager.updateConfig(guild.id, {
