@@ -52,8 +52,8 @@ module.exports = new DisBotCommand({
                         value: `${'```'}\n${moment(member.user.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
                         inline: false,
                     }, {
-                        name: 'Member Creation Date',
-                        value: `${'```'}\n${moment(member.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                        name: 'Member Joined Date',
+                        value: `${'```'}\n${moment(member.joinedTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
                         inline: false,
                     }, {
                         name: 'Permissions',
