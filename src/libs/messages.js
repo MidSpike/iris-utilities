@@ -23,12 +23,13 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 
 /**
  * Removes any reactions created by any user on a specified message
- * @param {Message} message 
+ * @param {Discord.Message} message 
  * @returns {Promise<void>} 
  */
 async function removeUserReactionsFromMessage(message) {
     await Timer(250); // prevent API abuse
-    if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+
+    if (message.guild.me.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) {
         const message_reactions = message.reactions.cache;
         for (const message_reaction of message_reactions.values()) {
             const reaction_users = message_reaction.users.cache.filter(user => !user.bot); // don't interact with bots
@@ -38,12 +39,14 @@ async function removeUserReactionsFromMessage(message) {
             }
         }
     }
+
+    return;
 }
 
 /**
  * Removes any reactions created by a user on a specified message
- * @param {Message} message 
- * @returns {Promise<Message>} 
+ * @param {Discord.Message} message 
+ * @returns {Promise<Discord.Message>} 
  */
 async function removeAllReactionsFromMessage(message) {
     await Timer(250); // prevent API abuse
@@ -52,7 +55,7 @@ async function removeAllReactionsFromMessage(message) {
     if (!(message instanceof Discord.Message)) throw new TypeError('\`message\` was not an instance of a \`Discord.Message\`');
 
     /* check if the bot can remove message all reactions */
-    if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) return undefined;
+    if (!message.guild.me.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) return undefined;
 
     /* attempt to remove all message reactions and return the message */
     return await message.reactions.removeAll().catch(() => message);
@@ -65,7 +68,7 @@ async function removeAllReactionsFromMessage(message) {
  * @param {String} channel_id 
  * @param {String} large_message 
  * @param {String} code_block_language 
- * @returns {Promise<Array<Message>>} a promise for an array of discord messages
+ * @returns {Promise<Discord.Message[]>} a promise for an array of discord messages
  */
 async function sendLargeMessage(channel_id, large_message, code_block_language='') {
     const sent_messages = [];
@@ -104,7 +107,7 @@ const options_message_reactions_template = [
  * @param {String?} opts.confirmation_user_id the user_id to confirm the reaction's origin with
  * @param {Boolean?} opts.auto_cleanup_reactions whether or not to auto-remove reactions after the `auto_cleanup_time`
  * @param {Number?} opts.auto_cleanup_timeout (default: 5 * 60_000) amount of ms to wait for
- * @returns {Promise<Message>} the options_message after attempting to add all reactions
+ * @returns {Promise<Discord.Message>} the options_message after attempting to add all reactions
  */
 async function sendOptionsMessage(channel_id, message_contents, reaction_options=options_message_reactions_template, opts={}) {
     const _opts = {

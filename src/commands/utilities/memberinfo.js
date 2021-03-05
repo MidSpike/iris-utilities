@@ -19,11 +19,11 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
 
-        const default_discord_perms = new Discord.Permissions(Discord.Permissions.DEFAULT);
-
         const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first() ?? message.member;
         if (member) {
-            const member_permissions = member.permissions.toArray().filter(permission => !default_discord_perms.toArray().includes(permission));
+            const everyone_permissions = message.guild.roles.everyone.permissions.toArray();
+            const member_permissions = member.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
+
             const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
 
             message.channel.send(new CustomRichEmbed({

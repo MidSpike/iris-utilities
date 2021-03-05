@@ -70,7 +70,7 @@ module.exports = new DisBotCommand({
 
         for (const member_to_yeet of members_to_yeet.values()) {
             if (isThisBotsOwner(member_to_yeet.id)) continue;
-            const available_vcs = message.guild.channels.cache.filter(c => c.type === 'voice' && c.id !== message.member.voice.channel.id && c.permissionsFor(message.guild.me).has('MOVE_MEMBERS'));
+            const available_vcs = message.guild.channels.cache.filter(c => c.type === 'voice' && c.id !== message.member.voice.channel.id && c.permissionsFor(message.guild.me).has(Discord.Permissions.FLAGS.MOVE_MEMBERS));
             const random_vc = array_random(Array.from(available_vcs.values()));
             const vc_to_yeet_them_to = message.guild.afkChannel ?? random_vc;
             if (!vc_to_yeet_them_to) {

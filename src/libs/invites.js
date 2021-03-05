@@ -1,6 +1,6 @@
 'use strict';
 
-const { client } = require('./discord_client.js');
+const { Discord, client } = require('./discord_client.js');
 
 //---------------------------------------------------------------------------------------------------------------//
 
@@ -14,8 +14,8 @@ async function generateInviteToGuild(guild_id, invite_reason='created invite via
     const guild = await client.guilds.fetch(guild_id);
     const invite_channel = guild.channels.rulesChannel ?? guild.channels.cache.filter(channel => {
         const is_text_channel = channel.type === 'text';
-        const everyone_can_view = channel.permissionsFor(guild.roles.everyone).has('VIEW_CHANNEL');
-        const can_create_invite = channel.permissionsFor(guild.me).has('CREATE_INSTANT_INVITE');
+        const everyone_can_view = channel.permissionsFor(guild.roles.everyone).has(Discord.Permissions.FLAGS.VIEW_CHANNEL);
+        const can_create_invite = channel.permissionsFor(guild.me).has(Discord.Permissions.FLAGS.CREATE_INSTANT_INVITE);
         return (is_text_channel && everyone_can_view && can_create_invite);
     }).first();
     if (invite_channel) {
