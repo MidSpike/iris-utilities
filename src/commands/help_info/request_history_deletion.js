@@ -24,7 +24,7 @@ module.exports = new DisBotCommand({
             description: 'Do you want to request for your stored user history to be deleted?',
         }, message);
         const yes_callback = async () => {
-            const history_deletion_requests_channel = client.channels.cache.get(history_deletion_requests_channel_id);
+            const history_deletion_requests_channel = client.$.bot_guilds.logging.channels.resolve(history_deletion_requests_channel_id);
             await history_deletion_requests_channel.send(`@${message.author.tag} (${message.author.id}) - ${moment()}`).catch(console.trace);
             message.reply(new CustomRichEmbed({
                 color: 0xFF00FF,

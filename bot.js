@@ -265,21 +265,19 @@ client.on('guildCreate', async (guild) => {
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074386511', warning));
 
     /* log to the central logging server when a guild adds the bot to it */
-    const central_guild_history_logging_channel = await client.channels.fetch(bot_central_guild_history_channel_id);
-    if (central_guild_history_logging_channel) {
-        central_guild_history_logging_channel.send(new CustomRichEmbed({
-            color: 0x00FF00,
-            author: {
-                iconURL: guild.iconURL(),
-                name: `${guild.name} (${guild.id})`,
-            },
-            title: `Added ${bot_common_name}!`,
-            footer: {
-                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                text: `${moment()}`,
-            },
-        })).catch(console.warn);
-    }
+    const central_guild_history_logging_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_guild_history_channel_id);
+    central_guild_history_logging_channel.send(new CustomRichEmbed({
+        color: 0x00FF00,
+        author: {
+            iconURL: guild.iconURL(),
+            name: `${guild.name} (${guild.id})`,
+        },
+        title: `Added ${bot_common_name}!`,
+        footer: {
+            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            text: `${moment()}`,
+        },
+    })).catch(console.warn);
 
     /* prepare the guild for configs and other runtime variables */
     await initialize_guild_on_client_$(guild);
@@ -315,24 +313,24 @@ client.on('guildCreate', async (guild) => {
 });
 
 client.on('guildDelete', async (guild) => {
+    if (!guild.name) return; // handles weird bug from Discord's side
+
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074228380', warning));
 
     /* log to the central logging server when a guild removes the bot from it */
-    const central_guild_history_logging_channel = await client.channels.fetch(bot_central_guild_history_channel_id);
-    if (central_guild_history_logging_channel) {
-        central_guild_history_logging_channel.send(new CustomRichEmbed({
-            color: 0xFFFF00,
-            author: {
-                iconURL: guild.iconURL(),
-                name: `${guild?.name} (${guild?.id})`,
-            },
-            title: `Removed ${bot_common_name}!`,
-            footer: {
-                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                text: `${moment()}`,
-            },
-        })).catch(console.warn);
-    }
+    const central_guild_history_logging_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_guild_history_channel_id);
+    central_guild_history_logging_channel.send(new CustomRichEmbed({
+        color: 0xFFFF00,
+        author: {
+            iconURL: guild.iconURL(),
+            name: `${guild?.name} (${guild?.id})`,
+        },
+        title: `Removed ${bot_common_name}!`,
+        footer: {
+            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            text: `${moment()}`,
+        },
+    })).catch(console.warn);
 });
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -1036,7 +1034,7 @@ client.on('message', async (message) => {
         timestamp: `${command_timestamp}`,
         command: `${message.content}`,
     };
-    const central_anonymous_command_logging_channel = await client.channels.fetch(bot_central_anonymous_command_log_channel_id);
+    const central_anonymous_command_logging_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_anonymous_command_log_channel_id);
     central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
 
     /* guild command logging */
