@@ -73,7 +73,7 @@ class VolumeManager {
      * @returns {VolumeManager} 
      */
     async setVolume(volume_input=this.#fallback_volume, update_last_volume=true, clamp_volume=true) {
-        if (this.guild.voice?.connection?.dispatcher?.setVolume) {
+        if (this.guild.me.voice?.connection?.dispatcher?.setVolume) {
             const guild_dispatcher = this.guild.client.$.dispatchers.get(this.guild.id);
             const guild_dispatcher_volume_ratio = guild_dispatcher.$.volume_ratio;
 
@@ -81,7 +81,7 @@ class VolumeManager {
 
             this.#volume = math_clamp(volume_input, 0, clamp_volume ? (await this.maximum) : Number.MAX_SAFE_INTEGER);
 
-            this.guild.voice.connection.dispatcher.setVolume((await this.multiplier) * this.volume * guild_dispatcher_volume_ratio);
+            this.guild.me.voice.connection.dispatcher.setVolume((await this.multiplier) * this.volume * guild_dispatcher_volume_ratio);
         }
         return this;
     }

@@ -32,13 +32,17 @@ module.exports = new DisBotCommand({
                 logUserError(message, new Error('Unable to delete community updates channel!'));
                 return;
             }
-            const cloned_channel = await message.channel.clone({reason:`Created using ${discord_command} by @${message.author.tag}`});
+            const cloned_channel = await message.channel.clone({
+                reason: `Created using ${discord_command} by @${message.author.tag}`,
+            });
             await cloned_channel.setParent(message.channel.parent);
             await cloned_channel.setPosition(message.channel.position + 1);
-            await Timer(1500); // This is needed
-            message.channel.delete({reason:`Deleted using ${discord_command} by @${message.author.tag}`}).catch(error => console.warn(`Unable to delete channel`, error));
+            await Timer(1500); // this is needed
+            message.channel.delete({
+                reason: `Deleted using ${discord_command} by @${message.author.tag}`,
+            }).catch(error => console.warn(`Unable to delete channel`, error));
         }, async (bot_message) => {
-            await bot_message.delete({timeout:500}).catch(error => console.warn(`Unable to delete message`, error));
+            await bot_message.delete().catch(error => console.warn(`Unable to delete message`, error));
             message.channel.send(new CustomRichEmbed({title:'Canceled wipeout!'}, message));
         });
     },

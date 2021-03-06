@@ -16,7 +16,7 @@ class AudioController {
     }
 
     get voice() {
-        return this.guild.voice;
+        return this.guild.me.voice;
     }
 
     get timestamp() {

@@ -51,12 +51,12 @@ module.exports = new DisBotCommand({
             await message.channel.send(new CustomRichEmbed({
                 title: 'Archived channel!',
             }, message));
-            await bot_message.delete({timeout: 500}).catch(error => console.warn(`Unable to delete message`, error));
+            await bot_message.delete().catch(error => console.warn(`Unable to delete message`, error));
         }, async (bot_message) => {
             await message.channel.send(new CustomRichEmbed({
                 title: 'Canceled archive!',
             }, message));
-            await bot_message.delete({timeout: 500}).catch(error => console.warn(`Unable to delete message`, error));
+            await bot_message.delete().catch(error => console.warn(`Unable to delete message`, error));
         });
     },
 });

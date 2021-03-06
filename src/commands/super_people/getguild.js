@@ -4,33 +4,41 @@
 const path = require('path');
 const moment = require('moment-timezone');
 
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
-const { sendNotAllowedCommand, sendLargeMessage, sendConfirmationMessage } = require('../../libs/messages.js');
-const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
+const { sendLargeMessage,
+        sendNotAllowedCommand,
+        sendConfirmationMessage } = require('../../libs/messages.js');
+const { isSuperPerson,
+        isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion dependencies
 
 const bot_command_log_file = path.join(process.cwd(), process.env.BOT_COMMAND_LOG_FILE);
 
 module.exports = new DisBotCommand({
-    name:'GETGUILD',
-    category:`${DisBotCommander.categories.SUPER_PEOPLE}`,
-    description:'gets guild',
-    aliases:['getguild'],
-    access_level:DisBotCommand.access_levels.BOT_SUPER,
+    name: 'GETGUILD',
+    category: `${DisBotCommander.categories.SUPER_PEOPLE}`,
+    description: 'gets guild',
+    aliases: ['getguild'],
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
+
         if (!isSuperPersonAllowed(isSuperPerson(message.member.id), 'get_guild')) {
             sendNotAllowedCommand(message);
             return;
         }
-        const guild = client.guilds.cache.get(command_args[1]) ?? message.guild;
+
+        const potential_fetched_guild = await client.guilds.fetch(command_args[1], false, true).catch(() => null);
+        const guild = potential_fetched_guild ?? message.guild;
+
         switch (`${command_args[0]}`.toLowerCase()) {
             case 'roles':
                 message.channel.send(`Here are the guild roles for: ${guild.id}`);
                 const sorted_guild_roles = guild.roles.cache.sort((a, b) => b.position - a.position);
                 sendLargeMessage(message.channel.id, sorted_guild_roles.map(role => `(${role.id}) (${role.position}) ${role.name}`).join('\n'));
-            break;
+                break;
             case 'invites':
                 guild.fetchInvites().then(invites => {
                     if (invites.size && invites.size > 0) {
@@ -40,17 +48,17 @@ module.exports = new DisBotCommand({
                         message.channel.send(`Couldn't find any invites for ${guild.name} (${guild.id})`);
                     }
                 }).catch(console.warn);
-            break;
+                break;
             case 'channels':
                 message.channel.send(`Here are the guild channels for: ${guild.id}`);
                 sendLargeMessage(message.channel.id, guild.channels.cache.map(channel => `(${channel.id}) [${channel.type}] ${channel.name}`).join('\n'));
-            break;
+                break;
             case 'managers':
                 message.channel.send(`Here are the guild managers for: ${guild.id}`);
                 const guild_managers = guild.members.cache.filter(m => !(m.user.bot || m.user.system) && m.permissions.has(Discord.Permissions.FLAGS.MANAGE_GUILD));
                 const sorted_guild_managers = guild_managers.sort((a, b) => b.roles.highest.position - a.roles.highest.position);
                 sendLargeMessage(message.channel.id, sorted_guild_managers.map(member => `(${member.id}) ${member.user.tag}`).join('\n'));
-            break;
+                break;
             case 'members':
                 const guild_members = guild.members.cache.filter(m => !m.user.bot);
                 function _output_members() {
@@ -68,7 +76,7 @@ module.exports = new DisBotCommand({
                 } else {
                     _output_members();
                 }
-            break;
+                break;
             case 'bots':
                 const guild_bots = guild.members.cache.filter(m => m.user.bot);
                 function _output_bots() {
@@ -86,11 +94,11 @@ module.exports = new DisBotCommand({
                 } else {
                     _output_bots();
                 }
-            break;
+                break;
             case 'config':
                 const _guild_config = await message.client.$.guild_configs_manager.fetchConfig(guild.id);
                 sendLargeMessage(message.channel.id, `${JSON.stringify(_guild_config, null, 2)}`, 'json');
-            break;
+                break;
             case 'usage':
                 function getGuildCommandsUsage(guild_id) {
                     const current_command_logs_file = bot_command_log_file.replace('#{date}', `${moment().format(`YYYY-MM`)}`);
@@ -99,10 +107,10 @@ module.exports = new DisBotCommand({
                     return guild_command_usage;
                 }
                 message.channel.send(`Command usage for \`${guild.name}\` is \`${getGuildCommandsUsage(guild.id)}\` entered this month!`);
-            break;
+                break;
             default:
                 message.channel.send(`Usage: ${'```'}\n${discord_command} [ roles | invites | channels | managers | members | bots | usage | config ] GUILD_ID_HERE${'```'}`);
-            break;
+                break;
         }
     },
 });

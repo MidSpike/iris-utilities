@@ -38,7 +38,7 @@ module.exports = new DisBotCommand({
                 emoji_name: `bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][index+1]}`,
                 callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
-                    options_message.delete({ timeout: 10_000 }).catch(console.warn);
+                    options_message.delete().catch(console.warn);
                     playYouTube(message, `${search_result.link}`);
                 },
             }));
@@ -57,9 +57,9 @@ module.exports = new DisBotCommand({
             const bot_message = await sendOptionsMessage(message.channel.id, embed, reactions, {
                 confirmation_user_id: message.author.id,
             });
-            client.setTimeout(() => { // Wait 2 minutes before removing the search menu
+            client.setTimeout(() => { // wait 2 minutes before removing the search menu
                 if (bot_message.deletable) {
-                    bot_message.delete({ timeout: 500 }).catch(console.warn);
+                    bot_message.delete().catch(console.warn);
                 }
             }, 1000 * 60 * 2);
         } else {

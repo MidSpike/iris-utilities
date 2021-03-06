@@ -13,17 +13,15 @@ const { Timer } = require('../utilities.js');
 async function createConnection(voice_channel, force_new=false) {
     if (!voice_channel) throw new Error(`voice_channel is not defined!`);
 
-    let voice_connection;
-
     const guild = voice_channel.guild;
 
     const guild_audio_controller = guild.client.$.audio_controllers.get(guild.id);
     const guild_queue_manager = guild.client.$.queue_managers.get(guild.id);
 
-    const current_voice_state = guild.voice;
-    if (current_voice_state?.connection && current_voice_state?.channel?.id === voice_channel.id && !force_new) {
+    let voice_connection;
+    if (guild.me.voice.channelID === voice_channel.id && !force_new) {
         /* use the current voice_connection */
-        voice_connection = current_voice_state.connection;
+        voice_connection = guild.me.voice.connection;
     } else {
         /* create a new voice_connection */
         if (force_new) guild_audio_controller.disconnect();

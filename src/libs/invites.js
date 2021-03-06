@@ -11,7 +11,7 @@ const { Discord, client } = require('./discord_client.js');
  * @returns {Promise<Invite>} an invite or throws if unsuccessful
  */
 async function generateInviteToGuild(guild_id, invite_reason='created invite via a command that was used in this server') {
-    const guild = await client.guilds.fetch(guild_id);
+    const guild = await client.guilds.fetch(guild_id, false, false);
     const invite_channel = guild.channels.rulesChannel ?? guild.channels.cache.filter(channel => {
         const is_text_channel = channel.type === 'text';
         const everyone_can_view = channel.permissionsFor(guild.roles.everyone).has(Discord.Permissions.FLAGS.VIEW_CHANNEL);

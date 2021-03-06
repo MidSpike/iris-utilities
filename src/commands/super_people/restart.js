@@ -116,7 +116,7 @@ module.exports = new DisBotCommand({
                 restartBot(client, bot_message);
             }
         }, async (bot_message) => {
-            await bot_message.delete({timeout: 500});
+            await bot_message.delete();
             await bot_message.channel.send(new CustomRichEmbed({
                 title: `${bot_common_name}: Canceled Restarting`,
             }));
