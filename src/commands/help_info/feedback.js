@@ -21,7 +21,7 @@ module.exports = new DisBotCommand({
         const { command_args, discord_command } = opts;
 
         if (command_args.join('').trim().length > 0) { // see if they left feedback
-            const central_feedback_channel = await client.channels.fetch(bot_central_feedback_channel_id, false, false);
+            const central_feedback_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_feedback_channel_id);
 
             await central_feedback_channel.send(new CustomRichEmbed({
                 author: {
