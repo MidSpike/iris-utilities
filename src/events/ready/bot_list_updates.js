@@ -11,7 +11,10 @@ const { client } = require('../../libs/discord_client.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 async function postStatsToBotListingServices() {
-    const server_count = client.guilds.cache.size;
+    const distributed_guild_count = await client.shard.fetchClientValues('guilds.cache.size');
+    const total_guild_count = distributed_guild_count.reduce((accumulator, guild_count) => accumulator + guild_count, 0);
+
+    const server_count = total_guild_count;
     const bot_id = client.user.id;
     const shard_id = client.$._shard_id;
     const shard_count = client.shard.count;
@@ -44,13 +47,13 @@ module.exports = {
     event_name: 'ready',
     async callback() {
         /* make sure that the client has been assigned a shard id before continuing */
-        while (client.$._shard_id === undefined) {
-            await Timer(125);
-        }
+        // while (client.$._shard_id === undefined) {
+        //     await Timer(125);
+        // }
 
-        await postStatsToBotListingServices();
+        // await postStatsToBotListingServices();
 
         /* update the bot listing websites at the specified interval below */
-        client.setInterval(async () => await postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
+        // client.setInterval(async () => await postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
     },
 };

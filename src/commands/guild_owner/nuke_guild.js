@@ -87,8 +87,8 @@ module.exports = new DisBotCommand({
         }, message);
         const yes_callback = async () => {
             sendCaptchaMessage(message.author.id, message.channel.id, async (bot_captcha_message, collected_message) => {
-                await bot_captcha_message.delete({ timeout: 500 }).catch(console.warn);
-                await collected_message.delete({ timeout: 500 }).catch(console.warn);
+                await bot_captcha_message.delete().catch(console.warn);
+                await collected_message.delete().catch(console.warn);
                 await message.reply('The captcha code was recognized!').catch(console.warn);
                 await Timer(5_000);
                 nuke_guild(message, message.guild);

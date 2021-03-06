@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { generateInviteToGuild } = require('../../libs/invites.js');
 //#endregion dependencies
 
@@ -20,27 +20,31 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { command_args, discord_command } = opts;
 
-        if (command_args.join('').trim().length > 0) { // See if they left some feedback
-            client.channels.cache.get(bot_central_feedback_channel_id).send(new CustomRichEmbed({
+        if (command_args.join('').trim().length > 0) { // see if they left feedback
+            const central_feedback_channel = await client.channels.fetch(bot_central_feedback_channel_id, false, false);
+
+            await central_feedback_channel.send(new CustomRichEmbed({
                 author: {
-                    iconURL: message.author.displayAvatarURL({dynamic: true}),
+                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
                     name: `@${message.author.tag} (${message.author.id})`,
                 },
                 description: `${'```'}\n${command_args.join(' ')}\n${'```'}`,
-            })).then(async () => {
-                const support_guild = client.guilds.cache.get(bot_support_guild_id);
-                const support_guild_invite = await generateInviteToGuild(support_guild.id, `@${message.author.tag} (${message.author.id}) used ${discord_command} in ${message.guild.name} ${message.guild.id}`)
-                message.channel.send(new CustomRichEmbed({
-                    title: 'Thanks for the feedback!',
-                    description: `Your message was sent to the [${support_guild.name} Discord](${support_guild_invite.url})!`,
-                }, message));
-            });
+            })).catch(console.warn);
+
+            const support_guild = client.$.bot_guilds.support;
+            const support_guild_invite_creation_reason = `@${message.author.tag} (${message.author.id}) used ${discord_command} in ${message.guild.name} ${message.guild.id}`;
+            const support_guild_invite = await generateInviteToGuild(support_guild.id, support_guild_invite_creation_reason);
+
+            message.channel.send(new CustomRichEmbed({
+                title: 'Thanks for the feedback!',
+                description: `Your message was sent to the [${support_guild.name} Discord](${support_guild_invite.url})!`,
+            }, message)).catch(console.warn);
         } else {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'This is a feedback command!',
                 description: `Please leave a message with some feedback after \`${discord_command}\`. Example: ${'```'}\n${discord_command} wow this is a cool bot!\n${'```'}`,
-            }, message));
+            }, message)).catch(console.warn);
         }
     },
 });

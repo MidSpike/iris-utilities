@@ -237,7 +237,7 @@ async function playYouTube(message, search_query, playnext=false) {
         }
 
         if (search_message.deletable) {
-            search_message.delete({ timeout: 500 }).catch(console.warn);
+            search_message.delete().catch(console.warn);
         }
 
         return; // complete async
@@ -258,7 +258,7 @@ async function playYouTube(message, search_query, playnext=false) {
             {
                 emoji_name: 'bot_emoji_checkmark',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({timeout: 500}).catch(console.warn);
+                    await options_message.delete().catch(console.warn);
 
                     await search_message.edit(new CustomRichEmbed({
                         title: `Adding ${playlist_items.length} item(s) to the queue!`,
@@ -284,7 +284,7 @@ async function playYouTube(message, search_query, playnext=false) {
             }, {
                 emoji_name: 'bot_emoji_close',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({ timeout: 500 }).catch(console.warn);
+                    await options_message.delete().catch(console.warn);
                     _play_as_video(`https://youtu.be/${video_id}`);
                 },
             },

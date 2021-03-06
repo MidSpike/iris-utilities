@@ -16,7 +16,9 @@ module.exports = new DisBotCommand({
     aliases: ['invite'],
     async executor(Discord, client, message, opts={}) {
         const bot_invite_url = await client.generateInvite({
-            permissions: [ 'ADMINISTRATOR' ],
+            permissions: [
+                Discord.Permissions.FLAGS.ADMINISTRATOR
+            ],
         }).catch(console.trace);
         message.channel.send(new CustomRichEmbed({
             title: `Hi there ${message.author.username}!`,

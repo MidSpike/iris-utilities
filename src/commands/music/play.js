@@ -126,7 +126,7 @@ async function playUserUploadedMP3(message, playnext=false) {
                 }
             }, () => {
                 if (message.deletable) {
-                    message.delete({timeout: 500}).catch(null);
+                    message.delete().catch(null);
                 }
             }, (error) => {
                 console.trace(error);
@@ -267,7 +267,7 @@ async function playSpotify(message, search_query, playnext=false) {
             {
                 emoji_name: 'bot_emoji_checkmark',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({timeout: 500}).catch(console.warn);
+                    await options_message.delete().catch(console.warn);
 
                     await options_message.channel.send(new CustomRichEmbed({
                         title: `Adding ${track_ids.length} item(s) to the queue!`,
@@ -291,7 +291,7 @@ async function playSpotify(message, search_query, playnext=false) {
             }, {
                 emoji_name: 'bot_emoji_close',
                 async callback(options_message, collected_reaction, user) {
-                    await options_message.delete({timeout: 500}).catch(console.warn);
+                    await options_message.delete().catch(console.warn);
                 },
             },
         ], {

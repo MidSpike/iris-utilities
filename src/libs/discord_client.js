@@ -23,6 +23,12 @@ const client = new Discord.Client({
             name: 'Just restarted!',
         },
     },
+    ws: {
+        intents: [
+            Discord.Intents.NON_PRIVILEGED,
+            Discord.Intents.FLAGS.GUILD_MEMBERS,
+        ],
+    },
     messageCacheMaxSize: 50, // keep 50 messages cached in each channel
     messageCacheLifetime: 60 * 5, // messages should be kept for 5 minutes
     messageSweepInterval: 60 * 5, // sweep messages every 5 minutes
@@ -32,6 +38,11 @@ client.$ = {
     _shard_id: undefined,
     restarting_bot: false,
     lockdown_mode: false,
+    bot_guilds: {
+        emoji: undefined,
+        logging: undefined,
+        support: undefined,
+    },
     guild_lockdowns: new Discord.Collection(),
     dispatchers: new Discord.Collection(),
     queue_managers: new Discord.Collection(),

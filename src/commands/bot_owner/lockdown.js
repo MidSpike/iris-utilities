@@ -24,7 +24,7 @@ module.exports = new DisBotCommand({
         }
 
         if (['guild', 'server'].includes(command_args[0])) {
-            const guild = client.guilds.cache.get(command_args[1]) ?? message.guild;
+            const guild = client.guilds.resolve(command_args[1]) ?? message.guild;
 
             const old_guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
 

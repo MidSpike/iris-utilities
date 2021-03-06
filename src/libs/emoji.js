@@ -20,7 +20,8 @@ const zero_to_nine_as_words = ['zero', 'one', 'two', 'three', 'four', 'five', 's
  */
 function findCustomEmoji(custom_emoji_name) {
     if (typeof custom_emoji_name !== 'string') throw new TypeError('`custom_emoji_name` must be a string!');
-    const bot_custom_emojis = client.guilds.resolve(emoji_guild_id).emojis.cache;
+    const bot_emoji_guild = client.$.bot_guilds.emoji;
+    const bot_custom_emojis = bot_emoji_guild.emojis.cache;
     const bot_emoji = bot_custom_emojis.find(emoji => emoji.name === custom_emoji_name);
     return bot_emoji ?? undefined;
 }

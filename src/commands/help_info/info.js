@@ -1,14 +1,14 @@
 'use strict';
 
 //#region dependencies
+const bot_config = require('../../../config.js');
+
 const { getReadableTime } = require('../../utilities.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { findCustomEmoji } = require('../../libs/emoji.js');
-
-const bot_config = require('../../../config.js');
 //#endregion dependencies
 
 const bot_website = bot_config.WEBSITE;
@@ -22,17 +22,22 @@ const super_people = bot_config.SUPER_PEOPLE;
 const bot_special_text_channels = bot_config.SPECIAL_CHANNELS.filter(special_channel => special_channel.type === 'text');
 
 module.exports = new DisBotCommand({
-    name:'INFO',
-    category:`${DisBotCommander.categories.HELP_INFO}`,
-    weight:11,
-    description:'invites the developer to the server',
-    aliases:['info'],
+    name: 'INFO',
+    category: `${DisBotCommander.categories.HELP_INFO}`,
+    weight: 11,
+    description: 'invites the developer to the server',
+    aliases: ['info'],
     async executor(Discord, client, message, opts={}) {
         const { command_prefix } = opts;
+
         const bot_emoji = findCustomEmoji('bot_emoji_bot');
         const midspike_emoji = findCustomEmoji('bot_emoji_midspike');
         const people_music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => !member.user.bot).size).reduce((a, b) => a + b, 0) ?? 0;
         const bot_music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => member.user.bot && member.user.id !== client.user.id).size).reduce((a, b) => a + b, 0) ?? 0;
+
+        const distributed_guild_count = await client.shard.fetchClientValues('guilds.cache.size');
+        const total_guild_count = distributed_guild_count.reduce((accumulator, guild_count) => accumulator + guild_count, 0);
+
         message.channel.send(new CustomRichEmbed({
             title: `Hi There!`,
             description: `I\'m **${bot_common_name}**, the *${bot_long_name}*, a general purpose music & utility discord bot that is here to help.`,
@@ -78,7 +83,7 @@ module.exports = new DisBotCommand({
                     value: `${client.users.cache.filter(user => user.bot).size} Bots`,
                 }, {
                     name: `The Number Of Guilds I\'m In`,
-                    value: `${client.guilds.cache.size} Guilds`,
+                    value: `${total_guild_count} Guilds`,
                 }, {
                     name: 'The Special Channels Usage',
                     value: `${bot_special_text_channels.map(special_channel => `\`${special_channel.name}\` - ${client.channels.cache.filter(channel => channel.name === special_channel.name).size} Guilds`).join('\n')}`,
