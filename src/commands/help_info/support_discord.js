@@ -1,12 +1,14 @@
 'use strict';
 
 //#region dependencies
+const { COMMON_NAME: bot_common_name } = require('../../../config.js');
+
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
-const bot_support_guild_id = process.env.BOT_SUPPORT_GUILD_ID;
+const bot_support_guild_invite_url = `https://discord.gg/${process.env.BOT_SUPPORT_GUILD_INVITE_CODE}`;
 
 module.exports = new DisBotCommand({
     name: 'SUPPORT_DISCORD',
@@ -15,19 +17,9 @@ module.exports = new DisBotCommand({
     description: 'Generates an invite to the support server',
     aliases: ['support_discord'],
     async executor(Discord, client, message, opts={}) {
-        const { discord_command } = opts;
-
-        const support_guild = client.$.bot_guilds.support;
-        const first_text_channel_in_support_guild = support_guild.channels.cache.filter(c => c.type === 'text').first();
-        const support_guild_invite = await first_text_channel_in_support_guild.createInvite({
-            unique: true,
-            maxAge: 60 * 60 * 24, // 24 hours in seconds
-            reason: `@${message.author.tag} (${message.author.id}) used ${discord_command} in ${message.guild.name} ${message.guild.id}`,
-        });
-
         message.channel.send(new CustomRichEmbed({
             title: `Hey ${message.author.username}, you can speak with my support staff here!`,
-            description: `Click to join the [${support_guild.name} Discord](${support_guild_invite.url})!`,
+            description: `Click to join the [${bot_common_name} Support Discord](${bot_support_guild_invite_url})!`,
         }, message)).catch(console.warn);
     },
 });

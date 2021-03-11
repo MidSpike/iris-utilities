@@ -13,8 +13,11 @@ const { ShardingManager } = require('discord.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 const sharding_manager = new ShardingManager('./bot.js', {
+    execArgv: [
+        '--trace-warnings',
+    ],
     token: process.env.BOT_DISCORD_API_TOKEN,
-    totalShards: 2, // 'auto'
+    totalShards: 4, // 'auto'
 });
 
 sharding_manager.on('shardCreate', (shard) => {
