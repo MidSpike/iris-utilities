@@ -19,6 +19,7 @@ const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
 const axios = require('axios');
 const moment = require('moment-timezone');
+const ytdl = require('ytdl-core');
 
 const youtubeSearch = require('youtube-search');
 
@@ -29,7 +30,6 @@ const bot_config = require('../../../config.js');
 const { Timer,
         pseudoUniqueId } = require('../../utilities.js');
 const { logUserError } = require('../../libs/errors.js');
-const { generateInviteToGuild } = require(`../../libs/invites.js`);
 const { sendLargeMessage,
         sendOptionsMessage,
         sendCaptchaMessage } = require('../../libs/messages.js');
