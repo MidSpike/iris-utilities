@@ -19,8 +19,8 @@ const GoogleTranslate = require('translate-google');
 
 const SpongeBobMock = require('spmock');
 
-const gtts = require('node-gtts');
 const ytdl = require('ytdl-core');
+const { GoogleTranslateTTS } = require('google-translate-tts');
 
 const Discord = require('discord.js');
 
@@ -36,7 +36,7 @@ app.set('port', process.env.BOT_API_SERVER_PORT);
 
 //---------------------------------------------------------------------------------------------------------------//
 
-router.get('/speech', (req, res) => {
+router.get('/speech', async (req, res) => {
     if (req.query?.token !== process.env.BOT_API_SERVER_TOKEN) {
         console.warn(`Unauthorized request to the '/speech' endpoint!`);
         res.status(403);
@@ -52,7 +52,12 @@ router.get('/speech', (req, res) => {
         const speak_lang = req.query.lang ?? (speak_type === 'ibm' ? 'en-US_AllisonV3Voice' : 'en-us');
         const speak_msg = req.query.text ?? 'hello world';
         if (speak_type === 'google') {
-            gtts(speak_lang).stream(speak_msg).pipe(res);
+            const gt_tts = new GoogleTranslateTTS({
+                language: speak_lang,
+                text: speak_msg,
+            });
+            const gt_tts_stream = await gt_tts.stream();
+            gt_tts_stream.pipe(res);
         } else if (speak_type === 'ibm') {
             console.warn('TTS TEST');
             request.get(`${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(speak_lang)}&text=${encodeURIComponent(speak_msg)}&download=true&accept=audio%2Fmp3`).pipe(res);
