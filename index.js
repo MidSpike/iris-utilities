@@ -27,11 +27,26 @@ sharding_manager.on('shardCreate', (shard) => {
 
     shard.on('ready', () => {
         shard.send({
-            type: 'shard_id',
+            type: 'for_client__shard_id',
             data: {
                 shard_id: shard.id,
             },
         });
+    });
+
+    shard.on('message', (message) => {
+        if (message.type === 'for_shard__logging_anonymous_commands') {
+            sharding_manager.broadcast({
+                ...message,
+                type: 'for_client__logging_anonymous_commands',
+            });
+        }
+        if (message.type === 'for_shard__logging_guild_create_or_delete') {
+            sharding_manager.broadcast({
+                ...message,
+                type: 'for_client__logging_guild_create_or_delete',
+            });
+        }
     });
 });
 
