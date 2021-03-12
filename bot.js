@@ -268,19 +268,15 @@ client.on('guildCreate', async (guild) => {
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074386511', warning));
 
     /* log to the central logging server when a guild adds the bot to it */
-    const central_guild_history_logging_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_guild_history_channel_id);
-    central_guild_history_logging_channel.send(new CustomRichEmbed({
-        color: 0x00FF00,
-        author: {
-            iconURL: guild.iconURL(),
-            name: `${guild.name} (${guild.id})`,
+    client.shard.send({
+        type: 'for_shard__logging_guild_create_or_delete',
+        guild_action: 'create',
+        guild_info: {
+            id: guild.id,
+            name: guild.name,
+            icon_url: guild.iconURL({ dynamic: true }),
         },
-        title: `Added ${bot_common_name}!`,
-        footer: {
-            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-            text: `${moment()}`,
-        },
-    })).catch(console.warn);
+    });
 
     /* prepare the guild for configs and other runtime variables */
     await initialize_guild_on_client_$(guild);
@@ -321,19 +317,15 @@ client.on('guildDelete', async (guild) => {
     if (guild.partial) guild.fetch().catch((warning) => console.warn('1599589897074228380', warning));
 
     /* log to the central logging server when a guild removes the bot from it */
-    const central_guild_history_logging_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_guild_history_channel_id);
-    central_guild_history_logging_channel.send(new CustomRichEmbed({
-        color: 0xFFFF00,
-        author: {
-            iconURL: guild.iconURL(),
-            name: `${guild?.name} (${guild?.id})`,
+    client.shard.send({
+        type: 'for_shard__logging_guild_create_or_delete',
+        guild_action: 'delete',
+        guild_info: {
+            id: guild.id,
+            name: guild.name,
+            icon_url: guild.iconURL({ dynamic: true }),
         },
-        title: `Removed ${bot_common_name}!`,
-        footer: {
-            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-            text: `${moment()}`,
-        },
-    })).catch(console.warn);
+    });
 });
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -1033,16 +1025,13 @@ client.on('message', async (message) => {
     }
 
     /* central anonymous command logging for bot staff */
-    const anonymous_command_log_entry = {
-        timestamp: `${command_timestamp}`,
-        command: `${message.content}`,
-    };
-    const central_anonymous_command_logging_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_anonymous_command_log_channel_id);
-    if (central_anonymous_command_logging_channel) {
-        central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
-    } else {
-        console.warn(`central_anonymous_command_logging_channel was unavailable for guild: ${message.guild.id}; on shard: ${client.$._shard_id};`);
-    }
+    client.shard.send({
+        type: 'for_shard__logging_anonymous_commands',
+        anonymous_command_log_entry: {
+            timestamp: `${command_timestamp}`,
+            command: `${message.content}`,
+        },
+    });
 
     /* guild command logging */
     const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.isText() && channel.name === bot_command_log_channel.name);
@@ -1148,9 +1137,35 @@ registerDisBotEvents();
 //---------------------------------------------------------------------------------------------------------------//
 
 process.on('message', (message) => {
-    if (message.type === 'shard_id') {
+    if (message.type === 'for_client__shard_id') {
         client.$._shard_id = message.data.shard_id;
-        console.log(`shard_id: ${typeof client.$._shard_id} ${client.$._shard_id}`);
+        console.log(`shard_id: ${client.$._shard_id} (${typeof client.$._shard_id})`);
+    }
+    if (message.type === 'for_client__logging_anonymous_commands') {
+        const anonymous_command_log_entry = message.anonymous_command_log_entry;
+        const bot_central_anonymous_command_logging_channel = client.channels.resolve(bot_central_anonymous_command_log_channel_id);
+        if (bot_central_anonymous_command_logging_channel) {
+            bot_central_anonymous_command_logging_channel.send(`${'```'}json\n${JSON.stringify(anonymous_command_log_entry, null, 2)}\n${'```'}`).catch(console.trace);
+        }
+    }
+    if (message.type === 'for_client__logging_guild_create_or_delete') {
+        const guild_action = message.guild_action;
+        const guild_info = message.guild_info;
+        const bot_central_guild_history_channel = client.channels.resolve(bot_central_guild_history_channel_id);
+        if (bot_central_guild_history_channel) {
+            bot_central_guild_history_channel.send(new CustomRichEmbed({
+                color: guild_action === 'create' ? 0x00FF00 : 0xFFFF00,
+                author: {
+                    iconURL: `${guild_info.icon_url}`,
+                    name: `${guild_info.name} (${guild_info.id})`,
+                },
+                title: `${guild_action === 'create' ? 'Added' : 'Removed'} ${bot_common_name}!`,
+                footer: {
+                    iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                    text: `${moment()}`,
+                },
+            })).catch(console.trace);
+        }
     }
 });
 
