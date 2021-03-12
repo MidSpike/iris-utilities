@@ -49,15 +49,16 @@ function detect_unsupported_attachment(message_attachment) {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-async function detect_remote_mp3(search_query='') {
+async function detect_remote_audio_stream(search_query='') {
     if (validator.isURL(search_query)) {
         try {
-            // check the mime-type of the remote resource
-            const response_to_url = await forcePromise(axios.head(search_query), 500, undefined);
-            const content_type = response_to_url?.headers?.['content-type'];
-            const is_audio_mpeg = content_type === 'audio/mpeg';
-            return is_audio_mpeg;
-        } catch {
+            /* check the mime-type of the remote resource */
+            const response = await forcePromise(axios.head(search_query), 15_0000, undefined);
+            const content_type = response?.headers?.['content-type'];
+            const is_valid_audio_stream = ['audio/mpeg'].includes(content_type);
+            return is_valid_audio_stream;
+        } catch (error) {
+            console.trace(error);
             return false;
         }
     } else {
@@ -90,7 +91,7 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
     }, () => {}, (error) => {
         console.trace(error);
     });
-    guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
+    guild_queue_manager.addItem(new QueueItem('mp3', player, 'MP3', {mp3_file_name: `${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
         if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
                 title: 'Added A MP3 File From The Internet',
@@ -105,47 +106,47 @@ async function playUserUploadedMP3(message, playnext=false) {
 
     const message_media = message.attachments.first();
     if (message_media) {
-        if (message_media.attachment.endsWith('.mp3')) {
-            const voice_connection = await createConnection(message.member.voice.channel);
-            const stream_url = `${message_media.attachment}`;
-            const stream_maker = async () => {
-                const { data: response_stream } = await axios({
-                    method: 'get',
-                    url: stream_url,
-                    responseType: 'stream',
-                });
-                return response_stream;
-            };
-            const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
-                if (!guild_queue_manager.loop_enabled) {
-                    /* don't send messages when looping */
-                    message.channel.send(new CustomRichEmbed({
-                        title: 'Playing A MP3 File From Their Computer',
-                        description: `${'```'}\n${message_media.name}\n${'```'}`,
-                    }, message));
-                }
-            }, () => {
-                if (message.deletable) {
-                    message.delete().catch(null);
-                }
-            }, (error) => {
-                console.trace(error);
+        // if (!message_media.attachment.endsWith('.mp3')) {
+        //     message.channel.send(new CustomRichEmbed({
+        //         color: 0xFFFF00,
+        //         title: 'Uh Oh!',
+        //         description: 'I wasn\'t able to play that mp3 file (if it even was one)!',
+        //     }, message));
+        //     return;
+        // }
+        const voice_connection = await createConnection(message.member.voice.channel);
+        const stream_url = `${message_media.attachment}`;
+        const stream_maker = async () => {
+            const { data: response_stream } = await axios({
+                method: 'get',
+                url: stream_url,
+                responseType: 'stream',
             });
-            guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
-                if (guild_queue_manager.queue.length > 1) {
-                    message.channel.send(new CustomRichEmbed({
-                        title: 'Added A MP3 File From Their Computer',
-                        description: `${'```'}\n${message_media.name}\n${'```'}`,
-                    }, message));
-                }
-            });
-        } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Uh Oh!',
-                description: 'I wasn\'t able to play that mp3 file (if it even was one)!',
-            }, message));
-        }
+            return response_stream;
+        };
+        const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
+            if (!guild_queue_manager.loop_enabled) {
+                /* don't send messages when looping */
+                message.channel.send(new CustomRichEmbed({
+                    title: 'Playing A MP3 File From Their Computer',
+                    description: `${'```'}\n${message_media.name}\n${'```'}`,
+                }, message));
+            }
+        }, () => {
+            if (message.deletable) {
+                message.delete().catch(console.warn);
+            }
+        }, (error) => {
+            console.trace(error);
+        });
+        guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
+            if (guild_queue_manager.queue.length > 1) {
+                message.channel.send(new CustomRichEmbed({
+                    title: 'Added A MP3 File From Their Computer',
+                    description: `${'```'}\n${message_media.name}\n${'```'}`,
+                }, message));
+            }
+        });
     } else {
         message.channel.send(new CustomRichEmbed({
             color: 0xFFFF00,
@@ -402,14 +403,16 @@ module.exports = new DisBotCommand({
                 title: `Playing music from that website isn't supported!`,
                 description: `Use \`${discord_command}\` to see how to use this command.`,
             }));
-        } else if (detect_unsupported_attachment(message_attachment)) {
-            const message_attachment_extension = message_attachment?.name?.match(/[^.]+$/g)?.[0] ?? 'unknown';
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: `Playing music from files ending in \`.${message_attachment_extension}\` isn\'t supported!`,
-                description: `Use \`${discord_command}\` to see how to use this command.`,
-            }));
-        } else if (message.attachments.first()?.attachment?.endsWith('.mp3')) {
+        }
+        // else if (detect_unsupported_attachment(message_attachment)) {
+        //     const message_attachment_extension = message_attachment?.name?.match(/[^.]+$/g)?.[0] ?? 'unknown';
+        //     message.channel.send(new CustomRichEmbed({
+        //         color: 0xFFFF00,
+        //         title: `Playing music from files ending in \`.${message_attachment_extension}\` isn\'t supported!`,
+        //         description: `Use \`${discord_command}\` to see how to use this command.`,
+        //     }));
+        // }
+        else if (message_attachment) {
             playUserUploadedMP3(message, playnext);
         } else if (command_args.join('').length > 0) {
             function error_429_message() {
@@ -420,7 +423,7 @@ module.exports = new DisBotCommand({
                 }, message));
             }
 
-            if (await detect_remote_mp3(command_args.join(' '))) {
+            if (await detect_remote_audio_stream(command_args.join(' '))) {
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
                 playBroadcastify(message, command_args.join(' '), playnext);
