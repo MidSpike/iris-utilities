@@ -1052,7 +1052,7 @@ client.on('message', async (message) => {
 
     /* command message removal */
     if (message.deletable && message.attachments.size === 0 && guild_config.command_message_removal === 'enabled') {
-        message.delete().catch((error) => console.warn('Unable to delete message', error));
+        await message.delete().catch((error) => console.warn('Unable to delete message', error));
     }
 
     //#region configure permission handlers for the command
