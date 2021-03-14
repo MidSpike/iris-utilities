@@ -17,6 +17,7 @@ module.exports = new DisBotCommand({
     weight: 1,
     description: 'displays a list of paginated commands',
     aliases: ['help'],
+    cooldown: 10_000,
     access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
