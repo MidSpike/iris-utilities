@@ -981,7 +981,7 @@ client.on('message', async (message) => {
                 fields: [
                     {
                         name: 'Allowed Channels',
-                        value: `${guild_allowed_channels.map(channel => `<#${channel.id}>`).join('\n')}`,
+                        value: `${guild_allowed_channels.map(channel_id => `<#${channel_id}>`).join('\n')}`,
                     }, {
                         name: 'Notice',
                         value: [
