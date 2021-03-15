@@ -194,7 +194,7 @@ app.listen(app.get('port'), () => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-/* prevent the api server from crashing for unhandledRejections */
+/* prevent the process from crashing for unhandledRejections */
 process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`${moment()}`);
@@ -202,7 +202,7 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
 });
 
-/* prevent the api server from crashing for uncaughtExceptions */
+/* prevent the process from crashing for uncaughtExceptions */
 process.on('uncaughtException', (error) => {
     console.error('----------------------------------------------------------------------------------------------------------------');
     console.error(`${moment()}`);
