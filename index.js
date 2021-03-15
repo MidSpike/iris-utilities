@@ -51,3 +51,21 @@ sharding_manager.on('shardCreate', (shard) => {
 });
 
 sharding_manager.spawn();
+
+//---------------------------------------------------------------------------------------------------------------//
+
+/* prevent the process from crashing for unhandledRejections */
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('----------------------------------------------------------------------------------------------------------------');
+    console.error(`${moment()}`);
+    console.trace('unhandledRejection at:', reason?.stack ?? reason, promise);
+    console.error('----------------------------------------------------------------------------------------------------------------');
+});
+
+/* prevent the process from crashing for uncaughtExceptions */
+process.on('uncaughtException', (error) => {
+    console.error('----------------------------------------------------------------------------------------------------------------');
+    console.error(`${moment()}`);
+    console.trace('uncaughtException at:', error);
+    console.error('----------------------------------------------------------------------------------------------------------------');
+});
