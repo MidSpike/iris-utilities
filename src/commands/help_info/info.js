@@ -30,8 +30,8 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { command_prefix } = opts;
 
-        const bot_emoji = findCustomEmoji('bot_emoji_bot');
-        const midspike_emoji = findCustomEmoji('bot_emoji_midspike');
+        const bot_emoji = await findCustomEmoji('bot_emoji_bot');
+        const midspike_emoji = await findCustomEmoji('bot_emoji_midspike');
         const people_music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => !member.user.bot).size).reduce((a, b) => a + b, 0) ?? 0;
         const bot_music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => member.user.bot && member.user.id !== client.user.id).size).reduce((a, b) => a + b, 0) ?? 0;
 

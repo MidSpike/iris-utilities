@@ -237,7 +237,7 @@ client.once('ready', async () => {
             console.timeEnd('track_guild_existences()');
         }
     }
-    client.setInterval(() => track_guild_existences(), 1000 * 60 * 15); // every 15 minutes
+    client.setInterval(() => track_guild_existences(), 1000 * 60 * 30); // every 30 minutes
 
     client.$.bot_guilds.emoji = await client.guilds.fetch(process.env.BOT_EMOJI_GUILD_ID, false, true);
     client.$.bot_guilds.logging = await client.guilds.fetch(process.env.BOT_LOGGING_GUILD_ID, false, true);

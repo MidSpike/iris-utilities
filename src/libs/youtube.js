@@ -250,7 +250,7 @@ async function playYouTube(message, search_query, playnext=false) {
             title: `Do you want this to play all ${playlist_items.length} items in this playlist?`,
             description: [
                 `${'```'}fix\nWARNING! YOU CAN'T STOP A PLAYLIST FROM ADDING ITEMS!\n${'```'}`,
-                `**If you want this to play as a song; click on the ${findCustomEmoji('bot_emoji_close')}.**`,
+                `**If you want this to play as a song; click on the ${(await findCustomEmoji('bot_emoji_close'))}.**`,
             ].join('\n'),
         }, message);
 

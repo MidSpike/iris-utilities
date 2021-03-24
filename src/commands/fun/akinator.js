@@ -39,11 +39,15 @@ module.exports = new DisBotCommand({
                 thumbnail: `${bot_cdn_url}/akinator_idle.png`,
                 fields: [
                     {
-                        name: `Question ${constructNumberUsingEmoji(question_num)}`,
-                        value:`**${akinator_api.question}**`,
+                        name: `Question ${(await constructNumberUsingEmoji(question_num))}`,
+                        value: `**${akinator_api.question}**`,
                     }, {
                         name: 'Answers',
-                        value: `${akinator_api.answers.map((value, index) => `${constructNumberUsingEmoji(index+1)} - ${value}`).join('\n')}`,
+                        value: `${(await Promise.all(
+                            akinator_api.answers.map(async (value, index) => 
+                                `${(await constructNumberUsingEmoji(index+1))} - ${value}`
+                            )
+                        )).join('\n')}`,
                     },
                 ],
             }, message);
@@ -59,49 +63,52 @@ module.exports = new DisBotCommand({
                             sendAkinatorQuestion();
                         }
                     },
-                }, ...akinator_api.answers.map((value, index) => ({
-                    emoji_name: `${findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[index+1]}`).name}`,
-                    async callback(options_message, collected_reaction, user) {
-                        removeUserReactionsFromMessage(options_message);
-
-                        question_num++;
-
-                        await akinator_api.step(index);
-
-                        const akinator_has_a_guess = akinator_api.progress >= 70 || akinator_api.currentStep >= 78;
-                        if (akinator_has_a_guess) {
-                            await akinator_api.win();
-                            const akinator_guess = akinator_api.answers[0];
-
-                            bot_message.edit(new CustomRichEmbed({
-                                title: 'Akinator Time!',
-                                description: [
-                                    '**It is very clear to me now!**',
-                                    'You are looking for this character:',
-                                ].join('\n'),
-                                thumbnail: `${bot_cdn_url}/akinator_idle.png`,
-                                fields: [
-                                    {
-                                        name: 'Character Name',
-                                        value: `${akinator_guess.name}`,
-                                    }, {
-                                        name: 'Character Description',
-                                        value: `${akinator_guess.description}`,
-                                    }, {
-                                        name: 'Questions Used',
-                                        value: `${question_num}`,
-                                    },
-                                ],
-                                image: `${akinator_guess.absolute_picture_path}`,
-                            }, message));
-
-                            removeAllReactionsFromMessage(bot_message);
-                        } else {
-                            /* Akinator needs the user to answer more questions! */
-                            sendAkinatorQuestion();
-                        }
-                    },
-                })),
+                },
+                ...(await Promise.all(
+                    akinator_api.answers.map(async (value, index) => ({
+                        emoji_name: `${(await findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[index+1]}`)).name}`,
+                        async callback(options_message, collected_reaction, user) {
+                            removeUserReactionsFromMessage(options_message);
+    
+                            question_num++;
+    
+                            await akinator_api.step(index);
+    
+                            const akinator_has_a_guess = akinator_api.progress >= 70 || akinator_api.currentStep >= 78;
+                            if (akinator_has_a_guess) {
+                                await akinator_api.win();
+                                const akinator_guess = akinator_api.answers[0];
+    
+                                bot_message.edit(new CustomRichEmbed({
+                                    title: 'Akinator Time!',
+                                    description: [
+                                        '**It is very clear to me now!**',
+                                        'You are looking for this character:',
+                                    ].join('\n'),
+                                    thumbnail: `${bot_cdn_url}/akinator_idle.png`,
+                                    fields: [
+                                        {
+                                            name: 'Character Name',
+                                            value: `${akinator_guess.name}`,
+                                        }, {
+                                            name: 'Character Description',
+                                            value: `${akinator_guess.description}`,
+                                        }, {
+                                            name: 'Questions Used',
+                                            value: `${question_num}`,
+                                        },
+                                    ],
+                                    image: `${akinator_guess.absolute_picture_path}`,
+                                }, message));
+    
+                                removeAllReactionsFromMessage(bot_message);
+                            } else {
+                                /* Akinator needs the user to answer more questions! */
+                                sendAkinatorQuestion();
+                            }
+                        },
+                    }))
+                )),
             ];
 
             if (bot_message) {

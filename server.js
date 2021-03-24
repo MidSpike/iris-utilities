@@ -51,6 +51,7 @@ router.get('/speech', async (req, res) => {
         const speak_type = req.query.type ?? 'google'; // google | ibm
         const speak_lang = req.query.lang ?? (speak_type === 'ibm' ? 'en-US_AllisonV3Voice' : 'en-us');
         const speak_msg = req.query.text ?? 'hello world';
+        console.log({ speak_msg });
         if (speak_type === 'google') {
             const gt_tts = new GoogleTranslateTTS({
                 language: speak_lang,
