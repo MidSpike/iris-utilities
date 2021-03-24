@@ -29,7 +29,7 @@ module.exports = new DisBotCommand({
                 const rolled_dice = rollDice(parseInt(dice_args[0] ?? 1), parseInt(dice_args[1] ?? 6));
                 await message.channel.send(new CustomRichEmbed({
                     title:`${dice_args[0]}, ${dice_args[1] ?? 6}-sided dice coming right up!`,
-                    description:`You rolled \`${rolled_dice.join(` + `)}\` = ${constructNumberUsingEmoji(rolled_dice.reduce((a,b) => a + b))}`
+                    description:`You rolled \`${rolled_dice.join(` + `)}\` = ${(await constructNumberUsingEmoji(rolled_dice.reduce((a,b) => a + b)))}`
                 }, message));
             } catch (error) {
                 console.warn(`Ignore!`, error);
@@ -42,7 +42,7 @@ module.exports = new DisBotCommand({
         } else {
             message.channel.send(new CustomRichEmbed({
                 title:'Rolled a 6-sided die!',
-                description:`You rolled a ${constructNumberUsingEmoji(rollDice(1, 6)[0])}`
+                description:`You rolled a ${(await constructNumberUsingEmoji(rollDice(1, 6)[0]))}`
             }, message));
         }
     },

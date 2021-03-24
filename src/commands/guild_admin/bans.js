@@ -43,38 +43,38 @@ module.exports = new DisBotCommand({
         const pages = array_chunks(page_fields, 10);
 
         let page_index = 0;
-        function makeEmbed() {
+        async function makeEmbed() {
             const bans_page = pages[page_index] ?? [];
             return new CustomRichEmbed({
                 title: 'Here are the bans in this guild, 10 at a time!',
                 description: [
-                    `Displaying ${constructNumberUsingEmoji(bans_page.length)} / ${constructNumberUsingEmoji(`${guild_bans.size}`)} bans!`,
-                    `Page — ${constructNumberUsingEmoji(page_index + 1)} / ${constructNumberUsingEmoji(pages.length)}`,
+                    `Displaying ${(await constructNumberUsingEmoji(bans_page.length))} / ${(await constructNumberUsingEmoji(`${guild_bans.size}`))} bans!`,
+                    `Page — ${(await constructNumberUsingEmoji(page_index + 1))} / ${(await constructNumberUsingEmoji(pages.length))}`,
                 ].join('\n'),
                 fields: bans_page,
             }, message);
         }
 
-        sendOptionsMessage(message.channel.id, makeEmbed(), [
+        sendOptionsMessage(message.channel.id, await makeEmbed(), [
             {
                 emoji_name: 'bot_emoji_angle_left',
-                callback(options_message, collected_reaction, user) {
+                async callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     page_index--;
                     if (page_index < 0) {
                         page_index = pages.length-1;
                     }
-                    options_message.edit(makeEmbed());
+                    options_message.edit(await makeEmbed());
                 },
             }, {
                 emoji_name: 'bot_emoji_angle_right',
-                callback(options_message, collected_reaction, user) {
+                async callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     page_index++;
                     if (page_index > pages.length-1) {
                         page_index = 0;
                     }
-                    options_message.edit(makeEmbed());
+                    options_message.edit(await makeEmbed());
                 },
             },
         ]);

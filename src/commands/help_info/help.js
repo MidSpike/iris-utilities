@@ -50,10 +50,12 @@ module.exports = new DisBotCommand({
             };
         });
 
-        const all_commands_fields = formatted_command_categories.map((formatted_command_category, index) => ({
-            name: `${constructNumberUsingEmoji(index+1)} — ${formatted_command_category.category_name}`,
-            value: `${'```'}\n${formatted_command_category.formatted_commands.join('\n')}\n${'```'}`,
-        }));
+        const all_commands_fields = await Promise.all(
+            formatted_command_categories.map(async (formatted_command_category, index) => ({
+                name: `${(await constructNumberUsingEmoji(index+1))} — ${formatted_command_category.category_name}`,
+                value: `${'```'}\n${formatted_command_category.formatted_commands.join('\n')}\n${'```'}`,
+            }))
+        );
 
         let current_page_number = 1;
         function makeHelpEmbed(page_number) {

@@ -8,6 +8,8 @@ require('manakin').global; // colors for Console.*
 const os = require('os');
 os.setPriority(0, os.constants.priority.PRIORITY_HIGH);
 
+const moment = require('moment-timezone');
+
 const { ShardingManager } = require('discord.js');
 
 //---------------------------------------------------------------------------------------------------------------//

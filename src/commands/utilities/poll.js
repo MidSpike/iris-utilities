@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { findCustomEmoji,
         constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion dependencies
@@ -11,11 +11,11 @@ const { findCustomEmoji,
 const bot_cdn_url = process.env.BOT_CDN_URL;
 
 module.exports = new DisBotCommand({
-    name:'POLL',
-    category:`${DisBotCommander.categories.UTILITIES}`,
-    weight:3,
-    description:'used for creating polls to vote on',
-    aliases:['poll'],
+    name: 'POLL',
+    category: `${DisBotCommander.categories.UTILITIES}`,
+    weight: 3,
+    description: 'used for creating polls to vote on',
+    aliases: ['poll'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
         if (command_args.join('').length > 0) {
@@ -25,44 +25,68 @@ module.exports = new DisBotCommand({
             if (poll_question && poll_choices.length > 0) {
                 if (poll_choices.length < 10) {
                     const bot_message = await message.channel.send(new CustomRichEmbed({
-                        title:`Has created a poll!`,
-                        thumbnail:`${bot_cdn_url}/Vote_2020-04-27_0.png`,
-                        fields:[
-                            {name:`Poll Question`, value:`${poll_question}`},
-                            {name:`Poll Choices`, value:`${poll_choices.map((pc, i) => `${constructNumberUsingEmoji(i+1)} — ${pc}`).join('\n\n')}`}
+                        title: 'Has created a poll!',
+                        thumbnail: `${bot_cdn_url}/Vote_2020-04-27_0.png`,
+                        fields: [
+                            {
+                                name: 'Poll Question',
+                                value: `${poll_question}`,
+                            }, {
+                                name: 'Poll Choices',
+                                value: `${(await Promise.all(
+                                    poll_choices.map(async (pc, i) => 
+                                        `${(await constructNumberUsingEmoji(i + 1))} — ${pc}`
+                                    )
+                                )).join('\n\n')}`,
+                            },
                         ],
-                        footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${discord_command}`}
+                        footer: {
+                            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                            text: `${discord_command}`,
+                        },
                     }, message));
                     for (let i = 0; i < poll_choices.length; i++) {
-                        const bot_emoji = findCustomEmoji(`bot_emoji_${['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][i]}`);
+                        const bot_emoji = await findCustomEmoji(`bot_emoji_${['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][i]}`);
                         await bot_message.react(bot_emoji);
                     }
                 } else {
                     message.channel.send(new CustomRichEmbed({
-                        color:0xFFFF00,
-                        title:`Whoops!`,
-                        description:`Due to the number machine being broken, only 9 answers for a poll are allowed!`,
-                        footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${discord_command}`}
+                        color: 0xFFFF00,
+                        title: 'Whoops!',
+                        description: 'Due to the number machine being broken, only 9 answers for a poll are allowed!',
+                        footer: {
+                            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                            text: `${discord_command}`,
+                        },
                     }, message));
                 }
             } else {
                 message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`Whoops!`,
-                    description:`That's not how you do it!\nI need a question and choices!`,
-                    fields:[
-                        {name:'Example Poll', value:`${'```'}\n${discord_command} Is this a cool feature?\nYes!\nNo!${'```'}`}
+                    color: 0xFFFF00,
+                    title: 'Whoops!',
+                    description: [
+                        'That\'s not how you do it!',
+                        'I need a question and choices!',
+                    ].join('\n'),
+                    fields: [
+                        {
+                            name: 'Example Poll',
+                            value: `${'```'}\n${discord_command} Is this a cool feature?\nYes!\nNo!\n${'```'}`,
+                        },
                     ],
-                    footer:{iconURL:`${client.user.displayAvatarURL({dynamic:true})}`, text:`${discord_command}`}
+                    footer: { iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`, text: `${discord_command}` }
                 }, message));
             }
         } else {
             message.channel.send(new CustomRichEmbed({
-                title:`Time to get some results!`,
-                description:`You can create a poll by doing the following!`,
-                fields:[
-                    {name:'Example Poll', value:`${'```'}\n${discord_command} Is this a cool feature?\nYes!\nNo!${'```'}`}
-                ]
+                title: 'Time to get some results!',
+                description: 'You can create a poll by doing the following!',
+                fields: [
+                    {
+                        name: 'Example Poll',
+                        value: `${'```'}\n${discord_command} Is this a cool feature?\nYes!\nNo!\n${'```'}`,
+                    },
+                ],
             }, message));
         }
     },

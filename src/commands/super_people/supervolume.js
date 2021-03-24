@@ -45,7 +45,7 @@ module.exports = new DisBotCommand({
         guild_dispatcher.setVolume(clamped_super_volume_input);
 
         message.channel.send(new CustomRichEmbed({
-            title: `Super Volume: ${constructNumberUsingEmoji(clamped_super_volume_input)}`,
+            title: `Super Volume: ${(await constructNumberUsingEmoji(clamped_super_volume_input))}`,
         }, message));
     },
 });

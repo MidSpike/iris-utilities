@@ -36,7 +36,7 @@ module.exports = new DisBotCommand({
                 return true; // able to make move
             }
         }
-        function makePlayerTurnEmbed(current_player) {
+        async function makePlayerTurnEmbed(current_player) {
             return new CustomRichEmbed({
                 title: `${current_player === 'PLAYER_A' ? 'Make a move Player A!' : `It's your turn Player B!`}`,
                 description: `${current_player === 'PLAYER_A' ? 'Player A' : 'Player B'} is the letter \`${current_player === 'PLAYER_A' ? '❌' : '⭕'}\``,
@@ -46,7 +46,11 @@ module.exports = new DisBotCommand({
                         value: `${constructGameBoard(game_values)}`,
                     }, {
                         name: 'Buttons',
-                        value: `${default_game_board.map(x => constructNumberUsingEmoji(x)).join('\n')}`,
+                        value: `${(await Promise.all(
+                            default_game_board.map(async (x) => 
+                                await constructNumberUsingEmoji(x)
+                            )
+                        )).join('\n')}`,
                     },
                 ],
                 footer: {

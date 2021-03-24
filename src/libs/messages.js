@@ -127,7 +127,7 @@ async function sendOptionsMessage(channel_id, message_contents, reaction_options
     for (const reaction_option of reaction_options) { // execute each reaction sequentially
         if (options_message.deleted) break; // don't add reactions to deleted messages
 
-        const reaction_option_emoji = findCustomEmoji(reaction_option.emoji_name) ?? nodeEmoji.emojify(nodeEmoji.get(reaction_option.emoji_name));
+        const reaction_option_emoji = await findCustomEmoji(reaction_option.emoji_name) ?? nodeEmoji.emojify(nodeEmoji.get(reaction_option.emoji_name));
         if (!reaction_option_emoji) {
             console.error(`An invalid reaction was passed to \'sendOptionsMessage\': ${reaction_option.emoji_name}`)
             continue; // the remaining reactions might be valid so continue
@@ -266,16 +266,16 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
  * @param {String} channel_id 
  * @param {Message} user_message 
  */
-function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
+async function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
     const channel = client.channels.resolve(channel_id);
     const guild = channel.guild;
 
     const guild_volume_manager = client.$.volume_managers.get(guild.id);
 
-    const makeEmbed = () => new CustomRichEmbed({
-        title: `The Current Volume Is: ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
+    const makeEmbed = async () => new CustomRichEmbed({
+        title: `The Current Volume Is: ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
     }, user_message);
-    sendOptionsMessage(channel.id, makeEmbed(), [
+    sendOptionsMessage(channel.id, await makeEmbed(), [
         {
             emoji_name: 'bot_emoji_mute',
             cooldown: 1000,
@@ -311,7 +311,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                         iconURL: user.displayAvatarURL({ dynamic: true }),
                         name: `@${user.tag}`,
                     },
-                    title: `Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
+                    title: `Set The Volume To ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
                 }));
             },
         }, {
@@ -333,7 +333,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                         iconURL: user.displayAvatarURL({ dynamic: true }),
                         name: `@${user.tag}`,
                     },
-                    title: `Set The Volume To ${constructNumberUsingEmoji(guild_volume_manager.volume)}`,
+                    title: `Set The Volume To ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
                     description: (new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined),
                 }));
             },
@@ -346,7 +346,7 @@ function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
  * @param {String} channel_id 
  * @param {Message|undefined} user_message 
  */
-function sendMusicControllerEmbed(channel_id, user_message=undefined) {
+async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
     const channel = client.channels.resolve(channel_id);
     const guild = channel.guild;
 
@@ -355,10 +355,10 @@ function sendMusicControllerEmbed(channel_id, user_message=undefined) {
 
     const audio_controller = guild_audio_controller;
     const embed_title = 'Audio Controller';
-    const makeEmbed = () => new CustomRichEmbed({
+    const makeEmbed = async () => new CustomRichEmbed({
         title: `${embed_title}`,
     }, user_message);
-    sendOptionsMessage(channel.id, makeEmbed(), [
+    sendOptionsMessage(channel.id, await makeEmbed(), [
         {
             emoji_name: 'bot_emoji_play_pause',
             cooldown: 1000,

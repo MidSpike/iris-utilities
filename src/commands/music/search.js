@@ -44,15 +44,17 @@ module.exports = new DisBotCommand({
             }));
             const embed = new CustomRichEmbed({
                 title: 'Pick an item to play it!',
-                description: search_results.map((result, index) => {
-                    const full_video_title = htmlEntitiesParser.decode(result.title);
-                    const small_video_title = full_video_title.slice(0, 100);
-                    const small_video_title_needed = small_video_title.length < full_video_title.length;
-                    const video_title = small_video_title_needed ? `${small_video_title}...` : full_video_title;
-                    const channel_section = `[${result.channelTitle}](https://youtube.com/channel/${result.channelId})`;
-                    const title_section = `[${video_title}](https://youtu.be/${result.id})`;
-                    return `${constructNumberUsingEmoji(index+1)} — ${channel_section}\n${title_section}`;
-                }).join('\n\n'),
+                description: await Promise.all(
+                    search_results.map(async (result, index) => {
+                        const full_video_title = htmlEntitiesParser.decode(result.title);
+                        const small_video_title = full_video_title.slice(0, 100);
+                        const small_video_title_needed = small_video_title.length < full_video_title.length;
+                        const video_title = small_video_title_needed ? `${small_video_title}...` : full_video_title;
+                        const channel_section = `[${result.channelTitle}](https://youtube.com/channel/${result.channelId})`;
+                        const title_section = `[${video_title}](https://youtu.be/${result.id})`;
+                        return `${(await constructNumberUsingEmoji(index+1))} — ${channel_section}\n${title_section}`;
+                    })
+                ).join('\n\n'),
             }, message);
             const bot_message = await sendOptionsMessage(message.channel.id, embed, reactions, {
                 confirmation_user_id: message.author.id,
