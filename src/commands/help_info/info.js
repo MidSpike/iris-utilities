@@ -27,19 +27,37 @@ module.exports = new DisBotCommand({
     weight: 11,
     description: 'invites the developer to the server',
     aliases: ['info'],
+    cooldown: 5_000,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix } = opts;
 
         const bot_emoji = await findCustomEmoji('bot_emoji_bot');
         const midspike_emoji = await findCustomEmoji('bot_emoji_midspike');
-        const people_music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => !member.user.bot).size).reduce((a, b) => a + b, 0) ?? 0;
-        const bot_music_listeners = client.voice.connections.map(connection => connection.channel.members.filter(member => member.user.bot && member.user.id !== client.user.id).size).reduce((a, b) => a + b, 0) ?? 0;
+
+        const distributed_people_music_listener_count = await client.shard.broadcastEval(`
+            this.voice.connections.map(connection => 
+                connection.channel.members.filter(member => !member.user.bot).size
+            ).reduce((accumulator, amount_of_people) => accumulator + amount_of_people, 0) ?? 0;
+        `);
+        const total_people_music_listener_count = distributed_people_music_listener_count.reduce((accumulator, people_count) => accumulator + people_count, 0);
+        const distributed_bot_music_listener_count = await client.shard.broadcastEval(`
+            this.voice.connections.map(connection => 
+                connection.channel.members.filter(member => member.user.bot && member.user.id !== this.user.id).size
+            ).reduce((accumulator, amount_of_bots) => accumulator + amount_of_bots, 0) ?? 0;
+        `);
+        const total_bot_music_listener_count = distributed_bot_music_listener_count.reduce((accumulator, bot_count) => accumulator + bot_count, 0);
 
         const distributed_guild_count = await client.shard.fetchClientValues('guilds.cache.size');
         const total_guild_count = distributed_guild_count.reduce((accumulator, guild_count) => accumulator + guild_count, 0);
 
+        const distributed_people_count = await client.shard.broadcastEval('this.users.cache.filter((user) => !user.bot).size');
+        const total_people_count = distributed_people_count.reduce((accumulator, people_count) => accumulator + people_count, 0);
+
+        const distributed_bot_count = await client.shard.broadcastEval('this.users.cache.filter((user) => user.bot).size');
+        const total_bot_count = distributed_bot_count.reduce((accumulator, bot_count) => accumulator + bot_count, 0);
+
         message.channel.send(new CustomRichEmbed({
-            title: `Hi There!`,
+            title: 'Hi There!',
             description: `I\'m **${bot_common_name}**, the *${bot_long_name}*, a general purpose music & utility discord bot that is here to help.`,
             fields: [
                 {
@@ -61,7 +79,13 @@ module.exports = new DisBotCommand({
                     name: 'My Version',
                     value: `${bot_version}`,
                 }, {
-                    name: 'My Ping To Discord',
+                    name: 'My Shards',
+                    value: `${client.shard.count} shards online`,
+                }, {
+                    name: 'My Shard\'s ID',
+                    value: `I am using shard ${client.$._shard_id}`,
+                }, {
+                    name: 'My Shard\'s Ping To Discord',
                     value: `${client.ws.ping}ms`,
                 }, {
                     name: 'My Creation Date',
@@ -70,19 +94,19 @@ module.exports = new DisBotCommand({
                     name: 'My Uptime',
                     value: `${getReadableTime(client.uptime / 1000)} (hours : minutes : seconds)`,
                 }, {
-                    name: `The Number Of People Listening To Music`,
-                    value: `${people_music_listeners} ${people_music_listeners === 1 ? 'person is' : 'people are'} listening to music`,
+                    name: 'The Number Of People Listening To Music',
+                    value: `${total_people_music_listener_count} ${total_people_music_listener_count === 1 ? 'person is' : 'people are'} listening to music`,
                 }, {
-                    name: `The Number Of Bots Listening To Music`,
-                    value: `${bot_music_listeners} ${bot_music_listeners === 1 ? 'bot is' : 'bots are'} listening to music`,
+                    name: 'The Number Of Bots Listening To Music',
+                    value: `${total_bot_music_listener_count} ${total_bot_music_listener_count === 1 ? 'bot is' : 'bots are'} listening to music`,
                 }, {
-                    name: `The Number Of People I Know`,
-                    value: `${client.users.cache.filter(user => !user.bot).size} People`,
+                    name: 'The Number Of People I Know',
+                    value: `${total_people_count} People`,
                 }, {
-                    name: `The Number Of Bots I Know`,
-                    value: `${client.users.cache.filter(user => user.bot).size} Bots`,
+                    name: 'The Number Of Bots I Know',
+                    value: `${total_bot_count} Bots`,
                 }, {
-                    name: `The Number Of Guilds I\'m In`,
+                    name: 'The Number Of Guilds I\'m In',
                     value: `${total_guild_count} Guilds`,
                 }, {
                     name: 'The Special Channels Usage',
