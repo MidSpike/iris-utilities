@@ -13,7 +13,7 @@ module.exports = new DisBotCommand({
     name: 'WARNINGS',
     category: `${DisBotCommander.categories.GUILD_ADMIN}`,
     description: 'Displays all warnings',
-    aliases: ['warnings'],
+    aliases: ['warnings', 'warns'],
     access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
