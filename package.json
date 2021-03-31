@@ -36,7 +36,7 @@
     "path": "^0.12.7",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory",
     "request": "^2.88.2",
-    "soundcloud-downloader": "^0.2.4",
+    "soundcloud-downloader": "^1.0.0",
     "split-string": "^6.1.0",
     "spmock": "^1.0.3",
     "spotify-uri": "^2.1.0",
