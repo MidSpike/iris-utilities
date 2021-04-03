@@ -44,7 +44,7 @@ module.exports = new DisBotCommand({
             }));
             const embed = new CustomRichEmbed({
                 title: 'Pick an item to play it!',
-                description: await Promise.all(
+                description: (await Promise.all(
                     search_results.map(async (result, index) => {
                         const full_video_title = htmlEntitiesParser.decode(result.title);
                         const small_video_title = full_video_title.slice(0, 100);
@@ -54,7 +54,7 @@ module.exports = new DisBotCommand({
                         const title_section = `[${video_title}](https://youtu.be/${result.id})`;
                         return `${(await constructNumberUsingEmoji(index+1))} — ${channel_section}\n${title_section}`;
                     })
-                ).join('\n\n'),
+                )).join('\n\n'),
             }, message);
             const bot_message = await sendOptionsMessage(message.channel.id, embed, reactions, {
                 confirmation_user_id: message.author.id,
