@@ -55,7 +55,7 @@ async function removeAllReactionsFromMessage(message) {
     if (!(message instanceof Discord.Message)) throw new TypeError('\`message\` was not an instance of a \`Discord.Message\`');
 
     /* check if the bot can remove message reactions */
-    if (!message.guild.me?.permissions?.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) return null;
+    if (!message.guild?.me?.permissions?.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) return null;
 
     /* attempt to remove all message reactions and return the message */
     return await message.reactions.removeAll().catch(() => message);
