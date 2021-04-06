@@ -19,6 +19,7 @@ module.exports = new DisBotCommand({
     weight: 2,
     description: 'Searches YouTube for music to play and displays a list of playable things',
     aliases: ['search'],
+    cooldown: 5_000,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
 

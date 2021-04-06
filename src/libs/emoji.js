@@ -19,7 +19,7 @@ const zero_to_nine_as_words = ['zero', 'one', 'two', 'three', 'four', 'five', 's
  * @returns {Promise<GuildEmoji|undefined>} the guild emoji or unicode emoji
  */
 async function findCustomEmoji(custom_emoji_name) {
-    if (typeof custom_emoji_name !== 'string') throw new TypeError('`custom_emoji_name` must be a string!');
+    if (typeof custom_emoji_name !== 'string') throw new TypeError('\`custom_emoji_name\` must be a string!');
 
     const emoji_guild_shard = Discord.ShardClientUtil.shardIDForGuildID(emoji_guild_id, client.shard.count);
     const emoji_guild_emojis = await client.shard.broadcastEval(`this.guilds.resolve('${emoji_guild_id}')?.emojis?.cache`, emoji_guild_shard);
@@ -31,10 +31,11 @@ async function findCustomEmoji(custom_emoji_name) {
 /**
  * Converts a number into an emoji from the bots emoji guild
  * @param {Number|String} num can be multiple digits
- * @returns {<Promise<String>>} a string of bot number emojis
+ * @returns {Promise<String>} a string of bot number emojis
  */
 async function constructNumberUsingEmoji(num) {
-    if (isNaN(num) && typeof num !== 'string') throw new TypeError('`num` must be a number or a string!');
+    if (!['string', 'number'].includes(typeof num)) throw new TypeError('\`num\` must be a number / string!');
+
     const num_as_digits = `${num}`.split('');
 
     const array_of_emojis = await Promise.all(
@@ -44,11 +45,6 @@ async function constructNumberUsingEmoji(num) {
     );
 
     const constructed_emojis_from_number = array_of_emojis.join('');
-
-    console.log({
-        array_of_emojis,
-        constructed_emojis_from_number,
-    });
 
     return constructed_emojis_from_number;
 }
