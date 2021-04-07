@@ -10,8 +10,7 @@ const { DisBotCommand,
 const { sendOptionsMessage,
         removeAllReactionsFromMessage,
         removeUserReactionsFromMessage } = require('../../libs/messages.js');
-const { findCustomEmoji,
-        zero_to_nine_as_words,
+const { zero_to_nine_as_words,
         constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion dependencies
 
@@ -45,7 +44,7 @@ module.exports = new DisBotCommand({
                         name: 'Answers',
                         value: `${(await Promise.all(
                             akinator_api.answers.map(async (value, index) => 
-                                `${(await constructNumberUsingEmoji(index+1))} - ${value}`
+                                `${(await constructNumberUsingEmoji(index + 1))} - ${value}`
                             )
                         )).join('\n')}`,
                     },
@@ -66,19 +65,19 @@ module.exports = new DisBotCommand({
                 },
                 ...(await Promise.all(
                     akinator_api.answers.map(async (value, index) => ({
-                        emoji_name: `${(await findCustomEmoji(`bot_emoji_${zero_to_nine_as_words[index+1]}`)).name}`,
+                        emoji_name: `bot_emoji_${zero_to_nine_as_words[index + 1]}`,
                         async callback(options_message, collected_reaction, user) {
                             removeUserReactionsFromMessage(options_message);
-    
+
                             question_num++;
-    
+
                             await akinator_api.step(index);
-    
+
                             const akinator_has_a_guess = akinator_api.progress >= 70 || akinator_api.currentStep >= 78;
                             if (akinator_has_a_guess) {
                                 await akinator_api.win();
                                 const akinator_guess = akinator_api.answers[0];
-    
+
                                 bot_message.edit(new CustomRichEmbed({
                                     title: 'Akinator Time!',
                                     description: [
@@ -100,7 +99,7 @@ module.exports = new DisBotCommand({
                                     ],
                                     image: `${akinator_guess.absolute_picture_path}`,
                                 }, message));
-    
+
                                 removeAllReactionsFromMessage(bot_message);
                             } else {
                                 /* Akinator needs the user to answer more questions! */
