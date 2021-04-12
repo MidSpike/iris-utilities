@@ -149,34 +149,34 @@ const SUPER_PEOPLE = new Collection([
         id: '163646957783482370',
         name: 'MidSpike',
         public: false,
-        allowed_permissions: ['*'],
+        allowed_permissions: [ '*' ],
         denied_permissions: [],
     }, {
         id: '255071492801429504',
         name: 'QuackAttack',
         public: true,
-        allowed_permissions: ['*'],
+        allowed_permissions: [ '*' ],
         denied_permissions: [],
     }, {
         id: '196254672418373632',
         name: 'Will F.',
         public: true,
-        allowed_permissions: ['*'],
+        allowed_permissions: [ '*' ],
         denied_permissions: [],
     }, {
         id: '199641055837159425',
         name: 'Anthony',
         public: true,
-        allowed_permissions: ['*'],
-        denied_permissions: [],
+        allowed_permissions: [ '*' ],
+        denied_permissions: [ 'evaluate_code', 'blacklist' ],
     }, {
         id: '159170842528448512',
         name: 'Ross',
         public: true,
-        allowed_permissions: ['*'],
-        denied_permissions: [],
+        allowed_permissions: [ '*' ],
+        denied_permissions: [ 'evaluate_code', 'blacklist' ],
     },
-].map(super_person => [super_person.id, super_person]));
+].map(super_person => ([ super_person.id, super_person ])));
 
 /**
  * The Default Guild Config is the config which is applied to all new guilds be default
