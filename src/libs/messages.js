@@ -245,7 +245,7 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
 
         success_callback(bot_captcha_message, collected_message);
     });
-    message_collector.on('end', (collected_messages) => {
+    message_collector.on('end', async (collected_messages) => {
         if (collected_messages.size === 0) {
             if (client.$.restarting_bot && !isThisBotsOwner(collected_message.author.id)) return;
             if (client.$.lockdown_mode && !isThisBotsOwner(collected_message.author.id)) return;
