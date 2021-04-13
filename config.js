@@ -179,7 +179,7 @@ const SUPER_PEOPLE = new Collection([
 ].map(super_person => ([ super_person.id, super_person ])));
 
 /**
- * The Default Guild Config is the config which is applied to all new guilds be default
+ * The Default Guild Config is the config which is applied to all new guilds by default
  */
 const DEFAULT_GUILD_CONFIG = {
     command_prefix: '%',
