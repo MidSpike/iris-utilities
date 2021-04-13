@@ -224,7 +224,7 @@ client.once('ready', async () => {
     async function track_guild_existences() {
         if (client.$._shard_id === 0) {
             console.time('track_guild_existences()');
-            for (const [ guild_id, guild_config ] of client.$.guild_configs_manager.configs) {
+            for (const [ guild_id, guild_config ] of await client.$.guild_configs_manager.fetchAllConfigs()) {
                 const time_in_ms_to_preserve_configs = 5 * 24 * 60 * 60 * 1000; // 5 days in milliseconds
                 const current_epoch = Date.now();
                 const updated_contact_epoch = parseInt(guild_config._updated_contact_epoch);
@@ -787,7 +787,7 @@ client.on('message', async (message) => {
      ********************************************************************/
 
     /* don't allow blacklisted guilds and silently halt execution */
-    if (client.$.blacklisted_guilds_manager.configs.has(message.guild.id) && !isThisBotsOwner(message.author.id)) return;
+    if ((await client.$.blacklisted_guilds_manager.hasConfig(message.guild.id)) && !isThisBotsOwner(message.author.id)) return;
 
     /* don't continue when the guild is in lockdown mode */
     const guild_lockdown_mode = client.$.guild_lockdowns.get(message.guild.id);
@@ -947,7 +947,7 @@ client.on('message', async (message) => {
     }
 
     /* don't allow blacklisted users, notify them of their inability to use this bot, and silently halt execution */
-    if (client.$.blacklisted_users_manager.configs.has(message.author.id)) {
+    if (await client.$.blacklisted_users_manager.hasConfig(message.author.id)) {
         console.warn(`Blacklisted user tried using ${bot_common_name}: ${message.author.tag} (${message.author.id})`);
 
         const blacklisted_user_embed = new CustomRichEmbed({

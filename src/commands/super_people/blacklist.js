@@ -48,7 +48,7 @@ module.exports = new DisBotCommand({
                     return;
                 }
 
-                if (client.$.blacklisted_users_manager.configs.has(user.id)) {
+                if (await client.$.blacklisted_users_manager.hasConfig(user.id)) {
                     /* remove user from the blacklist */
                     await client.$.blacklisted_users_manager.removeConfig(user.id);
                     message.channel.send(new CustomRichEmbed({
@@ -71,7 +71,7 @@ module.exports = new DisBotCommand({
                 const guild = client.guilds.resolve(command_args[1]);
                 if (!guild) return;
 
-                if (client.$.blacklisted_guilds_manager.configs.has(guild.id)) {
+                if (await client.$.blacklisted_guilds_manager.hasConfig(guild.id)) {
                     /* remove guild from the blacklist */
                     await client.$.blacklisted_guilds_manager.removeConfig(guild.id);
                     message.channel.send(new CustomRichEmbed({

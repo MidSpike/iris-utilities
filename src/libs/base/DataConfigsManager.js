@@ -55,8 +55,17 @@ class DataConfigsManager {
     /**
      * Retrieves all data configs
      * @returns {DataConfigs} all data configs
+     * @deprecated
      */
     get configs() {
+        return this.#configs_in_memory;
+    }
+
+    /**
+     * Retrieves all data configs
+     * @returns {DataConfigs} all data configs
+     */
+    async fetchAllConfigs() {
         return this.#configs_in_memory;
     }
 
@@ -67,6 +76,15 @@ class DataConfigsManager {
      */
     async fetchConfig(data_config_id) {
         return this.#configs_in_memory.get(data_config_id) ?? {};
+    }
+
+    /**
+     * Determines whether a specified data config exists
+     * @param {DataConfigId} data_config_id 
+     * @returns {Boolean} 
+     */
+    async hasConfig(data_config_id) {
+        return this.#configs_in_memory.has(data_config_id);
     }
 
     /**
