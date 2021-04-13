@@ -12,7 +12,7 @@ const { object_sort } = require('../../utilities.js');
 
 /**
  * @typedef {String} DataConfigId 
- * @typedef {Object} DataConfig 
+ * @typedef {Object.<string, any>} DataConfig 
  * @typedef {Collection<DataConfigId, DataConfig>} DataConfigs 
  */
 
@@ -79,7 +79,7 @@ class DataConfigsManager {
     }
 
     /**
-     * Determines whether a specified data config exists
+     * Determines whether the specified data config exists
      * @param {DataConfigId} data_config_id 
      * @returns {Boolean} 
      */
@@ -88,7 +88,7 @@ class DataConfigsManager {
     }
 
     /**
-     * Updates the data of the specified data config
+     * Updates the specified data config
      * @param {DataConfigId} data_config_id 
      * @param {DataConfig} partial_config_data a key:value partial data config in the form of an object literal
      * @param {Boolean} keep_old_config_data keep existing config entries or start from scratch
@@ -103,6 +103,7 @@ class DataConfigsManager {
         };
 
         this.#configs_in_memory.set(data_config_id, object_sort(new_config_data));
+
         return this;
     }
 
