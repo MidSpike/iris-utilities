@@ -43,7 +43,7 @@ module.exports = new DisBotCommand({
                     `**User:** <@${user_warning.user_id}>`,
                     `**Warned By:** <@${user_warning.staff_id}>`,
                     `**Timestamp:** \`${user_warning.timestamp})\``,
-                    `**Reason:**\n${'```'}\n${user_warning.reason}\`\n${'```'}`,
+                    `**Reason:**\n${'```'}\n${user_warning.reason}\n${'```'}`,
                 ].join('\n'),
             };
         });
