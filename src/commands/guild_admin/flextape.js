@@ -1,43 +1,67 @@
 'use strict';
 
 //#region dependencies
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
-const { botHasPermissionsInGuild, isThisBot, isThisBotsOwner } = require('../../libs/permissions.js');
+const { isThisBot,
+        isThisBotsOwner,
+        botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
-    name:'FLEXTAPE',
-    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
-    description:'Mutes and deafens a users voice / audio',
-    aliases:['flextape', 'unflextape'],
-    access_level:DisBotCommand.access_levels.GUILD_MOD,
+    name: 'FLEXTAPE',
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
+    description: 'Mutes and deafens a users voice / audio',
+    aliases: ['flextape', 'unflextape'],
+    cooldown: 2_500,
+    access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { command_args } = opts;
+
         if (!botHasPermissionsInGuild(message, ['MUTE_MEMBERS', 'DEAFEN_MEMBERS'])) return;
-        const user = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
-        if (!user) {
+
+        if (!message.member.voice.channel) {
             message.channel.send(new CustomRichEmbed({
-                color:0xFFFF00,
-                title:'Provide a @user next time!'
+                color: 0xFFFF00,
+                description: 'You need to be in a voice channel to use this command!',
             }, message));
             return;
         }
-        message.guild.members.fetch(user.id).then(async guildMember => {
-            if (!isThisBotsOwner(message.member.id) && isThisBotsOwner(guildMember.id)) {return;}
-            if (isThisBot(guildMember.id)) {return;}
-            if (!guildMember.voice?.channel) {
-                message.channel.send(new CustomRichEmbed({
-                    color:0xFFFF00,
-                    title:`That user isn't in a voice channel right now!`
-                }, message));
-                return;
-            }
-            await guildMember.voice.setMute(!guildMember.voice.serverMute);
-            await guildMember.voice.setDeaf(guildMember.voice.serverMute);
+
+        const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
+        if (!member) {
             message.channel.send(new CustomRichEmbed({
-                title:`${guildMember.voice.serverMute ? 'Flextaped' : 'Unflextaped'} @${user.tag} (${user.id})`
+                color: 0xFFFF00,
+                description: 'Provide an @user mention next time!',
+            }, message)).catch(console.warn);
+            return;
+        }
+
+        if (!member.voice.channel) {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                description: 'That user isn\'t in a voice channel right now!',
             }, message));
-        }).catch(console.trace);
+            return;
+        }
+
+        if (message.member.voice.channelID !== member.voice.channelID) {
+            message.channel.send(new CustomRichEmbed({
+                color: 0xFFFF00,
+                description: 'You need to be in the same voice channel as that user!',
+            }, message));
+            return;
+        }
+
+        if (!isThisBotsOwner(message.member.id) && isThisBotsOwner(member.id)) return;
+        if (isThisBot(member.id)) return;
+
+        await member.voice.setMute(!member.voice.serverMute);
+        await member.voice.setDeaf(member.voice.serverMute);
+
+        message.channel.send(new CustomRichEmbed({
+            description: `${member.voice.serverMute ? 'Flextaped' : 'Unflextaped'} ${member.user}!`,
+        }, message));
     },
 });
