@@ -1,19 +1,22 @@
 'use strict';
 
 //#region dependencies
-const { Timer, array_random } = require('../../utilities.js');
+const { Timer,
+        array_random } = require('../../utilities.js');
 
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
-const { botHasPermissionsInGuild, isThisBotsOwner } = require('../../libs/permissions.js');
+const { isThisBotsOwner,
+        botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
-    name:'YEET',
-    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
-    description:'Yeet people from your voice channel into other voice channels',
-    aliases:['yeet'],
-    access_level:DisBotCommand.access_levels.GUILD_MOD,
+    name: 'YEET',
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
+    description: 'Yeet people from your voice channel into other voice channels',
+    aliases: ['yeet'],
+    access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
 
@@ -23,7 +26,7 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'You must be in a voice channel to use this command!',
-            }, message));
+            }, message)).catch(console.warn);
             return;
         }
 
@@ -45,11 +48,11 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Woah there!',
-                description: `I couldn't find anyone to yeet from your voice channel!`,
+                description: 'I couldn\'t find anyone to yeet from your voice channel!',
                 fields: [
                     {
                         name: 'Command Description',
-                        value: 'This command can be used to "yeet" (move) users from your voice channel into the afk channel, falling back to a random voice channel!',
+                        value: 'This command can be used to \"yeet\" (move) users from your voice channel into the afk channel, falling back to a random voice channel!',
                     }, {
                         name: 'Example Usages',
                         value: [
@@ -65,30 +68,43 @@ module.exports = new DisBotCommand({
         }
 
         message.channel.send(new CustomRichEmbed({
-            title:`Yeeted ${members_to_yeet.size} member(s) from your voice channel!`
-        }, message));
+            title: `Yeeted ${members_to_yeet.size} member(s) from your voice channel!`,
+        }, message)).catch(console.warn);
 
         for (const member_to_yeet of members_to_yeet.values()) {
             if (isThisBotsOwner(member_to_yeet.id)) continue;
-            const available_vcs = message.guild.channels.cache.filter(c => c.type === 'voice' && c.id !== message.member.voice.channel.id && c.permissionsFor(message.guild.me).has(Discord.Permissions.FLAGS.MOVE_MEMBERS));
+
+            const available_vcs = message.guild.channels.cache.filter(channel => {
+                const is_voice_channel = channel.type === 'voice';
+                const voice_channel_is_not_shared_with_member = channel.id !== message.member.voice.channel.id;
+                const user_can_move_members_in_channel = channel.permissionsFor(message.guild.me).has(Discord.Permissions.FLAGS.MOVE_MEMBERS);
+                return is_voice_channel && voice_channel_is_not_shared_with_member && user_can_move_members_in_channel;
+            });
+
             const random_vc = array_random(Array.from(available_vcs.values()));
+
             const vc_to_yeet_them_to = message.guild.afkChannel ?? random_vc;
+
             if (!vc_to_yeet_them_to) {
                 message.channel.send(new CustomRichEmbed({
                     color: 0xFFFF00,
                     title: 'Woah there!',
-                    description: `There aren't any other voice channels for the user(s) to be yeeted to!`,
-                }, message));
+                    description: 'There aren\'t any voice channels for the user(s) to be yeeted to!',
+                }, message)).catch(console.warn);
                 return;
             }
-            member_to_yeet.voice.setChannel(vc_to_yeet_them_to).catch(() => {
-                message.channel.send(new CustomRichEmbed({
+
+            try {
+                await member_to_yeet.voice.setChannel(vc_to_yeet_them_to);
+            } catch {
+                await message.channel.send(new CustomRichEmbed({
                     color: 0xFFFF00,
                     title: 'Uh Oh!',
-                    description: 'I was unable to yeet a user from your voice channel!',
-                }, message));
-            });
-            await Timer(125); // Add a small delay to prevent an overload of API requests
+                    description: `I was unable to yeet ${member_to_yeet} from your voice channel!`,
+                }, message)).catch(console.warn);
+            }
+
+            await Timer(125); // prevent api abuse
         }
     },
 });
