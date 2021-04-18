@@ -25,7 +25,7 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 description: 'You need to be in a voice channel to use this command!',
-            }, message));
+            }, message)).catch(console.warn);
             return;
         }
 
@@ -42,7 +42,7 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 description: 'That user isn\'t in a voice channel right now!',
-            }, message));
+            }, message)).catch(console.warn);
             return;
         }
 
@@ -50,18 +50,18 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 description: 'You need to be in the same voice channel as that user!',
-            }, message));
+            }, message)).catch(console.warn);
             return;
         }
 
         if (!isThisBotsOwner(message.member.id) && isThisBotsOwner(member.id)) return;
         if (isThisBot(member.id)) return;
 
-        await member.voice.setMute(!member.voice.serverMute);
-        await member.voice.setDeaf(member.voice.serverMute);
+        await member.voice.setMute(!member.voice.serverMute).catch(console.warn);
+        await member.voice.setDeaf(member.voice.serverMute).catch(console.warn);
 
         message.channel.send(new CustomRichEmbed({
             description: `${member.voice.serverMute ? 'Flextaped' : 'Unflextaped'} ${member.user}!`,
-        }, message));
+        }, message)).catch(console.warn);
     },
 });
