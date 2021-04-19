@@ -3,17 +3,19 @@
 //#region dependencies
 const { Timer } = require('../../utilities.js');
 
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
-const { isThisBotsOwner, botHasPermissionsInGuild } = require('../../libs/permissions.js');
+const { isThisBotsOwner,
+        botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
-    name:'YOINK',
-    category:`${DisBotCommander.categories.GUILD_ADMIN}`,
-    description:'Yoink people from their voice channel into your voice channel',
-    aliases:['yoink'],
-    access_level:DisBotCommand.access_levels.GUILD_MOD,
+    name: 'YOINK',
+    category: `${DisBotCommander.categories.GUILD_ADMIN}`,
+    description: 'Yoink people from their voice channel into your voice channel',
+    aliases: ['yoink'],
+    access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
 
@@ -49,11 +51,11 @@ module.exports = new DisBotCommand({
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: 'Woah there!',
-                description: `I couldn't find anyone to yoink to your voice channel!`,
+                description: 'I couldn\'t find anyone to yoink to your voice channel!',
                 fields: [
                     {
                         name: 'Command Description',
-                        value: 'This command can be used to "yoink" (move) users to your voice channel!',
+                        value: 'This command can be used to \"yoink\" (move) users to your voice channel!',
                     }, {
                         name: 'Example Usages',
                         value: [
@@ -70,19 +72,24 @@ module.exports = new DisBotCommand({
 
         message.channel.send(new CustomRichEmbed({
             title: `Yoinked ${members_to_yoink.size} member(s) to your voice channel!`,
-        }, message));
+        }, message)).catch(console.warn);
 
         for (const member_to_yoink of members_to_yoink.values()) {
             if (isThisBotsOwner(member_to_yoink.id)) continue;
+
             const vc_to_yoink_them_to = message.member.voice.channel;
-            member_to_yoink.voice.setChannel(vc_to_yoink_them_to).catch(() => {
-                message.channel.send(new CustomRichEmbed({
+
+            try {
+                await member_to_yoink.voice.setChannel(vc_to_yoink_them_to);
+            } catch {
+                await message.channel.send(new CustomRichEmbed({
                     color: 0xFFFF00,
                     title: 'Uh Oh!',
                     description: 'I was unable to yoink a user to your voice channel!',
-                }, message));
-            });
-            await Timer(125); // Add a small delay to prevent an overload of API requests
+                }, message)).catch(console.warn);
+            }
+
+            await Timer(125); // prevent api abuse
         }
     },
 });
