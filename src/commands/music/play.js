@@ -335,6 +335,18 @@ async function playSoundcloud(message, search_query, playnext=false) {
         return;
     }
 
+    let soundcloud_song_info;
+    try {
+        soundcloud_song_info = await soundCloudDownloader.getInfo(search_query);
+    } catch (error) {
+        logUserError(message, error);
+        throw error;
+    }
+
+    console.log({
+        soundcloud_song_info,
+    });
+
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = async () => {
         let stream;
@@ -347,14 +359,12 @@ async function playSoundcloud(message, search_query, playnext=false) {
             return stream;
         }
     };
-    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, () => {
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 1.0, () => {
         if (!guild_queue_manager.loop_enabled) {
             /* don't send messages when looping */
             message.channel.send(new CustomRichEmbed({
-                title: 'Playing Soundcloud Stream',
-                description: [
-                    `[Website Link](${search_query})`,
-                ].join('\n'),
+                title: `Playing: ${soundcloud_song_info.title} (SoundCloud)`,
+                description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
             }, message));
         }
     }, () => {}, (error) => {
@@ -363,10 +373,8 @@ async function playSoundcloud(message, search_query, playnext=false) {
     guild_queue_manager.addItem(new QueueItem('other', player, 'Soundcloud Stream'), (playnext ? 2 : undefined)).then(() => {
         if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
-                title: 'Added Soundcloud Stream',
-                description: [
-                    `[Website Link](${search_query})`
-                ].join('\n'),
+                title: `Added: ${soundcloud_song_info.title} (SoundCloud)`,
+                description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
             }, message));
         }
     });
