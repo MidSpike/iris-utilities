@@ -35,18 +35,6 @@ function detect_unsupported_urls(search_query) {
     }
 }
 
-function detect_unsupported_attachment(message_attachment) {
-    if (message_attachment) {
-        if (message_attachment.name.endsWith('.mp3')) {
-            return false;
-        } else {
-            return true;
-        }
-    } else {
-        return false;
-    }
-}
-
 //---------------------------------------------------------------------------------------------------------------//
 
 async function detect_remote_audio_stream(search_query='') {
@@ -70,7 +58,59 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
     const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
 
     const voice_connection = await createConnection(message.member.voice.channel);
+
     const stream_url = `${remote_mp3_path}`;
+    const stream_maker = async () => {
+        const { data: response_stream } = await axios({
+            method: 'get',
+            url: stream_url,
+            responseType: 'stream',
+        });
+
+        return response_stream;
+    };
+
+    const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
+        if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
+
+        message.channel.send(new CustomRichEmbed({
+            title: 'Playing An MP3 File From The Internet',
+            description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
+        }, message));
+    }, () => {
+        // end-of-playback callback
+    }, (error) => {
+        console.trace(error);
+    });
+
+    await guild_queue_manager.addItem(new QueueItem('mp3', player, 'MP3', {
+        mp3_file_name: `${remote_mp3_path}`,
+    }), (playnext ? 2 : undefined));
+
+    if (guild_queue_manager.queue.length > 1) {
+        message.channel.send(new CustomRichEmbed({
+            title: 'Added An MP3 File From The Internet',
+            description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
+        }, message));
+    }
+}
+
+async function playUserUploadedMP3(message, playnext=false) {
+    const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
+
+    const message_media = message.attachments.first();
+    if (!message_media) {
+        message.channel.send(new CustomRichEmbed({
+            color: 0xFFFF00,
+            title: 'Did someone try playing an MP3?',
+            description: 'Its kinda hard to play an MP3 without one...\nNext time upload an mp3 in the same message!',
+        }, message));
+        return;
+    }
+
+    const voice_connection = await createConnection(message.member.voice.channel);
+    const stream_url = `${message_media.attachment}`;
+
     const stream_maker = async () => {
         const { data: response_stream } = await axios({
             method: 'get',
@@ -79,81 +119,27 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
         });
         return response_stream;
     };
-
     const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
-        if (!guild_queue_manager.loop_enabled) {
-            /* don't send messages when looping */
-            message.channel.send(new CustomRichEmbed({
-                title: 'Playing A MP3 File From The Internet',
-                description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
-            }, message));
-        }
-    }, () => {}, (error) => {
+        if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
+
+        message.channel.send(new CustomRichEmbed({
+            title: 'Playing An MP3 File From Their Computer',
+            description: `${'```'}\n${message_media.name}\n${'```'}`,
+        }, message));
+    }, () => {
+        if (!message.deletable) return;
+        message.delete().catch(console.warn);
+    }, (error) => {
         console.trace(error);
     });
-    guild_queue_manager.addItem(new QueueItem('mp3', player, 'MP3', {mp3_file_name: `${remote_mp3_path}`}), (playnext ? 2 : undefined)).then(() => {
+    guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
         if (guild_queue_manager.queue.length > 1) {
             message.channel.send(new CustomRichEmbed({
-                title: 'Added A MP3 File From The Internet',
-                description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
+                title: 'Added An MP3 File From Their Computer',
+                description: `${'```'}\n${message_media.name}\n${'```'}`,
             }, message));
         }
     });
-}
-
-async function playUserUploadedMP3(message, playnext=false) {
-    const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
-
-    const message_media = message.attachments.first();
-    if (message_media) {
-        // if (!message_media.attachment.endsWith('.mp3')) {
-        //     message.channel.send(new CustomRichEmbed({
-        //         color: 0xFFFF00,
-        //         title: 'Uh Oh!',
-        //         description: 'I wasn\'t able to play that mp3 file (if it even was one)!',
-        //     }, message));
-        //     return;
-        // }
-        const voice_connection = await createConnection(message.member.voice.channel);
-        const stream_url = `${message_media.attachment}`;
-        const stream_maker = async () => {
-            const { data: response_stream } = await axios({
-                method: 'get',
-                url: stream_url,
-                responseType: 'stream',
-            });
-            return response_stream;
-        };
-        const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 0.5, () => {
-            if (!guild_queue_manager.loop_enabled) {
-                /* don't send messages when looping */
-                message.channel.send(new CustomRichEmbed({
-                    title: 'Playing A MP3 File From Their Computer',
-                    description: `${'```'}\n${message_media.name}\n${'```'}`,
-                }, message));
-            }
-        }, () => {
-            if (message.deletable) {
-                message.delete().catch(console.warn);
-            }
-        }, (error) => {
-            console.trace(error);
-        });
-        guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
-            if (guild_queue_manager.queue.length > 1) {
-                message.channel.send(new CustomRichEmbed({
-                    title: 'Added A MP3 File From Their Computer',
-                    description: `${'```'}\n${message_media.name}\n${'```'}`,
-                }, message));
-            }
-        });
-    } else {
-        message.channel.send(new CustomRichEmbed({
-            color: 0xFFFF00,
-            title: 'Did someone try playing an MP3?',
-            description: 'Its kinda hard to play an MP3 without one...\nNext time upload an mp3 in the same message!',
-        }, message));
-    }
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -165,43 +151,48 @@ function detect_broadcastify(search_query='') {
 async function playBroadcastify(message, search_query, playnext=false) {
     const guild_queue_manager = message.client.$.queue_managers.get(message.guild.id);
 
-    const broadcast_id = search_query.match(/(\d+)/)?.[0]; // ID should be numbers only
-    if (!broadcast_id) return;
+    const broadcast_id = search_query.match(/(\d+)/)?.[0]; // the id should be numbers only
+    if (!broadcast_id) throw new Error('Unable to retrieve Broadcastify Id from supplied user input!');
+
     const broadcastify_website_url = `https://www.broadcastify.com/listen/feed/${broadcast_id}`;
     const broadcastify_stream_url = `https://broadcastify.cdnstream1.com/${broadcast_id}`;
+
     const voice_connection = await createConnection(message.member.voice.channel);
+
     const stream_maker = () => `${broadcastify_stream_url}`;
     const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 10.0, () => {
-        if (!guild_queue_manager.loop_enabled) {
-            /* don't send messages when looping */
-            message.channel.send(new CustomRichEmbed({
-                title: 'Playing Broadcastify Stream',
-                description: [
-                    `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
-                    `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
-                ].join('\n'),
-            }, message));
-        }
-    }, () => {}, (error) => {
+        if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
+
+        message.channel.send(new CustomRichEmbed({
+            title: 'Playing Broadcastify Stream',
+            description: [
+                `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+            ].join('\n'),
+        }, message));
+    }, () => {
+        // end-of-playback callback
+    }, (error) => {
         console.trace(error);
     });
-    guild_queue_manager.addItem(new QueueItem('other', player, 'Broadcastify Stream'), (playnext ? 2 : undefined)).then(() => {
-        if (guild_queue_manager.queue.length > 1) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Added Broadcastify Stream',
-                description: [
-                    `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
-                    `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
-                ].join('\n'),
-            }, message));
-        }
-    });
+
+    await guild_queue_manager.addItem(new QueueItem('other', player, 'Broadcastify Stream'), (playnext ? 2 : undefined));
+
+    if (guild_queue_manager.queue.length > 1) {
+        message.channel.send(new CustomRichEmbed({
+            title: 'Added Broadcastify Stream',
+            description: [
+                `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+            ].join('\n'),
+        }, message));
+    }
 }
 
 //---------------------------------------------------------------------------------------------------------------//
 
 async function get_spotify_access_token() {
-    const base64_encoded_authorization = (new Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`)).toString(`base64`);
+    const base64_encoded_authorization = (new Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`)).toString('base64');
 
     const spotify_auth_response = await axios({
         url: 'https://accounts.spotify.com/api/token?grant_type=client_credentials',
@@ -254,10 +245,8 @@ async function playSpotify(message, search_query, playnext=false) {
 
     async function playSpotifyTracks(spotify_playlist_id, resource_type) {
         const spotify_playlist_response = await axios.get(`https://api.spotify.com/v1/${resource_type}s/${spotify_playlist_id}/tracks?access_token=${spotify_access_token}`);
-        console.log('spotify_playlist_response.data', spotify_playlist_response.data);
 
         const track_ids = spotify_playlist_response.data.items.map(item => resource_type === 'playlist' ? item.track.id : item.id);
-        console.log('track_ids', track_ids);
 
         const confirmation_embed = new CustomRichEmbed({
             title: `Do you want to play this playlist / album?`,
@@ -343,10 +332,6 @@ async function playSoundcloud(message, search_query, playnext=false) {
         throw error;
     }
 
-    console.log({
-        soundcloud_song_info,
-    });
-
     const voice_connection = await createConnection(message.member.voice.channel);
     const stream_maker = async () => {
         let stream;
@@ -360,24 +345,26 @@ async function playSoundcloud(message, search_query, playnext=false) {
         }
     };
     const player = new QueueItemPlayer(guild_queue_manager, voice_connection, stream_maker, 1.0, () => {
-        if (!guild_queue_manager.loop_enabled) {
-            /* don't send messages when looping */
-            message.channel.send(new CustomRichEmbed({
-                title: `Playing: ${soundcloud_song_info.title} (SoundCloud)`,
-                description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
-            }, message));
-        }
-    }, () => {}, (error) => {
+        if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
+
+        message.channel.send(new CustomRichEmbed({
+            title: `Playing: ${soundcloud_song_info.title} (SoundCloud)`,
+            description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
+        }, message));
+    }, () => {
+        // end-of-playback callback
+    }, (error) => {
         console.trace(error);
     });
-    guild_queue_manager.addItem(new QueueItem('other', player, 'Soundcloud Stream'), (playnext ? 2 : undefined)).then(() => {
-        if (guild_queue_manager.queue.length > 1) {
-            message.channel.send(new CustomRichEmbed({
-                title: `Added: ${soundcloud_song_info.title} (SoundCloud)`,
-                description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
-            }, message));
-        }
-    });
+
+    await guild_queue_manager.addItem(new QueueItem('other', player, 'Soundcloud Stream'), (playnext ? 2 : undefined));
+
+    if (guild_queue_manager.queue.length > 1) {
+        message.channel.send(new CustomRichEmbed({
+            title: `Added: ${soundcloud_song_info.title} (SoundCloud)`,
+            description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
+        }, message));
+    }
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -404,33 +391,16 @@ module.exports = new DisBotCommand({
         }
 
         const message_attachment = message.attachments.first() ?? undefined;
-        
+
         if (detect_unsupported_urls(command_args.join(' '))) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
                 title: `Playing music from that website isn't supported!`,
                 description: `Use \`${discord_command}\` to see how to use this command.`,
             }));
-        }
-        // else if (detect_unsupported_attachment(message_attachment)) {
-        //     const message_attachment_extension = message_attachment?.name?.match(/[^.]+$/g)?.[0] ?? 'unknown';
-        //     message.channel.send(new CustomRichEmbed({
-        //         color: 0xFFFF00,
-        //         title: `Playing music from files ending in \`.${message_attachment_extension}\` isn\'t supported!`,
-        //         description: `Use \`${discord_command}\` to see how to use this command.`,
-        //     }));
-        // }
-        else if (message_attachment) {
+        } else if (message_attachment) {
             playUserUploadedMP3(message, playnext);
         } else if (command_args.join('').length > 0) {
-            function error_429_message() {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: `YouTube and Spotify playback are currently disabled!`,
-                    description: `YouTube is currently refusing to send audio packets to this bot...\n Please try again in a few hours!`,
-                }, message));
-            }
-
             if (await detect_remote_audio_stream(command_args.join(' '))) {
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
@@ -438,10 +408,8 @@ module.exports = new DisBotCommand({
             } else if (detect_spotify(command_args.join(' '))) {
                 playSpotify(message, command_args.join(' '), playnext);
             } else if (detect_soundcloud(command_args.join(' '))) {
-                // if (!isThisBotsOwner(message.author.id)) return error_429_message();
                 playSoundcloud(message, command_args.join(' '), playnext);
             } else {
-                // if (!isThisBotsOwner(message.author.id)) return error_429_message();
                 playYouTube(message, command_args.join(' '), playnext);
             }
         } else {
