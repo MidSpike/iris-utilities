@@ -24,6 +24,8 @@ module.exports = new DisBotCommand({
             const everyone_permissions = message.guild.roles.everyone.permissions.toArray();
             const member_permissions = member.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
 
+            const member_user_flags = member.user.flags?.toArray() ?? [];
+
             const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
 
             message.channel.send(new CustomRichEmbed({
@@ -57,7 +59,11 @@ module.exports = new DisBotCommand({
                         inline: false,
                     }, {
                         name: 'Permissions',
-                        value: `${'```'}\n${member_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : member_permissions.join('\n')}\n${'```'}`,
+                        value: `${'```'}\n${member_permissions.length > 1 ? (member_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : member_permissions.join('\n')) : 'NO_PERMISSIONS_BEYOND_EVERYONE'}\n${'```'}`,
+                        inline: false,
+                    }, {
+                        name: 'Flags',
+                        value: `${'```'}\n${member_user_flags.length > 1 ? member_user_flags.join('\n') : 'NO_FLAGS'}\n${'```'}`,
                         inline: false,
                     },
 
