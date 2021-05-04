@@ -9,8 +9,6 @@ const { DisBotCommand,
 const { sendConfirmationMessage } = require('../../libs/messages.js');
 //#endregion dependencies
 
-const history_deletion_requests_channel_id = process.env.BOT_LOGGING_CHANNEL_HISTORY_DELETION_REQUESTS_ID;
-
 module.exports = new DisBotCommand({
     name: 'REQUEST_HISTORY_DELETION',
     category: `${DisBotCommander.categories.HELP_INFO}`,
@@ -24,8 +22,11 @@ module.exports = new DisBotCommand({
             description: 'Do you want to request for your stored user history to be deleted?',
         }, message);
         const yes_callback = async () => {
-            const history_deletion_requests_channel = client.$.bot_guilds.logging.channels.resolve(history_deletion_requests_channel_id);
-            await history_deletion_requests_channel.send(`@${message.author.tag} (${message.author.id}) - ${moment()}`).catch(console.trace);
+            client.shard.send({
+                type: 'for_shard__logging_user_history_deletion_requests',
+                message_author: message.author,
+            });
+
             message.reply(new CustomRichEmbed({
                 color: 0xFF00FF,
                 title: 'Your user history will be removed within 48 hours!',

@@ -48,6 +48,7 @@ const bot_reaction_log_channel = bot_special_channels.find(ch => ch.id === 'GUIL
 
 const bot_central_guild_history_channel_id = process.env.BOT_LOGGING_CHANNEL_GUILD_HISTORY_ID;
 const bot_central_anonymous_command_log_channel_id = process.env.BOT_LOGGING_CHANNEL_ANONYMOUS_COMMAND_LOG_ID;
+const bot_central_history_deletion_requests_channel_id = process.env.BOT_LOGGING_CHANNEL_HISTORY_DELETION_REQUESTS_ID;
 //#endregion bot channels
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -1166,6 +1167,13 @@ process.on('message', (message) => {
                     text: `${moment()}`,
                 },
             })).catch(console.trace);
+        }
+    }
+    if (message.type === 'for_client__logging_user_history_deletion_requests') {
+        const message_author = message.message_author;
+        const bot_central_history_deletion_requests_channel = client.channels.resolve(bot_central_history_deletion_requests_channel_id);
+        if (bot_central_history_deletion_requests_channel) {
+            bot_central_history_deletion_requests_channel.send(`@${message_author.tag} (${message_author.id}) - ${moment()}`).catch(console.trace);
         }
     }
 });
