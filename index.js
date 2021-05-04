@@ -49,6 +49,12 @@ sharding_manager.on('shardCreate', (shard) => {
                 type: 'for_client__logging_guild_create_or_delete',
             });
         }
+        if (message.type === 'for_shard__logging_user_history_deletion_requests') {
+            sharding_manager.broadcast({
+                ...message,
+                type: 'for_client__logging_user_history_deletion_requests',
+            });
+        }
     });
 });
 
