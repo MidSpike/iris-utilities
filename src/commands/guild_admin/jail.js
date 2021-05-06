@@ -19,7 +19,7 @@ module.exports = new DisBotCommand({
     description: 'allows staff to jail/unjail a user in the guild',
     aliases: ['jail', 'unjail'],
     cooldown: 10_000,
-    access_level: DisBotCommand.access_levels.GUILD_ADMIN,
+    access_level: DisBotCommand.access_levels.GUILD_MOD,
     async executor(Discord, client, message, opts={}) {
         const { command_prefix, discord_command, command_args } = opts;
 
