@@ -47,14 +47,23 @@ module.exports = new DisBotCommand({
         `);
         const total_bot_music_listener_count = distributed_bot_music_listener_count.reduce((accumulator, bot_count) => accumulator + bot_count, 0);
 
-        const distributed_guild_count = await client.shard.fetchClientValues('guilds.cache.size');
-        const total_guild_count = distributed_guild_count.reduce((accumulator, guild_count) => accumulator + guild_count, 0);
-
         const distributed_people_count = await client.shard.broadcastEval('this.users.cache.filter((user) => !user.bot).size');
         const total_people_count = distributed_people_count.reduce((accumulator, people_count) => accumulator + people_count, 0);
 
         const distributed_bot_count = await client.shard.broadcastEval('this.users.cache.filter((user) => user.bot).size');
         const total_bot_count = distributed_bot_count.reduce((accumulator, bot_count) => accumulator + bot_count, 0);
+
+        const distributed_guild_count = await client.shard.fetchClientValues('guilds.cache.size');
+        const total_guild_count = distributed_guild_count.reduce((accumulator, guild_count) => accumulator + guild_count, 0);
+
+        const special_channels_usage_totals = await Promise.all(bot_special_text_channels.map(async (special_channel) => {
+            const distributed_special_channel_usage_total = await client.shard.broadcastEval(`this.channels.cache.filter(channel => channel.name === '${special_channel.name}').size`);
+            const special_channel_usage_total = distributed_special_channel_usage_total.reduce((accumulator, special_channel_count) => accumulator + special_channel_count, 0);
+            return {
+                channel_name: special_channel.name,
+                usage_total: special_channel_usage_total,
+            };
+        }));
 
         message.channel.send(new CustomRichEmbed({
             title: 'Hi There!',
@@ -109,8 +118,8 @@ module.exports = new DisBotCommand({
                     name: 'The Number Of Guilds I\'m In',
                     value: `${total_guild_count} Guilds`,
                 }, {
-                    name: 'The Special Channels Usage',
-                    value: `${bot_special_text_channels.map(special_channel => `\`${special_channel.name}\` - ${client.channels.cache.filter(channel => channel.name === special_channel.name).size} Guilds`).join('\n')}`,
+                    name: 'The Special Text Channels Usage',
+                    value: `${special_channels_usage_totals.map(({ channel_name, usage_total }) => `\`${channel_name}\` - ${usage_total} Guilds`).join('\n')}`,
                 }, {
                     name: 'The Legal Disclaimer',
                     value: `Use \`${command_prefix}disclaimer\` for information regarding your privacy and safety.`,
