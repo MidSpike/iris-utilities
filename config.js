@@ -22,7 +22,7 @@ const { Collection } = require('discord.js');
  * semi-version:
  * - used to denote minor patches to an already released PUBLIC_VERSION
  */
-const PUBLIC_VERSION = 'vS_2021-05-04_0';
+const PUBLIC_VERSION = 'vS_2021-05-19_0';
 
 /**
  * The various names given to this bot matching the schemes below
