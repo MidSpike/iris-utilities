@@ -456,7 +456,7 @@ client.on('guildMemberAdd', async (member) => {
             `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
         ].join('\n'),
         footer: {
-            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            iconURL: client.user.displayAvatarURL({ dynamic: true }),
             text: `Joined • ${moment()}`,
         },
     })).catch(() => {
@@ -485,7 +485,7 @@ client.on('guildMemberRemove', async (member) => {
             `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
         ].join('\n'),
         footer: {
-            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+            iconURL: client.user.displayAvatarURL({ dynamic: true }),
             text: `Left • ${moment()}`,
         },
     })).catch(() => {
@@ -1158,12 +1158,12 @@ process.on('message', (message) => {
             bot_central_guild_history_channel.send(new CustomRichEmbed({
                 color: guild_action === 'create' ? 0x00FF00 : 0xFFFF00,
                 author: {
-                    iconURL: `${guild_info.icon_url}`,
+                    iconURL: guild_info.icon_url,
                     name: `${guild_info.name} (${guild_info.id})`,
                 },
                 title: `${guild_action === 'create' ? 'Added' : 'Removed'} ${bot_common_name}!`,
                 footer: {
-                    iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                    iconURL: client.user.displayAvatarURL({ dynamic: true }),
                     text: `${moment()}`,
                 },
             })).catch(console.trace);
