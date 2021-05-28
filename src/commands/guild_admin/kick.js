@@ -95,10 +95,10 @@ module.exports = new DisBotCommand({
 
             member_to_kick.kick(`@${message.author.tag} used ${discord_command}`).then(() => {
                 message.channel.send(new CustomRichEmbed({
-                    title: `@${member_to_kick.tag} has been kicked!`,
+                    title: `@${member_to_kick.user.tag} has been kicked!`,
                 }, message)).catch(console.warn);
                 logAdminCommandsToGuild(message, new CustomRichEmbed({
-                    title: `@${message.author.tag} (${message.author.id}) kicked @${member_to_kick.tag} (${member_to_kick.id}) from the server!`,
+                    title: `@${message.author.tag} (${message.author.id}) kicked @${member_to_kick.user.tag} (${member_to_kick.id}) from the server!`,
                 }));
             }).catch(() => {
                 logUserError(message, error);
