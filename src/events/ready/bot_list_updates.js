@@ -21,23 +21,30 @@ async function postStatsToBotListingServices() {
     const shards = client.shard.ids;
 
     try {
-        await axios.post('https://botblock.org/api/count', {
-            'server_count': server_count,
-            'bot_id': bot_id,
-            'shard_id': shard_id,
-            'shard_count': shard_count,
-            'shards': shards,
+        await axios({
+            method: 'post',
+            url: 'https://botblock.org/api/count',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: {
+                'server_count': server_count,
+                'bot_id': bot_id,
+                'shard_id': shard_id,
+                'shard_count': shard_count,
+                'shards': shards,
 
-            'top.gg': process.env.BLS_TOP_GG_TOKEN,
-            'bots.ondiscord.xyz': process.env.BLS_BOTS_ON_DISCORD_TOKEN,
-            'discord.bots.gg': process.env.BLS_DISCORD_BOTS_GG_TOKEN,
-            'arcane-center.xyz': process.env.BLS_ARCANE_CENTER_TOKEN,
-            'discord.boats': process.env.BLS_DISCORD_BOATS_TOKEN,
-            'discordextremelist.xyz': process.env.BLS_DISCORD_EXTREME_LIST,
-            'discordbotlist.com': process.env.BLS_DISCORD_BOT_LIST,
+                'top.gg': process.env.BLS_TOP_GG_TOKEN,
+                'bots.ondiscord.xyz': process.env.BLS_BOTS_ON_DISCORD_TOKEN,
+                'discord.bots.gg': process.env.BLS_DISCORD_BOTS_GG_TOKEN,
+                // 'arcane-center.xyz': process.env.BLS_ARCANE_CENTER_TOKEN,
+                'discord.boats': process.env.BLS_DISCORD_BOATS_TOKEN,
+                'discordextremelist.xyz': process.env.BLS_DISCORD_EXTREME_LIST,
+                'discordbotlist.com': process.env.BLS_DISCORD_BOT_LIST,
+            },
         });
     } catch (error) {
-        console.trace(error);
+        console.trace('postStatsToBotListingServices', error);
     }
 }
 
@@ -47,13 +54,14 @@ module.exports = {
     event_name: 'ready',
     async callback() {
         /* make sure that the client has been assigned a shard id before continuing */
-        // while (client.$._shard_id === undefined) {
-        //     await Timer(125);
-        // }
+        while (client.$._shard_id === undefined) {
+            await Timer(125);
+        }
 
-        // await postStatsToBotListingServices();
-
-        /* update the bot listing websites at the specified interval below */
-        // client.setInterval(async () => await postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
+        /* update the bot listing websites at the specified intervals below */
+        if (client.$._shard_id === 0) {
+            client.setImmediate(async () => await postStatsToBotListingServices());
+            client.setInterval(async () => await postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
+        }
     },
 };
