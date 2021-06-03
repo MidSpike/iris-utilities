@@ -60,7 +60,7 @@ module.exports = {
 
         /* update the bot listing websites at the specified intervals below */
         if (client.$._shard_id === 0) {
-            client.setImmediate(async () => await postStatsToBotListingServices());
+            client.setTimeout(async () => await postStatsToBotListingServices(), 2 * 60_000); // after 2 minutes
             client.setInterval(async () => await postStatsToBotListingServices(), 1000 * 60 * 30); // every 30 minutes
         }
     },
