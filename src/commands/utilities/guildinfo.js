@@ -92,11 +92,15 @@ module.exports = new DisBotCommand({
 
                         {
                             name: 'Owner',
-                            value: `<@!${guild.owner?.id}>`,
+                            value: `<@!${guild.ownerID}>`,
                             inline: true,
                         }, {
                             name: 'Region',
                             value: `\`${guild.region}\``,
+                            inline: true,
+                        }, {
+                            name: 'Preferred Locale',
+                            value: `\`${guild.preferredLocale}\``,
                             inline: true,
                         }, {
                             name: 'Verified By Discord',
@@ -115,6 +119,14 @@ module.exports = new DisBotCommand({
                             value: `\`${guild.explicitContentFilter}\``,
                             inline: true,
                         }, {
+                            name: 'Booster Level',
+                            value: `\`${guild.premiumTier}\``,
+                            inline: true,
+                        }, {
+                            name: 'Boosters',
+                            value: `\`${guild.premiumSubscriptionCount}\``,
+                            inline: true,
+                        }, {
                             name: 'Bots',
                             value: `\`${guild_members.filter(m => m.user.bot).size}\``,
                             inline: true,
@@ -129,6 +141,11 @@ module.exports = new DisBotCommand({
                         },
 
                         ...[
+                            (guild.afkChannel ? {
+                                name: 'AFK Channel',
+                                value: `${guild.afkChannel}`,
+                                inline: false,
+                            } : undefined),
                             (guild.rulesChannel ? {
                                 name: 'Rules Channel',
                                 value: `${guild.rulesChannel}`,
