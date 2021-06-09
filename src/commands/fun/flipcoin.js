@@ -15,7 +15,7 @@ const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
  * @returns {CoinFacing} 
  */
 function flipCoin() {
-    return Math.round(Math.random()) === 1 ? 'heads' : 'tails';
+    return Math.random() > 0.5 ? 'heads' : 'tails';
 }
 
 module.exports = new DisBotCommand({
@@ -26,10 +26,10 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const coin_facing = flipCoin();
 
-        message.channel.send(new CustomRichEmbed({
+        await message.channel.send(new CustomRichEmbed({
             title: 'Flipped a coin!',
             description: `**You got __${coin_facing}__**!`,
             thumbnail: `${process.env.BOT_CDN_URL}/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`,
-        }, message)).catch(console.warn);
+        }, message));
     },
 });
