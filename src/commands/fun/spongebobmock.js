@@ -25,12 +25,12 @@ module.exports = new DisBotCommand({
         if (user_text.length < 10) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: 'I wasn\'t able to mock that:',
+                title: 'I wasn\'t able to mock that!',
                 description: 'Try typing a sentence after the command!',
                 fields: [
                     {
                         name: 'Example Usage',
-                        value: `${discord_command} Spongebob is going to mock me!`,
+                        value: `${'```'}\n${discord_command} Spongebob is going to mock me!\n${'```'}`,
                     },
                 ],
             }, message));
