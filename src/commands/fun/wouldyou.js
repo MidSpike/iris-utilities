@@ -5,10 +5,10 @@ const axios = require('axios');
 
 const htmlEntitiesParser = require('html-entities');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
+const { sendConfirmationMessage } = require('../../libs/messages.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -18,17 +18,15 @@ module.exports = new DisBotCommand({
     aliases: ['wouldyou', 'willyou'],
     access_level: DisBotCommand.access_levels.GLOBAL_USER,
     async executor(Discord, client, message, opts={}) {
-        const api_response = await axios.post(`https://api2.willyoupressthebutton.com/api/v2/dilemma/`);
-        const response_data = api_response.data;
+        const { data: response_data } = await axios.post('https://api2.willyoupressthebutton.com/api/v2/dilemma/');
 
-        console.log({response_data});
+        // console.log({ response_data });
 
-        const dilemma_id = response_data.dilemma.id;
+        const dilemma_id = `${response_data.dilemma.id}`;
         const dilemma_situation = htmlEntitiesParser.decode(response_data.dilemma.txt1);
         const dilemma_catch = htmlEntitiesParser.decode(response_data.dilemma.txt2);
-        const dilemma_yay_count = response_data.dilemma.yes;
-        const dilemma_nay_count = response_data.dilemma.no;
-        // const dilemma_confirmed = response_data.dilemma.confirmed; // has unknown usage
+        const dilemma_yay_count = parseInt(response_data.dilemma.yes);
+        const dilemma_nay_count = parseInt(response_data.dilemma.no);
 
         const dilemma_yay_nay_total = dilemma_yay_count + dilemma_nay_count;
         const dilemma_yay_percent = Math.round(dilemma_yay_count / dilemma_yay_nay_total * 100);
@@ -36,15 +34,28 @@ module.exports = new DisBotCommand({
 
         const embed = new CustomRichEmbed({
             title: `Would you? (#${dilemma_id})`,
-            description: `**Would you accept that:**\n${dilemma_situation}\n**However:**\n${dilemma_catch}?`,
+            fields: [
+                {
+                    name: 'Would you accept that',
+                    value: `${dilemma_situation}`,
+                }, {
+                    name: 'However',
+                    value: `${dilemma_catch}`,
+                },
+            ],
         }, message);
 
         function showResults() {
             message.channel.send(new CustomRichEmbed({
                 title: `Would you? (#${dilemma_id})`,
-                description: `**Would you accept that:**\n${dilemma_situation}\n**However:**\n${dilemma_catch}?`,
                 fields: [
                     {
+                        name: 'Would you accept that',
+                        value: `${dilemma_situation}`,
+                    }, {
+                        name: 'However',
+                        value: `${dilemma_catch}`,
+                    }, {
                         name: '\u200b',
                         value: '\u200b',
                     }, {
