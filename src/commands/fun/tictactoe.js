@@ -8,49 +8,72 @@ const { sendOptionsMessage } = require('../../libs/messages.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion dependencies
 
+class TicTacToe {
+    playerOneCharacter = '❌';
+    playerTwoCharacter = '⭕';
+
+    defaultGameValueCharacter = '⬛';
+
+    gameValuesRowSize = 3;
+    gameValues = new Array(this.gameValuesRowSize ** 2).fill(this.defaultGameValueCharacter);
+
+    moveCount = 0;
+
+    constructor() {}
+
+    canMakeMove(locationIndex) {
+        return this.gameValues[locationIndex - 1] === this.defaultGameValueCharacter;
+    }
+
+    makeMove(locationIndex) {
+        if (!this.canMakeMove(locationIndex)) return false; // don't allow overriding
+
+        const currentPlayerCharacter = this.moveCount % 2 === 0 ? this.playerOneCharacter : this.playerTwoCharacter;
+
+        this.gameValues[locationIndex - 1] = currentPlayerCharacter;
+
+        this.moveCount++;
+
+        return true;
+    }
+
+    makeBoard() {
+        let board = '';
+
+        for (const gameValueIndex in this.gameValues) {
+            const gameValue = this.gameValues[gameValueIndex];
+            board = board + gameValue + ((parseInt(gameValueIndex) + 1) % this.gameValuesRowSize === 0 ? '\n' : '');
+        }
+
+        return board;
+    }
+}
+
 module.exports = new DisBotCommand({
     name: 'TICTACTOE',
     category: `${DisBotCommander.categories.FUN}`,
-    description: 'play tictactoe lol',
-    aliases: ['tictactoe'],
+    description: 'play a game of TicTacToe',
+    aliases: ['tictactoe', 'ttt'],
     async executor(Discord, client, message, opts = {}) {
         const { discord_command } = opts;
-        const default_game_board = [
-            `123`,
-            `456`,
-            `789`,
-        ];
-        const game_values = ['⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛'];
-        function constructGameBoard(game_values) {
-            let new_game_board = `${default_game_board.join('\n')}`;
-            for (let index = 0; index < game_values.length; index++) {
-                new_game_board = new_game_board.replace(`${index + 1}`, `${game_values[index]}`);
+
+        const ticTacToe = new TicTacToe();
+
+        async function makeEmbed() {
+            let emoji_buttons_guide = '';
+
+            for (const gameValueIndex in ticTacToe.gameValues) {
+                const number_as_emoji = await constructNumberUsingEmoji(parseInt(gameValueIndex) + 1);
+                emoji_buttons_guide = emoji_buttons_guide + number_as_emoji + ((parseInt(gameValueIndex) + 1) % ticTacToe.gameValuesRowSize === 0 ? '\n' : '');
             }
-            return new_game_board;
-        }
-        function makeMove(location = 1, mark = '❌') {
-            if (game_values[location - 1] !== '⬛') {
-                return false; // unable to make move
-            } else {
-                game_values[location - 1] = `${mark}`;
-                return true; // able to make move
-            }
-        }
-        async function makePlayerTurnEmbed(current_player) {
+
             return new CustomRichEmbed({
-                title: `${current_player === 'PLAYER_A' ? 'Make a move Player A!' : `It's your turn Player B!`}`,
-                description: `${current_player === 'PLAYER_A' ? 'Player A' : 'Player B'} is the letter \`${current_player === 'PLAYER_A' ? '❌' : '⭕'}\``,
+                title: `TicTacToe`,
+                description: ticTacToe.makeBoard(),
                 fields: [
                     {
-                        name: 'Game',
-                        value: `${constructGameBoard(game_values)}`,
-                    }, {
                         name: 'Buttons',
-                        value: `${(await Promise.all(
-                            default_game_board.map(async (x) => 
-                                await constructNumberUsingEmoji(x)
-                            )
-                        )).join('\n')}`,
+                        value: emoji_buttons_guide,
                     },
                 ],
                 footer: {
@@ -59,16 +82,17 @@ module.exports = new DisBotCommand({
                 },
             });
         }
+
         const reactions = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => ({
             emoji_name: `bot_emoji_${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][num]}`,
-            callback(options_message, collected_reaction, user) {
+            async callback(options_message, collected_reaction, user) {
                 // removeUserReactionsFromMessage(options_message);
-                if (!makeMove(num, current_player === 'PLAYER_A' ? '❌' : '⭕')) return;
-                current_player = current_player === 'PLAYER_A' ? 'PLAYER_B' : 'PLAYER_A';
-                options_message.edit(makePlayerTurnEmbed(current_player));
+                const move_was_successful = ticTacToe.makeMove(num);
+                if (!move_was_successful) return;
+                options_message.edit(await makeEmbed());
             }
         }));
-        let current_player = 'PLAYER_A';
-        sendOptionsMessage(message.channel.id, makePlayerTurnEmbed(current_player), reactions);
+
+        sendOptionsMessage(message.channel.id, await makeEmbed(), reactions);
     },
 });
