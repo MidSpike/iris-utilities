@@ -159,28 +159,6 @@ router.get('/translate', async (req, res) => {
 
 //---------------------------------------------------------------------------------------------------------------//
 
-router.get('/spmock', (req, res) => {
-    if (req.query?.token !== process.env.BOT_API_SERVER_TOKEN) {
-        console.warn(`Unauthorized request to the '/spmock' endpoint!`);
-        res.status(403);
-        res.set({ 'Content-Type': 'application/json' });
-        res.send(JSON.stringify({
-            'status': '403',
-            'message': 'bot api server token is not valid!'
-        }, null, 2));
-    } else {
-        res.set({ 'Content-Type': 'application/json' });
-        const original_text = req.query.text ?? `Nothing was sent to the '/spmock' endpoint!`;
-        const spmock_text = SpongeBobMock.spmock(original_text);
-        res.send(JSON.stringify({
-            'original_text': `${original_text}`,
-            'spmock_text': `${spmock_text}`
-        }, null, 2));
-    }
-});
-
-//---------------------------------------------------------------------------------------------------------------//
-
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use('/', router);
