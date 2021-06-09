@@ -1,17 +1,16 @@
 'use strict';
 
 //#region dependencies
-const axios = require('axios');
+const SpongeBobMock = require('spmock');
 
 const { Timer } = require('../../utilities.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 const bot_cdn_url = process.env.BOT_CDN_URL;
-const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
 
 module.exports = new DisBotCommand({
     name: 'SPONGEBOBMOCK',
@@ -21,13 +20,13 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const { discord_command, clean_command_args } = opts;
 
-        const user_text = clean_command_args.join(' ');
+        const user_text = clean_command_args.join(' ').trim();
 
-        if (user_text.length === 0) {
+        if (user_text.length < 10) {
             message.channel.send(new CustomRichEmbed({
                 color: 0xFFFF00,
-                title: `Couldn't Spongebob Mock:`,
-                description: `Try typing a sentence after the command!`,
+                title: 'I wasn\'t able to mock that:',
+                description: 'Try typing a sentence after the command!',
                 fields: [
                     {
                         name: 'Example Usage',
@@ -35,28 +34,36 @@ module.exports = new DisBotCommand({
                     },
                 ],
             }, message));
-        } else {
-            const bot_message = await message.channel.send(new CustomRichEmbed({
-                title: 'Generating Spongebob Mock...',
-                description: `${'```'}\n${user_text}\n${'```'}`,
-                image: `${bot_cdn_url}/spongebob-mocking-animated.gif`,
-            }, message));
-
-            const api_response = await axios.get(`${bot_api_url}/spmock?token=${encodeURIComponent(process.env.BOT_API_SERVER_TOKEN)}&text=${encodeURIComponent(user_text)}`);
-
-            const { spmock_text,
-                    original_text } = api_response.data;
-
-            await Timer(2500);
-
-            bot_message.edit(new CustomRichEmbed({
-                title: 'Generated Spongebob Mock',
-                description: [
-                    `I told SpongeBob to mock:${'```'}\n${original_text}\n${'```'}`,
-                    `into the following:\n${'```'}\n${spmock_text}\n${'```'}`,
-                ].join('\n'),
-                thumbnail: `${bot_cdn_url}/spongebob-mocking.png`,
-            }, message));
+            return;
         }
+
+        const bot_message = await message.channel.send(new CustomRichEmbed({
+            title: 'Used SpongeBob Mock',
+            fields: [
+                {
+                    name: 'Telling SpongeBob to mock',
+                    value: `${'```'}\n${user_text}\n${'```'}`,
+                },
+            ],
+            image: `${bot_cdn_url}/spongebob-mocking-animated.gif`,
+        }, message));
+
+        const spmock_text = SpongeBobMock.spmock(user_text);
+
+        await Timer(3000); // give the user a chance to view the gif
+
+        await bot_message.edit(new CustomRichEmbed({
+            title: 'Used SpongeBob Mock',
+            fields: [
+                {
+                    name: 'You told SpongeBob to mock',
+                    value: `${'```'}\n${user_text}\n${'```'}`,
+                }, {
+                    name: 'He came up with',
+                    value: `${'```'}\n${spmock_text}\n${'```'}`,
+                },
+            ],
+            thumbnail: `${bot_cdn_url}/spongebob-mocking.png`,
+        }, message));
     },
 });
