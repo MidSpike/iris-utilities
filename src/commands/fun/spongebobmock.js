@@ -23,47 +23,53 @@ module.exports = new DisBotCommand({
         const user_text = clean_command_args.join(' ').trim();
 
         if (user_text.length < 10) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'I wasn\'t able to mock that!',
-                description: 'Try typing a sentence after the command!',
-                fields: [
-                    {
-                        name: 'Example Usage',
-                        value: `${'```'}\n${discord_command} Spongebob is going to mock me!\n${'```'}`,
-                    },
-                ],
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'I wasn\'t able to mock that!',
+                    description: 'Try typing a sentence after the command!',
+                    fields: [
+                        {
+                            name: 'Example Usage',
+                            value: `${'```'}\n${discord_command} Spongebob is going to mock me!\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            });
             return;
         }
 
-        const bot_message = await message.channel.send(new CustomRichEmbed({
-            title: 'Used SpongeBob Mock',
-            fields: [
-                {
-                    name: 'Telling SpongeBob to mock',
-                    value: `${'```'}\n${user_text}\n${'```'}`,
-                },
-            ],
-            image: `${bot_cdn_url}/spongebob-mocking-animated.gif`,
-        }, message));
+        const bot_message = await message.channel.send({
+            embed: new CustomRichEmbed({
+                title: 'Used SpongeBob Mock',
+                fields: [
+                    {
+                        name: 'Telling SpongeBob to mock',
+                        value: `${'```'}\n${user_text}\n${'```'}`,
+                    },
+                ],
+                image: `${bot_cdn_url}/spongebob-mocking-animated.gif`,
+            }, message),
+        });
 
         const spmock_text = SpongeBobMock.spmock(user_text);
 
         await Timer(3000); // give the user a chance to view the gif
 
-        await bot_message.edit(new CustomRichEmbed({
-            title: 'Used SpongeBob Mock',
-            fields: [
-                {
-                    name: 'You told SpongeBob to mock',
-                    value: `${'```'}\n${user_text}\n${'```'}`,
-                }, {
-                    name: 'He came up with',
-                    value: `${'```'}\n${spmock_text}\n${'```'}`,
-                },
-            ],
-            thumbnail: `${bot_cdn_url}/spongebob-mocking.png`,
-        }, message));
+        await bot_message.edit({
+            embed: new CustomRichEmbed({
+                title: 'Used SpongeBob Mock',
+                fields: [
+                    {
+                        name: 'You told SpongeBob to mock',
+                        value: `${'```'}\n${user_text}\n${'```'}`,
+                    }, {
+                        name: 'He came up with',
+                        value: `${'```'}\n${spmock_text}\n${'```'}`,
+                    },
+                ],
+                thumbnail: `${bot_cdn_url}/spongebob-mocking.png`,
+            }, message),
+        });
     },
 });

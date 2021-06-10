@@ -67,10 +67,12 @@ module.exports = new DisBotCommand({
                     sendLargeMessage(message.channel.id, sorted_guild_members.map(member => `(${member.id}) ${member.user.tag}`).join('\n'));
                 }
                 if (guild_members.size >= 100) {
-                    sendConfirmationMessage(message.author.id, message.channel.id, true, new CustomRichEmbed({
-                        title:'There are a lot of members in that guild!',
-                        description:`Do you wish to print out ${guild_members.size} members?`
-                    }, message), () => {
+                    sendConfirmationMessage(message.author.id, message.channel.id, true, {
+                        embed: new CustomRichEmbed({
+                            title:'There are a lot of members in that guild!',
+                            description:`Do you wish to print out ${guild_members.size} members?`
+                        }, message),
+                    }, () => {
                         _output_members();
                     });
                 } else {
@@ -85,10 +87,12 @@ module.exports = new DisBotCommand({
                     sendLargeMessage(message.channel.id, sorted_guild_bots.map(member => `(${member.id}) ${member.user.tag}`).join('\n'));
                 }
                 if (guild_bots.size >= 100) {
-                    sendConfirmationMessage(message.author.id, message.channel.id, true, new CustomRichEmbed({
-                        title:'There are a lot of bots in that guild!',
-                        description:`Do you wish to print out ${guild_bots.size} bots?`
-                    }, message), () => {
+                    sendConfirmationMessage(message.author.id, message.channel.id, true, {
+                        embed: new CustomRichEmbed({
+                            title:'There are a lot of bots in that guild!',
+                            description:`Do you wish to print out ${guild_bots.size} bots?`
+                        }, message),
+                    }, () => {
                         _output_bots();
                     });
                 } else {

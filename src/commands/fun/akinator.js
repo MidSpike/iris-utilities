@@ -78,27 +78,29 @@ module.exports = new DisBotCommand({
                                 await akinator_api.win();
                                 const akinator_guess = akinator_api.answers[0];
 
-                                bot_message.edit(new CustomRichEmbed({
-                                    title: 'Akinator Time!',
-                                    description: [
-                                        '**It is very clear to me now!**',
-                                        'You are looking for this character:',
-                                    ].join('\n'),
-                                    thumbnail: `${bot_cdn_url}/akinator_idle.png`,
-                                    fields: [
-                                        {
-                                            name: 'Character Name',
-                                            value: `${akinator_guess.name}`,
-                                        }, {
-                                            name: 'Character Description',
-                                            value: `${akinator_guess.description}`,
-                                        }, {
-                                            name: 'Questions Used',
-                                            value: `${question_num}`,
-                                        },
-                                    ],
-                                    image: `${akinator_guess.absolute_picture_path}`,
-                                }, message));
+                                bot_message.edit({
+                                    embed: new CustomRichEmbed({
+                                        title: 'Akinator Time!',
+                                        description: [
+                                            '**It is very clear to me now!**',
+                                            'You are looking for this character:',
+                                        ].join('\n'),
+                                        thumbnail: `${bot_cdn_url}/akinator_idle.png`,
+                                        fields: [
+                                            {
+                                                name: 'Character Name',
+                                                value: `${akinator_guess.name}`,
+                                            }, {
+                                                name: 'Character Description',
+                                                value: `${akinator_guess.description}`,
+                                            }, {
+                                                name: 'Questions Used',
+                                                value: `${question_num}`,
+                                            },
+                                        ],
+                                        image: `${akinator_guess.absolute_picture_path}`,
+                                    }, message),
+                                });
 
                                 removeAllReactionsFromMessage(bot_message);
                             } else {
@@ -111,9 +113,13 @@ module.exports = new DisBotCommand({
             ];
 
             if (bot_message) {
-                await bot_message.edit(options_embed);
+                await bot_message.edit({
+                    embed: options_embed,
+                });
             } else {
-                bot_message = await sendOptionsMessage(message.channel.id, options_embed, reactions, {
+                bot_message = await sendOptionsMessage(message.channel.id, {
+                    embed: options_embed,
+                }, reactions, {
                     confirmation_user_id: message.author.id,
                 });
             }

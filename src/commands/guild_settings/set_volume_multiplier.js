@@ -49,20 +49,22 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        message.channel.send(new CustomRichEmbed({
-            title: 'Setting New Volume Multiplier',
-            description: [
-                'Old Server Volume Multiplier:',
-                `${'```'}`,
-                `${old_volume_multiplier}`,
-                `${'```'}`,
-
-                'New Server Volume Multiplier:',
-                `${'```'}`,
-                `${new_volume_multiplier}`,
-                `${'```'}`,
-            ].join('\n'),
-        }, message)).catch(console.warn);
+        message.channel.send({
+            embed: new CustomRichEmbed({
+                title: 'Setting New Volume Multiplier',
+                description: [
+                    'Old Server Volume Multiplier:',
+                    `${'```'}`,
+                    `${old_volume_multiplier}`,
+                    `${'```'}`,
+    
+                    'New Server Volume Multiplier:',
+                    `${'```'}`,
+                    `${new_volume_multiplier}`,
+                    `${'```'}`,
+                ].join('\n'),
+            }, message),
+        }).catch(console.warn);
 
         client.$.guild_configs_manager.updateConfig(message.guild.id, {
             volume_multiplier: new_volume_multiplier,

@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendMusicControllerEmbed } = require('../../libs/messages.js');
 //#endregion dependencies
 
@@ -20,11 +20,13 @@ module.exports = new DisBotCommand({
         if (guild_queue_manager.queue.length > 0) {
             sendMusicControllerEmbed(message.channel.id, message);
         } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Nothing is playing right now!',
-                description: 'Try using this command when I\'m playing something!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Nothing is playing right now!',
+                    description: 'Try using this command when I\'m playing something!',
+                }, message),
+            });
         }
     },
 });

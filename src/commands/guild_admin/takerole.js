@@ -1,8 +1,9 @@
 'use strict';
 
 //#region dependencies
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 //#endregion dependencies
 
@@ -26,10 +27,12 @@ module.exports = new DisBotCommand({
 
             if (staff_highest_role_is_greater_than_member_highest_role && staff_highest_role_is_greater_than_role) {
                 member.roles.remove(role).then(() => {
-                    message.channel.send(new CustomRichEmbed({
-                        title: 'Role Manager',
-                        description: `Removed ${role.name} from ${member}!`,
-                    }, message)).catch(console.warn);
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: 'Role Manager',
+                            description: `Removed ${role.name} from ${member}!`,
+                        }, message),
+                    }).catch(console.warn);
                 }).catch((error) => {
                     logUserError(message, error);
                 });

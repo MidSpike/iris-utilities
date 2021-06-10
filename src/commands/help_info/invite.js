@@ -3,9 +3,9 @@
 //#region dependencies
 const bot_config = require('../../../config.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -17,12 +17,15 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const bot_invite_url = await client.generateInvite({
             permissions: [
-                Discord.Permissions.FLAGS.ADMINISTRATOR
+                Discord.Permissions.FLAGS.ADMINISTRATOR,
             ],
         }).catch(console.trace);
-        message.channel.send(new CustomRichEmbed({
-            title: `Hi there ${message.author.username}!`,
-            description: `If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`,
-        })).catch(console.warn);
+
+        message.channel.send({
+            embed: new CustomRichEmbed({
+                title: `Hi there ${message.author.username}!`,
+                description: `If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`,
+            }),
+        }).catch(console.warn);
     },
 });

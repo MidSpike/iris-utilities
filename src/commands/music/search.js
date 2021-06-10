@@ -24,11 +24,13 @@ module.exports = new DisBotCommand({
         const { discord_command, command_args } = opts;
 
         if (!message.member?.voice?.channel) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Whoops!',
-                description: 'You need to be in a voice channel to use this command!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Whoops!',
+                    description: 'You need to be in a voice channel to use this command!',
+                }, message),
+            });
             return;
         }
 
@@ -57,7 +59,9 @@ module.exports = new DisBotCommand({
                     })
                 )).join('\n\n'),
             }, message);
-            const bot_message = await sendOptionsMessage(message.channel.id, embed, reactions, {
+            const bot_message = await sendOptionsMessage(message.channel.id, {
+                embed: embed,
+            }, reactions, {
                 confirmation_user_id: message.author.id,
             });
             client.setTimeout(() => { // wait 2 minutes before removing the search menu
@@ -66,11 +70,13 @@ module.exports = new DisBotCommand({
                 }
             }, 1000 * 60 * 2);
         } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Woah there!',
-                description: `Try adding something after \`${discord_command}\` next time!`
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Woah there!',
+                    description: `Try adding something after \`${discord_command}\` next time!`
+                }, message),
+            });
         }
     },
 });

@@ -5,10 +5,10 @@ const axios = require('axios');
 
 const { Timer } = require('../../utilities.js');
 
-const { logUserError } = require('../../libs/errors.js');
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
+const { logUserError } = require('../../libs/errors.js');
 const { QueueItem,
         QueueItemPlayer } = require('../../libs/QueueManager.js');
 const { createConnection } = require('../../libs/createConnection.js');
@@ -27,11 +27,13 @@ module.exports = new DisBotCommand({
         let insult_count = 1;
         async function tts_insult() {
             if (!message.member.voice?.channel) {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Woah there!',
-                    description: 'You need to be in a voice channel to use this command!',
-                }));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Woah there!',
+                        description: 'You need to be in a voice channel to use this command!',
+                    }),
+                });
                 return;
             }
             if (!message.guild.me.voice?.channel && insult_count > 1) return;
@@ -74,10 +76,12 @@ module.exports = new DisBotCommand({
                 if (insult_count < 25) {
                     tts_insult();
                 } else {
-                    message.channel.send(new CustomRichEmbed({
-                        title: 'Reached 25 TTS insults!',
-                        description: 'Automatically stopping the TTS insult generator!',
-                    }));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: 'Reached 25 TTS insults!',
+                            description: 'Automatically stopping the TTS insult generator!',
+                        }),
+                    });
                 }
             });
 
@@ -87,9 +91,11 @@ module.exports = new DisBotCommand({
                 voice: `${tts_voice}`,
             }));
 
-            message.channel.send(new CustomRichEmbed({
-                title: 'Added TTS Insult To The Queue!',
-            }));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Added TTS Insult To The Queue!',
+                }),
+            });
         }
         tts_insult();
     },

@@ -6,9 +6,9 @@ const path = require('path');
 const axios = require('axios');
 const moment = require('moment-timezone');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -31,11 +31,13 @@ module.exports = new DisBotCommand({
 
             function mc_user_exists() {
                 if (!mc_user_uuid) {
-                    message.channel.send(new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: `Well that\'s an issue...`,
-                        description: `I can\'t find a user by the name of **${Discord.Util.escapeMarkdown(search_query)}**!`,
-                    }, message)).catch(console.warn);
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: `Well that\'s an issue...`,
+                            description: `I can\'t find a user by the name of **${Discord.Util.escapeMarkdown(search_query)}**!`,
+                        }, message),
+                    }).catch(console.warn);
                     return false;
                 } else {
                     return true;
@@ -48,50 +50,58 @@ module.exports = new DisBotCommand({
                 const mc_avatar_image = `https://crafatar.com/avatars/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
                 const mc_body_image = `https://crafatar.com/renders/body/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
 
-                message.channel.send(new CustomRichEmbed({
-                    title: `${mc_user_username}`,
-                    description: `${mc_user_uuid}`,
-                    fields: [
-                        {
-                            name: 'Username History',
-                            value: mc_user_name_history.map(entry => `- ${entry?.name} (${moment(entry?.changedToAt)})`).join('\n'),
-                        },
-                    ],
-                    thumbnail: mc_avatar_image,
-                    image: mc_body_image,
-                }, message)).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: `${mc_user_username}`,
+                        description: `${mc_user_uuid}`,
+                        fields: [
+                            {
+                                name: 'Username History',
+                                value: mc_user_name_history.map(entry => `- ${entry?.name} (${moment(entry?.changedToAt)})`).join('\n'),
+                            },
+                        ],
+                        thumbnail: mc_avatar_image,
+                        image: mc_body_image,
+                    }, message),
+                }).catch(console.warn);
             } else if (['skin'].includes(command_args[1])) {
                 if (!mc_user_exists()) return;
 
                 const mc_avatar_image = `https://crafatar.com/avatars/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
                 const mc_skin_image = `https://crafatar.com/skins/${encodeURIComponent(mc_user_uuid)}`;
 
-                message.channel.send(new CustomRichEmbed({
-                    title: `${mc_user_username}`,
-                    description: `${mc_user_uuid}`,
-                    thumbnail: mc_avatar_image,
-                    image: mc_skin_image,
-                }, message)).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: `${mc_user_username}`,
+                        description: `${mc_user_uuid}`,
+                        thumbnail: mc_avatar_image,
+                        image: mc_skin_image,
+                    }, message),
+                }).catch(console.warn);
             } else if (['cape'].includes(command_args[1])) {
                 if (!mc_user_exists()) return;
 
                 const mc_avatar_image = `https://crafatar.com/avatars/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
                 const mc_cape_image = `https://crafatar.com/capes/${encodeURIComponent(mc_user_uuid)}`;
 
-                message.channel.send(new CustomRichEmbed({
-                    title: `${mc_user_username}`,
-                    description: `${mc_user_uuid}`,
-                    thumbnail: mc_avatar_image,
-                    image: mc_cape_image,
-                }, message)).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: `${mc_user_username}`,
+                        description: `${mc_user_uuid}`,
+                        thumbnail: mc_avatar_image,
+                        image: mc_cape_image,
+                    }, message),
+                }).catch(console.warn);
             } else {
-                message.channel.send(new CustomRichEmbed({
-                    title: 'Usage details below!',
-                    description: [
-                        `Usage: \`${discord_command} user [ info | skin | cape ] <username>\``,
-                        `Example: \`${discord_command} user info Notch\``,
-                    ].join('\n'),
-                }, message)).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: 'Usage details below!',
+                        description: [
+                            `Usage: \`${discord_command} user [ info | skin | cape ] <username>\``,
+                            `Example: \`${discord_command} user info Notch\``,
+                        ].join('\n'),
+                    }, message),
+                }).catch(console.warn);
             }
         } else if (['server'].includes(command_args[0])) {
             const search_query = command_args.slice(2).join(' ');
@@ -115,11 +125,13 @@ module.exports = new DisBotCommand({
 
             function mc_server_exists() {
                 if (!mc_server_info_online) {
-                    message.channel.send(new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: `Well that\'s an issue...`,
-                        description: `I can\'t find any minecraft server by the ip of **${Discord.Util.escapeMarkdown(search_query)}**!`,
-                    }, message)).catch(console.warn);
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: `Well that\'s an issue...`,
+                            description: `I can\'t find any minecraft server by the ip of **${Discord.Util.escapeMarkdown(search_query)}**!`,
+                        }, message),
+                    }).catch(console.warn);
                     return false;
                 } else {
                     return true;
@@ -165,19 +177,23 @@ module.exports = new DisBotCommand({
 
                 fs.unlinkSync(mc_server_info_icon_temp_file_path);
             } else {
-                message.channel.send(new CustomRichEmbed({
-                    title: 'Usage details below!',
-                    description: [
-                        `Usage: \`${discord_command} server [ info ] <server_ip>\``,
-                        `Example: \`${discord_command} server info hypixel.net\``,
-                    ].join('\n'),
-                }, message)).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: 'Usage details below!',
+                        description: [
+                            `Usage: \`${discord_command} server [ info ] <server_ip>\``,
+                            `Example: \`${discord_command} server info hypixel.net\``,
+                        ].join('\n'),
+                    }, message),
+                }).catch(console.warn);
             }
         } else {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Usage details below!',
-                description: `Usage: \`${discord_command} [ user | server ]\``,
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Usage details below!',
+                    description: `Usage: \`${discord_command} [ user | server ]\``,
+                }, message),
+            }).catch(console.warn);
         }
     },
 });

@@ -89,10 +89,14 @@ module.exports = new DisBotCommand({
                 // removeUserReactionsFromMessage(options_message);
                 const move_was_successful = ticTacToe.makeMove(num);
                 if (!move_was_successful) return;
-                options_message.edit(await makeEmbed());
+                options_message.edit({
+                    embed: await makeEmbed(),
+                });
             }
         }));
 
-        sendOptionsMessage(message.channel.id, await makeEmbed(), reactions);
+        sendOptionsMessage(message.channel.id, {
+            embed: await makeEmbed(),
+        }, reactions);
     },
 });

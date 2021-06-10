@@ -3,9 +3,9 @@
 //#region dependencies
 const axios = require('axios');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -21,11 +21,13 @@ module.exports = new DisBotCommand({
             const api_response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${search_query}`).catch((res) => res);
 
             if (api_response.status !== 200) {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Something went wrong!',
-                    description: 'Perhaps that isn\'t a valid English word, or a server issue has occurred!',
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Something went wrong!',
+                        description: 'Perhaps that isn\'t a valid English word, or a server issue has occurred!',
+                    }, message),
+                });
                 return;
             }
 
@@ -55,23 +57,27 @@ module.exports = new DisBotCommand({
                 word_definitions_and_examples,
             });
 
-            message.channel.send(new CustomRichEmbed({
-                title: `Definitions for: ${word}`,
-                description: `*(${word_part_of_speech})* — **${word}** — [${word_pronunciation_text ?? ''}](${word_pronunciation_audio_url})`,
-                fields: word_definitions_and_examples.map((word_definition_and_example, index) => ({
-                    name: `\u200B`,
-                    value: [
-                        `**Definition:**\n${word_definition_and_example.definition}`,
-                        `**Example:**\n${word_definition_and_example.example}`,
-                    ].join('\n'),
-                })),
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: `Definitions for: ${word}`,
+                    description: `*(${word_part_of_speech})* — **${word}** — [${word_pronunciation_text ?? ''}](${word_pronunciation_audio_url})`,
+                    fields: word_definitions_and_examples.map((word_definition_and_example, index) => ({
+                        name: `\u200B`,
+                        value: [
+                            `**Definition:**\n${word_definition_and_example.definition}`,
+                            `**Example:**\n${word_definition_and_example.example}`,
+                        ].join('\n'),
+                    })),
+                }, message),
+            });
         } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'This command can be used to define english words',
-                description: 'Try typing a word after the command next time!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'This command can be used to define english words',
+                    description: 'Try typing a word after the command next time!',
+                }, message),
+            });
         }
     },
 });

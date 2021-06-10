@@ -20,11 +20,13 @@ module.exports = new DisBotCommand({
         const guild_volume_manager = client.$.volume_managers.get(message.guild.id);
 
         if (!guild_dispatcher) { // There isn't anything to request the volume from
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Nothing is playing right now!',
-                description: 'You can\'t change the volume in conditions like this!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Nothing is playing right now!',
+                    description: 'You can\'t change the volume in conditions like this!',
+                }, message),
+            });
             return;
         }
 
@@ -33,11 +35,13 @@ module.exports = new DisBotCommand({
             await guild_volume_manager.setVolume(parseFloat(command_args[0]) || guild_volume_manager.volume); // Don't use ?? here
             sendVolumeControllerEmbed(message.channel.id, message);
         } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Volume Controller Error',
-                description: 'Get in a voice call with the bot before trying to change the volume!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Volume Controller Error',
+                    description: 'Get in a voice call with the bot before trying to change the volume!',
+                }, message),
+            });
         }
     },
 });

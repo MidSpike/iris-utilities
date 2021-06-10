@@ -37,10 +37,14 @@ module.exports = new DisBotCommand({
             title: `${bot_common_name} - Update Notification`,
             description: `${message.content.replace(discord_command, '').trim()}`,
         });
-        message.channel.send(update_message_embed);
-        sendConfirmationMessage(message.author.id, message.channel.id, false, new CustomRichEmbed({
-            title: 'Are you sure you want to send the update message above?',
-        }), async (bot_message) => {
+        message.channel.send({
+            embed: update_message_embed,
+        });
+        sendConfirmationMessage(message.author.id, message.channel.id, false, {
+            embed: new CustomRichEmbed({
+                title: 'Are you sure you want to send the update message above?',
+            }),
+        }, async (bot_message) => {
             //#region save update log entries to a file
             if (!fs.existsSync(bot_update_log_file)) {
                 fs.writeFileSync(bot_update_log_file, JSON.stringify([], null, 2));
@@ -58,22 +62,28 @@ module.exports = new DisBotCommand({
             //#endregion save update log entries to a file
 
             const update_log_channels = client.channels.cache.filter(channel => channel.name === bot_update_log_channel_name);
-            await bot_message.edit(new CustomRichEmbed({
-                title: `Attempted sending update message to ${update_log_channels.size} guilds!`,
-            }));
+            await bot_message.edit({
+                embed: new CustomRichEmbed({
+                    title: `Attempted sending update message to ${update_log_channels.size} guilds!`,
+                }),
+            });
             for (let update_log_channel of update_log_channels.values()) {
                 if (update_log_channel.permissionsFor(update_log_channel.guild.me).has(Discord.Permissions.FLAGS.SEND_MESSAGES)) {
                     console.info(`Sent update log to ${update_log_channel.guild.name} (${update_log_channel.guild.id})`);
-                    update_log_channel.send(update_message_embed);
+                    update_log_channel.send({
+                        embed: update_message_embed,
+                    });
                 } else {
                     console.warn(`Unable to send update log to ${update_log_channel.guild.name} (${update_log_channel.guild.id})`);
                 }
                 await Timer(2500);
             }
         }, (bot_message) => {
-            bot_message.edit(new CustomRichEmbed({
-                title: 'Canceled Sending Update Message!',
-            }));
+            bot_message.edit({
+                embed: new CustomRichEmbed({
+                    title: 'Canceled Sending Update Message!',
+                }),
+            });
         });
     },
 });

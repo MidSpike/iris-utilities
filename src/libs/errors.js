@@ -32,31 +32,36 @@ async function logUserError(message, error=fallback_user_error) {
         fields: [
             {
                 name: 'Guild:',
-                value: `${message.guild.name} (${message.guild.id})`
+                value: `${message.guild.name} (${message.guild.id})`,
             }, {
                 name: 'Channel:',
-                value: `#${message.channel.name} (${message.channel.id})`
+                value: `#${message.channel.name} (${message.channel.id})`,
             }, {
                 name: 'User:',
-                value: `@${message.author.tag} (${message.author.id})`
+                value: `@${message.author.tag} (${message.author.id})`,
             }, {
                 name: 'Error Id:',
-                value:`${error_id}`
+                value:`${error_id}`,
             }, {
                 name: 'Timestamp:',
-                value: `${error_timestamp}`
+                value: `${error_timestamp}`,
             }, {
                 name: 'Information:',
-                value: `${'```'}\n${error}\n${'```'}`
+                value: `${'```'}\n${error}\n${'```'}`,
             },
         ],
     });
 
     /* output to message.channel */
-    message.channel.send(error_embed).catch(console.warn);
+    message.channel.send({
+        embed: error_embed,
+    }).catch(console.warn);
 
     /* output to central error logging channel */
-    client.$.bot_guilds.logging.channels.resolve(bot_central_errors_channel_id).send(error_embed).catch(console.trace);
+    const central_errors_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_errors_channel_id);
+    await central_errors_channel.send({
+        embed: error_embed,
+    }).catch(console.trace);
 
     /* output to the console */
     console.error('----------------------------------------------------------------------------------------------------------------');

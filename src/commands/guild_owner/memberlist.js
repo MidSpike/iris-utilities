@@ -30,14 +30,17 @@ module.exports = new DisBotCommand({
                     name: role.name,
                 })),
             }));
-    
+
             const temp_file_path = path.join(process.cwd(), 'temporary', `member-list_${message.guild.id}_${Date.now()}.json`);
             fs.writeFileSync(temp_file_path, JSON.stringify(mapped_members, null, 2), { flag: 'w' });
-    
+
             const temp_file_read_stream = fs.createReadStream(temp_file_path);
             const message_attachment = new Discord.MessageAttachment(temp_file_read_stream);
 
-            await channel.send(`${message.author} here is the member-list for ${message.guild.name} (${message.guild.id})`, message_attachment).catch(console.warn);
+            await channel.send({
+                content: `${message.author} here is the member-list for ${message.guild.name} (${message.guild.id})`,
+                files: [ message_attachment ],
+            }).catch(console.warn);
 
             fs.unlinkSync(temp_file_path);
         }
@@ -56,7 +59,9 @@ module.exports = new DisBotCommand({
             ].join('\n'),
         }, message);
 
-        sendConfirmationMessage(message.author.id, message.channel.id, true, embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, {
+            embed: embed,
+        }, async () => {
             sendMemberListFileToChannel(message.channel);
         }, async () => {
             const dm_channel = await message.author.createDM();

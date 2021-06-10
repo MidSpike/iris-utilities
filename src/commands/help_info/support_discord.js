@@ -17,9 +17,11 @@ module.exports = new DisBotCommand({
     description: 'Generates an invite to the support server',
     aliases: ['support_discord'],
     async executor(Discord, client, message, opts={}) {
-        message.channel.send(new CustomRichEmbed({
-            title: `Hey ${message.author.username}, you can speak with my support staff here!`,
-            description: `Click to join the [${bot_common_name} Support Discord](${bot_support_guild_invite_url})!`,
-        }, message)).catch(console.warn);
+        message.channel.send({
+            embed: new CustomRichEmbed({
+                title: `Hey ${message.author.username}, you can speak with my support staff here!`,
+                description: `Click to join the [${bot_common_name} Support Discord](${bot_support_guild_invite_url})!`,
+            }, message),
+        }).catch(console.warn);
     },
 });

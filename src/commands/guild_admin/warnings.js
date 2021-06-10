@@ -29,9 +29,11 @@ module.exports = new DisBotCommand({
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 user_warnings: new_user_warnings,
             });
-            message.channel.send(new CustomRichEmbed({
-                title: `Removed all warnings ${user_to_remove_warnings_from ? `for @${user_to_remove_warnings_from.tag} ` : ''}in ${message.guild.name}!`,
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: `Removed all warnings ${user_to_remove_warnings_from ? `for @${user_to_remove_warnings_from.tag} ` : ''}in ${message.guild.name}!`,
+                }, message),
+            });
             return;
         }
 
@@ -49,7 +51,8 @@ module.exports = new DisBotCommand({
         });
         const pages = array_chunks(user_warnings_fields, 5);
         let page_index = 0;
-        function makeEmbed() {
+
+        async function makeEmbed() {
             return new CustomRichEmbed({
                 title: `Here are the warnings for ${user_to_search_for ? `@${user_to_search_for.user.tag}` : 'all users'}!`,
                 description: [
@@ -66,22 +69,29 @@ module.exports = new DisBotCommand({
                 }),
             }, message);
         }
-        sendOptionsMessage(message.channel.id, makeEmbed(), [
+
+        sendOptionsMessage(message.channel.id, {
+            embed: await makeEmbed(),
+        }, [
             {
                 emoji_name: 'bot_emoji_angle_left',
-                callback(options_message, collected_reaction, user) {
+                async callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     page_index--;
                     if (page_index < 0) page_index = pages.length-1;
-                    options_message.edit(makeEmbed());
+                    options_message.edit({
+                        embed: await makeEmbed(),
+                    });
                 },
             }, {
                 emoji_name: 'bot_emoji_angle_right',
-                callback(options_message, collected_reaction, user) {
+                async callback(options_message, collected_reaction, user) {
                     removeUserReactionsFromMessage(options_message);
                     page_index++;
                     if (page_index > pages.length-1) page_index = 0;
-                    options_message.edit(makeEmbed());
+                    options_message.edit({
+                        embed: await makeEmbed(),
+                    });
                 },
             },
         ]);

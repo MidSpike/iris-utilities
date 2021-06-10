@@ -49,20 +49,22 @@ module.exports = new DisBotCommand({
             return;
         }
 
-        message.channel.send(new CustomRichEmbed({
-            title: 'Setting New Maximum Volume',
-            description: [
-                'Old Server Maximum Volume:',
-                `${'```'}`,
-                `${old_volume_maximum}`,
-                `${'```'}`,
-
-                'New Server Maximum Volume:',
-                `${'```'}`,
-                `${new_volume_maximum}`,
-                `${'```'}`,
-            ].join('\n'),
-        }, message)).catch(console.warn);
+        message.channel.send({
+            embed: new CustomRichEmbed({
+                title: 'Setting New Maximum Volume',
+                description: [
+                    'Old Server Maximum Volume:',
+                    `${'```'}`,
+                    `${old_volume_maximum}`,
+                    `${'```'}`,
+    
+                    'New Server Maximum Volume:',
+                    `${'```'}`,
+                    `${new_volume_maximum}`,
+                    `${'```'}`,
+                ].join('\n'),
+            }, message),
+        }).catch(console.warn);
 
         client.$.guild_configs_manager.updateConfig(message.guild.id, {
             volume_maximum: new_volume_maximum,

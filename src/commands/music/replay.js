@@ -1,10 +1,10 @@
 'use strict';
 
 //#region dependencies
-const { createConnection } = require('../../libs/createConnection.js');
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
+const { createConnection } = require('../../libs/createConnection.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -19,11 +19,13 @@ module.exports = new DisBotCommand({
 
         const voice_channel = message.member.voice.channel;
         if (!voice_channel) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: `Well that's an issue!`,
-                description: `You need to be in a voice channel to use this command!`,
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: `Well that's an issue!`,
+                    description: `You need to be in a voice channel to use this command!`,
+                }, message),
+            });
             return;
         }
 
@@ -32,11 +34,13 @@ module.exports = new DisBotCommand({
             await createConnection(voice_channel, false); // create a connection before adding an item to the queue
             guild_queue_manager.addItem(thing_to_replay, 1);
         } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Sorry, I forgot something along the way!',
-                description: `It would seem that I'm unable to replay that!`,
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Sorry, I forgot something along the way!',
+                    description: `It would seem that I'm unable to replay that!`,
+                }, message),
+            });
         }
     },
 });

@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -20,18 +20,22 @@ module.exports = new DisBotCommand({
         const clear_message = guild_config.clear_message === 'enabled';
 
         if (clear_message === true) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Clear Message: disabled;',
-                description: `\`${command_prefix}clear\` will not say when it has been used.`,
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Clear Message: disabled;',
+                    description: `\`${command_prefix}clear\` will not say when it has been used.`,
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 clear_message: 'disabled',
             });
         } else {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Clear Message: enabled;',
-                description: `\`${command_prefix}clear\` will say when it has been used.`,
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Clear Message: enabled;',
+                    description: `\`${command_prefix}clear\` will say when it has been used.`,
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 clear_message: 'enabled',
             });

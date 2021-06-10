@@ -305,7 +305,9 @@ client.on('guildCreate', async (guild) => {
             image: `${bot_cdn_url}/new_guild_information_2020-06-27_1.png`,
         });
         try {
-            await channel_to_send_initial_message?.send(new_guild_information_embed);
+            await channel_to_send_initial_message?.send({
+                embed: new_guild_information_embed,
+            });
         } catch {
             console.warn(`Failed to send new guild information for ${guild.name} (${guild.id}) to the guild!`);
         }
@@ -355,80 +357,102 @@ client.on('channelCreate', async (channel) => {
                 },
             ], 'Don\'t allow people to send messages in a logging channel!');
         } catch {
-            await channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'There is an issue!',
-                description: 'I was unable to modify the permissions of this channel to only allow myself to send messages in it!',
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'There is an issue!',
+                    description: 'I was unable to modify the permissions of this channel to only allow myself to send messages in it!',
+                }),
+            }).catch(console.warn);
         } finally {
             return; // complete async
         }
     }
     switch (channel.name) {
         case bot_backup_commands_channel.name:
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_backup_commands_channel.description}`,
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_backup_commands_channel.description}`,
+                }),
+            }).catch(console.warn);
             break;
         case bot_restart_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_restart_log_channel.description}`,
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_restart_log_channel.description}`,
+                }),
+            }).catch(console.warn);
             break;
         case bot_update_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_update_log_channel.description}`,
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_update_log_channel.description}`,
+                }),
+            }).catch(console.warn);
             break;
         case bot_command_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_command_log_channel.description}`,
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_command_log_channel.description}`,
+                }),
+            }).catch(console.warn);
             break;
         case bot_moderation_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_moderation_log_channel.description}`,
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_moderation_log_channel.description}`,
+                }),
+            }).catch(console.warn);
             break;
         case bot_invite_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_invite_log_channel.description}!`,
-            })).catch(console.warn);
-            await channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Warning!',
-                description: 'make sure that I have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see all invite events for this guild!',
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_invite_log_channel.description}!`,
+                }),
+            }).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Warning!',
+                    description: 'make sure that I have the \`MANAGE_GUILD\` and \`VIEW_AUDIT_LOG\` permissions, I will need them to see all invite events for this guild!',
+                }),
+            }).catch(console.warn);
             break;
         case bot_members_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_members_log_channel.description}`,
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_members_log_channel.description}`,
+                }),
+            }).catch(console.warn);
             break;
         case bot_reaction_log_channel.name:
             await prevent_sending_messages_in_channel(channel);
-            await channel.send(new CustomRichEmbed({
-                title: 'Channel Linked',
-                description: `${bot_reaction_log_channel.description}!`,
-            })).catch(console.warn);
-            await channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Warning!',
-                description: 'Any reactions manipulated by bots will not be logged for performance reasons!',
-            })).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Channel Linked',
+                    description: `${bot_reaction_log_channel.description}!`,
+                }),
+            }).catch(console.warn);
+            await channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Warning!',
+                    description: 'Any reactions manipulated by bots will not be logged for performance reasons!',
+                }),
+            }).catch(console.warn);
             break;
     }
 });
@@ -444,22 +468,24 @@ client.on('guildMemberAdd', async (member) => {
 
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel.name);
     if (!logging_channel) return;
-    logging_channel.send(new CustomRichEmbed({
-        color: 0x00FF00,
-        author: {
-            iconURL: member.user.displayAvatarURL({ dynamic: true }),
-            name: `@${member.user.tag} (${member.user.id})`,
-        },
-        description: [
-            `**User**: ${member.user}`,
-            `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
-            `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
-        ].join('\n'),
-        footer: {
-            iconURL: client.user.displayAvatarURL({ dynamic: true }),
-            text: `Joined • ${moment()}`,
-        },
-    })).catch(() => {
+    logging_channel.send({
+        embed: new CustomRichEmbed({
+            color: 0x00FF00,
+            author: {
+                iconURL: member.user.displayAvatarURL({ dynamic: true }),
+                name: `@${member.user.tag} (${member.user.id})`,
+            },
+            description: [
+                `**User**: ${member.user}`,
+                `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
+                `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
+            ].join('\n'),
+            footer: {
+                iconURL: client.user.displayAvatarURL({ dynamic: true }),
+                text: `Joined • ${moment()}`,
+            },
+        }),
+    }).catch(() => {
         console.warn(`Unable to send \'guildMemberAdd\' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
@@ -473,22 +499,24 @@ client.on('guildMemberRemove', async (member) => {
 
     const logging_channel = member.guild.channels.cache.find(channel => channel.name === bot_members_log_channel.name);
     if (!logging_channel) return;
-    logging_channel.send(new CustomRichEmbed({
-        color: 0xFFFF00,
-        author: {
-            iconURL: member.user.displayAvatarURL({ dynamic: true }),
-            name: `@${member.user.tag} (${member.user.id})`,
-        },
-        description: [
-            `**User**: ${member.user}`,
-            `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
-            `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
-        ].join('\n'),
-        footer: {
-            iconURL: client.user.displayAvatarURL({ dynamic: true }),
-            text: `Left • ${moment()}`,
-        },
-    })).catch(() => {
+    logging_channel.send({
+        embed: new CustomRichEmbed({
+            color: 0xFFFF00,
+            author: {
+                iconURL: member.user.displayAvatarURL({ dynamic: true }),
+                name: `@${member.user.tag} (${member.user.id})`,
+            },
+            description: [
+                `**User**: ${member.user}`,
+                `**Creation**: ${moment(member.user.createdTimestamp).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ')}`,
+                `**Flags**: \`${member.user.flags?.toArray()?.join(', ')}\``,
+            ].join('\n'),
+            footer: {
+                iconURL: client.user.displayAvatarURL({ dynamic: true }),
+                text: `Left • ${moment()}`,
+            },
+        }),
+    }).catch(() => {
         console.warn(`Unable to send \'guildMemberRemove\' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
@@ -507,24 +535,26 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel.name);
     if (!logging_channel) return;
-    logging_channel.send(new CustomRichEmbed({
-        color: 0x00FF00,
-        author: {
-            iconURL: user.displayAvatarURL({ dynamic: true }),
-            name: `@${user.tag} (${user.id})`,
-        },
-        title: 'Added A Message Reaction',
-        description: [
-            `Message: [Message Link](${reaction.message.url})`,
-            `Reaction Id: \`${reaction.emoji.id}\``,
-            `Reaction Markup: \`${reaction.emoji}\``,
-            `Reaction Emoji: ${reaction.emoji}`,
-        ].join('\n'),
-        footer: {
-            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-            text: `${moment()}`,
-        },
-    })).catch(() => {
+    logging_channel.send({
+        embed: new CustomRichEmbed({
+            color: 0x00FF00,
+            author: {
+                iconURL: user.displayAvatarURL({ dynamic: true }),
+                name: `@${user.tag} (${user.id})`,
+            },
+            title: 'Added A Message Reaction',
+            description: [
+                `Message: [Message Link](${reaction.message.url})`,
+                `Reaction Id: \`${reaction.emoji.id}\``,
+                `Reaction Markup: \`${reaction.emoji}\``,
+                `Reaction Emoji: ${reaction.emoji}`,
+            ].join('\n'),
+            footer: {
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                text: `${moment()}`,
+            },
+        }),
+    }).catch(() => {
         console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
@@ -541,24 +571,26 @@ client.on('messageReactionRemove', async (reaction, user) => {
 
     const logging_channel = reaction.message.guild.channels.cache.find(channel => channel.name === bot_reaction_log_channel.name);
     if (!logging_channel) return;
-    logging_channel.send(new CustomRichEmbed({
-        color: 0xFFFF00,
-        author: {
-            iconURL: user.displayAvatarURL({ dynamic: true }),
-            name: `@${user.tag} (${user.id})`,
-        },
-        title: 'Removed A Message Reaction',
-        description: [
-            `Message: [Message Link](${reaction.message.url})`,
-            `Reaction Id: \`${reaction.emoji.id}\``,
-            `Reaction Markup: \`${reaction.emoji}\``,
-            `Reaction Emoji: ${reaction.emoji}`,
-        ].join('\n'),
-        footer: {
-            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-            text: `${moment()}`,
-        },
-    })).catch(() => {
+    logging_channel.send({
+        embed: new CustomRichEmbed({
+            color: 0xFFFF00,
+            author: {
+                iconURL: user.displayAvatarURL({ dynamic: true }),
+                name: `@${user.tag} (${user.id})`,
+            },
+            title: 'Removed A Message Reaction',
+            description: [
+                `Message: [Message Link](${reaction.message.url})`,
+                `Reaction Id: \`${reaction.emoji.id}\``,
+                `Reaction Markup: \`${reaction.emoji}\``,
+                `Reaction Emoji: ${reaction.emoji}`,
+            ].join('\n'),
+            footer: {
+                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                text: `${moment()}`,
+            },
+        }),
+    }).catch(() => {
         console.warn(`Unable to send message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
@@ -573,22 +605,24 @@ client.on('inviteCreate', async (invite) => {
     const logging_channel = invite.channel.guild.channels.cache.find(channel => channel.name === bot_invite_log_channel.name);
     if (!logging_channel) return;
 
-    logging_channel.send(new CustomRichEmbed({
-        color: 0x00FF00,
-        title: 'An Invite Has Been Created!',
-        fields: [
-            {
-                name: 'Created By',
-                value: `${invite.inviter ?? `\`N/A\``}`,
-            }, {
-                name: 'Invite Code',
-                value: `\`${invite.code}\``,
-            }, {
-                name: 'Invite URL',
-                value: `<${invite.url}>`,
-            },
-        ],
-    })).catch(() => {
+    logging_channel.send({
+        embed: new CustomRichEmbed({
+            color: 0x00FF00,
+            title: 'An Invite Has Been Created!',
+            fields: [
+                {
+                    name: 'Created By',
+                    value: `${invite.inviter ?? `\`N/A\``}`,
+                }, {
+                    name: 'Invite Code',
+                    value: `\`${invite.code}\``,
+                }, {
+                    name: 'Invite URL',
+                    value: `<${invite.url}>`,
+                },
+            ],
+        }),
+    }).catch(() => {
         console.warn(`Unable to send \'inviteCreate\' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
@@ -613,22 +647,24 @@ client.on('inviteDelete', async (invite) => {
     const audit_log_deleted_invite = guild_audit_logs?.entries?.first();
     const person_to_blame = audit_log_deleted_invite ? (audit_log_deleted_invite?.executor ?? `\`N/A\``) : `${'```'}fix\nI need the \`VIEW_AUDIT_LOG\` permission to tell you who!\n${'```'}`;
 
-    logging_channel.send(new CustomRichEmbed({
-        color: 0xFFFF00,
-        title: 'An Invite Has Been Deleted!',
-        fields: [
-            {
-                name: 'Deleted By',
-                value: `${bot_has_audit_log_permission ? person_to_blame : '\`System\`'}`,
-            }, {
-                name: 'Invite Code',
-                value: `\`${invite.code}\``,
-            }, {
-                name: 'Invite URL',
-                value: `~~<${invite.url}>~~`,
-            },
-        ],
-    })).catch(() => {
+    logging_channel.send({
+        embed: new CustomRichEmbed({
+            color: 0xFFFF00,
+            title: 'An Invite Has Been Deleted!',
+            fields: [
+                {
+                    name: 'Deleted By',
+                    value: `${bot_has_audit_log_permission ? person_to_blame : '\`System\`'}`,
+                }, {
+                    name: 'Invite Code',
+                    value: `\`${invite.code}\``,
+                }, {
+                    name: 'Invite URL',
+                    value: `~~<${invite.url}>~~`,
+                },
+            ],
+        }),
+    }).catch(() => {
         console.warn(`Unable to send 'inviteDelete' message to ${logging_channel.guild.name} (${logging_channel.guild.id}) > ${logging_channel.name} (${logging_channel.id})`);
     });
 });
@@ -693,13 +729,19 @@ client.on('message', async (message) => {
 
         try {
             const dm_channel = await user_to_dm_from_dm_channel.createDM();
-            await dm_channel.send(dm_embed);
-            await message.channel.send(dm_embed);
+            await dm_channel.send({
+                embed: dm_embed,
+            });
+            await message.channel.send({
+                embed: dm_embed,
+            });
         } catch {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Unable to send messages to this user!',
-            })).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Unable to send messages to this user!',
+                }),
+            }).catch(console.warn);
         }
     }
 
@@ -712,7 +754,7 @@ client.on('message', async (message) => {
             ].join('\n\n'),
         });
 
-        sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, { embed: confirmation_embed }, async () => {
             const bot_support_guild = client.$.bot_guilds.support;
 
             let support_guild_dm_channel_with_user = bot_support_guild.channels.cache.find(channel => channel.type === 'text' && channel.name === `dm-${message.author.id}`);
@@ -729,35 +771,39 @@ client.on('message', async (message) => {
                 await support_guild_dm_channel_with_user.lockPermissions().catch(console.trace);
             }
 
-            await support_guild_dm_channel_with_user.send(new CustomRichEmbed({
-                color: 0xBBBBBB,
-                author: {
-                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                    name: `@${message.author.tag} (${message.author.id})`,
-                },
-                description: `${message.cleanContent}`,
-                fields: [
-                    {
-                        name: 'Link',
-                        value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})`
-                    }, ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
-                        name: 'Message Attachment:',
-                        value: `[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`,
-                    })) : []),
-                ],
-                footer: {
-                    iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                    text: `Direct Message: ${moment()}`,
-                },
-            })).catch(console.warn);
+            await support_guild_dm_channel_with_user.send({
+                embed: new CustomRichEmbed({
+                    color: 0xBBBBBB,
+                    author: {
+                        iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                        name: `@${message.author.tag} (${message.author.id})`,
+                    },
+                    description: `${message.cleanContent}`,
+                    fields: [
+                        {
+                            name: 'Link',
+                            value: `[Direct Message Link](${message.url.replace('@me', client.user.id)})`
+                        }, ...(message.attachments.size > 0 ? message.attachments.map(attachment => ({
+                            name: 'Message Attachment:',
+                            value: `[${attachment.name}](${attachment.url}) (${attachment.id}) ${attachment.size} bytes`,
+                        })) : []),
+                    ],
+                    footer: {
+                        iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                        text: `Direct Message: ${moment()}`,
+                    },
+                }),
+            }).catch(console.warn);
 
-            await message.channel.send(new CustomRichEmbed({
-                author: {
-                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                    name: `@${message.author.tag}`,
-                },
-                description: `I sent [this message](${message.url}) to my support staff!`,
-            }));
+            await message.channel.send({
+                embed: new CustomRichEmbed({
+                    author: {
+                        iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                        name: `@${message.author.tag}`,
+                    },
+                    description: `I sent [this message](${message.url}) to my support staff!`,
+                }),
+            });
         }, undefined);
     }
 });
@@ -817,21 +863,25 @@ client.on('message', async (message) => {
                     await message.delete().catch((error) => console.warn('Unable to delete message', error));
                 }
 
-                message.channel.send(new CustomRichEmbed({
-                    color: (member_is_immune_to_invite_blocking ? 0x00FF00 : 0xFFFF00),
-                    author: {
-                        iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                        name: `@${message.author.tag} (${message.author.id})`,
-                    },
-                    title: 'Woah there!',
-                    description: `Sending discord invites is not allowed in this guild${member_is_immune_to_invite_blocking ? ', but you are immune' : ''}!`,
-                })).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: (member_is_immune_to_invite_blocking ? 0x00FF00 : 0xFFFF00),
+                        author: {
+                            iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                            name: `@${message.author.tag} (${message.author.id})`,
+                        },
+                        title: 'Woah there!',
+                        description: `Sending discord invites is not allowed in this guild${member_is_immune_to_invite_blocking ? ', but you are immune' : ''}!`,
+                    }),
+                }).catch(console.warn);
             } else {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFF0000,
-                    title: 'An error has occurred!',
-                    description: 'This guild has invite blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages containing discord invites.',
-                })).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFF0000,
+                        title: 'An error has occurred!',
+                        description: 'This guild has invite blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages containing discord invites.',
+                    }),
+                }).catch(console.warn);
             }
         }
     }
@@ -842,24 +892,28 @@ client.on('message', async (message) => {
         if (message_contains_url) {
             if (message.guild.me.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) {
                 const member_is_immune_to_url_blocking = message.member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR);
-                message.channel.send(new CustomRichEmbed({
-                    color: (member_is_immune_to_url_blocking ? 0x00FF00 : 0xFFFF00),
-                    author: {
-                        iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                        name: `@${message.author.tag} (${message.author.id})`,
-                    },
-                    title: 'Woah there!',
-                    description: `Sending links is not allowed in this guild${member_is_immune_to_url_blocking ? ', but you are immune' : ''}!`,
-                })).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: (member_is_immune_to_url_blocking ? 0x00FF00 : 0xFFFF00),
+                        author: {
+                            iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                            name: `@${message.author.tag} (${message.author.id})`,
+                        },
+                        title: 'Woah there!',
+                        description: `Sending links is not allowed in this guild${member_is_immune_to_url_blocking ? ', but you are immune' : ''}!`,
+                    }),
+                }).catch(console.warn);
                 if (!member_is_immune_to_url_blocking) {
                     await message.delete().catch((error) => console.warn(`Unable to delete message`, error));
                 }
             } else {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFF0000,
-                    title: 'An error has occurred!',
-                    description: 'This guild has url blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages containing urls.',
-                })).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFF0000,
+                        title: 'An error has occurred!',
+                        description: 'This guild has url blocking enabled, but I do not have the permission \`MANAGE_MESSAGES\` to delete messages containing urls.',
+                    }),
+                }).catch(console.warn);
             }
         }
     }
@@ -874,10 +928,14 @@ client.on('message', async (message) => {
             ].join('\n'),
         });
         try {
-            await message.channel.send(quick_help_embed);
+            await message.channel.send({
+                embed: quick_help_embed,
+            });
         } catch {
             const dm_channel = await message.author.createDM();
-            dm_channel.send(quick_help_embed).catch(console.warn);
+            dm_channel.send({
+                embed: quick_help_embed,
+            }).catch(console.warn);
         }
         return;
     }
@@ -918,19 +976,21 @@ client.on('message', async (message) => {
     if (!command) {
         if (guild_config.unknown_command_warnings === 'enabled') {
             if (await notifyWhenMissingSendPermissions(message.guild, message.channel, message)) return;
-            message.channel.send(new CustomRichEmbed({
-                title: 'That command doesn\'t exist!',
-                description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
-                fields: [
-                    {
-                        name: `How to change ${bot_common_name} command prefix`,
-                        value: `${'```'}\n${command_prefix}set_prefix NEW_PREFIX_HERE\n${'```'}`,
-                    }, {
-                        name: 'How to disable this warning message',
-                        value: `${'```'}\n${command_prefix}toggle_unknown_command_warnings\n${'```'}`,
-                    },
-                ],
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'That command doesn\'t exist!',
+                    description: `Try \`${command_prefix}help\` for a list of commands!\n\nIf \`${command_prefix}\` is being used by another bot, use the command below to change ${bot_common_name} command prefix!`,
+                    fields: [
+                        {
+                            name: `How to change ${bot_common_name} command prefix`,
+                            value: `${'```'}\n${command_prefix}set_prefix NEW_PREFIX_HERE\n${'```'}`,
+                        }, {
+                            name: 'How to disable this warning message',
+                            value: `${'```'}\n${command_prefix}toggle_unknown_command_warnings\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            }).catch(console.warn);
         }
         return;
     }
@@ -939,11 +999,13 @@ client.on('message', async (message) => {
 
     /* block commands when restarting */
     if (client.$.restarting_bot) {
-        message.channel.send(new CustomRichEmbed({
-            color: 0xFF00FF,
-            title: `You currently can't use ${bot_common_name}!`,
-            description: `${bot_common_name} is restarting for updates right now!\nCheck back in 5 minutes to see if the updates are done.`,
-        }, message)).catch(console.warn);
+        message.channel.send({
+            embed: new CustomRichEmbed({
+                color: 0xFF00FF,
+                title: `You currently can't use ${bot_common_name}!`,
+                description: `${bot_common_name} is restarting for updates right now!\nCheck back in 5 minutes to see if the updates are done.`,
+            }, message),
+        }).catch(console.warn);
         return;
     }
 
@@ -959,10 +1021,14 @@ client.on('message', async (message) => {
 
         try {
             const dm_channel = await message.author.createDM();
-            await dm_channel.send(blacklisted_user_embed);
+            await dm_channel.send({
+                embed: blacklisted_user_embed,
+            });
         } catch {
             /* the bot is unable to DM the blacklisted user, so send it to the guild instead */
-            message.channel.send(blacklisted_user_embed).catch(console.warn);
+            message.channel.send({
+                embed: blacklisted_user_embed,
+            }).catch(console.warn);
         }
 
         return;
@@ -976,22 +1042,24 @@ client.on('message', async (message) => {
     if (guild_allowed_channels.length > 0 && is_not_backup_commands_channel && !is_guild_allowed_channel) {
         if (!member_is_immune_from_channel_exclusions) {
             const dm_channel = await message.author.createDM();
-            dm_channel.send(new CustomRichEmbed({
-                title: `Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
-                description: 'The server you tried using me in has setup special channels for me to be used in!',
-                fields: [
-                    {
-                        name: 'Allowed Channels',
-                        value: `${guild_allowed_channels.map(channel_id => `<#${channel_id}>`).join('\n')}`,
-                    }, {
-                        name: 'Notice',
-                        value: [
-                            `Anyone can use ${bot_common_name} commands in text-channels named \`#${bot_backup_commands_channel.name}\`.`,
-                            `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
-                        ].join('\n\n'),
-                    },
-                ],
-            })).catch(console.warn);
+            dm_channel.send({
+                embed: new CustomRichEmbed({
+                    title: `Sorry you aren't allowed to use ${bot_common_name} commands in that channel.`,
+                    description: 'The server you tried using me in has setup special channels for me to be used in!',
+                    fields: [
+                        {
+                            name: 'Allowed Channels',
+                            value: `${guild_allowed_channels.map(channel_id => `<#${channel_id}>`).join('\n')}`,
+                        }, {
+                            name: 'Notice',
+                            value: [
+                                `Anyone can use ${bot_common_name} commands in text-channels named \`#${bot_backup_commands_channel.name}\`.`,
+                                `Members with the \`ADMINISTRATOR\` permission can use ${bot_common_name} commands in any text-channel.`,
+                            ].join('\n\n'),
+                        },
+                    ],
+                }),
+            }).catch(console.warn);
             return;
         } else {
             await message.channel.send(`Hey ${message.author}!\nCommands are typically disabled for normal users in this channel, but **you are immune**!`).catch(console.warn);
@@ -1037,18 +1105,20 @@ client.on('message', async (message) => {
     /* guild command logging */
     const guild_command_logging_channel = message.guild.channels.cache.find(channel => channel.isText() && channel.name === bot_command_log_channel.name);
     if (guild_command_logging_channel) {
-        guild_command_logging_channel.send(new CustomRichEmbed({
-            author: {
-                iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                name: `@${message.author.tag} (${message.author.id})`,
-            },
-            title: 'Command Used',
-            description: `${'```'}\n${message.content}\n${'```'}`,
-            footer: {
-                iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                text: `${command_timestamp}`,
-            },
-        })).catch(console.warn);
+        guild_command_logging_channel.send({
+            embed: new CustomRichEmbed({
+                author: {
+                    iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                    name: `@${message.author.tag} (${message.author.id})`,
+                },
+                title: 'Command Used',
+                description: `${'```'}\n${message.content}\n${'```'}`,
+                footer: {
+                    iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                    text: `${command_timestamp}`,
+                },
+            }),
+        }).catch(console.warn);
     }
 
     /* command message removal */
@@ -1078,36 +1148,40 @@ client.on('message', async (message) => {
     if (command_author_access_level < command.access_level) { // the user doesn't have permission to use this command
         if (command.access_level < DisBotCommand.access_levels.BOT_SUPER) {
             /* a restricted guild command has been attempted */
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFF00FF,
-                title: 'Sorry, but you do not have permission to use this command!',
-                description: [
-                    `**Your access level:** ${command_author_access_level}`,
-                    `**Required access level:** ${command.access_level}`,
-                    '**You must ascend in order to obtain the power that you desire!**',
-                    '*If you are a part of this server\'s staff, try telling your server\'s Administrators about the commands below!*',
-                ].join('\n'),
-                fields: [
-                    {
-                        name: 'Setting Up Moderator Roles',
-                        value: `${'```'}\n${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\n${'```'}`,
-                    }, {
-                        name: 'Setting Up Admin Roles',
-                        value: `${'```'}\n${command_prefix}set_admin_roles @role1 @role2 @role3 ...\n${'```'}`,
-                    },
-                ],
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFF00FF,
+                    title: 'Sorry, but you do not have permission to use this command!',
+                    description: [
+                        `**Your access level:** ${command_author_access_level}`,
+                        `**Required access level:** ${command.access_level}`,
+                        '**You must ascend in order to obtain the power that you desire!**',
+                        '*If you are a part of this server\'s staff, try telling your server\'s Administrators about the commands below!*',
+                    ].join('\n'),
+                    fields: [
+                        {
+                            name: 'Setting Up Moderator Roles',
+                            value: `${'```'}\n${command_prefix}set_moderator_roles @role1 @role2 @role3 ...\n${'```'}`,
+                        }, {
+                            name: 'Setting Up Admin Roles',
+                            value: `${'```'}\n${command_prefix}set_admin_roles @role1 @role2 @role3 ...\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            }).catch(console.warn);
         } else {
             /* a super or bot owner command has been attempted */
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFF00FF,
-                title: 'Oi there, you thought this command wasn\'t protected?',
-                description: [
-                    `**Your access level:** ${command_author_access_level}`,
-                    `**Required access level:** ${command.access_level}`,
-                    `**You must ascend in order to obtain the power that you desire!**`,
-                ].join('\n'),
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFF00FF,
+                    title: 'Oi there, you thought this command wasn\'t protected?',
+                    description: [
+                        `**Your access level:** ${command_author_access_level}`,
+                        `**Required access level:** ${command.access_level}`,
+                        `**You must ascend in order to obtain the power that you desire!**`,
+                    ].join('\n'),
+                }, message),
+            }).catch(console.warn);
         }
     } else { // the user has permission to use this command
         /* log any commands residing in the ADMINISTRATOR or GUILD_SETTINGS categories, to the guild */
@@ -1155,18 +1229,20 @@ process.on('message', (message) => {
         const guild_info = message.guild_info;
         const bot_central_guild_history_channel = client.channels.resolve(bot_central_guild_history_channel_id);
         if (bot_central_guild_history_channel) {
-            bot_central_guild_history_channel.send(new CustomRichEmbed({
-                color: guild_action === 'create' ? 0x00FF00 : 0xFFFF00,
-                author: {
-                    iconURL: guild_info.icon_url,
-                    name: `${guild_info.name} (${guild_info.id})`,
-                },
-                title: `${guild_action === 'create' ? 'Added' : 'Removed'} ${bot_common_name}!`,
-                footer: {
-                    iconURL: client.user.displayAvatarURL({ dynamic: true }),
-                    text: `${moment()}`,
-                },
-            })).catch(console.trace);
+            bot_central_guild_history_channel.send({
+                embed: new CustomRichEmbed({
+                    color: guild_action === 'create' ? 0x00FF00 : 0xFFFF00,
+                    author: {
+                        iconURL: guild_info.icon_url,
+                        name: `${guild_info.name} (${guild_info.id})`,
+                    },
+                    title: `${guild_action === 'create' ? 'Added' : 'Removed'} ${bot_common_name}!`,
+                    footer: {
+                        iconURL: client.user.displayAvatarURL({ dynamic: true }),
+                        text: `${moment()}`,
+                    },
+                }),
+            }).catch(console.trace);
         }
     }
     if (message.type === 'for_client__logging_user_history_deletion_requests') {

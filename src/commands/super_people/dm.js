@@ -1,10 +1,12 @@
 'use strict';
 
 //#region dependencies
+const { DisBotCommand,
+        DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
-const { DisBotCommand, DisBotCommander } = require('../../libs/DisBotCommander.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
-const { isSuperPerson, isSuperPersonAllowed } = require('../../libs/permissions.js');
+const { isSuperPerson,
+        isSuperPersonAllowed } = require('../../libs/permissions.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -20,13 +22,15 @@ module.exports = new DisBotCommand({
             return;
         }
         client.users.cache.get(command_args[0]).createDM().then(dm_channel => {
-            dm_channel.send(new CustomRichEmbed({
-                author:{
-                    iconURL:message.author.displayAvatarURL({dynamic:true}),
-                    name:`@${message.author.tag} (${message.author.id})`
-                },
-                description:`${message.cleanContent.replace(`${discord_command} ${command_args[0]}`, '').trim()}`
-            }));
+            dm_channel.send({
+                embed: new CustomRichEmbed({
+                    author:{
+                        iconURL:message.author.displayAvatarURL({dynamic:true}),
+                        name:`@${message.author.tag} (${message.author.id})`
+                    },
+                    description:`${message.cleanContent.replace(`${discord_command} ${command_args[0]}`, '').trim()}`
+                }),
+            });
         }).catch(console.warn);
     },
 });

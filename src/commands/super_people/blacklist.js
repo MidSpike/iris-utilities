@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isThisBotsOwner,
         isSuperPerson,
@@ -31,29 +31,35 @@ module.exports = new DisBotCommand({
                 if (!user) return;
 
                 if (isThisBotsOwner(user.id)) {
-                    message.channel.send(new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Nope!',
-                        description: 'You are not allowed to blacklist this bot\'s owner.',
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Nope!',
+                            description: 'You are not allowed to blacklist this bot\'s owner.',
+                        }, message),
+                    });
                     return;
                 }
 
                 if (isSuperPerson(user.id) && !isThisBotsOwner(message.author.id)) {
-                    message.channel.send(new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Nope!',
-                        description: 'Only this bot\'s owner can blacklist Super People.',
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Nope!',
+                            description: 'Only this bot\'s owner can blacklist Super People.',
+                        }, message),
+                    });
                     return;
                 }
 
                 if (await client.$.blacklisted_users_manager.hasConfig(user.id)) {
                     /* remove user from the blacklist */
                     await client.$.blacklisted_users_manager.removeConfig(user.id);
-                    message.channel.send(new CustomRichEmbed({
-                        description: `Removed [${user.tag}] (${user.id}) from blacklist!`,
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            description: `Removed [${user.tag}] (${user.id}) from blacklist!`,
+                        }, message),
+                    });
                 } else {
                     /* add user to the blacklist */
                     await client.$.blacklisted_users_manager.updateConfig(user.id, {
@@ -61,9 +67,11 @@ module.exports = new DisBotCommand({
                         name: user.tag,
                         reason: blacklist_reason,
                     });
-                    message.channel.send(new CustomRichEmbed({
-                        description: `Blacklisted User [${user.tag}] (${user.id}) for ${blacklist_reason}`,
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            description: `Blacklisted User [${user.tag}] (${user.id}) for ${blacklist_reason}`,
+                        }, message),
+                    });
                 }
 
                 break;
@@ -74,9 +82,11 @@ module.exports = new DisBotCommand({
                 if (await client.$.blacklisted_guilds_manager.hasConfig(guild.id)) {
                     /* remove guild from the blacklist */
                     await client.$.blacklisted_guilds_manager.removeConfig(guild.id);
-                    message.channel.send(new CustomRichEmbed({
-                        description: `Removed [${guild.name}] (${guild.id}) from blacklist!`,
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            description: `Removed [${guild.name}] (${guild.id}) from blacklist!`,
+                        }, message),
+                    });
                 } else {
                     /* add guild to the blacklist */
                     await client.$.blacklisted_guilds_manager.updateConfig(guild.id, {
@@ -84,16 +94,20 @@ module.exports = new DisBotCommand({
                         name: guild.name,
                         reason: blacklist_reason,
                     });
-                    message.channel.send(new CustomRichEmbed({
-                        description: `Blacklisted Guild [${guild.name}] (${guild.id}) for ${blacklist_reason}`,
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            description: `Blacklisted Guild [${guild.name}] (${guild.id}) for ${blacklist_reason}`,
+                        }, message),
+                    });
                 }
 
                 break;
             default:
-                message.channel.send(new CustomRichEmbed({
-                    description: `Command Usage: ${'```'}\n${discord_command} [ user | guild ] ID_HERE${'```'}`,
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        description: `Command Usage: ${'```'}\n${discord_command} [ user | guild ] ID_HERE${'```'}`,
+                    }, message),
+                });
                 break;
         }
     },

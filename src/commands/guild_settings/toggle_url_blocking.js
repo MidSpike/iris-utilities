@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -17,18 +17,22 @@ module.exports = new DisBotCommand({
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const url_blocking = guild_config.url_blocking === 'enabled';
         if (url_blocking === true) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'URL Blocking: disabled;',
-                description: 'URLs sent by members sent in this server will not be automatically deleted.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'URL Blocking: disabled;',
+                    description: 'URLs sent by members sent in this server will not be automatically deleted.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 url_blocking: 'disabled',
             });
         } else {
-            message.channel.send(new CustomRichEmbed({
-                title: 'URL Blocking: enabled;',
-                description: 'URLs sent by members sent in this server will be automatically deleted.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'URL Blocking: enabled;',
+                    description: 'URLs sent by members sent in this server will be automatically deleted.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 url_blocking: 'enabled',
             });

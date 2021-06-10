@@ -7,9 +7,9 @@ const nodeHtmlToImage = require('node-html-to-image');
 
 const { Timer } = require('../../utilities.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 /**
@@ -81,62 +81,64 @@ module.exports = new DisBotCommand({
         text_for_image = escapeHTML(text_for_image.replace(discord_command, '')).trim().replace(/\r?\n|\r/g, '<br />');
 
         if (text_for_image.length === 0) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'That\'s not how you use this command!',
-                description: 'This command can create images from the text that you specify.',
-                fields: [
-                    {
-                        name: 'Text-To-Image Simple Usage',
-                        value: `${'```'}\n${discord_command} Hello World!\n${'```'}`,
-                    }, {
-                        name: 'Text-To-Image Advanced Usage',
-                        value: [
-                            `${'```'}`,
-                                `${discord_command} format {`,
-                                ` import-google-font: Inconsola;`,
-                                ` bg-color: #000000;`,
-                                ` text-align: center;`,
-                                ` text-shadow-color: #000000;`,
-                                ` text-color: #FFFFFF;`,
-                                ` text-size: 56px;`,
-                                ` text-weight: 700;`,
-                                ` text-font: Inconsola;`,
-                                ` image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
-                                `}`,
-                                ``,
-                                `Hello world! :)`,
-                                ``,
-                                ``,
-                                ``,
-                                ``,
-                                ``,
-                                `I'm a happy dog!`,
-                            `${'```'}`,
-                            `The \`format\` options consist of pseudo-css properties and values...`,
-                            'This means that any pseudo-css-property that resembles a valid css-property; can in fact, accept corresponding acceptable css-values.',
-                        ].join('\n'),
-                    }, {
-                        name: 'Text-To-Image Format Options',
-                        value: [
-                            `${'```'}`,
-                                `import-google-font: <google-font-name>;`,
-                                `image-url: <url>;`,
-                                `image-repeat: <css-background-repeat>;`,
-                                `image-size: <css-background-size>;`,
-                                `image-position: <css-background-position>;`,
-                                `bg-color: <css-color>;`,
-                                `text-color: <css-color>;`,
-                                `text-shadow-color: <css-color>;`,
-                                `text-size: <css-font-size>;`,
-                                `text-weight: <css-font-weight>;`,
-                                `text-font: <css-font-family>;`,
-                                `text-align: <css-text-alignment>;`,
-                            `${'```'}`,
-                        ].join('\n'),
-                    },
-                ],
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'That\'s not how you use this command!',
+                    description: 'This command can create images from the text that you specify.',
+                    fields: [
+                        {
+                            name: 'Text-To-Image Simple Usage',
+                            value: `${'```'}\n${discord_command} Hello World!\n${'```'}`,
+                        }, {
+                            name: 'Text-To-Image Advanced Usage',
+                            value: [
+                                `${'```'}`,
+                                    `${discord_command} format {`,
+                                    ` import-google-font: Inconsola;`,
+                                    ` bg-color: #000000;`,
+                                    ` text-align: center;`,
+                                    ` text-shadow-color: #000000;`,
+                                    ` text-color: #FFFFFF;`,
+                                    ` text-size: 56px;`,
+                                    ` text-weight: 700;`,
+                                    ` text-font: Inconsola;`,
+                                    ` image-url: ${process.env.BOT_CDN_URL}/doge-static.jpg;`,
+                                    `}`,
+                                    ``,
+                                    `Hello world! :)`,
+                                    ``,
+                                    ``,
+                                    ``,
+                                    ``,
+                                    ``,
+                                    `I'm a happy dog!`,
+                                `${'```'}`,
+                                `The \`format\` options consist of pseudo-css properties and values...`,
+                                'This means that any pseudo-css-property that resembles a valid css-property; can in fact, accept corresponding acceptable css-values.',
+                            ].join('\n'),
+                        }, {
+                            name: 'Text-To-Image Format Options',
+                            value: [
+                                `${'```'}`,
+                                    `import-google-font: <google-font-name>;`,
+                                    `image-url: <url>;`,
+                                    `image-repeat: <css-background-repeat>;`,
+                                    `image-size: <css-background-size>;`,
+                                    `image-position: <css-background-position>;`,
+                                    `bg-color: <css-color>;`,
+                                    `text-color: <css-color>;`,
+                                    `text-shadow-color: <css-color>;`,
+                                    `text-size: <css-font-size>;`,
+                                    `text-weight: <css-font-weight>;`,
+                                    `text-font: <css-font-family>;`,
+                                    `text-align: <css-text-alignment>;`,
+                                `${'```'}`,
+                            ].join('\n'),
+                        },
+                    ],
+                }, message),
+            });
             return;
         }
 
@@ -208,7 +210,10 @@ module.exports = new DisBotCommand({
         const temp_file_read_stream = fs.createReadStream(temp_file_path);
         const message_attachment = new Discord.MessageAttachment(temp_file_read_stream);
 
-        await message.channel.send(`${message.author}, here you go!`, message_attachment).catch(console.warn);
+        await message.channel.send({
+            content: `${message.author}, here you go!`,
+            files: [ message_attachment ],
+        }).catch(console.warn);
 
         fs.unlinkSync(temp_file_path);
     },

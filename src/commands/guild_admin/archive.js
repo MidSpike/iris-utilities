@@ -20,10 +20,12 @@ module.exports = new DisBotCommand({
     access_level:DisBotCommand.access_levels.GUILD_ADMIN,
     async executor(Discord, client, message, opts={}) {
         if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS'])) return;
-        sendConfirmationMessage(message.author.id, message.channel.id, false, new CustomRichEmbed({
-            title: 'Do you wish to proceed?',
-            description: 'This command will archive this channel and prevent non-staff from viewing it'
-        }, message), async (bot_message) => {
+        sendConfirmationMessage(message.author.id, message.channel.id, false, {
+            embed: new CustomRichEmbed({
+                title: 'Do you wish to proceed?',
+                description: 'This command will archive this channel and prevent non-staff from viewing it'
+            }, message),
+        }, async (bot_message) => {
             const channel_to_archive = message.channel;
             await channel_to_archive.overwritePermissions([
                 {
@@ -48,14 +50,18 @@ module.exports = new DisBotCommand({
                 ],
             });
             await channel_to_archive.setParent(category_to_make);
-            await message.channel.send(new CustomRichEmbed({
-                title: 'Archived channel!',
-            }, message));
+            await message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Archived channel!',
+                }, message),
+            });
             await bot_message.delete().catch(error => console.warn(`Unable to delete message`, error));
         }, async (bot_message) => {
-            await message.channel.send(new CustomRichEmbed({
-                title: 'Canceled archive!',
-            }, message));
+            await message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Canceled archive!',
+                }, message),
+            });
             await bot_message.delete().catch(error => console.warn(`Unable to delete message`, error));
         });
     },

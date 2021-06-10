@@ -5,9 +5,9 @@ const { Timer } = require('../../utilities.js');
 
 const bot_config = require('../../../config.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { logUserError } = require('../../libs/errors.js');
 const { sendConfirmationMessage } = require('../../libs/messages.js');
 const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
@@ -16,7 +16,7 @@ const { botHasPermissionsInGuild } = require('../../libs/permissions.js');
 const bot_common_name = bot_config.COMMON_NAME;
 
 const bot_special_channels = bot_config.SPECIAL_CHANNELS;
-const bot_special_channels_category_name = bot_special_channels.find(special_channel => special_channel.id === `SPECIAL_CHANNELS_CATEGORY`).name;
+const bot_special_channels_category_name = bot_special_channels.find(special_channel => special_channel.id === 'SPECIAL_CHANNELS_CATEGORY').name;
 
 const bot_special_text_channels = bot_config.SPECIAL_CHANNELS.filter(special_channel => special_channel.type === 'text');
 
@@ -46,22 +46,28 @@ module.exports = new DisBotCommand({
             ],
         });
 
-        sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, {
+            embed: confirmation_embed,
+        }, async () => {
             let success = true;
-            const bot_message = await message.channel.send(new CustomRichEmbed({
-                title: `Creating \`${bot_special_channels_category_name}\``,
-            }));
+            const bot_message = await message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: `Creating \`${bot_special_channels_category_name}\``,
+                }),
+            });
             try {
-                const created_category = await message.guild.channels.create(`${bot_special_channels_category_name}`, {type: 'category'});
+                const created_category = await message.guild.channels.create(`${bot_special_channels_category_name}`, { type: 'category' });
                 await Timer(2000); // prevent odd stuff from happening by waiting
                 for (let special_text_channel_name of bot_special_text_channels_names) {
                     await Timer(1000);
 
-                    await bot_message.edit(new CustomRichEmbed({
-                        title: `Creating \`${special_text_channel_name}\``,
-                    }));
+                    await bot_message.edit({
+                        embed: new CustomRichEmbed({
+                            title: `Creating \`${special_text_channel_name}\``,
+                        }),
+                    });
 
-                    const created_channel = await message.guild.channels.create(`${special_text_channel_name}`, {type: 'text'});
+                    const created_channel = await message.guild.channels.create(`${special_text_channel_name}`, { type: 'text' });
                     await created_channel.setParent(created_category);
 
                     await Timer(1000);
@@ -72,21 +78,27 @@ module.exports = new DisBotCommand({
                 logUserError(message, error);
             } finally {
                 if (success) {
-                    bot_message.edit(new CustomRichEmbed({
-                        color: 0x00FF00,
-                        title: `Successfully created all channels!`,
-                    }));
+                    bot_message.edit({
+                        embed: new CustomRichEmbed({
+                            color: 0x00FF00,
+                            title: `Successfully created all channels!`,
+                        }),
+                    });
                 } else {
-                    bot_message.edit(new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: `A failure has occurred while creating channels!`,
-                    }));
+                    bot_message.edit({
+                        embed: new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: `A failure has occurred while creating channels!`,
+                        }),
+                    });
                 }
             }
         }, () => {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Canceled Creating Channels!',
-            }));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Canceled Creating Channels!',
+                }),
+            });
         });
     },
 });

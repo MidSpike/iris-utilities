@@ -7,8 +7,8 @@ const bot_config = require('../../config.js');
 const { Timer,
         getReadableTime } = require('../utilities.js');
 
-const { Discord,
-        client } = require('./discord_client.js');
+const { client,
+        Discord } = require('./discord_client.js');
 
 const { CustomRichEmbed } = require('./CustomRichEmbed.js');
 const { findCustomEmoji,
@@ -226,11 +226,14 @@ async function sendCaptchaMessage(confirmation_user_id, channel_id, success_call
     const channel = client.channels.resolve(channel_id);
 
     const captcha_code = (new Buffer.from(`${Date.now()}`.slice(7))).toString('base64');
-    const bot_captcha_message = await channel.send(`<@${confirmation_user_id}>`, new CustomRichEmbed({
-        color: 0xFF00FF,
-        title: 'You must send the CAPTCHA below to continue!',
-        description: `${'```'}\n${captcha_code}\n${'```'}`,
-    })).catch(console.warn);
+    const bot_captcha_message = await channel.send({
+        content: `<@${confirmation_user_id}>`,
+        embed: new CustomRichEmbed({
+            color: 0xFF00FF,
+            title: 'You must send the CAPTCHA below to continue!',
+            description: `${'```'}\n${captcha_code}\n${'```'}`,
+        }),
+    }).catch(console.warn);
 
     const message_collection_filter = (collected_message) => collected_message.author.id === confirmation_user_id && collected_message.cleanContent === captcha_code;
     const message_collector = bot_captcha_message.channel.createMessageCollector(message_collection_filter, {
@@ -275,7 +278,9 @@ async function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
     const makeEmbed = async () => new CustomRichEmbed({
         title: `The Current Volume Is: ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
     }, user_message);
-    sendOptionsMessage(channel.id, await makeEmbed(), [
+    sendOptionsMessage(channel.id, {
+        embed: await makeEmbed(),
+    }, [
         {
             emoji_name: 'bot_emoji_mute',
             cooldown: 1000,
@@ -287,13 +292,15 @@ async function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 if (guild.me.voice?.channelID !== member.voice?.channelID) return;
 
                 await guild_volume_manager.toggleMute();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({ dynamic: true }),
-                        name: `@${user.tag}`,
-                    },
-                    title: `${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`,
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({ dynamic: true }),
+                            name: `@${user.tag}`,
+                        },
+                        title: `${guild_volume_manager.muted ? 'Muted' : 'Unmuted'} Audio Playback`,
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_volume_down',
@@ -306,13 +313,15 @@ async function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 if (guild.me.voice?.channelID !== member.voice?.channelID) return;
 
                 await guild_volume_manager.decreaseVolume();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({ dynamic: true }),
-                        name: `@${user.tag}`,
-                    },
-                    title: `Set The Volume To ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({ dynamic: true }),
+                            name: `@${user.tag}`,
+                        },
+                        title: `Set The Volume To ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_volume_up',
@@ -328,14 +337,16 @@ async function sendVolumeControllerEmbed(channel_id, user_message=undefined) {
                 const old_volume = guild_volume_manager.volume;
                 const [ updated_volume_manager, increase_amount ] = await guild_volume_manager.increaseVolume();
                 const new_volume = updated_volume_manager.volume;
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({ dynamic: true }),
-                        name: `@${user.tag}`,
-                    },
-                    title: `Set The Volume To ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
-                    description: (new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined),
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({ dynamic: true }),
+                            name: `@${user.tag}`,
+                        },
+                        title: `Set The Volume To ${(await constructNumberUsingEmoji(guild_volume_manager.volume))}`,
+                        description: (new_volume === old_volume ? `The maximum volume can be increased beyond this!\nIf you are an Administrator, check out:${'```'}\n${guild_config.command_prefix}set_volume_maximum\n${'```'}` : undefined),
+                    }),
+                });
             },
         },
     ]);
@@ -358,7 +369,9 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
     const makeEmbed = async () => new CustomRichEmbed({
         title: `${embed_title}`,
     }, user_message);
-    sendOptionsMessage(channel.id, await makeEmbed(), [
+    sendOptionsMessage(channel.id, {
+        embed: await makeEmbed(),
+    }, [
         {
             emoji_name: 'bot_emoji_play_pause',
             cooldown: 1000,
@@ -372,34 +385,40 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
 
                 if (audio_controller.paused === true) {
                     audio_controller.resume();
-                    options_message.edit(new CustomRichEmbed({
-                        author: {
-                            iconURL: user.displayAvatarURL({ dynamic: true }),
-                            name: `@${user.tag}`,
-                        },
-                        title: `${embed_title}`,
-                        description: 'Resumed Music',
-                    }));
+                    options_message.edit({
+                        embed: new CustomRichEmbed({
+                            author: {
+                                iconURL: user.displayAvatarURL({ dynamic: true }),
+                                name: `@${user.tag}`,
+                            },
+                            title: `${embed_title}`,
+                            description: 'Resumed Music',
+                        }),
+                    });
                 } else if (audio_controller.paused === false) {
                     audio_controller.pause();
-                    options_message.edit(new CustomRichEmbed({
-                        author: {
-                            iconURL: user.displayAvatarURL({ dynamic: true }),
-                            name: `@${user.tag}`,
-                        },
-                        title: `${embed_title}`,
-                        description: 'Paused Music',
-                    }));
+                    options_message.edit({
+                        embed: new CustomRichEmbed({
+                            author: {
+                                iconURL: user.displayAvatarURL({ dynamic: true }),
+                                name: `@${user.tag}`,
+                            },
+                            title: `${embed_title}`,
+                            description: 'Paused Music',
+                        }),
+                    });
                 } else { // There isn't an active connection with music
-                    options_message.edit(new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        author: {
-                            iconURL: user.displayAvatarURL({ dynamic: true }),
-                            name: `@${user.tag}`,
-                        },
-                        title: `${embed_title} - Unable to pause or resume music`,
-                        description: 'Nothing is playing in the queue right now!',
-                    }));
+                    options_message.edit({
+                        embed: new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            author: {
+                                iconURL: user.displayAvatarURL({ dynamic: true }),
+                                name: `@${user.tag}`,
+                            },
+                            title: `${embed_title} - Unable to pause or resume music`,
+                            description: 'Nothing is playing in the queue right now!',
+                        }),
+                    });
                 }
             },
         }, {
@@ -414,14 +433,16 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                 if (guild.me.voice?.channelID !== member.voice?.channelID) return;
 
                 audio_controller.disconnect();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({dynamic: true}),
-                        name: `@${user.tag}`
-                    },
-                    title: `${embed_title}`,
-                    description: 'Stopped Music',
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: 'Stopped Music',
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_skip',
@@ -435,14 +456,16 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                 if (guild.me.voice?.channelID !== member.voice?.channelID) return;
 
                 audio_controller.skip();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({dynamic: true}),
-                        name: `@${user.tag}`
-                    },
-                    title: `${embed_title}`,
-                    description: 'Skipped The Current Item In The Queue',
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: 'Skipped The Current Item In The Queue',
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_shuffle',
@@ -456,14 +479,16 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
                 if (guild.me.voice?.channelID !== member.voice?.channelID) return;
 
                 guild_queue_manager.shuffleItems();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({dynamic: true}),
-                        name: `@${user.tag}`
-                    },
-                    title: `${embed_title}`,
-                    description: 'Shuffled The Queue',
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: 'Shuffled The Queue',
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_repeat_all',
@@ -478,14 +503,16 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
 
                 guild_queue_manager.setLoopType('multiple');
                 guild_queue_manager.toggleLoop();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({dynamic: true}),
-                        name: `@${user.tag}`
-                    },
-                    title: `${embed_title}`,
-                    description: `${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The Entire Queue`,
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: `${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The Entire Queue`,
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_repeat_one',
@@ -500,14 +527,16 @@ async function sendMusicControllerEmbed(channel_id, user_message=undefined) {
 
                 guild_queue_manager.setLoopType('single');
                 guild_queue_manager.toggleLoop();
-                options_message.edit(new CustomRichEmbed({
-                    author: {
-                        iconURL: user.displayAvatarURL({dynamic: true}),
-                        name: `@${user.tag}`
-                    },
-                    title: `${embed_title}`,
-                    description: `${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The First Item In The Queue`,
-                }));
+                options_message.edit({
+                    embed: new CustomRichEmbed({
+                        author: {
+                            iconURL: user.displayAvatarURL({dynamic: true}),
+                            name: `@${user.tag}`
+                        },
+                        title: `${embed_title}`,
+                        description: `${guild_queue_manager.loop_enabled ? 'Started' : 'Stopped'} Looping The First Item In The Queue`,
+                    }),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_volume_up',
@@ -566,7 +595,9 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
             image: (show_player_description ? `${video_thumbnail_url}` : undefined),
         }, user_message);
     }
-    sendOptionsMessage(channel.id, makeYTEmbed(), [
+    sendOptionsMessage(channel.id, {
+        embed: makeYTEmbed(),
+    }, [
         {
             emoji_name: 'bot_emoji_information',
             cooldown: 1000,
@@ -579,7 +610,9 @@ async function sendYtDiscordEmbed(user_message, videoInfo, status='Playing') {
                 if (guild.me.voice?.channelID !== member.voice?.channelID) return;
 
                 show_player_description = !show_player_description;
-                options_message.edit(makeYTEmbed());
+                options_message.edit({
+                    embed: makeYTEmbed(),
+                });
             },
         }, {
             emoji_name: 'bot_emoji_music',
@@ -625,10 +658,14 @@ async function sendNotAllowedCommand(message) {
         footer: null,
     }, message);
     try {
-        await message.channel.send(embed);
+        await message.channel.send({
+            embed: embed,
+        });
     } catch {
         const dm_channel = await message.author.createDM();
-        dm_channel.send(embed).catch(console.warn);
+        dm_channel.send({
+            embed: embed,
+        }).catch(console.warn);
     }
 }
 
@@ -651,7 +688,9 @@ async function sendPotentiallyNotSafeForWorkDisclaimer(message) {
                     'By clicking on the checkmark, you affirm that you are **18+ years old** and **accept any responsibility** for content sent.',
                 ].join('\n'),
             }, message);
-            sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, () => {
+            sendConfirmationMessage(message.author.id, message.channel.id, true, {
+                embed: confirmation_embed,
+            }, () => {
                 resolve(true);
             }, () => {
                 resolve(false);
@@ -669,22 +708,24 @@ async function sendPotentiallyNotSafeForWorkDisclaimer(message) {
  */
 function logAdminCommandsToGuild(admin_message, custom_log_message=undefined) {
     const moderation_log_channel = admin_message.guild.channels.cache.find(c => c.name === bot_config.SPECIAL_CHANNELS.find(ch => ch.id === 'GUILD_MODERATION').name);
-    moderation_log_channel?.send(custom_log_message ?? new CustomRichEmbed({
-        title: 'An Admin Command Has Been Used!',
-        description: `Command Used:${'```'}\n${admin_message.content}\n${'```'}`,
-        fields: [
-            {
-                name: 'Admin',
-                value: `${admin_message.author} (${admin_message.author.id})`,
-            }, {
-                name: 'Channel',
-                value: `${admin_message.channel}`,
-            }, {
-                name: 'Message Link',
-                value: `[Jump To Where The Command Was Used](${admin_message.url})`,
-            },
-        ],
-    }))?.catch(console.warn);
+    moderation_log_channel?.send(custom_log_message ?? {
+        embed: new CustomRichEmbed({
+            title: 'An Admin Command Has Been Used!',
+            description: `Command Used:${'```'}\n${admin_message.content}\n${'```'}`,
+            fields: [
+                {
+                    name: 'Admin',
+                    value: `${admin_message.author} (${admin_message.author.id})`,
+                }, {
+                    name: 'Channel',
+                    value: `${admin_message.channel}`,
+                }, {
+                    name: 'Message Link',
+                    value: `[Jump To Where The Command Was Used](${admin_message.url})`,
+                },
+            ],
+        }),
+    })?.catch(console.warn);
 }
 
 //---------------------------------------------------------------------------------------------------------------//
@@ -713,10 +754,14 @@ async function notifyWhenMissingSendPermissions(guild, channel, message) {
         }, message);
 
         try {
-            await message.reply(missing_send_permissions_warning_embed);
+            await message.reply({
+                embed: missing_send_permissions_warning_embed,
+            });
         } catch {
             const dm_channel = await message.author.createDM().catch(() => null);
-            await dm_channel?.send(missing_send_permissions_warning_embed)?.catch(() => null);
+            await dm_channel?.send({
+                embed: missing_send_permissions_warning_embed,
+            })?.catch(() => null);
         }
 
         return true;

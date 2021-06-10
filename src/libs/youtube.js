@@ -135,16 +135,18 @@ async function playYouTube(message, search_query, playnext=false) {
 
         const [ potential_video ] = await forceYouTubeSearch(search_query, 1);
         if (!potential_video) {
-            search_message.edit(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: `Uh Oh! ${message.author.username}`,
-                description: [
-                    `Your search for the following failed to yield any results!${'```'}\n${search_query}\n${'```'}`,
-                    'Try being a bit more specific next time or try searching again!',
-                    '\n',
-                    'Sometimes YouTube gets excited by all of the searches and derps out!',
-                ].join('\n'),
-            }, message)).catch(console.warn);
+            search_message.edit({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: `Uh Oh! ${message.author.username}`,
+                    description: [
+                        `Your search for the following failed to yield any results!${'```'}\n${search_query}\n${'```'}`,
+                        'Try being a bit more specific next time or try searching again!',
+                        '\n',
+                        'Sometimes YouTube gets excited by all of the searches and derps out!',
+                    ].join('\n'),
+                }, message),
+            }).catch(console.warn);
             return;
         }
 
@@ -155,11 +157,13 @@ async function playYouTube(message, search_query, playnext=false) {
             voice_connection = await createConnection(voice_channel);
         } catch (error) {
             console.trace(error);
-            search_message.edit(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Well that\'s an issue!',
-                description: 'I was unable to join your voice channel!',
-            }, message)).catch(console.warn);
+            search_message.edit({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Well that\'s an issue!',
+                    description: 'I was unable to join your voice channel!',
+                }, message),
+            }).catch(console.warn);
         } finally {
             if (!voice_connection) return; // there is no point in continuing if the bot can't join the voice channel
         }
@@ -254,15 +258,19 @@ async function playYouTube(message, search_query, playnext=false) {
             ].join('\n'),
         }, message);
 
-        sendOptionsMessage(message.channel.id, confirmation_embed, [
+        sendOptionsMessage(message.channel.id, {
+            embed: confirmation_embed,
+        }, [
             {
                 emoji_name: 'bot_emoji_checkmark',
                 async callback(options_message, collected_reaction, user) {
                     await options_message.delete().catch(console.warn);
 
-                    await search_message.edit(new CustomRichEmbed({
-                        title: `Adding ${playlist_items.length} item(s) to the queue!`,
-                    }, message)).catch(console.warn);
+                    await search_message.edit({
+                        embed: new CustomRichEmbed({
+                            title: `Adding ${playlist_items.length} item(s) to the queue!`,
+                        }, message),
+                    }).catch(console.warn);
 
                     /* connect the bot to vc for the checks below to pass */
                     await createConnection(message.member.voice.channel);
@@ -293,10 +301,12 @@ async function playYouTube(message, search_query, playnext=false) {
         });
     }
 
-    const search_message = await message.channel.send(new CustomRichEmbed({
-        title: 'Searching YouTube For:',
-        description: `${'```'}\n${search_query}\n${'```'}`,
-    }));
+    const search_message = await message.channel.send({
+        embed: new CustomRichEmbed({
+            title: 'Searching YouTube For:',
+            description: `${'```'}\n${search_query}\n${'```'}`,
+        }),
+    });
 
     const potential_playlist_id = await get_potential_playlist_id_from_query(search_query);
     const potential_video_id = await get_potential_video_id_from_query(search_query);

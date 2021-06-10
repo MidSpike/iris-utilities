@@ -29,27 +29,33 @@ module.exports = new DisBotCommand({
         const voice_connection = guild_audio_controller.voice?.connection;
 
         if (!voice_connection) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'You can\'t disconnect me!',
-                description: 'I\'m not in a voice channel!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'You can\'t disconnect me!',
+                    description: 'I\'m not in a voice channel!',
+                }, message),
+            });
             return;
         }
 
         if (voice_connection.channel.id !== message.member.voice.channel?.id) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'You can\'t disconnect me!',
-                description: 'You aren\'t in my voice channel!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'You can\'t disconnect me!',
+                    description: 'You aren\'t in my voice channel!',
+                }, message),
+            });
             return;
         }
 
-        message.channel.send(new CustomRichEmbed({
-            title: `Controlling ${bot_common_name}`,
-            description: `Told ${bot_common_name} to leave their voice channel.`,
-        }, message));
+        message.channel.send({
+            embed: new CustomRichEmbed({
+                title: `Controlling ${bot_common_name}`,
+                description: `Told ${bot_common_name} to leave their voice channel.`,
+            }, message),
+        });
 
         if (guild_config.disconnect_tts_voice === 'enabled') {
             /* play tts before disconnecting */

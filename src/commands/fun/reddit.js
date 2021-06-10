@@ -58,14 +58,18 @@ module.exports = new DisBotCommand({
                 }, message);
             }
 
-            sendOptionsMessage(message.channel.id, await makeEmbed(), [
+            sendOptionsMessage(message.channel.id, {
+                embed: await makeEmbed(),
+            }, [
                 {
                     emoji_name: 'bot_emoji_angle_left',
                     async callback(options_message, collected_reaction, user) {
                         removeUserReactionsFromMessage(options_message);
                         page_index--;
                         if (page_index < 0) {page_index = reddit_posts.length-1;}
-                        options_message.edit(await makeEmbed());
+                        options_message.edit({
+                            embed: await makeEmbed(),
+                        });
                     },
                 }, {
                     emoji_name: 'bot_emoji_angle_right',
@@ -73,17 +77,21 @@ module.exports = new DisBotCommand({
                         removeUserReactionsFromMessage(options_message);
                         page_index++;
                         if (page_index > reddit_posts.length-1) {page_index = 0;}
-                        options_message.edit(await makeEmbed());
+                        options_message.edit({
+                            embed: await makeEmbed(),
+                        });
                     },
                 },
             ]);
         }).catch((error) => {
             console.trace(error);
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Have you even used reddit?',
-                description: `\`${subreddit_to_lookup ?? ''}\` isn't a valid subreddit!`,
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Have you even used reddit?',
+                    description: `\`${subreddit_to_lookup ?? ''}\` isn't a valid subreddit!`,
+                }, message),
+            });
         });
     },
 });

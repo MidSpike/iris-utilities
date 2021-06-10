@@ -1,11 +1,9 @@
 'use strict';
 
 //#region dependencies
-const moment = require('moment-timezone');
-
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendConfirmationMessage } = require('../../libs/messages.js');
 //#endregion dependencies
 
@@ -27,13 +25,17 @@ module.exports = new DisBotCommand({
                 message_author: message.author,
             });
 
-            message.reply(new CustomRichEmbed({
-                color: 0xFF00FF,
-                title: 'Your user history will be removed within 48 hours!',
-                description: 'Keep in mind that essential data (such as ban records) will not be deleted!',
-            }, message)).catch(console.warn);
+            message.reply({
+                embed: new CustomRichEmbed({
+                    color: 0xFF00FF,
+                    title: 'Your user history will be removed within 48 hours!',
+                    description: 'Keep in mind that essential data (such as ban records) will not be deleted!',
+                }, message),
+            }).catch(console.warn);
         };
         const no_callback = () => {};
-        sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, yes_callback, no_callback);
+        sendConfirmationMessage(message.author.id, message.channel.id, true, {
+            embed: confirmation_embed,
+        }, yes_callback, no_callback);
     },
 });

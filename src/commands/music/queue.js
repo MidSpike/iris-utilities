@@ -4,9 +4,9 @@
 const { array_chunks,
         string_ellipses } = require('../../utilities.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendOptionsMessage,
         removeUserReactionsFromMessage } = require('../../libs/messages.js');
 //#endregion dependencies
@@ -77,7 +77,9 @@ module.exports = new DisBotCommand({
                             }, message);
                         }
                     }
-                    sendOptionsMessage(message.channel.id, makeQueueEmbed(), [
+                    sendOptionsMessage(message.channel.id, {
+                        embed: makeQueueEmbed(),
+                    }, [
                         {
                             emoji_name: 'bot_emoji_angle_left',
                             callback(options_message, collected_reaction, user) {
@@ -86,7 +88,9 @@ module.exports = new DisBotCommand({
                                 if (page_index < 0) {
                                     page_index = queue_pages.length - 1;
                                 }
-                                options_message.edit(makeQueueEmbed());
+                                options_message.edit({
+                                    embed: makeQueueEmbed(),
+                                });
                             },
                         }, {
                             emoji_name: 'bot_emoji_angle_right',
@@ -96,64 +100,80 @@ module.exports = new DisBotCommand({
                                 if (page_index > queue_pages.length-1) {
                                     page_index = 0;
                                 }
-                                options_message.edit(makeQueueEmbed());
+                                options_message.edit({
+                                    embed: makeQueueEmbed(),
+                                });
                             },
                         }
                     ]);
                 } else if (['shuffle', 's'].includes(command_args[0])) {
                     await guild_queue_manager.shuffleItems();
-                    message.channel.send(new CustomRichEmbed({
-                        title: 'Shuffled all items in the queue',
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: 'Shuffled all items in the queue',
+                        }, message),
+                    });
                 } else if (['remove', 'r'].includes(command_args[0])) {
                     if (command_args[1]) {
                         const remove_index_number = parseInt(command_args[1]);
                         if (!isNaN(remove_index_number)) {
                             guild_queue_manager.removeItem(remove_index_number);
-                            message.channel.send(new CustomRichEmbed({
-                                title: 'Removed an item from the queue',
-                                description: `Removed item at position #${remove_index_number}!`,
-                            }, message));
+                            message.channel.send({
+                                embed: new CustomRichEmbed({
+                                    title: 'Removed an item from the queue',
+                                    description: `Removed item at position #${remove_index_number}!`,
+                                }, message),
+                            });
                         } else {
-                            message.channel.send(new CustomRichEmbed({
-                                color: 0xFFFF00,
-                                title: 'Woah dude!',
-                                description: [
-                                    `I can\'t remove ${remove_index_number} from the queue!`,
-                                    'Try specifying a number!',
-                                ].join('\n'),
-                            }, message));
+                            message.channel.send({
+                                embed: new CustomRichEmbed({
+                                    color: 0xFFFF00,
+                                    title: 'Woah dude!',
+                                    description: [
+                                        `I can\'t remove ${remove_index_number} from the queue!`,
+                                        'Try specifying a number!',
+                                    ].join('\n'),
+                                }, message),
+                            });
                         }
                     } else {
-                        message.channel.send(new CustomRichEmbed({
-                            title: 'This is how you can remove items from the queue',
-                            description: [
-                                'Simply specify the index of the song!',
-                                `Example Usage: ${'```'}\n${discord_command} ${command_args[0]} 2\n${'```'}`,
-                                'The above will remove the 2nd item in the queue.',
-                            ].join('\n'),
-                        }, message));
+                        message.channel.send({
+                            embed: new CustomRichEmbed({
+                                title: 'This is how you can remove items from the queue',
+                                description: [
+                                    'Simply specify the index of the song!',
+                                    `Example Usage: ${'```'}\n${discord_command} ${command_args[0]} 2\n${'```'}`,
+                                    'The above will remove the 2nd item in the queue.',
+                                ].join('\n'),
+                            }, message),
+                        });
                     }
                 } else if (['clear', 'c'].includes(command_args[0])) {
-                    message.channel.send(new CustomRichEmbed({
-                        title: `Removed ${guild_queue_manager.queue.length-1} uninvoked items from the queue`,
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: `Removed ${guild_queue_manager.queue.length-1} uninvoked items from the queue`,
+                        }, message),
+                    });
                     guild_queue_manager.clearItems(false);
                 }
             } else {
                 /* show the queue commands */
-                message.channel.send(new CustomRichEmbed({
-                    title: 'Here are the possible queue sub-commands',
-                    description: `${'```'}\n${['items | i', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: 'Here are the possible queue sub-commands',
+                        description: `${'```'}\n${['items | i', 'shuffle | s', 'remove | r', 'clear | c'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
+                    }, message),
+                });
             }
         } else {
             /* nothing is in the queue */
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'The queue is empty!',
-                description: 'What were you trying to do there?',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'The queue is empty!',
+                    description: 'What were you trying to do there?',
+                }, message),
+            });
         }
     },
 });

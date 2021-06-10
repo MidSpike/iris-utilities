@@ -3,10 +3,10 @@
 //#region dependencies
 const safe_stringify = require('json-stringify-safe');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander,
         registerDisBotCommands } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { sendNotAllowedCommand } = require('../../libs/messages.js');
 const { isSuperPerson,
         isSuperPersonAllowed } = require('../../libs/permissions.js');
@@ -80,47 +80,51 @@ module.exports = new DisBotCommand({
             if (discord_command === `${command_prefix}evil`) {
                 /* don't output to the channel for the evil command */
             } else {
-                message.reply(new CustomRichEmbed({
-                    title: 'Evaluated Code',
+                message.reply({
+                    embed: new CustomRichEmbed({
+                        title: 'Evaluated Code',
+                        fields: [
+                            {
+                                name: 'Input',
+                                value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
+                            }, {
+                                name: 'Output',
+                                value: [
+                                    `${'```'}`,
+                                    !code_has_return_statement ? (
+                                        'No return statement was specified!'
+                                    ) : (
+                                        eval_output_string.length < 1024 ? (
+                                            eval_output_string
+                                        ) : (
+                                            '\`Check the console for output!\`'
+                                        )
+                                    ),
+                                    `${'```'}`,
+                                ].join('\n'),
+                            },
+                        ],
+                        footer: null,
+                    }, message),
+                });
+            }
+        } catch (error) {
+            console.trace(error);
+            message.reply({
+                embed: new CustomRichEmbed({
+                    color: 0xFF0000,
+                    title: 'Evaluated Code Resulted In Error',
                     fields: [
                         {
                             name: 'Input',
                             value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
                         }, {
-                            name: 'Output',
-                            value: [
-                                `${'```'}`,
-                                !code_has_return_statement ? (
-                                    'No return statement was specified!'
-                                ) : (
-                                    eval_output_string.length < 1024 ? (
-                                        eval_output_string
-                                    ) : (
-                                        '\`Check the console for output!\`'
-                                    )
-                                ),
-                                `${'```'}`,
-                            ].join('\n'),
+                            name: 'Error',
+                            value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`,
                         },
                     ],
-                    footer: null,
-                }, message));
-            }
-        } catch (error) {
-            console.trace(error);
-            message.reply(new CustomRichEmbed({
-                color: 0xFF0000,
-                title: 'Evaluated Code Resulted In Error',
-                fields: [
-                    {
-                        name: 'Input',
-                        value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
-                    }, {
-                        name: 'Error',
-                        value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`,
-                    },
-                ],
-            }));
+                }),
+            });
         }
         console.info('----------------------------------------------------------------------------------------------------------------');
     },

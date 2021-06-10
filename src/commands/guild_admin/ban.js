@@ -29,33 +29,39 @@ module.exports = new DisBotCommand({
         const user_to_ban = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
 
         if (!user_to_ban) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Provide a @user or user_id next time!',
-                fields: [
-                    {
-                        name: 'Example Usage',
-                        value: `${'```'}\n${discord_command} @user#0001\n${'```'}`,
-                    }, {
-                        name: 'Example Usage',
-                        value: `${'```'}\n${discord_command} 000000000000000001\n${'```'}`,
-                    },
-                ],
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Provide a @user or user_id next time!',
+                    fields: [
+                        {
+                            name: 'Example Usage',
+                            value: `${'```'}\n${discord_command} @user#0001\n${'```'}`,
+                        }, {
+                            name: 'Example Usage',
+                            value: `${'```'}\n${discord_command} 000000000000000001\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            }).catch(console.warn);
             return;
         }
 
         if (discord_command === `${command_prefix}unban`) {
             message.guild.members.unban(user_to_ban, `@${message.author.tag} used the ${discord_command} command!`).then(unbanned_user => {
-                message.channel.send(new CustomRichEmbed({
-                    title: `@${unbanned_user.tag} (${unbanned_user.id}) has been unbanned!`,
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: `@${unbanned_user.tag} (${unbanned_user.id}) has been unbanned!`,
+                    }, message),
+                });
             }).catch(() => {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'An error has occurred!',
-                    description: 'I\'m unable to unban that user!',
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'An error has occurred!',
+                        description: 'I\'m unable to unban that user!',
+                    }, message),
+                });
             });
         } else { // assuming: discord_command === `${command_prefix}ban`
             function staffMemberCanBanUser(staff_id, user_id) {
@@ -84,10 +90,12 @@ module.exports = new DisBotCommand({
             }
 
             if (!staffMemberCanBanUser(message.author.id, user_to_ban.id)) {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'You aren\'t allowed to ban this user!',
-                }, message)).catch(console.warn);
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'You aren\'t allowed to ban this user!',
+                    }, message),
+                }).catch(console.warn);
                 return;
             }
 
@@ -95,15 +103,19 @@ module.exports = new DisBotCommand({
                 title: `Are you sure you want to ban @${user_to_ban.tag}?`,
             }, message);
 
-            sendConfirmationMessage(message.author.id, message.channel.id, true, confirm_embed, async () => {
+            sendConfirmationMessage(message.author.id, message.channel.id, true, {
+                embed: confirm_embed,
+            }, async () => {
                 const guild_member_to_ban = message.guild.members.resolve(user_to_ban.id);
                 if (guild_member_to_ban?.bannable) {
                     /* the user is in the guild and is bannable */
                     const dm_channel = await user_to_ban.createDM();
-                    await dm_channel.send(new CustomRichEmbed({
-                        color: 0xFF00FF,
-                        title: `You have been banned from ${message.guild.name}`,
-                    })).catch(console.warn);
+                    await dm_channel.send({
+                        embed: new CustomRichEmbed({
+                            color: 0xFF00FF,
+                            title: `You have been banned from ${message.guild.name}`,
+                        }),
+                    }).catch(console.warn);
 
                     await Timer(1000); // Make sure to send the message before banning them
                 }
@@ -111,12 +123,16 @@ module.exports = new DisBotCommand({
                 message.guild.members.ban(user_to_ban.id, {
                     reason: `@${message.author.tag} used ${discord_command}`,
                 }).then(() => {
-                    message.channel.send(new CustomRichEmbed({
-                        title: `@${user_to_ban.tag} has been banned!`,
-                    }, message)).catch(console.warn);
-                    logAdminCommandsToGuild(message, new CustomRichEmbed({
-                        title: `@${message.author.tag} (${message.author.id}) banned @${user_to_ban.tag} (${user_to_ban.id}) from the server!`,
-                    }, message));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: `@${user_to_ban.tag} has been banned!`,
+                        }, message),
+                    }).catch(console.warn);
+                    logAdminCommandsToGuild(message, {
+                        embed: new CustomRichEmbed({
+                            title: `@${message.author.tag} (${message.author.id}) banned @${user_to_ban.tag} (${user_to_ban.id}) from the server!`,
+                        }, message),
+                    });
                 }).catch(() => {
                     logUserError(message, error);
                 });

@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -17,18 +17,22 @@ module.exports = new DisBotCommand({
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const queue_tts_voice = guild_config.queue_tts_voice === 'enabled';
         if (queue_tts_voice === true) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Queue TTS Voice: disabled;',
-                description: 'I will no longer use TTS to announce the next item in the queue before it plays.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Queue TTS Voice: disabled;',
+                    description: 'I will no longer use TTS to announce the next item in the queue before it plays.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 queue_tts_voice: 'disabled',
             });
         } else {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Queue TTS Voice: enabled;',
-                description: 'I will use TTS to announce the next item in the queue before it plays.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Queue TTS Voice: enabled;',
+                    description: 'I will use TTS to announce the next item in the queue before it plays.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 queue_tts_voice: 'enabled',
             });

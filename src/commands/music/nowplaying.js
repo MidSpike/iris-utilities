@@ -26,29 +26,37 @@ module.exports = new DisBotCommand({
                     sendYtDiscordEmbed(message, current_queue_item.metadata.videoInfo, 'Now Playing');
                     break;
                 case 'tts':
-                    message.channel.send(new CustomRichEmbed({
-                        title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
-                        description: `${string_ellipses(current_queue_item.metadata.text, 25)}`,
-                    }));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
+                            description: `${string_ellipses(current_queue_item.metadata.text, 25)}`,
+                        }),
+                    });
                     break;
                 case 'mp3':
-                    message.channel.send(new CustomRichEmbed({
-                        title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
-                        description: `${current_queue_item.metadata.mp3_file_name}`
-                    }));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
+                            description: `${current_queue_item.metadata.mp3_file_name}`
+                        }),
+                    });
                     break;
                 default:
-                    message.channel.send(new CustomRichEmbed({
-                        title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
-                    }));
+                    message.channel.send({
+                        embed: new CustomRichEmbed({
+                            title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
+                        }),
+                    });
                     break;
             }
         } else {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Nothing is playing right now!',
-                description: 'Try using this command when I\'m playing something!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Nothing is playing right now!',
+                    description: 'Try using this command when I\'m playing something!',
+                }, message),
+            });
         }
     },
 });

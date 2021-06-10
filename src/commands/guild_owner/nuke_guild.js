@@ -95,6 +95,8 @@ module.exports = new DisBotCommand({
             });
         };
         const no_callback = () => {};
-        sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, yes_callback, no_callback);
+        sendConfirmationMessage(message.author.id, message.channel.id, true, {
+            embed: confirmation_embed,
+        }, yes_callback, no_callback);
     },
 });

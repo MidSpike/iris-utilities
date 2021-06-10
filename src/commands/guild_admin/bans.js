@@ -24,9 +24,11 @@ module.exports = new DisBotCommand({
         const guild_bans = await message.guild.fetchBans();
 
         if (guild_bans.size === 0) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'This guild doesn\'t have any bans!',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'This guild doesn\'t have any bans!',
+                }, message),
+            });
             return;
         }
 
@@ -55,7 +57,9 @@ module.exports = new DisBotCommand({
             }, message);
         }
 
-        sendOptionsMessage(message.channel.id, await makeEmbed(), [
+        sendOptionsMessage(message.channel.id, {
+            embed: await makeEmbed(),
+        }, [
             {
                 emoji_name: 'bot_emoji_angle_left',
                 async callback(options_message, collected_reaction, user) {
@@ -64,7 +68,9 @@ module.exports = new DisBotCommand({
                     if (page_index < 0) {
                         page_index = pages.length-1;
                     }
-                    options_message.edit(await makeEmbed());
+                    options_message.edit({
+                        embed: await makeEmbed(),
+                    });
                 },
             }, {
                 emoji_name: 'bot_emoji_angle_right',
@@ -74,7 +80,9 @@ module.exports = new DisBotCommand({
                     if (page_index > pages.length-1) {
                         page_index = 0;
                     }
-                    options_message.edit(await makeEmbed());
+                    options_message.edit({
+                        embed: await makeEmbed(),
+                    });
                 },
             },
         ]);

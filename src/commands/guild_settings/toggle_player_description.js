@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -18,18 +18,22 @@ module.exports = new DisBotCommand({
         const player_description = guild_config.player_description === 'enabled';
 
         if (player_description === true) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Player Description: disabled;',
-                description: 'Youtube player descriptions will not be expanded by default.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Player Description: disabled;',
+                    description: 'Youtube player descriptions will not be expanded by default.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 player_description: 'disabled',
             });
         } else {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Player Description: enabled;',
-                description: 'Youtube player descriptions will be expanded by default.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Player Description: enabled;',
+                    description: 'Youtube player descriptions will be expanded by default.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 player_description: 'enabled',
             });

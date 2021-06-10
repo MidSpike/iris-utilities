@@ -28,19 +28,21 @@ module.exports = new DisBotCommand({
         const member_to_kick = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
 
         if (!member_to_kick) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Provide a @user or user_id next time!',
-                fields: [
-                    {
-                        name: 'Example Usage',
-                        value: `${'```'}\n${discord_command} @user#0001\n${'```'}`,
-                    }, {
-                        name: 'Example Usage',
-                        value: `${'```'}\n${discord_command} 000000000000000001\n${'```'}`,
-                    },
-                ],
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Provide a @user or user_id next time!',
+                    fields: [
+                        {
+                            name: 'Example Usage',
+                            value: `${'```'}\n${discord_command} @user#0001\n${'```'}`,
+                        }, {
+                            name: 'Example Usage',
+                            value: `${'```'}\n${discord_command} 000000000000000001\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            }).catch(console.warn);
             return;
         }
 
@@ -69,10 +71,12 @@ module.exports = new DisBotCommand({
         }
 
         if (!staffMemberCanKickMember(message.author.id, member_to_kick.id)) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'You aren\'t allowed to kick this member!',
-            }, message)).catch(console.warn);
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'You aren\'t allowed to kick this member!',
+                }, message),
+            }).catch(console.warn);
             return;
         }
 
@@ -80,26 +84,34 @@ module.exports = new DisBotCommand({
             title: `Are you sure you want to kick @${member_to_kick.user.tag}?`,
         }, message);
 
-        sendConfirmationMessage(message.author.id, message.channel.id, true, confirm_embed, async () => {
+        sendConfirmationMessage(message.author.id, message.channel.id, true, {
+            embed: confirm_embed,
+        }, async () => {
             const guild_member_to_ban = message.guild.members.resolve(member_to_kick.id);
             if (guild_member_to_ban?.bannable) { // The user is in the guild and is bannable
                 const dm_channel = await member_to_kick.createDM();
 
-                await dm_channel.send(new CustomRichEmbed({
-                    color: 0xFF00FF,
-                    title: `You have been kicked from ${message.guild.name}`,
-                })).catch(console.warn);
+                await dm_channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFF00FF,
+                        title: `You have been kicked from ${message.guild.name}`,
+                    }),
+                }).catch(console.warn);
 
                 await Timer(1000); // Make sure to send the message before banning them
             }
 
             member_to_kick.kick(`@${message.author.tag} used ${discord_command}`).then(() => {
-                message.channel.send(new CustomRichEmbed({
-                    title: `@${member_to_kick.user.tag} has been kicked!`,
-                }, message)).catch(console.warn);
-                logAdminCommandsToGuild(message, new CustomRichEmbed({
-                    title: `@${message.author.tag} (${message.author.id}) kicked @${member_to_kick.user.tag} (${member_to_kick.id}) from the server!`,
-                }));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: `@${member_to_kick.user.tag} has been kicked!`,
+                    }, message),
+                }).catch(console.warn);
+                logAdminCommandsToGuild(message, {
+                    embed: new CustomRichEmbed({
+                        title: `@${message.author.tag} (${message.author.id}) kicked @${member_to_kick.user.tag} (${member_to_kick.id}) from the server!`,
+                    }),
+                });
             }).catch(() => {
                 logUserError(message, error);
             });

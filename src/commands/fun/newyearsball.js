@@ -17,9 +17,11 @@ module.exports = new DisBotCommand({
     description: 'newyearsball',
     aliases: ['newyearsball', 'ball'],
     async executor(Discord, client, message, opts={}) {
-        const ball_message = await message.channel.send(new CustomRichEmbed({
-            title: 'Preparing New Years Ball...',
-        }, message));
+        const ball_message = await message.channel.send({
+            embed: new CustomRichEmbed({
+                title: 'Preparing New Years Ball...',
+            }, message),
+        });
 
         await Timer(500); // prevent api abuse
 
@@ -27,10 +29,12 @@ module.exports = new DisBotCommand({
             const ball_path = path.join(process.cwd(), `./files/new_years_ball/ball_${ball_number}.txt`);
             const ball_art = fs.readFileSync(ball_path).toString();
 
-            await ball_message.edit(new CustomRichEmbed({
-                title: 'New Years Ball',
-                description: `${'```'}\n${ball_art}\n${'```'}`,
-            }, message));
+            await ball_message.edit({
+                embed: new CustomRichEmbed({
+                    title: 'New Years Ball',
+                    description: `${'```'}\n${ball_art}\n${'```'}`,
+                }, message),
+            });
 
             await Timer(2000); // prevent api abuse
         }

@@ -1,9 +1,9 @@
 'use strict';
 
 //#region dependencies
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommand,
         DisBotCommander } = require('../../libs/DisBotCommander.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 //#endregion dependencies
 
 module.exports = new DisBotCommand({
@@ -17,18 +17,22 @@ module.exports = new DisBotCommand({
         const guild_config = await client.$.guild_configs_manager.fetchConfig(message.guild.id);
         const command_message_removal = guild_config.command_message_removal === 'enabled';
         if (command_message_removal === true) {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Command Message Removal: disabled;',
-                description: 'When a user uses a command, the user\'s message will not be removed.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Command Message Removal: disabled;',
+                    description: 'When a user uses a command, the user\'s message will not be removed.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_message_removal: 'disabled',
             });
         } else {
-            message.channel.send(new CustomRichEmbed({
-                title: 'Command Message Removal: enabled;',
-                description: 'When a user uses a command, the user\'s message will be removed.',
-            }, message));
+            message.channel.send({
+                embed: new CustomRichEmbed({
+                    title: 'Command Message Removal: enabled;',
+                    description: 'When a user uses a command, the user\'s message will be removed.',
+                }, message),
+            });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_message_removal: 'enabled',
             });

@@ -3,11 +3,11 @@
 //#region dependencies
 const { math_clamp } = require('../../utilities.js');
 
-const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
 const { DisBotCommander,
         DisBotCommand } = require('../../libs/DisBotCommander.js');
-const { removeUserReactionsFromMessage,
-        sendOptionsMessage } = require('../../libs/messages.js');
+const { CustomRichEmbed } = require('../../libs/CustomRichEmbed.js');
+const { sendOptionsMessage,
+        removeUserReactionsFromMessage } = require('../../libs/messages.js');
 const { constructNumberUsingEmoji } = require('../../libs/emoji.js');
 //#endregion dependencies
 
@@ -92,13 +92,19 @@ module.exports = new DisBotCommand({
             const page_number_input = parseInt(specified_command_input) || 1;
             const processed_number_input = math_clamp(page_number_input, 1, command_categories.length)
             if (!message.guild.me.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)) {
-                message.channel.send(makeHelpEmbed(processed_number_input));
+                message.channel.send({
+                    embed: makeHelpEmbed(processed_number_input),
+                });
             } else {
                 function navigate_page(options_message, page_number=1) {
-                    options_message.edit(makeHelpEmbed(page_number));
+                    options_message.edit({
+                        embed: makeHelpEmbed(page_number),
+                    });
                     removeUserReactionsFromMessage(options_message);
                 }
-                sendOptionsMessage(message.channel.id, makeHelpEmbed(processed_number_input), [
+                sendOptionsMessage(message.channel.id, {
+                    embed: makeHelpEmbed(processed_number_input),
+                }, [
                     {
                         emoji_name: 'bot_emoji_angle_left',
                         callback(options_message) {
@@ -169,23 +175,27 @@ module.exports = new DisBotCommand({
             );
             if (specified_command) {
                 const specified_command_aliases = specified_command.aliases.map(cmd => `${command_prefix}${cmd.replace('#{cp}', `${command_prefix}`)}`);
-                message.channel.send(new CustomRichEmbed({
-                    title: `About Command — ${specified_command_input}`,
-                    description: [
-                        `**Formal Name:** ${specified_command.name}`,
-                        `**Category:** ${specified_command.category}`,
-                        `**Description:** ${specified_command.description}`,
-                        `**Aliases:** \`${specified_command_aliases.join(', ')}\``,
-                        `**Cooldown:** ${specified_command.cooldown} milliseconds`,
-                        `**Access Level:** ${specified_command.access_level}`,
-                    ].join('\n'),
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        title: `About Command — ${specified_command_input}`,
+                        description: [
+                            `**Formal Name:** ${specified_command.name}`,
+                            `**Category:** ${specified_command.category}`,
+                            `**Description:** ${specified_command.description}`,
+                            `**Aliases:** \`${specified_command_aliases.join(', ')}\``,
+                            `**Cooldown:** ${specified_command.cooldown} milliseconds`,
+                            `**Access Level:** ${specified_command.access_level}`,
+                        ].join('\n'),
+                    }, message),
+                });
             } else {
-                message.channel.send(new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: `About Command — ${specified_command_input}`,
-                    description: `I couldn\'t find that command!`,
-                }, message));
+                message.channel.send({
+                    embed: new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: `About Command — ${specified_command_input}`,
+                        description: `I couldn\'t find that command!`,
+                    }, message),
+                });
             }
         }
     },
