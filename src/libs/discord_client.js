@@ -9,6 +9,8 @@ const { BlacklistedGuildsManager } = require('./BlacklistedGuildsManager.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 const client = new Discord.Client({
+    /** @TODO DJSv13 */
+    // allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
     disableMentions: 'everyone',
     partials: [
         'MESSAGE',
@@ -23,6 +25,11 @@ const client = new Discord.Client({
             name: 'Just restarted!',
         },
     },
+    /** @TODO DJSv13 */
+    // intents: [
+    //     Discord.Intents.NON_PRIVILEGED,
+    //     Discord.Intents.FLAGS.GUILD_MEMBERS,
+    // ],
     ws: {
         intents: [
             Discord.Intents.NON_PRIVILEGED,

@@ -191,6 +191,13 @@ client.once('ready', async () => {
             client.user.setPresence({
                 status: 'online',
                 type: 4,
+                /** @TODO DJSv13 */
+                // activities: [
+                //     {
+                //         type: 'PLAYING',
+                //         name: `${bot_presence_text}`,
+                //     },
+                // ],
                 activity: {
                     type: 'PLAYING',
                     name: `${bot_presence_text}`,
