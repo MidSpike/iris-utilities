@@ -15,25 +15,27 @@ module.exports = new DisBotCommand({
     aliases:['math'],
     async executor(Discord, client, message, opts={}) {
         const { discord_command, command_args } = opts;
-        if (command_args.length > 0) {
-            const math_to_evaluate = command_args.join(' ');
-            try {
-                const evaluated_math = MathJS.evaluate(math_to_evaluate);
-                message.channel.send(new CustomRichEmbed({
-                    title:'I evaluated your math for you!',
-                    description:`\`${math_to_evaluate}\` = \`${evaluated_math}\``
-                }, message));
-            } catch {
-                message.channel.send(new CustomRichEmbed({
-                    title:'I failed you!',
-                    description:`I couldn't evaluate \`${math_to_evaluate}\``
-                }, message));
-            }
-        } else {
+
+        const math_to_evaluate = command_args.join(' ').trim();
+
+        if (math_to_evaluate.length === 0) {
             message.channel.send(new CustomRichEmbed({
-                title:'Command Usage',
-                description:`${'```'}\n${discord_command} 2 + 2\n${'```'}`
+                title: 'Command Usage',
+                description: `${'```'}\n${discord_command} 2 + 2\n${'```'}`
+            }, message)).catch(console.warn);
+        }
+
+        try {
+            const evaluated_math = MathJS.evaluate(math_to_evaluate);
+            await message.channel.send(new CustomRichEmbed({
+                title: 'I evaluated your math for you!',
+                description: `\`${math_to_evaluate}\` = \`${evaluated_math}\``,
             }, message));
+        } catch {
+            message.channel.send(new CustomRichEmbed({
+                title: 'Something went wrong!',
+                description: `I couldn't evaluate \`${math_to_evaluate}\``,
+            }, message)).catch(console.warn);
         }
     },
 });
