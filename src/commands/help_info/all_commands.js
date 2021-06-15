@@ -53,10 +53,12 @@ module.exports = new DisBotCommand({
         );
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Here are all of the commands, all at once!`,
-                fields: all_commands_fields,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Here are all of the commands, all at once!`,
+                    fields: all_commands_fields,
+                }, message),
+            ],
         });
     },
 });

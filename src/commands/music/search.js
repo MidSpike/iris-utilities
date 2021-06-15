@@ -25,11 +25,13 @@ module.exports = new DisBotCommand({
 
         if (!message.member?.voice?.channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Whoops!',
-                    description: 'You need to be in a voice channel to use this command!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Whoops!',
+                        description: 'You need to be in a voice channel to use this command!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -60,7 +62,9 @@ module.exports = new DisBotCommand({
                 )).join('\n\n'),
             }, message);
             const bot_message = await sendOptionsMessage(message.channel.id, {
-                embed: embed,
+                embeds: [
+                    embed,
+                ],
             }, reactions, {
                 confirmation_user_id: message.author.id,
             });
@@ -71,11 +75,13 @@ module.exports = new DisBotCommand({
             }, 1000 * 60 * 2);
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Woah there!',
-                    description: `Try adding something after \`${discord_command}\` next time!`
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Woah there!',
+                        description: `Try adding something after \`${discord_command}\` next time!`
+                    }, message),
+                ],
             });
         }
     },

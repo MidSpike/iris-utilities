@@ -23,10 +23,12 @@ module.exports = new DisBotCommand({
         const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
         if (!member) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Provide a valid @user mention next time!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Provide a valid @user mention next time!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -36,10 +38,12 @@ module.exports = new DisBotCommand({
 
         if (!member.voice?.channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That user isn\'t in a voice channel right now!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That user isn\'t in a voice channel right now!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -47,9 +51,11 @@ module.exports = new DisBotCommand({
         await member.voice.setMute(!member.voice.serverMute);
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `${member.voice.serverMute ? 'Muted' : 'Unmuted'} @${member.user.tag} (${member.user.id})`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `${member.voice.serverMute ? 'Muted' : 'Unmuted'} @${member.user.tag} (${member.user.id})`,
+                }, message),
+            ],
         });
     },
 });

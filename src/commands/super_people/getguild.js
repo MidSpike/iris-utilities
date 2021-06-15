@@ -68,10 +68,12 @@ module.exports = new DisBotCommand({
                 }
                 if (guild_members.size >= 100) {
                     sendConfirmationMessage(message.author.id, message.channel.id, true, {
-                        embed: new CustomRichEmbed({
-                            title:'There are a lot of members in that guild!',
-                            description:`Do you wish to print out ${guild_members.size} members?`
-                        }, message),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title:'There are a lot of members in that guild!',
+                                description:`Do you wish to print out ${guild_members.size} members?`
+                            }, message),
+                        ],
                     }, () => {
                         _output_members();
                     });
@@ -88,10 +90,12 @@ module.exports = new DisBotCommand({
                 }
                 if (guild_bots.size >= 100) {
                     sendConfirmationMessage(message.author.id, message.channel.id, true, {
-                        embed: new CustomRichEmbed({
-                            title:'There are a lot of bots in that guild!',
-                            description:`Do you wish to print out ${guild_bots.size} bots?`
-                        }, message),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title:'There are a lot of bots in that guild!',
+                                description:`Do you wish to print out ${guild_bots.size} bots?`
+                            }, message),
+                        ],
                     }, () => {
                         _output_bots();
                     });

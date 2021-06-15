@@ -77,10 +77,12 @@ module.exports = {
 
                 // const message = await client.channels.resolve(interaction.channel_id).messages.fetch(interaction.message.id);
                 // message.edit({
-                //     embed: {
-                //         color: 0xFF5500,
-                //         title: (interaction_custom_id === 'test_command_ping' ? 'Pong!' : 'Ping'),
-                //     },
+                //     embeds: [
+                //         {
+                //             color: 0xFF5500,
+                //             title: (interaction_custom_id === 'test_command_ping' ? 'Pong!' : 'Ping'),
+                //         },
+                //     ],
                 // });
             } catch (error) {
                 console.trace(error);

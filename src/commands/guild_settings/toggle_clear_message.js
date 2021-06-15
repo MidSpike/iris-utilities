@@ -21,20 +21,24 @@ module.exports = new DisBotCommand({
 
         if (clear_message === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Clear Message: disabled;',
-                    description: `\`${command_prefix}clear\` will not say when it has been used.`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Clear Message: disabled;',
+                        description: `\`${command_prefix}clear\` will not say when it has been used.`,
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 clear_message: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Clear Message: enabled;',
-                    description: `\`${command_prefix}clear\` will say when it has been used.`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Clear Message: enabled;',
+                        description: `\`${command_prefix}clear\` will say when it has been used.`,
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 clear_message: 'enabled',

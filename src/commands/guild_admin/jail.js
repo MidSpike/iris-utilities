@@ -29,20 +29,22 @@ module.exports = new DisBotCommand({
 
         if (!member) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Provide an @user next time!',
-                    description: 'This command can prevent a specified member from typing or speaking in any channel that currently exists!',
-                    fields: [
-                        {
-                            name: 'Example (putting someone in the jail)',
-                            value: `${'```'}\n${command_prefix}jail @user#0001\n${'```'}`,
-                        }, {
-                            name: 'Example (removing someone from the jail)',
-                            value: `${'```'}\n${command_prefix}unjail @user#0001\n${'```'}`,
-                        },
-                    ],
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Provide an @user next time!',
+                        description: 'This command can prevent a specified member from typing or speaking in any channel that currently exists!',
+                        fields: [
+                            {
+                                name: 'Example (putting someone in the jail)',
+                                value: `${'```'}\n${command_prefix}jail @user#0001\n${'```'}`,
+                            }, {
+                                name: 'Example (removing someone from the jail)',
+                                value: `${'```'}\n${command_prefix}unjail @user#0001\n${'```'}`,
+                            },
+                        ],
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -77,29 +79,35 @@ module.exports = new DisBotCommand({
 
         if (!staffMemberCanJailMember(message.author.id, member.id)) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: `You aren\'t allowed to jail/unjail ${member}!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: `You aren\'t allowed to jail/unjail ${member}!`,
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         if (member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR)) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: `This command doesn\'t work on members with the \`ADMINISTRATOR\` permission!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: `This command doesn\'t work on members with the \`ADMINISTRATOR\` permission!`,
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         if (discord_command === `${command_prefix}jail`) {
             const bot_message = await message.channel.send({
-                embed: new CustomRichEmbed({
-                    description: `Adding ${member} to the jail!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        description: `Adding ${member} to the jail!`,
+                    }, message),
+                ],
             }).catch(console.warn);
 
             for (const channel of message.guild.channels.cache.values()) {
@@ -136,15 +144,19 @@ module.exports = new DisBotCommand({
             }
 
             bot_message.edit({
-                embed: new CustomRichEmbed({
-                    description: `Added ${member} to the jail!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        description: `Added ${member} to the jail!`,
+                    }, message),
+                ],
             }).catch(console.warn);
         } else { // assuming: discord_command === `${command_prefix}unjail`
             const bot_message = await message.channel.send({
-                embed: new CustomRichEmbed({
-                    description: `Removing ${member} from the jail!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        description: `Removing ${member} from the jail!`,
+                    }, message),
+                ],
             }).catch(console.warn);
 
             for (const channel of message.guild.channels.cache.values()) {
@@ -167,9 +179,11 @@ module.exports = new DisBotCommand({
             }
 
             bot_message.edit({
-                embed: new CustomRichEmbed({
-                    description: `Removed ${member} from the jail!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        description: `Removed ${member} from the jail!`,
+                    }, message),
+                ],
             }).catch(console.warn);
         }
     },

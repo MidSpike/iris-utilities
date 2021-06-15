@@ -38,12 +38,16 @@ module.exports = new DisBotCommand({
             description: `${message.content.replace(discord_command, '').trim()}`,
         });
         message.channel.send({
-            embed: update_message_embed,
+            embeds: [
+                update_message_embed,
+            ],
         });
         sendConfirmationMessage(message.author.id, message.channel.id, false, {
-            embed: new CustomRichEmbed({
-                title: 'Are you sure you want to send the update message above?',
-            }),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Are you sure you want to send the update message above?',
+                }),
+            ],
         }, async (bot_message) => {
             //#region save update log entries to a file
             if (!fs.existsSync(bot_update_log_file)) {
@@ -52,7 +56,9 @@ module.exports = new DisBotCommand({
             const old_updates_log = JSON.parse(fs.readFileSync(bot_update_log_file));
             const update_log_entry = {
                 timestamp: `${moment()}`,
-                embed: update_message_embed.toJSON(),
+                embeds: [
+                    update_message_embed.toJSON(),
+                ],
             };
             const new_updates_log = [
                 ...old_updates_log,
@@ -63,15 +69,19 @@ module.exports = new DisBotCommand({
 
             const update_log_channels = client.channels.cache.filter(channel => channel.name === bot_update_log_channel_name);
             await bot_message.edit({
-                embed: new CustomRichEmbed({
-                    title: `Attempted sending update message to ${update_log_channels.size} guilds!`,
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `Attempted sending update message to ${update_log_channels.size} guilds!`,
+                    }),
+                ],
             });
             for (let update_log_channel of update_log_channels.values()) {
                 if (update_log_channel.permissionsFor(update_log_channel.guild.me).has(Discord.Permissions.FLAGS.SEND_MESSAGES)) {
                     console.info(`Sent update log to ${update_log_channel.guild.name} (${update_log_channel.guild.id})`);
                     update_log_channel.send({
-                        embed: update_message_embed,
+                        embeds: [
+                            update_message_embed,
+                        ],
                     });
                 } else {
                     console.warn(`Unable to send update log to ${update_log_channel.guild.name} (${update_log_channel.guild.id})`);
@@ -80,9 +90,11 @@ module.exports = new DisBotCommand({
             }
         }, (bot_message) => {
             bot_message.edit({
-                embed: new CustomRichEmbed({
-                    title: 'Canceled Sending Update Message!',
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Canceled Sending Update Message!',
+                    }),
+                ],
             });
         });
     },

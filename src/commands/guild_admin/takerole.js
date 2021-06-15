@@ -28,10 +28,12 @@ module.exports = new DisBotCommand({
             if (staff_highest_role_is_greater_than_member_highest_role && staff_highest_role_is_greater_than_role) {
                 member.roles.remove(role).then(() => {
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: 'Role Manager',
-                            description: `Removed ${role.name} from ${member}!`,
-                        }, message),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: 'Role Manager',
+                                description: `Removed ${role.name} from ${member}!`,
+                            }, message),
+                        ],
                     }).catch(console.warn);
                 }).catch((error) => {
                     logUserError(message, error);

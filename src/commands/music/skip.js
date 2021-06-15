@@ -16,22 +16,26 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         if (!message.guild.me.voice.connection) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh! What are you doing there mate!',
-                    description: 'I\'m not in a voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh! What are you doing there mate!',
+                        description: 'I\'m not in a voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         if (message.member.voice.channelID !== message.guild.me.voice.channelID) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh! What are you doing there mate!',
-                    description: 'You aren\'t in my voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh! What are you doing there mate!',
+                        description: 'You aren\'t in my voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -39,9 +43,11 @@ module.exports = new DisBotCommand({
         const guild_audio_controller = client.$.audio_controllers.get(message.guild.id);
         await guild_audio_controller.skip();
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Skipped the current song!',
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Skipped the current song!',
+                }, message),
+            ],
         });
     },
 });

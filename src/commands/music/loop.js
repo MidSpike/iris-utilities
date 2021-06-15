@@ -17,22 +17,26 @@ module.exports = new DisBotCommand({
 
         if (!message.guild.me.voice.connection) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh! What are you doing there mate!',
-                    description: 'I\'m not in a voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh! What are you doing there mate!',
+                        description: 'I\'m not in a voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         if (message.member.voice.channelID !== message.guild.me.voice.channelID) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh! What are you doing there mate!',
-                    description: 'You aren\'t in my voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh! What are you doing there mate!',
+                        description: 'You aren\'t in my voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -41,11 +45,13 @@ module.exports = new DisBotCommand({
 
         if (guild_queue_manager.queue.length === 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh! What are you doing there mate!',
-                    description: 'Nothing is playing right now!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh! What are you doing there mate!',
+                        description: 'Nothing is playing right now!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -54,32 +60,40 @@ module.exports = new DisBotCommand({
             await guild_queue_manager.toggleLoop();
             await guild_queue_manager.setLoopType('single');
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the first item`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the first item`,
+                    }, message),
+                ],
             }).catch(console.warn);
         } else if (['all', 'a'].includes(command_args[0])) {
             await guild_queue_manager.toggleLoop();
             await guild_queue_manager.setLoopType('multiple');
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the entire queue`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue looping for the entire queue`,
+                    }, message),
+                ],
             }).catch(console.warn);
         } else if (['shuffle', 's'].includes(command_args[0])) {
             await guild_queue_manager.toggleLoop();
             await guild_queue_manager.setLoopType('shuffle');
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue shuffle looping for the entire queue`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `${guild_queue_manager.loop_enabled ? 'Enabled' : 'Disabled'} queue shuffle looping for the entire queue`,
+                    }, message),
+                ],
             }).catch(console.warn);
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Here are the possible loop commands',
-                    description: `${'```'}\n${['i | item', 'a | all', 's | shuffle'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Here are the possible loop commands',
+                        description: `${'```'}\n${['i | item', 'a | all', 's | shuffle'].map(item => `${discord_command} [ ${item} ]`).join('\n')}\n${'```'}`,
+                    }, message),
+                ],
             }).catch(console.warn);
         }
     },

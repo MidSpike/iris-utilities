@@ -22,25 +22,31 @@ module.exports = new DisBotCommand({
             try {
                 const evaluated_math = MathJS.evaluate(math_to_evaluate);
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        title: 'I evaluated your math for you!',
-                        description: `\`${math_to_evaluate}\` = \`${evaluated_math}\``,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: 'I evaluated your math for you!',
+                            description: `\`${math_to_evaluate}\` = \`${evaluated_math}\``,
+                        }, message),
+                    ],
                 });
             } catch {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        title: 'I failed you!',
-                        description: `I couldn't evaluate \`${math_to_evaluate}\``,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: 'I failed you!',
+                            description: `I couldn't evaluate \`${math_to_evaluate}\``,
+                        }, message),
+                    ],
                 });
             }
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Command Usage',
-                    description: `${'```'}\n${discord_command} 2 + 2\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Command Usage',
+                        description: `${'```'}\n${discord_command} 2 + 2\n${'```'}`,
+                    }, message),
+                ],
             });
         }
     },

@@ -23,13 +23,15 @@ module.exports = new DisBotCommand({
         }
         client.users.cache.get(command_args[0]).createDM().then(dm_channel => {
             dm_channel.send({
-                embed: new CustomRichEmbed({
-                    author:{
-                        iconURL:message.author.displayAvatarURL({dynamic:true}),
-                        name:`@${message.author.tag} (${message.author.id})`
-                    },
-                    description:`${message.cleanContent.replace(`${discord_command} ${command_args[0]}`, '').trim()}`
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        author:{
+                            iconURL:message.author.displayAvatarURL({dynamic:true}),
+                            name:`@${message.author.tag} (${message.author.id})`
+                        },
+                        description:`${message.cleanContent.replace(`${discord_command} ${command_args[0]}`, '').trim()}`
+                    }),
+                ],
             });
         }).catch(console.warn);
     },

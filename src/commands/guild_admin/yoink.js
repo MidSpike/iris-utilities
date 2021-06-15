@@ -23,10 +23,12 @@ module.exports = new DisBotCommand({
 
         if (!message.member.voice?.channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'You must be in a voice channel to use this command!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'You must be in a voice channel to use this command!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -51,33 +53,37 @@ module.exports = new DisBotCommand({
 
         if (members_to_yoink.size === 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Woah there!',
-                    description: 'I couldn\'t find anyone to yoink to your voice channel!',
-                    fields: [
-                        {
-                            name: 'Command Description',
-                            value: 'This command can be used to \"yoink\" (move) users to your voice channel!',
-                        }, {
-                            name: 'Example Usages',
-                            value: [
-                                `Yoinking mentioned members:${'```'}\n${discord_command} @user1 @user2 @user3\n${'```'}`,
-                                `Yoinking all bots to your voice channel:${'```'}\n${discord_command} bots\n${'```'}`,
-                                `Yoinking all members to your voice channel:${'```'}\n${discord_command} members\n${'```'}`,
-                                `Yoinking all bots and members to your voice channel:${'```'}\n${discord_command} all\n${'```'}`,
-                            ].join(''),
-                        },
-                    ],
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Woah there!',
+                        description: 'I couldn\'t find anyone to yoink to your voice channel!',
+                        fields: [
+                            {
+                                name: 'Command Description',
+                                value: 'This command can be used to \"yoink\" (move) users to your voice channel!',
+                            }, {
+                                name: 'Example Usages',
+                                value: [
+                                    `Yoinking mentioned members:${'```'}\n${discord_command} @user1 @user2 @user3\n${'```'}`,
+                                    `Yoinking all bots to your voice channel:${'```'}\n${discord_command} bots\n${'```'}`,
+                                    `Yoinking all members to your voice channel:${'```'}\n${discord_command} members\n${'```'}`,
+                                    `Yoinking all bots and members to your voice channel:${'```'}\n${discord_command} all\n${'```'}`,
+                                ].join(''),
+                            },
+                        ],
+                    }, message),
+                ],
             });
             return;
         }
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Yoinked ${members_to_yoink.size} member(s) to your voice channel!`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Yoinked ${members_to_yoink.size} member(s) to your voice channel!`,
+                }, message),
+            ],
         }).catch(console.warn);
 
         for (const member_to_yoink of members_to_yoink.values()) {
@@ -89,11 +95,13 @@ module.exports = new DisBotCommand({
                 await member_to_yoink.voice.setChannel(vc_to_yoink_them_to);
             } catch {
                 await message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Uh Oh!',
-                        description: 'I was unable to yoink a user to your voice channel!',
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Uh Oh!',
+                            description: 'I was unable to yoink a user to your voice channel!',
+                        }, message),
+                    ],
                 }).catch(console.warn);
             }
 

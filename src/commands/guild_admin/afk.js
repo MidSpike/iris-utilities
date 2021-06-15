@@ -28,20 +28,24 @@ module.exports = new DisBotCommand({
         const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
         if (!member) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Provide an @user mention next time!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Provide an @user mention next time!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         if (!member.voice?.channelID) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That user is not in a voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That user is not in a voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -49,10 +53,12 @@ module.exports = new DisBotCommand({
         const afk_voice_channel_to_move_user_to = message.guild.afkChannelID;
         if (!afk_voice_channel_to_move_user_to) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'This server does not have an AFK channel to send the user to!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'This server does not have an AFK channel to send the user to!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -66,16 +72,20 @@ module.exports = new DisBotCommand({
         /* move the specified guild member to the guild afk channel */
         member.voice.setChannel(afk_voice_channel_to_move_user_to).then(() => {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    description: `Moved ${member} to this guild\'s AFK voice channel.`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        description: `Moved ${member} to this guild\'s AFK voice channel.`,
+                    }, message),
+                ],
             }).catch(console.warn);
         }).catch(() => {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: `I was unable to move ${member} to this guild\'s AFK voice channel.`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: `I was unable to move ${member} to this guild\'s AFK voice channel.`,
+                    }, message),
+                ],
             }).catch(console.warn);
         });
     },

@@ -25,20 +25,24 @@ module.exports = new DisBotCommand({
             const new_tts_language = command_args[0];
             if (Object.keys(google_languages_json).includes(new_tts_language)) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        title: `Setting New Google TTS Language`,
-                        description: `Old Server Google TTS Language: ${'```'}\n${old_tts_language}\n${'```'}\nNew Server Google TTS Language: ${'```'}\n${new_tts_language}\n${'```'}`,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: `Setting New Google TTS Language`,
+                            description: `Old Server Google TTS Language: ${'```'}\n${old_tts_language}\n${'```'}\nNew Server Google TTS Language: ${'```'}\n${new_tts_language}\n${'```'}`,
+                        }, message),
+                    ],
                 });
                 client.$.guild_configs_manager.updateConfig(message.guild.id, {
                     tts_voice_google: new_tts_language,
                 });
             } else {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'That\'s not a valid Google TTS language',
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'That\'s not a valid Google TTS language',
+                        }, message),
+                    ],
                 });
             }
         } else {

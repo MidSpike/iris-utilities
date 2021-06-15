@@ -27,11 +27,13 @@ module.exports = new DisBotCommand({
         const coin_facing = flipCoin();
 
         await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Flipped a coin!',
-                description: `**You got __${coin_facing}__**!`,
-                thumbnail: `${process.env.BOT_CDN_URL}/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Flipped a coin!',
+                    description: `**You got __${coin_facing}__**!`,
+                    thumbnail: `${process.env.BOT_CDN_URL}/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`,
+                }, message),
+            ],
         });
     },
 });

@@ -34,35 +34,39 @@ module.exports = new DisBotCommand({
             console.info(`Output:`, shell_output);
             const shell_output_string = `${shell_output.stdout}`;
             message.reply({
-                embed: new CustomRichEmbed({
-                    title: 'Evaluated Shell Code',
-                    fields: [
-                        {
-                            name: 'Input',
-                            value: `${'```'}\n${discord_command}\n${shell_input}\n${'```'}`
-                        }, {
-                            name: 'Output',
-                            value: `${'```'}\n${shell_output_string.length < 1024 ? shell_output_string : `\`Check the console for output!\``}\n${'```'}`
-                        },
-                    ],
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Evaluated Shell Code',
+                        fields: [
+                            {
+                                name: 'Input',
+                                value: `${'```'}\n${discord_command}\n${shell_input}\n${'```'}`
+                            }, {
+                                name: 'Output',
+                                value: `${'```'}\n${shell_output_string.length < 1024 ? shell_output_string : `\`Check the console for output!\``}\n${'```'}`
+                            },
+                        ],
+                    }),
+                ],
             });
         } catch (error) {
             console.trace(error);
             message.reply({
-                embed: new CustomRichEmbed({
-                    color: 0xFF0000,
-                    title: 'Evaluated Shell Code Resulted In Error',
-                    fields: [
-                        {
-                            name: 'Input',
-                            value: `${'```'}\n${discord_command}\n${shell_input}\n${'```'}`
-                        }, {
-                            name: 'Error',
-                            value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`
-                        },
-                    ],
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFF0000,
+                        title: 'Evaluated Shell Code Resulted In Error',
+                        fields: [
+                            {
+                                name: 'Input',
+                                value: `${'```'}\n${discord_command}\n${shell_input}\n${'```'}`
+                            }, {
+                                name: 'Error',
+                                value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`
+                            },
+                        ],
+                    }),
+                ],
             });
         }
         console.info(`----------------------------------------------------------------------------------------------------------------`);

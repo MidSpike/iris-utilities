@@ -23,20 +23,24 @@ module.exports = new DisBotCommand({
         const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
         if (!member) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Provide an @user mention next time!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Provide an @user mention next time!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         if (!member.voice?.channelID) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That user is not in a voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That user is not in a voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -44,11 +48,13 @@ module.exports = new DisBotCommand({
         const voice_channel_id = command_args[1];
         if (!voice_channel_id) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'You must specify a voice channel id after the user mention!',
-                    description: `Example:${'```'}\n${discord_command} @user 100000000000000000\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'You must specify a voice channel id after the user mention!',
+                        description: `Example:${'```'}\n${discord_command} @user 100000000000000000\n${'```'}`,
+                    }, message),
+                ],
             });
             return;
         }
@@ -56,10 +62,12 @@ module.exports = new DisBotCommand({
         const voice_channel = message.guild.channels.cache.filter(channel => channel.type === 'voice').get(voice_channel_id);
         if (!voice_channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That voice channel doesn\'t exist!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That voice channel doesn\'t exist!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -72,16 +80,20 @@ module.exports = new DisBotCommand({
 
         member.voice.setChannel(voice_channel).then(() => {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    description: `Moved ${member} to ${voice_channel.name}.`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        description: `Moved ${member} to ${voice_channel.name}.`,
+                    }, message),
+                ],
             }).catch(console.warn);
         }).catch(() => {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: `I was unable to move ${member} to ${voice_channel.name}.`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: `I was unable to move ${member} to ${voice_channel.name}.`,
+                    }, message),
+                ],
             }).catch(console.warn);
         });
     },

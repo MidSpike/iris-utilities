@@ -27,44 +27,50 @@ module.exports = new DisBotCommand({
 
         if (user_text.length < 10) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That doesn\'t look right!',
-                    description: 'Try typing a sentence after the command!',
-                    fields: [
-                        {
-                            name: 'Example Usage',
-                            value: `${'```'}\n${discord_command} Is MineCraft an awesome game?\n${'```'}`,
-                        },
-                    ],
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That doesn\'t look right!',
+                        description: 'Try typing a sentence after the command!',
+                        fields: [
+                            {
+                                name: 'Example Usage',
+                                value: `${'```'}\n${discord_command} Is MineCraft an awesome game?\n${'```'}`,
+                            },
+                        ],
+                    }, message),
+                ],
             });
             return;
         }
 
         const bot_message = await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Shaking the magic 8 ball...',
-                image: `${bot_cdn_url}/man-shaking-8-ball.gif`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Shaking the magic 8 ball...',
+                    image: `${bot_cdn_url}/man-shaking-8-ball.gif`,
+                }, message),
+            ],
         });
 
         await Timer(3000); // give the user a chance to view the gif
 
         await bot_message.edit({
-            embed: new CustomRichEmbed({
-                thumbnail: `${bot_cdn_url}/magic-8-ball.webp`,
-                title: `${bot_common_name} - 8 Ball Wizard`,
-                fields: [
-                    {
-                        name: 'You said',
-                        value: `${'```'}\n${user_text}\n${'```'}`,
-                    }, {
-                        name: 'I think that',
-                        value: `${'```'}\n${array_random(magic8ball_json)}\n${'```'}`,
-                    },
-                ],
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    thumbnail: `${bot_cdn_url}/magic-8-ball.webp`,
+                    title: `${bot_common_name} - 8 Ball Wizard`,
+                    fields: [
+                        {
+                            name: 'You said',
+                            value: `${'```'}\n${user_text}\n${'```'}`,
+                        }, {
+                            name: 'I think that',
+                            value: `${'```'}\n${array_random(magic8ball_json)}\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            ],
         });
     },
 });

@@ -19,25 +19,27 @@ module.exports = new DisBotCommand({
         const bot_owner_commands = DisBotCommander.commands.filter(cmd => cmd.category === DisBotCommander.categories.BOT_OWNER).map(cmd => cmd.aliases.join(' | '));
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Super Commands',
-                description: 'Here is a list of commands made available to Super People and my Owner!\nSome commands require certain permissions!',
-                fields: [
-                    {
-                        name: 'Guild Admin Commands',
-                        value: `${'```'}\n${guild_admin_commands.join('\n')}\n${'```'}`,
-                    }, {
-                        name: 'Guild Settings Commands',
-                        value: `${'```'}\n${guild_settings_commands.join('\n')}\n${'```'}`,
-                    }, {
-                        name: 'Super People Commands',
-                        value: `${'```'}\n${super_people_commands.join('\n')}\n${'```'}`,
-                    }, {
-                        name: 'Bot Owner Commands',
-                        value: `${'```'}\n${bot_owner_commands.join('\n')}\n${'```'}`,
-                    },
-                ],
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Super Commands',
+                    description: 'Here is a list of commands made available to Super People and my Owner!\nSome commands require certain permissions!',
+                    fields: [
+                        {
+                            name: 'Guild Admin Commands',
+                            value: `${'```'}\n${guild_admin_commands.join('\n')}\n${'```'}`,
+                        }, {
+                            name: 'Guild Settings Commands',
+                            value: `${'```'}\n${guild_settings_commands.join('\n')}\n${'```'}`,
+                        }, {
+                            name: 'Super People Commands',
+                            value: `${'```'}\n${super_people_commands.join('\n')}\n${'```'}`,
+                        }, {
+                            name: 'Bot Owner Commands',
+                            value: `${'```'}\n${bot_owner_commands.join('\n')}\n${'```'}`,
+                        },
+                    ],
+                }, message),
+            ],
         });
     },
 });

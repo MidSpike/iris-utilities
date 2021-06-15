@@ -22,18 +22,22 @@ module.exports = new DisBotCommand({
         if (message.guild.me.voice) {
             guild_audio_controller.pause();
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `Controlling ${bot_common_name}`,
-                    description: 'Paused the music!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `Controlling ${bot_common_name}`,
+                        description: 'Paused the music!',
+                    }, message),
+                ],
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'I\'m not connected to a voice channel!',
-                    description: 'Try playing something first!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'I\'m not connected to a voice channel!',
+                        description: 'Try playing something first!',
+                    }, message),
+                ],
             });
         }
     },

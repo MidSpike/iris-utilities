@@ -24,27 +24,31 @@ module.exports = new DisBotCommand({
 
         if (user_text.length < 10) {
             await message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'I wasn\'t able to dogeify that!',
-                    description: 'Try typing a sentence after the command!',
-                    thumbnail: `${bot_cdn_url}/doge-static.gif`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'I wasn\'t able to dogeify that!',
+                        description: 'Try typing a sentence after the command!',
+                        thumbnail: `${bot_cdn_url}/doge-static.gif`,
+                    }, message),
+                ],
             });
             return;
         }
 
         const bot_message = await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'I\'m dogeifying your text!',
-                fields: [
-                    {
-                        name: 'Original',
-                        value: `${'```'}\n${user_text}\n${'```'}`,
-                    },
-                ],
-                thumbnail: `${bot_cdn_url}/doge-animated.gif`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'I\'m dogeifying your text!',
+                    fields: [
+                        {
+                            name: 'Original',
+                            value: `${'```'}\n${user_text}\n${'```'}`,
+                        },
+                    ],
+                    thumbnail: `${bot_cdn_url}/doge-animated.gif`,
+                }, message),
+            ],
         }).catch(console.warn);
 
         const dogeified_text = await dogeify(user_text);
@@ -52,19 +56,21 @@ module.exports = new DisBotCommand({
         await Timer(3000); // give the user a chance to view the gif
 
         await bot_message.edit({
-            embed: new CustomRichEmbed({
-                title: 'I dogeified your text!',
-                fields: [
-                    {
-                        name: 'Original',
-                        value: `${'```'}\n${user_text}\n${'```'}`,
-                    }, {
-                        name: 'Dogeified',
-                        value: `${'```'}\n${dogeified_text}\n${'```'}`,
-                    },
-                ],
-                thumbnail: `${bot_cdn_url}/doge-static.jpg`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'I dogeified your text!',
+                    fields: [
+                        {
+                            name: 'Original',
+                            value: `${'```'}\n${user_text}\n${'```'}`,
+                        }, {
+                            name: 'Dogeified',
+                            value: `${'```'}\n${dogeified_text}\n${'```'}`,
+                        },
+                    ],
+                    thumbnail: `${bot_cdn_url}/doge-static.jpg`,
+                }, message),
+            ],
         }).catch(console.warn);
     },
 });

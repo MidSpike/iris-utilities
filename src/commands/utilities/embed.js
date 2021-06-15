@@ -42,54 +42,60 @@ module.exports = new DisBotCommand({
                 // console.log({embed_segments, embed_title_description, embed_title, embed_description, embed_image, embed_fields});
 
                 await message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0x000000,
-                        author: {
-                            iconURL: message.member.user.displayAvatarURL({dynamic: true}),
-                            name: `Sent by @${message.member.user.tag} (${message.member.user.id})`,
-                        },
-                        title: `${embed_title}`,
-                        description: `${embed_description}`,
-                        image: embed_image,
-                        fields: embed_fields,
-                        footer: {
-                            iconURL: `${bot_cdn_url}/Warning_Sign_2020-07-08_1.png`,
-                            text: `This message is not from or endorsed by ${bot_common_name}!`,
-                        },
-                    }),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0x000000,
+                            author: {
+                                iconURL: message.member.user.displayAvatarURL({dynamic: true}),
+                                name: `Sent by @${message.member.user.tag} (${message.member.user.id})`,
+                            },
+                            title: `${embed_title}`,
+                            description: `${embed_description}`,
+                            image: embed_image,
+                            fields: embed_fields,
+                            footer: {
+                                iconURL: `${bot_cdn_url}/Warning_Sign_2020-07-08_1.png`,
+                                text: `This message is not from or endorsed by ${bot_common_name}!`,
+                            },
+                        }),
+                    ],
                 });
             } catch (error) {
                 console.trace('Failed to send user-generated embed!', error);
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Whoops, something went wrong!',
-                        description: 'Somehow you messed up making the embed and Discord didn\'t like it!',
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Whoops, something went wrong!',
+                            description: 'Somehow you messed up making the embed and Discord didn\'t like it!',
+                        }, message),
+                    ],
                 });
             }
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'You can use this command to create embeds!',
-                    description: [
-                        `**Try out the following!**`,
-                        `${'```'}`,
-                        `${discord_command} The title can go here`,
-                        `The description can go here,`,
-                        `and continue over here as well,`,
-                        `and can extend even more beyond here!`,
-                        ``,
-                        `A Field Title can go here`,
-                        `A Field Description can go here`,
-                        ``,
-                        `Another Field Title can go here`,
-                        `Another Field Description can go here`,
-                        ``,
-                        `{{The image URL goes inside of double semi-brackets!}}`,
-                        `${'```'}`
-                    ].join('\n'),
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'You can use this command to create embeds!',
+                        description: [
+                            `**Try out the following!**`,
+                            `${'```'}`,
+                            `${discord_command} The title can go here`,
+                            `The description can go here,`,
+                            `and continue over here as well,`,
+                            `and can extend even more beyond here!`,
+                            ``,
+                            `A Field Title can go here`,
+                            `A Field Description can go here`,
+                            ``,
+                            `Another Field Title can go here`,
+                            `Another Field Description can go here`,
+                            ``,
+                            `{{The image URL goes inside of double semi-brackets!}}`,
+                            `${'```'}`
+                        ].join('\n'),
+                    }, message),
+                ],
             });
         }
     },

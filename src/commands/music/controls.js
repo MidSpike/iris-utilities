@@ -21,11 +21,13 @@ module.exports = new DisBotCommand({
             sendMusicControllerEmbed(message.channel.id, message);
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Nothing is playing right now!',
-                    description: 'Try using this command when I\'m playing something!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Nothing is playing right now!',
+                        description: 'Try using this command when I\'m playing something!',
+                    }, message),
+                ],
             });
         }
     },

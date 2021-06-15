@@ -31,20 +31,24 @@ module.exports = new DisBotCommand({
             const deleted_messages = await message.channel.bulkDelete(number_of_messages_to_remove, true);
             if (guild_config.clear_message === 'enabled') {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        title: 'Perfectly balanced, as all things should be.',
-                        description: `I deleted ${deleted_messages.size} messages for you.`,
-                        thumbnail: `${bot_cdn_url}/Thanos_Glow_Gauntlet.png`,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: 'Perfectly balanced, as all things should be.',
+                            description: `I deleted ${deleted_messages.size} messages for you.`,
+                            thumbnail: `${bot_cdn_url}/Thanos_Glow_Gauntlet.png`,
+                        }, message),
+                    ],
                 }).catch(console.warn);
             }
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That\'s not how messages are cleared!',
-                    description: `Please specify a number after ${discord_command}!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That\'s not how messages are cleared!',
+                        description: `Please specify a number after ${discord_command}!`,
+                    }, message),
+                ],
             }).catch(console.warn);
         }
     },

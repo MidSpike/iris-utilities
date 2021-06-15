@@ -28,11 +28,13 @@ module.exports = new DisBotCommand({
         async function tts_insult() {
             if (!message.member.voice?.channel) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Woah there!',
-                        description: 'You need to be in a voice channel to use this command!',
-                    }),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Woah there!',
+                            description: 'You need to be in a voice channel to use this command!',
+                        }),
+                    ],
                 });
                 return;
             }
@@ -77,10 +79,12 @@ module.exports = new DisBotCommand({
                     tts_insult();
                 } else {
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: 'Reached 25 TTS insults!',
-                            description: 'Automatically stopping the TTS insult generator!',
-                        }),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: 'Reached 25 TTS insults!',
+                                description: 'Automatically stopping the TTS insult generator!',
+                            }),
+                        ],
                     });
                 }
             });
@@ -92,9 +96,11 @@ module.exports = new DisBotCommand({
             }));
 
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Added TTS Insult To The Queue!',
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Added TTS Insult To The Queue!',
+                    }),
+                ],
             });
         }
         tts_insult();

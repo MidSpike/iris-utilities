@@ -29,40 +29,46 @@ module.exports = new DisBotCommand({
 
             if (supported_tts_providers.includes(new_tts_provider)) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        title: 'Setting TTS Provider',
-                        description: [
-                            `Old Server TTS Provider: ${'```'}\n${old_tts_provider}\n${'```'}`,
-                            `New Server TTS Provider: ${'```'}\n${new_tts_provider}\n${'```'}`,
-                        ].join('\n'),
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: 'Setting TTS Provider',
+                            description: [
+                                `Old Server TTS Provider: ${'```'}\n${old_tts_provider}\n${'```'}`,
+                                `New Server TTS Provider: ${'```'}\n${new_tts_provider}\n${'```'}`,
+                            ].join('\n'),
+                        }, message),
+                    ],
                 });
                 client.$.guild_configs_manager.updateConfig(message.guild.id, {
                     tts_provider: new_tts_provider,
                 });
             } else {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'That\'s not a valid TTS Provider',
-                        description: '\`google\` and \`ibm\` are the only supported providers!',
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'That\'s not a valid TTS Provider',
+                            description: '\`google\` and \`ibm\` are the only supported providers!',
+                        }, message),
+                    ],
                 });
             }
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Please provide a new tts_provider after the command next time!',
-                    fields: [
-                        {
-                            name: 'Example',
-                            value: `${'```'}\n${discord_command} ibm\n${'```'}`,
-                        }, {
-                            name: 'Supported tts_providers',
-                            value: supported_tts_providers.map(supported_tts_provider => `- \`${supported_tts_provider}\``).join('\n'),
-                        },
-                    ],
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Please provide a new tts_provider after the command next time!',
+                        fields: [
+                            {
+                                name: 'Example',
+                                value: `${'```'}\n${discord_command} ibm\n${'```'}`,
+                            }, {
+                                name: 'Supported tts_providers',
+                                value: supported_tts_providers.map(supported_tts_provider => `- \`${supported_tts_provider}\``).join('\n'),
+                            },
+                        ],
+                    }, message),
+                ],
             });
         }
     },

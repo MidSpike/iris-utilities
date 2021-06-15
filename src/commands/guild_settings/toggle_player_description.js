@@ -19,20 +19,24 @@ module.exports = new DisBotCommand({
 
         if (player_description === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Player Description: disabled;',
-                    description: 'Youtube player descriptions will not be expanded by default.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Player Description: disabled;',
+                        description: 'Youtube player descriptions will not be expanded by default.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 player_description: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Player Description: enabled;',
-                    description: 'Youtube player descriptions will be expanded by default.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Player Description: enabled;',
+                        description: 'Youtube player descriptions will be expanded by default.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 player_description: 'enabled',

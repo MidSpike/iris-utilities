@@ -18,20 +18,24 @@ module.exports = new DisBotCommand({
         const unknown_command_warnings = guild_config.unknown_command_warnings === 'enabled';
         if (unknown_command_warnings === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Unknown Command Warnings: disabled;',
-                    description: 'When a user tries to use an unknown command, the bot will not send an unknown command warning.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Unknown Command Warnings: disabled;',
+                        description: 'When a user tries to use an unknown command, the bot will not send an unknown command warning.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 unknown_command_warnings: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Unknown Command Warnings: enabled;',
-                    description: 'When a user tries to use an unknown command, the bot will send an unknown command warning.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Unknown Command Warnings: enabled;',
+                        description: 'When a user tries to use an unknown command, the bot will send an unknown command warning.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 unknown_command_warnings: 'enabled',

@@ -20,10 +20,12 @@ module.exports = new DisBotCommand({
 
         if (message_mentions.size > 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Setting New Server Moderator Roles',
-                    description: `New Server Moderator Roles: ${'```'}\n${message_mentions.map(role => role.name).join('\n')}\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Setting New Server Moderator Roles',
+                        description: `New Server Moderator Roles: ${'```'}\n${message_mentions.map(role => role.name).join('\n')}\n${'```'}`,
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 moderator_roles: message_mentions.map(role => role.id),

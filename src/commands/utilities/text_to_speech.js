@@ -86,40 +86,44 @@ module.exports = new DisBotCommand({
         const tts_input = clean_command_args.join(' ').trim();
         if (tts_input.length === 0 && message.attachments.size === 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'TTS Time!',
-                    description: `There are a few ways that you can use TTS with ${bot_config.COMMON_NAME}...\nCheck out the following examples:`,
-                    fields: [
-                        {
-                            name: `Simple Usage (Auto Mode Relies on Server Settings)`,
-                            value: `${'```'}\n${discord_command} Hello World! It is my time to shine!\n${'```'}`,
-                        }, {
-                            name: `Intermediate Usage (Choice of TTS Provider: IBM or Google)`,
-                            value: [
-                                `${'```'}\n${discord_command} {ibm} Hello World! It is my time to shine!\n${'```'}`,
-                                `${'```'}\n${discord_command} {google} Hello World! It is my time to shine!\n${'```'}`,
-                            ].join(''),
-                        }, {
-                            name: `Advanced Usage (Choice of TTS Voice from either TTS Provider)`,
-                            value: [
-                                `${'```'}\n${discord_command} {en-GB_KateV3Voice} Hello World! It is my time to shine!\n${'```'}`,
-                                `${'```'}\n${discord_command} {en-uk} Hello World! It is my time to shine!\n${'```'}`,
-                                `There are many more TTS Voices from Google and IBM!\nRun \`${command_prefix}langcodes\` to see what is available`,
-                            ].join(''),
-                        }
-                    ]
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'TTS Time!',
+                        description: `There are a few ways that you can use TTS with ${bot_config.COMMON_NAME}...\nCheck out the following examples:`,
+                        fields: [
+                            {
+                                name: `Simple Usage (Auto Mode Relies on Server Settings)`,
+                                value: `${'```'}\n${discord_command} Hello World! It is my time to shine!\n${'```'}`,
+                            }, {
+                                name: `Intermediate Usage (Choice of TTS Provider: IBM or Google)`,
+                                value: [
+                                    `${'```'}\n${discord_command} {ibm} Hello World! It is my time to shine!\n${'```'}`,
+                                    `${'```'}\n${discord_command} {google} Hello World! It is my time to shine!\n${'```'}`,
+                                ].join(''),
+                            }, {
+                                name: `Advanced Usage (Choice of TTS Voice from either TTS Provider)`,
+                                value: [
+                                    `${'```'}\n${discord_command} {en-GB_KateV3Voice} Hello World! It is my time to shine!\n${'```'}`,
+                                    `${'```'}\n${discord_command} {en-uk} Hello World! It is my time to shine!\n${'```'}`,
+                                    `There are many more TTS Voices from Google and IBM!\nRun \`${command_prefix}langcodes\` to see what is available`,
+                                ].join(''),
+                            }
+                        ]
+                    }, message),
+                ],
             });
             return;
         }
 
         if (!message.member.voice?.channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh!',
-                    description: 'You need to join a voice channel first!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh!',
+                        description: 'You need to join a voice channel first!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -129,11 +133,13 @@ module.exports = new DisBotCommand({
             voice_connection = await createConnection(message.member.voice.channel);
         } catch {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: `Whelp that's an issue!`,
-                    description: `I'm unable to join your voice channel!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: `Whelp that's an issue!`,
+                        description: `I'm unable to join your voice channel!`,
+                    }, message),
+                ],
             });
         } finally {
             if (!voice_connection) return; // there is no point in continuing if the bot can't join vc
@@ -142,11 +148,13 @@ module.exports = new DisBotCommand({
         const message_attachment = message.attachments.first();
         if (message_attachment && !message_attachment.name.endsWith('.txt')) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh!',
-                    description: `You can't use TTS to play non-\`.txt\` files!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh!',
+                        description: `You can't use TTS to play non-\`.txt\` files!`,
+                    }, message),
+                ],
             });
             return;
         }
@@ -196,10 +204,12 @@ module.exports = new DisBotCommand({
                         if (!guild_queue_manager.loop_enabled) {
                             /* don't send messages when looping */
                             message.channel.send({
-                                embed: new CustomRichEmbed({
-                                    title: 'Playing TTS',
-                                    description: `**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`,
-                                }, message),
+                                embeds: [
+                                    new CustomRichEmbed({
+                                        title: 'Playing TTS',
+                                        description: `**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`,
+                                    }, message),
+                                ],
                             });
                         }
                     },
@@ -210,21 +220,25 @@ module.exports = new DisBotCommand({
             }).then((queue_manager) => { // Item was added to queue
                 if (tts_chunks.length > 1) {
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: 'Adding TTS Chunk',
-                            description: [
-                                `You told ${bot_config.COMMON_NAME} to say a lot of words using TTS...`,
-                                `Each TTS Chunk might take a little bit of time to load before playing!`,
-                            ].join('\n'),
-                        }, message),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: 'Adding TTS Chunk',
+                                description: [
+                                    `You told ${bot_config.COMMON_NAME} to say a lot of words using TTS...`,
+                                    `Each TTS Chunk might take a little bit of time to load before playing!`,
+                                ].join('\n'),
+                            }, message),
+                        ],
                     });
                 }
                 if (queue_manager.queue.length > 1) {
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: 'Added TTS',
-                            description: `**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`,
-                        }, message),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: 'Added TTS',
+                                description: `**Provider:** \`${tts_provider}\`\n**Voice:** \`${tts_voice}\`\n**Message:**${'```'}\n${tts_chunk_short}\n${'```'}`,
+                            }, message),
+                        ],
                     });
                 }
             });

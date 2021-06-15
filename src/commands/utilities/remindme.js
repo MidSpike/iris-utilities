@@ -24,11 +24,13 @@ module.exports = new DisBotCommand({
 
             if (isNaN(reminder_time)) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Whoops!',
-                        description: `\`${user_time}\` is not a valid unit of time that I can understand!`,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Whoops!',
+                            description: `\`${user_time}\` is not a valid unit of time that I can understand!`,
+                        }, message),
+                    ],
                 });
                 return;
             }
@@ -38,17 +40,21 @@ module.exports = new DisBotCommand({
             ReminderManager.add(reminder);
 
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `I\'ve set your reminder for ${reminder_time}`,
-                    description: `**Reminder Text:**${'```'}\n${user_remind_message}\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `I\'ve set your reminder for ${reminder_time}`,
+                        description: `**Reminder Text:**${'```'}\n${user_remind_message}\n${'```'}`,
+                    }, message),
+                ],
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Command Usage',
-                    description: `${'```'}\n${discord_command} in 10 minutes to do stuff!\n${'```'}Remember to include the \`in\` and \`to\`!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Command Usage',
+                        description: `${'```'}\n${discord_command} in 10 minutes to do stuff!\n${'```'}Remember to include the \`in\` and \`to\`!`,
+                    }, message),
+                ],
             });
         }
     },

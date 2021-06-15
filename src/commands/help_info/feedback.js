@@ -25,28 +25,34 @@ module.exports = new DisBotCommand({
             const central_feedback_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_feedback_channel_id);
 
             await central_feedback_channel.send({
-                embed: new CustomRichEmbed({
-                    author: {
-                        iconURL: message.author.displayAvatarURL({ dynamic: true }),
-                        name: `@${message.author.tag} (${message.author.id})`,
-                    },
-                    description: `${'```'}\n${command_args.join(' ')}\n${'```'}`,
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        author: {
+                            iconURL: message.author.displayAvatarURL({ dynamic: true }),
+                            name: `@${message.author.tag} (${message.author.id})`,
+                        },
+                        description: `${'```'}\n${command_args.join(' ')}\n${'```'}`,
+                    }),
+                ],
             }).catch(console.warn);
 
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Thanks for the feedback!',
-                    description: `Your message was sent to the [${bot_common_name} Support Discord](${bot_support_guild_invite_url})!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Thanks for the feedback!',
+                        description: `Your message was sent to the [${bot_common_name} Support Discord](${bot_support_guild_invite_url})!`,
+                    }, message),
+                ],
             }).catch(console.warn);
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'This is a feedback command!',
-                    description: `Please leave a message with some feedback after \`${discord_command}\`. Example: ${'```'}\n${discord_command} wow this is a cool bot!\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'This is a feedback command!',
+                        description: `Please leave a message with some feedback after \`${discord_command}\`. Example: ${'```'}\n${discord_command} wow this is a cool bot!\n${'```'}`,
+                    }, message),
+                ],
             }).catch(console.warn);
         }
     },

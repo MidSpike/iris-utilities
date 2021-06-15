@@ -25,9 +25,11 @@ module.exports = new DisBotCommand({
 
         if (guild_bans.size === 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'This guild doesn\'t have any bans!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'This guild doesn\'t have any bans!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -58,7 +60,9 @@ module.exports = new DisBotCommand({
         }
 
         sendOptionsMessage(message.channel.id, {
-            embed: await makeEmbed(),
+            embeds: [
+                await makeEmbed(),
+            ],
         }, [
             {
                 emoji_name: 'bot_emoji_angle_left',
@@ -69,7 +73,9 @@ module.exports = new DisBotCommand({
                         page_index = pages.length-1;
                     }
                     options_message.edit({
-                        embed: await makeEmbed(),
+                        embeds: [
+                            await makeEmbed(),
+                        ],
                     });
                 },
             }, {
@@ -81,7 +87,9 @@ module.exports = new DisBotCommand({
                         page_index = 0;
                     }
                     options_message.edit({
-                        embed: await makeEmbed(),
+                        embeds: [
+                            await makeEmbed(),
+                        ],
                     });
                 },
             },

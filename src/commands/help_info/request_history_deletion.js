@@ -26,16 +26,20 @@ module.exports = new DisBotCommand({
             });
 
             message.reply({
-                embed: new CustomRichEmbed({
-                    color: 0xFF00FF,
-                    title: 'Your user history will be removed within 48 hours!',
-                    description: 'Keep in mind that essential data (such as ban records) will not be deleted!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFF00FF,
+                        title: 'Your user history will be removed within 48 hours!',
+                        description: 'Keep in mind that essential data (such as ban records) will not be deleted!',
+                    }, message),
+                ],
             }).catch(console.warn);
         };
         const no_callback = () => {};
         sendConfirmationMessage(message.author.id, message.channel.id, true, {
-            embed: confirmation_embed,
+            embeds: [
+                confirmation_embed,
+            ],
         }, yes_callback, no_callback);
     },
 });

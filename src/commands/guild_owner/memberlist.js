@@ -60,7 +60,9 @@ module.exports = new DisBotCommand({
         }, message);
 
         sendConfirmationMessage(message.author.id, message.channel.id, true, {
-            embed: embed,
+            embeds: [
+                embed,
+            ],
         }, async () => {
             sendMemberListFileToChannel(message.channel);
         }, async () => {

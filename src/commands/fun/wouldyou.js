@@ -47,32 +47,36 @@ module.exports = new DisBotCommand({
 
         function showResults() {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `Would you? (#${dilemma_id})`,
-                    fields: [
-                        {
-                            name: 'Would you accept that',
-                            value: `${dilemma_situation}`,
-                        }, {
-                            name: 'However',
-                            value: `${dilemma_catch}`,
-                        }, {
-                            name: '\u200b',
-                            value: '\u200b',
-                        }, {
-                            name: 'Dilemma Situation Score',
-                            value: `${dilemma_yay_count} (${dilemma_yay_percent}%) people said yay!`,
-                        }, {
-                            name: 'Dilemma Catch Score',
-                            value: `${dilemma_nay_count} (${dilemma_nay_percent}%) people said nay!`,
-                        },
-                    ],
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `Would you? (#${dilemma_id})`,
+                        fields: [
+                            {
+                                name: 'Would you accept that',
+                                value: `${dilemma_situation}`,
+                            }, {
+                                name: 'However',
+                                value: `${dilemma_catch}`,
+                            }, {
+                                name: '\u200b',
+                                value: '\u200b',
+                            }, {
+                                name: 'Dilemma Situation Score',
+                                value: `${dilemma_yay_count} (${dilemma_yay_percent}%) people said yay!`,
+                            }, {
+                                name: 'Dilemma Catch Score',
+                                value: `${dilemma_nay_count} (${dilemma_nay_percent}%) people said nay!`,
+                            },
+                        ],
+                    }, message),
+                ],
             });
         }
 
         sendConfirmationMessage(message.author.id, message.channel.id, true, {
-            embed: embed,
+            embeds: [
+                embed,
+            ],
         }, showResults, showResults);
     },
 });

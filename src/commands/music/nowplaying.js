@@ -27,35 +27,43 @@ module.exports = new DisBotCommand({
                     break;
                 case 'tts':
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
-                            description: `${string_ellipses(current_queue_item.metadata.text, 25)}`,
-                        }),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
+                                description: `${string_ellipses(current_queue_item.metadata.text, 25)}`,
+                            }),
+                        ],
                     });
                     break;
                 case 'mp3':
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
-                            description: `${current_queue_item.metadata.mp3_file_name}`
-                        }),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
+                                description: `${current_queue_item.metadata.mp3_file_name}`
+                            }),
+                        ],
                     });
                     break;
                 default:
                     message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
-                        }),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: `Now Playing: ${current_queue_item.type.toUpperCase()}`,
+                            }),
+                        ],
                     });
                     break;
             }
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Nothing is playing right now!',
-                    description: 'Try using this command when I\'m playing something!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Nothing is playing right now!',
+                        description: 'Try using this command when I\'m playing something!',
+                    }, message),
+                ],
             });
         }
     },

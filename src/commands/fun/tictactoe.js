@@ -90,13 +90,17 @@ module.exports = new DisBotCommand({
                 const move_was_successful = ticTacToe.makeMove(num);
                 if (!move_was_successful) return;
                 options_message.edit({
-                    embed: await makeEmbed(),
+                    embeds: [
+                        await makeEmbed(),
+                    ],
                 });
             }
         }));
 
         sendOptionsMessage(message.channel.id, {
-            embed: await makeEmbed(),
+            embeds: [
+                await makeEmbed(),
+            ],
         }, reactions);
     },
 });

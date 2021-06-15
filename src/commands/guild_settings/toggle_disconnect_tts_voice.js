@@ -18,20 +18,24 @@ module.exports = new DisBotCommand({
         const disconnect_tts_voice = guild_config.disconnect_tts_voice === 'enabled';
         if (disconnect_tts_voice === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Disconnect TTS Voice: disabled;',
-                    description: 'I will no longer use TTS to say something when I leave the voice channel.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Disconnect TTS Voice: disabled;',
+                        description: 'I will no longer use TTS to say something when I leave the voice channel.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 disconnect_tts_voice: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Disconnect TTS Voice: enabled;',
-                    description: 'I will use TTS to say something when I leave the voice channel.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Disconnect TTS Voice: enabled;',
+                        description: 'I will use TTS to say something when I leave the voice channel.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 disconnect_tts_voice: 'enabled',

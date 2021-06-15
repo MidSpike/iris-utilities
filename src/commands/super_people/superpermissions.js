@@ -21,18 +21,20 @@ module.exports = new DisBotCommand({
     async executor(Discord, client, message, opts={}) {
         const dm_channel = await message.author.createDM();
         await dm_channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Super Permissions',
-                fields: [
-                    {
-                        name: 'All Super Permissions',
-                        value: `${'```'}\n${super_perms.join('\n')}${'```'}`,
-                    }, {
-                        name: 'Your Super Permissions',
-                        value: `${'```'}\n${super_perms.filter(perm_flag => isSuperPersonAllowed(isSuperPerson(message.author.id), perm_flag)).join('\n')}${'```'}`,
-                    },
-                ],
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Super Permissions',
+                    fields: [
+                        {
+                            name: 'All Super Permissions',
+                            value: `${'```'}\n${super_perms.join('\n')}${'```'}`,
+                        }, {
+                            name: 'Your Super Permissions',
+                            value: `${'```'}\n${super_perms.filter(perm_flag => isSuperPersonAllowed(isSuperPerson(message.author.id), perm_flag)).join('\n')}${'```'}`,
+                        },
+                    ],
+                }, message),
+            ],
         });
     },
 });

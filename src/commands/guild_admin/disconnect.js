@@ -24,20 +24,24 @@ module.exports = new DisBotCommand({
         const member = message.guild.members.resolve(command_args[0]) ?? message.mentions.members.first();
         if (!member) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: 'Provide a user @mention next time!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: 'Provide a user @mention next time!',
+                    }, message),
+                ],
             });
             return;
         }
 
         if (isThisBotsOwner(member.id) || isThisBot(member.id) || member.id === message.author.id) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: 'You aren\'t allowed to disconnect this user!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: 'You aren\'t allowed to disconnect this user!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -46,10 +50,12 @@ module.exports = new DisBotCommand({
         const member_voice_channel = member_voice.channel;
         if (!member_voice_channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    description: 'That user is not in a voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        description: 'That user is not in a voice channel!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -59,22 +65,28 @@ module.exports = new DisBotCommand({
             disconnected_voice_member = await member_voice.kick(`@${message.author.username} used ${discord_command}`);
         } catch {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFF0000,
-                    description: `I was unable to disconnect ${member.user} from **${member_voice_channel.name}**!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFF0000,
+                        description: `I was unable to disconnect ${member.user} from **${member_voice_channel.name}**!`,
+                    }, message),
+                ],
             });
         } finally {
             if (disconnected_voice_member) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        description: `${message.author} disconnected ${member.user} from ${member_voice_channel}!`,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            description: `${message.author} disconnected ${member.user} from ${member_voice_channel}!`,
+                        }, message),
+                    ],
                 });
                 logAdminCommandsToGuild(message, {
-                    embed: new CustomRichEmbed({
-                        description: `@${message.author.tag} (${message.author.id}) disconnected @${member.user.tag} (${member.user.id}) from the their voice channel!`,
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            description: `@${message.author.tag} (${message.author.id}) disconnected @${member.user.tag} (${member.user.id}) from the their voice channel!`,
+                        }, message),
+                    ],
                 });
             }
         }

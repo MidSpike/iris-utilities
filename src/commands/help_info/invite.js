@@ -22,10 +22,12 @@ module.exports = new DisBotCommand({
         }).catch(console.trace);
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Hi there ${message.author.username}!`,
-                description: `If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`,
-            }),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Hi there ${message.author.username}!`,
+                    description: `If you want to invite me to your server, then click below:\n[Add ${bot_config.COMMON_NAME} to a discord server](${bot_invite_url})`,
+                }),
+            ],
         }).catch(console.warn);
     },
 });

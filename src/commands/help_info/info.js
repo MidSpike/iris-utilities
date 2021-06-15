@@ -66,67 +66,69 @@ module.exports = new DisBotCommand({
         }));
 
         await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Hi There!',
-                description: `I\'m **${bot_common_name}**, the *${bot_long_name}*, a general purpose music & utility discord bot that is here to help.`,
-                fields: [
-                    {
-                        name: 'Me',
-                        value: `${bot_emoji} @${client.user.tag}`,
-                    }, {
-                        name: 'My Developer',
-                        value: `${midspike_emoji} @${client.users.cache.get(bot_owner_discord_id).tag}`,
-                    }, {
-                        name: 'My Admins',
-                        value: `${super_people.filter(super_person => super_person.public).map(super_person => super_person.name).join('\n')}`,
-                    }, {
-                        name: 'My Website',
-                        value: `${bot_website}`,
-                    }, {
-                        name: 'My GitHub',
-                        value: `${bot_github}`,
-                    }, {
-                        name: 'My Version',
-                        value: `${bot_version}`,
-                    }, {
-                        name: 'My Shards',
-                        value: `${client.shard.count} shards online`,
-                    }, {
-                        name: 'My Shard\'s ID',
-                        value: `I am using shard ${client.$._shard_id}`,
-                    }, {
-                        name: 'My Shard\'s Ping To Discord',
-                        value: `${client.ws.ping}ms`,
-                    }, {
-                        name: 'My Creation Date',
-                        value: `${client.user.createdAt}`,
-                    }, {
-                        name: 'My Uptime',
-                        value: `${getReadableTime(client.uptime / 1000)} (hours : minutes : seconds)`,
-                    }, {
-                        name: 'The Number Of People Listening To Music',
-                        value: `${total_people_music_listener_count} ${total_people_music_listener_count === 1 ? 'person is' : 'people are'} listening to music`,
-                    }, {
-                        name: 'The Number Of Bots Listening To Music',
-                        value: `${total_bot_music_listener_count} ${total_bot_music_listener_count === 1 ? 'bot is' : 'bots are'} listening to music`,
-                    }, {
-                        name: 'The Number Of People I Know',
-                        value: `${total_people_count} People`,
-                    }, {
-                        name: 'The Number Of Bots I Know',
-                        value: `${total_bot_count} Bots`,
-                    }, {
-                        name: 'The Number Of Guilds I\'m In',
-                        value: `${total_guild_count} Guilds`,
-                    }, {
-                        name: 'The Special Text Channels Usage',
-                        value: `${special_channels_usage_totals.map(({ channel_name, usage_total }) => `\`${channel_name}\` - ${usage_total} Guilds`).join('\n')}`,
-                    }, {
-                        name: 'The Legal Disclaimer',
-                        value: `Use \`${command_prefix}disclaimer\` for information regarding your privacy and safety.`,
-                    },
-                ],
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Hi There!',
+                    description: `I\'m **${bot_common_name}**, the *${bot_long_name}*, a general purpose music & utility discord bot that is here to help.`,
+                    fields: [
+                        {
+                            name: 'Me',
+                            value: `${bot_emoji} @${client.user.tag}`,
+                        }, {
+                            name: 'My Developer',
+                            value: `${midspike_emoji} @${client.users.cache.get(bot_owner_discord_id).tag}`,
+                        }, {
+                            name: 'My Admins',
+                            value: `${super_people.filter(super_person => super_person.public).map(super_person => super_person.name).join('\n')}`,
+                        }, {
+                            name: 'My Website',
+                            value: `${bot_website}`,
+                        }, {
+                            name: 'My GitHub',
+                            value: `${bot_github}`,
+                        }, {
+                            name: 'My Version',
+                            value: `${bot_version}`,
+                        }, {
+                            name: 'My Shards',
+                            value: `${client.shard.count} shards online`,
+                        }, {
+                            name: 'My Shard\'s ID',
+                            value: `I am using shard ${client.$._shard_id}`,
+                        }, {
+                            name: 'My Shard\'s Ping To Discord',
+                            value: `${client.ws.ping}ms`,
+                        }, {
+                            name: 'My Creation Date',
+                            value: `${client.user.createdAt}`,
+                        }, {
+                            name: 'My Uptime',
+                            value: `${getReadableTime(client.uptime / 1000)} (hours : minutes : seconds)`,
+                        }, {
+                            name: 'The Number Of People Listening To Music',
+                            value: `${total_people_music_listener_count} ${total_people_music_listener_count === 1 ? 'person is' : 'people are'} listening to music`,
+                        }, {
+                            name: 'The Number Of Bots Listening To Music',
+                            value: `${total_bot_music_listener_count} ${total_bot_music_listener_count === 1 ? 'bot is' : 'bots are'} listening to music`,
+                        }, {
+                            name: 'The Number Of People I Know',
+                            value: `${total_people_count} People`,
+                        }, {
+                            name: 'The Number Of Bots I Know',
+                            value: `${total_bot_count} Bots`,
+                        }, {
+                            name: 'The Number Of Guilds I\'m In',
+                            value: `${total_guild_count} Guilds`,
+                        }, {
+                            name: 'The Special Text Channels Usage',
+                            value: `${special_channels_usage_totals.map(({ channel_name, usage_total }) => `\`${channel_name}\` - ${usage_total} Guilds`).join('\n')}`,
+                        }, {
+                            name: 'The Legal Disclaimer',
+                            value: `Use \`${command_prefix}disclaimer\` for information regarding your privacy and safety.`,
+                        },
+                    ],
+                }, message),
+            ],
         });
     },
 });

@@ -30,9 +30,11 @@ module.exports = new DisBotCommand({
                 user_warnings: new_user_warnings,
             });
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `Removed all warnings ${user_to_remove_warnings_from ? `for @${user_to_remove_warnings_from.tag} ` : ''}in ${message.guild.name}!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `Removed all warnings ${user_to_remove_warnings_from ? `for @${user_to_remove_warnings_from.tag} ` : ''}in ${message.guild.name}!`,
+                    }, message),
+                ],
             });
             return;
         }
@@ -71,7 +73,9 @@ module.exports = new DisBotCommand({
         }
 
         sendOptionsMessage(message.channel.id, {
-            embed: await makeEmbed(),
+            embeds: [
+                await makeEmbed(),
+            ],
         }, [
             {
                 emoji_name: 'bot_emoji_angle_left',
@@ -80,7 +84,9 @@ module.exports = new DisBotCommand({
                     page_index--;
                     if (page_index < 0) page_index = pages.length-1;
                     options_message.edit({
-                        embed: await makeEmbed(),
+                        embeds: [
+                            await makeEmbed(),
+                        ],
                     });
                 },
             }, {
@@ -90,7 +96,9 @@ module.exports = new DisBotCommand({
                     page_index++;
                     if (page_index > pages.length-1) page_index = 0;
                     options_message.edit({
-                        embed: await makeEmbed(),
+                        embeds: [
+                            await makeEmbed(),
+                        ],
                     });
                 },
             },

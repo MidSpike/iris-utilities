@@ -21,10 +21,12 @@ module.exports = new DisBotCommand({
         const user = client.users.resolve(command_args[0]) ?? message.mentions.users.first();
         if (!user) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Provide a @user next time!'
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Provide a @user next time!'
+                    }, message),
+                ],
             });
             return;
         }
@@ -34,10 +36,12 @@ module.exports = new DisBotCommand({
 
             if (!guildMember.voice?.channel) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: `That user isn't in a voice channel right now!`
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: `That user isn't in a voice channel right now!`
+                        }, message),
+                    ],
                 });
                 return;
             }
@@ -45,9 +49,11 @@ module.exports = new DisBotCommand({
             await guildMember.voice.setDeaf(!guildMember.voice.serverDeaf);
 
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `${guildMember.voice.serverDeaf ? 'Deafened' : 'Undeafened'} @${user.tag} (${user.id})`
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `${guildMember.voice.serverDeaf ? 'Deafened' : 'Undeafened'} @${user.tag} (${user.id})`
+                    }, message),
+                ],
             });
         }).catch(console.trace);
     },

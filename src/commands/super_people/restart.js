@@ -22,9 +22,11 @@ const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SER
 
 async function restartBot(client, bot_message) {
     await bot_message.edit({
-        embed: new CustomRichEmbed({
-            title: `${bot_common_name}: Started Restart Process`,
-        }),
+        embeds: [
+            new CustomRichEmbed({
+                title: `${bot_common_name}: Started Restart Process`,
+            }),
+        ],
     }).catch(console.warn);
 
     await Timer(500);
@@ -54,25 +56,29 @@ module.exports = new DisBotCommand({
         const active_voice_guilds = client.voice.connections?.map(connection => connection.channel.guild) ?? [];
 
         sendConfirmationMessage(message.author.id, message.channel.id, false, {
-            embed: new CustomRichEmbed({
-                title: `Do you want to restart ${bot_common_name}`,
-                description: `${num_active_voices > 0 ? '```fix\n' : ''}There ${num_active_voices === 1 ? 'is' : 'are'} ${num_active_voices} active voice connection${num_active_voices === 1 ? '' : 's'} right now.${num_active_voices > 0 ? '\n```' : ''}`,
-                fields: [
-                    {
-                        name: 'Affected Guilds',
-                        value: (active_voice_guilds.length > 0 ? `${'```'}\n${active_voice_guilds.map(guild => `${guild.me.voice?.channel?.members?.filter(member => !member.user.bot)?.size ?? 0} - ${guild.name}`).join('\n')}\n${'```'}` : 'N/A')
-                    },
-                ],
-            }),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Do you want to restart ${bot_common_name}`,
+                    description: `${num_active_voices > 0 ? '```fix\n' : ''}There ${num_active_voices === 1 ? 'is' : 'are'} ${num_active_voices} active voice connection${num_active_voices === 1 ? '' : 's'} right now.${num_active_voices > 0 ? '\n```' : ''}`,
+                    fields: [
+                        {
+                            name: 'Affected Guilds',
+                            value: (active_voice_guilds.length > 0 ? `${'```'}\n${active_voice_guilds.map(guild => `${guild.me.voice?.channel?.members?.filter(member => !member.user.bot)?.size ?? 0} - ${guild.name}`).join('\n')}\n${'```'}` : 'N/A')
+                        },
+                    ],
+                }),
+            ],
         }, async (bot_message) => {
             client.$.restarting_bot = true;
 
             const voice_channels = client.voice.connections?.map(c => c.channel) ?? [];
             if (voice_channels.length > 0) {
                 await bot_message.edit({
-                    embed: new CustomRichEmbed({
-                        title: `${bot_common_name}: Sending Restart TTS Announcement`,
-                    }),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: `${bot_common_name}: Sending Restart TTS Announcement`,
+                        }),
+                    ],
                 }).catch(console.warn);
 
                 try {
@@ -124,9 +130,11 @@ module.exports = new DisBotCommand({
         }, async (bot_message) => {
             await bot_message.delete();
             await bot_message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `${bot_common_name}: Canceled Restarting`,
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `${bot_common_name}: Canceled Restarting`,
+                    }),
+                ],
             });
         });
     },

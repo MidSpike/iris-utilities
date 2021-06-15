@@ -43,10 +43,12 @@ class ReminderManager {
             if (!user_to_dm) return;
             const dmChannel = await user_to_dm.createDM();
             dmChannel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Here is your reminder!',
-                    description: `${reminder.message}`
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Here is your reminder!',
+                        description: `${reminder.message}`
+                    }),
+                ],
             });
             this.remove(reminder);
         });

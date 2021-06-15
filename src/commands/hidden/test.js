@@ -17,9 +17,11 @@ module.exports = new DisBotCommand({
     access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         // message.channel.send({
-        //     embed: new CustomRichEmbed({
-        //         title: `Hello World! I'm ${client.user.username}!`,
-        //     }),
+        //     embeds: [
+        //         new CustomRichEmbed({
+        //             title: `Hello World! I'm ${client.user.username}!`,
+        //         }),
+        //     ],
         // });
         try {
             await axios({

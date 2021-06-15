@@ -18,17 +18,21 @@ module.exports = new DisBotCommand({
 
         if (guild_queue_manager.queue.length > 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `The Current Queue Item Timestamp Is: ${guild_audio_controller.timestamp}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `The Current Queue Item Timestamp Is: ${guild_audio_controller.timestamp}`,
+                    }, message),
+                ],
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Uh Oh! What are you doing there mate!',
-                    description: 'Nothing is playing right now!\nTry using this command when I\'m playing something!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Uh Oh! What are you doing there mate!',
+                        description: 'Nothing is playing right now!\nTry using this command when I\'m playing something!',
+                    }, message),
+                ],
             });
         }
     },

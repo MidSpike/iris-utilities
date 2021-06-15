@@ -59,7 +59,9 @@ module.exports = new DisBotCommand({
             }
 
             sendOptionsMessage(message.channel.id, {
-                embed: await makeEmbed(),
+                embeds: [
+                    await makeEmbed(),
+                ],
             }, [
                 {
                     emoji_name: 'bot_emoji_angle_left',
@@ -68,7 +70,9 @@ module.exports = new DisBotCommand({
                         page_index--;
                         if (page_index < 0) {page_index = reddit_posts.length-1;}
                         options_message.edit({
-                            embed: await makeEmbed(),
+                            embeds: [
+                                await makeEmbed(),
+                            ],
                         });
                     },
                 }, {
@@ -78,7 +82,9 @@ module.exports = new DisBotCommand({
                         page_index++;
                         if (page_index > reddit_posts.length-1) {page_index = 0;}
                         options_message.edit({
-                            embed: await makeEmbed(),
+                            embeds: [
+                                await makeEmbed(),
+                            ],
                         });
                     },
                 },
@@ -86,11 +92,13 @@ module.exports = new DisBotCommand({
         }).catch((error) => {
             console.trace(error);
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Have you even used reddit?',
-                    description: `\`${subreddit_to_lookup ?? ''}\` isn't a valid subreddit!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Have you even used reddit?',
+                        description: `\`${subreddit_to_lookup ?? ''}\` isn't a valid subreddit!`,
+                    }, message),
+                ],
             });
         });
     },

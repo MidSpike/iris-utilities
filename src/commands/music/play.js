@@ -74,10 +74,12 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
         if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Playing An MP3 File From The Internet',
-                description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Playing An MP3 File From The Internet',
+                    description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
+                }, message),
+            ],
         });
     }, () => {
         // end-of-playback callback
@@ -91,10 +93,12 @@ async function playRemoteMP3(message, remote_mp3_path, playnext=false) {
 
     if (guild_queue_manager.queue.length > 1) {
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Added An MP3 File From The Internet',
-                description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Added An MP3 File From The Internet',
+                    description: `${'```'}\n${remote_mp3_path}\n${'```'}`,
+                }, message),
+            ],
         });
     }
 }
@@ -105,11 +109,13 @@ async function playUserUploadedMP3(message, playnext=false) {
     const message_media = message.attachments.first();
     if (!message_media) {
         message.channel.send({
-            embed: new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Did someone try playing an MP3?',
-                description: 'Its kinda hard to play an MP3 without one...\nNext time upload an mp3 in the same message!',
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Did someone try playing an MP3?',
+                    description: 'Its kinda hard to play an MP3 without one...\nNext time upload an mp3 in the same message!',
+                }, message),
+            ],
         });
         return;
     }
@@ -129,10 +135,12 @@ async function playUserUploadedMP3(message, playnext=false) {
         if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Playing An MP3 File From Their Computer',
-                description: `${'```'}\n${message_media.name}\n${'```'}`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Playing An MP3 File From Their Computer',
+                    description: `${'```'}\n${message_media.name}\n${'```'}`,
+                }, message),
+            ],
         });
     }, () => {
         if (!message.deletable) return;
@@ -143,10 +151,12 @@ async function playUserUploadedMP3(message, playnext=false) {
     guild_queue_manager.addItem(new QueueItem('mp3', player, `MP3`, {mp3_file_name: `${message_media.name}`}), (playnext ? 2 : undefined)).then(() => {
         if (guild_queue_manager.queue.length > 1) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Added An MP3 File From Their Computer',
-                    description: `${'```'}\n${message_media.name}\n${'```'}`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Added An MP3 File From Their Computer',
+                        description: `${'```'}\n${message_media.name}\n${'```'}`,
+                    }, message),
+                ],
             });
         }
     });
@@ -174,13 +184,15 @@ async function playBroadcastify(message, search_query, playnext=false) {
         if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Playing Broadcastify Stream',
-                description: [
-                    `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
-                    `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
-                ].join('\n'),
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Playing Broadcastify Stream',
+                    description: [
+                        `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                        `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+                    ].join('\n'),
+                }, message),
+            ],
         });
     }, () => {
         // end-of-playback callback
@@ -192,13 +204,15 @@ async function playBroadcastify(message, search_query, playnext=false) {
 
     if (guild_queue_manager.queue.length > 1) {
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Added Broadcastify Stream',
-                description: [
-                    `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
-                    `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
-                ].join('\n'),
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Added Broadcastify Stream',
+                    description: [
+                        `[Website Link - ${broadcast_id}](${broadcastify_website_url})`,
+                        `[Stream Link - ${broadcast_id}](${broadcastify_stream_url})`,
+                    ].join('\n'),
+                }, message),
+            ],
         });
     }
 }
@@ -237,11 +251,13 @@ async function playSpotify(message, search_query, playnext=false) {
     if (!parsed_uri_data) {
         /* nothing could be parsed from the input */
         message.channel.send({
-            embed: new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Hmm',
-                description: 'I don\'t think that was a valid spotify url!',
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Hmm',
+                    description: 'I don\'t think that was a valid spotify url!',
+                }, message),
+            ],
         });
         return;
     }
@@ -270,7 +286,9 @@ async function playSpotify(message, search_query, playnext=false) {
         }, message);
 
         sendOptionsMessage(message.channel.id, {
-            embed: confirmation_embed,
+            embeds: [
+                confirmation_embed,
+            ],
         }, [
             {
                 emoji_name: 'bot_emoji_checkmark',
@@ -278,9 +296,11 @@ async function playSpotify(message, search_query, playnext=false) {
                     await options_message.delete().catch(console.warn);
 
                     await options_message.channel.send({
-                        embed: new CustomRichEmbed({
-                            title: `Adding ${track_ids.length} item(s) to the queue!`,
-                        }, message),
+                        embeds: [
+                            new CustomRichEmbed({
+                                title: `Adding ${track_ids.length} item(s) to the queue!`,
+                            }, message),
+                        ],
                     });
 
                     /* connect the bot to vc for the checks below to pass */
@@ -316,11 +336,13 @@ async function playSpotify(message, search_query, playnext=false) {
     } else {
         /* the parsed uri is not for a track or playlist */
         message.channel.send({
-            embed: new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'That sucks!',
-                description: 'I can only play spotify song/track urls!',
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'That sucks!',
+                    description: 'I can only play spotify song/track urls!',
+                }, message),
+            ],
         });
         return;
     }
@@ -339,11 +361,13 @@ async function playSoundcloud(message, search_query, playnext=false) {
         await axios.head(search_query);
     } catch {
         message.channel.send({
-            embed: new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: 'Hmm',
-                description: 'I don\'t think that was a valid soundcloud url!',
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: 'Hmm',
+                    description: 'I don\'t think that was a valid soundcloud url!',
+                }, message),
+            ],
         });
         return;
     }
@@ -372,10 +396,12 @@ async function playSoundcloud(message, search_query, playnext=false) {
         if (guild_queue_manager.loop_enabled) return; // don't continue when queue looping is enabled
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Playing: ${soundcloud_song_info.title} (SoundCloud)`,
-                description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Playing: ${soundcloud_song_info.title} (SoundCloud)`,
+                    description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
+                }, message),
+            ],
         });
     }, () => {
         // end-of-playback callback
@@ -387,10 +413,12 @@ async function playSoundcloud(message, search_query, playnext=false) {
 
     if (guild_queue_manager.queue.length > 1) {
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Added: ${soundcloud_song_info.title} (SoundCloud)`,
-                description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Added: ${soundcloud_song_info.title} (SoundCloud)`,
+                    description: `[${soundcloud_song_info.user.permalink_url}/${soundcloud_song_info.permalink}](${soundcloud_song_info.permalink_url})`,
+                }, message),
+            ],
         });
     }
 }
@@ -411,11 +439,13 @@ module.exports = new DisBotCommand({
 
         if (!message.member?.voice?.channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Whoops!',
-                    description: 'You need to be in a voice channel to use this command!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Whoops!',
+                        description: 'You need to be in a voice channel to use this command!',
+                    }, message),
+                ],
             });
             return;
         }
@@ -424,11 +454,13 @@ module.exports = new DisBotCommand({
 
         if (detect_unsupported_urls(command_args.join(' '))) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: `Playing music from that website isn't supported!`,
-                    description: `Use \`${discord_command}\` to see how to use this command.`,
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: `Playing music from that website isn't supported!`,
+                        description: `Use \`${discord_command}\` to see how to use this command.`,
+                    }),
+                ],
             });
         } else if (message_attachment) {
             playUserUploadedMP3(message, playnext);
@@ -446,33 +478,35 @@ module.exports = new DisBotCommand({
             }
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'That\'s just not how you use this command!',
-                    description: 'Take a look below to see how you should have done it!',
-                    fields: [
-                        {
-                            name: 'Playing Videos From YouTube:',
-                            value: [
-                                `${'```'}\n${discord_command} ussr national anthem\n${'```'}`,
-                                `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`,
-                            ].join(''),
-                        }, {
-                            name: 'Playing Soundcloud URLs:',
-                            value: `${'```'}\n${discord_command} https://soundcloud.com/nfrealmusic/sets/the-search-9\n${'```'}`,
-                        }, {
-                            name: 'Playing Broadcastify URLs:',
-                            value: `${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`,
-                        }, {
-                            name: 'Playing MP3 Files From The Internet:',
-                            value: `${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`,
-                        }, {
-                            name: 'Playing MP3 Files From Your Computer:',
-                            value: `${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the \`.mp3\` file to the message)`,
-                        },
-                    ],
-                    image: `${bot_cdn_url}/mp3_command_usage.png`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'That\'s just not how you use this command!',
+                        description: 'Take a look below to see how you should have done it!',
+                        fields: [
+                            {
+                                name: 'Playing Videos From YouTube:',
+                                value: [
+                                    `${'```'}\n${discord_command} ussr national anthem\n${'```'}`,
+                                    `${'```'}\n${discord_command} https://youtu.be/U06jlgpMtQs\n${'```'}`,
+                                ].join(''),
+                            }, {
+                                name: 'Playing Soundcloud URLs:',
+                                value: `${'```'}\n${discord_command} https://soundcloud.com/nfrealmusic/sets/the-search-9\n${'```'}`,
+                            }, {
+                                name: 'Playing Broadcastify URLs:',
+                                value: `${'```'}\n${discord_command} https://www.broadcastify.com/webPlayer/22380\n${'```'}`,
+                            }, {
+                                name: 'Playing MP3 Files From The Internet:',
+                                value: `${'```'}\n${discord_command} ${bot_cdn_url}/the-purge.mp3\n${'```'}`,
+                            }, {
+                                name: 'Playing MP3 Files From Your Computer:',
+                                value: `${'```'}\n${discord_command}\n${'```'}(Don't forget to attach the \`.mp3\` file to the message)`,
+                            },
+                        ],
+                        image: `${bot_cdn_url}/mp3_command_usage.png`,
+                    }, message),
+                ],
             });
         }
     },

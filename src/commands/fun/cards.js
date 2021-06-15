@@ -23,10 +23,12 @@ module.exports = new DisBotCommand({
         if (!potentially_nsfw_content_is_accepted) return;
 
         const bot_message = await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Cards Against Humanity`,
-                description: 'Fetching random card set!\nPlease wait...',
-            }),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Cards Against Humanity`,
+                    description: 'Fetching random card set!\nPlease wait...',
+                }),
+            ],
         }).catch(console.warn);
 
         await Timer(1500);
@@ -39,20 +41,22 @@ module.exports = new DisBotCommand({
         const selected_white_cards = array_make(selected_black_card.numAnswers).map(() => array_random(white_cards));
 
         bot_message.edit({
-            embed: new CustomRichEmbed({
-                title: `Cards Against Humanity`,
-                fields: [
-                    {
-                        name: 'Black Card',
-                        value: `${'```'}\n${selected_black_card.text.replace(/([_]+)/gi, '_____')}\n${'```'}`,
-                    },
-                    ...selected_white_cards.map(white_card => ({
-                        name: 'White Card',
-                        value: `${'```'}\n${white_card.text}\n${'```'}`,
-                        inline: true,
-                    })),
-                ],
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Cards Against Humanity`,
+                    fields: [
+                        {
+                            name: 'Black Card',
+                            value: `${'```'}\n${selected_black_card.text.replace(/([_]+)/gi, '_____')}\n${'```'}`,
+                        },
+                        ...selected_white_cards.map(white_card => ({
+                            name: 'White Card',
+                            value: `${'```'}\n${white_card.text}\n${'```'}`,
+                            inline: true,
+                        })),
+                    ],
+                }, message),
+            ],
         });
     },
 });

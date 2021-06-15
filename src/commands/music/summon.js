@@ -21,40 +21,48 @@ module.exports = new DisBotCommand({
 
         if (!voice_channel_to_join) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Oi! What are you doing mate!',
-                    description: 'Get in a voice channel before summoning me!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Oi! What are you doing mate!',
+                        description: 'Get in a voice channel before summoning me!',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
 
         voice_channel_to_join.join().then(() => {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `Controlling ${bot_common_name}`,
-                    description: `Summoned ${bot_common_name} to their channel`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `Controlling ${bot_common_name}`,
+                        description: `Summoned ${bot_common_name} to their channel`,
+                    }, message),
+                ],
             }).catch(console.warn);
 
             if (!voice_channel_to_join.speakable) {
                 /* the bot is not allowed to speak in this voice channel */
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Well this is awkward!',
-                        description: 'I\'m not allowed to speak in here!',
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Well this is awkward!',
+                            description: 'I\'m not allowed to speak in here!',
+                        }, message),
+                    ],
                 }).catch(console.warn);
             }
         }).catch(() => {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Oi! What happened!',
-                    description: 'I can\'t join that voice channel!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Oi! What happened!',
+                        description: 'I can\'t join that voice channel!',
+                    }, message),
+                ],
             }).catch(console.warn);
         });
     },

@@ -18,20 +18,24 @@ module.exports = new DisBotCommand({
         const queue_tts_voice = guild_config.queue_tts_voice === 'enabled';
         if (queue_tts_voice === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Queue TTS Voice: disabled;',
-                    description: 'I will no longer use TTS to announce the next item in the queue before it plays.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Queue TTS Voice: disabled;',
+                        description: 'I will no longer use TTS to announce the next item in the queue before it plays.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 queue_tts_voice: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Queue TTS Voice: enabled;',
-                    description: 'I will use TTS to announce the next item in the queue before it plays.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Queue TTS Voice: enabled;',
+                        description: 'I will use TTS to announce the next item in the queue before it plays.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 queue_tts_voice: 'enabled',

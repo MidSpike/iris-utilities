@@ -18,11 +18,13 @@ module.exports = new DisBotCommand({
     aliases: ['disclaimer', 'privacy'],
     async executor(Discord, client, message, opts={}) {
         await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Privacy Disclaimer Inbound!',
-                description: `You can view the privacy disclaimer here ${bot_config.GITHUB}/blob/master/PRIVACY.md`,
-                image: `${bot_cdn_url}/law-and-justice.jpg`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Privacy Disclaimer Inbound!',
+                    description: `You can view the privacy disclaimer here ${bot_config.GITHUB}/blob/master/PRIVACY.md`,
+                    image: `${bot_cdn_url}/law-and-justice.jpg`,
+                }, message),
+            ],
         });
     },
 });

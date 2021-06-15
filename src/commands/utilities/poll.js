@@ -26,18 +26,64 @@ module.exports = new DisBotCommand({
 
         if (!poll_question || poll_choices.length === 0) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Whoops!',
-                    description: [
-                        'That\'s not how you do it!',
-                        'I need a question and choices!',
-                        '*Also notice how everything is on it\'s own line.*',
-                    ].join('\n'),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Whoops!',
+                        description: [
+                            'That\'s not how you do it!',
+                            'I need a question and choices!',
+                            '*Also notice how everything is on it\'s own line.*',
+                        ].join('\n'),
+                        fields: [
+                            {
+                                name: 'Example Poll',
+                                value: `${'```'}\n${discord_command} Is this a cool feature?\nYes!\nNo!\n${'```'}`,
+                            },
+                        ],
+                        footer: {
+                            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                            text: `${discord_command}`,
+                        },
+                    }, message),
+                ],
+            });
+            return;
+        }
+
+        if (poll_choices.length > 9) {
+            message.channel.send({
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Whoops!',
+                        description: 'Due to the number machine being broken, only 9 answers are allowed for polls!',
+                        footer: {
+                            iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
+                            text: `${discord_command}`,
+                        },
+                    }, message),
+                ],
+            });
+            return;
+        }
+
+        const bot_message = await message.channel.send({
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Has created a poll!',
+                    thumbnail: `${bot_cdn_url}/Vote_2020-04-27_0.png`,
                     fields: [
                         {
-                            name: 'Example Poll',
-                            value: `${'```'}\n${discord_command} Is this a cool feature?\nYes!\nNo!\n${'```'}`,
+                            name: 'Poll Question',
+                            value: `${poll_question}`,
+                        }, {
+                            name: 'Poll Choices',
+                            value: (await Promise.all(
+                                poll_choices.map(async (pc, i) => 
+                                    `${(await constructNumberUsingEmoji(i + 1))} — ${pc}`
+                                )
+                            )).join('\n\n'),
                         },
                     ],
                     footer: {
@@ -45,47 +91,7 @@ module.exports = new DisBotCommand({
                         text: `${discord_command}`,
                     },
                 }, message),
-            });
-            return;
-        }
-
-        if (poll_choices.length > 9) {
-            message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Whoops!',
-                    description: 'Due to the number machine being broken, only 9 answers are allowed for polls!',
-                    footer: {
-                        iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                        text: `${discord_command}`,
-                    },
-                }, message),
-            });
-            return;
-        }
-
-        const bot_message = await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Has created a poll!',
-                thumbnail: `${bot_cdn_url}/Vote_2020-04-27_0.png`,
-                fields: [
-                    {
-                        name: 'Poll Question',
-                        value: `${poll_question}`,
-                    }, {
-                        name: 'Poll Choices',
-                        value: (await Promise.all(
-                            poll_choices.map(async (pc, i) => 
-                                `${(await constructNumberUsingEmoji(i + 1))} — ${pc}`
-                            )
-                        )).join('\n\n'),
-                    },
-                ],
-                footer: {
-                    iconURL: `${client.user.displayAvatarURL({ dynamic: true })}`,
-                    text: `${discord_command}`,
-                },
-            }, message),
+            ],
         });
 
         for (let i = 0; i < poll_choices.length; i++) {

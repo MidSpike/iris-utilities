@@ -18,20 +18,24 @@ module.exports = new DisBotCommand({
         const command_message_removal = guild_config.command_message_removal === 'enabled';
         if (command_message_removal === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Command Message Removal: disabled;',
-                    description: 'When a user uses a command, the user\'s message will not be removed.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Command Message Removal: disabled;',
+                        description: 'When a user uses a command, the user\'s message will not be removed.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_message_removal: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Command Message Removal: enabled;',
-                    description: 'When a user uses a command, the user\'s message will be removed.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Command Message Removal: enabled;',
+                        description: 'When a user uses a command, the user\'s message will be removed.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 command_message_removal: 'enabled',

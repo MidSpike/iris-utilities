@@ -22,11 +22,13 @@ module.exports = new DisBotCommand({
 
             if (api_response.status !== 200) {
                 message.channel.send({
-                    embed: new CustomRichEmbed({
-                        color: 0xFFFF00,
-                        title: 'Something went wrong!',
-                        description: 'Perhaps that isn\'t a valid English word, or a server issue has occurred!',
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFFFF00,
+                            title: 'Something went wrong!',
+                            description: 'Perhaps that isn\'t a valid English word, or a server issue has occurred!',
+                        }, message),
+                    ],
                 });
                 return;
             }
@@ -58,25 +60,29 @@ module.exports = new DisBotCommand({
             });
 
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `Definitions for: ${word}`,
-                    description: `*(${word_part_of_speech})* — **${word}** — [${word_pronunciation_text ?? ''}](${word_pronunciation_audio_url})`,
-                    fields: word_definitions_and_examples.map((word_definition_and_example, index) => ({
-                        name: `\u200B`,
-                        value: [
-                            `**Definition:**\n${word_definition_and_example.definition}`,
-                            `**Example:**\n${word_definition_and_example.example}`,
-                        ].join('\n'),
-                    })),
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `Definitions for: ${word}`,
+                        description: `*(${word_part_of_speech})* — **${word}** — [${word_pronunciation_text ?? ''}](${word_pronunciation_audio_url})`,
+                        fields: word_definitions_and_examples.map((word_definition_and_example, index) => ({
+                            name: `\u200B`,
+                            value: [
+                                `**Definition:**\n${word_definition_and_example.definition}`,
+                                `**Example:**\n${word_definition_and_example.example}`,
+                            ].join('\n'),
+                        })),
+                    }, message),
+                ],
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'This command can be used to define english words',
-                    description: 'Try typing a word after the command next time!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'This command can be used to define english words',
+                        description: 'Try typing a word after the command next time!',
+                    }, message),
+                ],
             });
         }
     },

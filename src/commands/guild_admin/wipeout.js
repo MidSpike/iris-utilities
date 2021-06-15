@@ -21,15 +21,17 @@ module.exports = new DisBotCommand({
         const { command_prefix, discord_command } = opts;
         if (!botHasPermissionsInGuild(message, ['MANAGE_CHANNELS'])) return;
         sendConfirmationMessage(message.author.id, message.channel.id, false, {
-            embed: new CustomRichEmbed({
-                title:'Be very careful!',
-                description:[
-                    `**This command will clone this channel and then delete the old one!**`,
-                    `**You will lose all messages in this channel!**`,
-                    `\n*(Check out the \`${command_prefix}archive\` command for a less-destructive method of cleaning-up!)*\n`,
-                    `**Do you wish to continue?**`
-                ].join('\n')
-            }),
+            embeds: [
+                new CustomRichEmbed({
+                    title:'Be very careful!',
+                    description:[
+                        `**This command will clone this channel and then delete the old one!**`,
+                        `**You will lose all messages in this channel!**`,
+                        `\n*(Check out the \`${command_prefix}archive\` command for a less-destructive method of cleaning-up!)*\n`,
+                        `**Do you wish to continue?**`
+                    ].join('\n')
+                }),
+            ],
         }, async () => {
             if (message.guild.publicUpdatesChannel?.id === message.channel.id) {
                 logUserError(message, new Error('Unable to delete community updates channel!'));
@@ -50,9 +52,11 @@ module.exports = new DisBotCommand({
         }, async (bot_message) => {
             await bot_message.delete().catch(error => console.warn('Unable to delete message', error));
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Canceled wipeout!',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Canceled wipeout!',
+                    }, message),
+                ],
             });
         });
     },

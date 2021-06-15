@@ -21,15 +21,17 @@ const bot_common_name = bot_config.COMMON_NAME;
 function botHasPermissionsInGuild(message, required_permissions=[Discord.Permissions.FLAGS.ADMINISTRATOR]) {
     if (!message.guild.me.permissions.has(required_permissions)) {
         message.channel.send({
-            embed: new CustomRichEmbed({
-                color: 0xFF0000,
-                title: 'Uh Oh! Something went wrong!',
-                description: [
-                    `${bot_common_name} is missing the following permission(s):`,
-                    `\n${'```'}\n${required_permissions.join('\n')}\n${'```'}`,
-                    `You cannot perform this command when I don\'t have teh required permission(s)!`,
-                ].join(''),
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    color: 0xFF0000,
+                    title: 'Uh Oh! Something went wrong!',
+                    description: [
+                        `${bot_common_name} is missing the following permission(s):`,
+                        `\n${'```'}\n${required_permissions.join('\n')}\n${'```'}`,
+                        `You cannot perform this command when I don\'t have teh required permission(s)!`,
+                    ].join(''),
+                }, message),
+            ],
         });
         return false;
     } else {

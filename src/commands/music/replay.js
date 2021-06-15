@@ -20,11 +20,13 @@ module.exports = new DisBotCommand({
         const voice_channel = message.member.voice.channel;
         if (!voice_channel) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: `Well that's an issue!`,
-                    description: `You need to be in a voice channel to use this command!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: `Well that's an issue!`,
+                        description: `You need to be in a voice channel to use this command!`,
+                    }, message),
+                ],
             });
             return;
         }
@@ -35,11 +37,13 @@ module.exports = new DisBotCommand({
             guild_queue_manager.addItem(thing_to_replay, 1);
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Sorry, I forgot something along the way!',
-                    description: `It would seem that I'm unable to replay that!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Sorry, I forgot something along the way!',
+                        description: `It would seem that I'm unable to replay that!`,
+                    }, message),
+                ],
             });
         }
     },

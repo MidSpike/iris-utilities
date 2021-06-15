@@ -81,49 +81,53 @@ module.exports = new DisBotCommand({
                 /* don't output to the channel for the evil command */
             } else {
                 message.reply({
-                    embed: new CustomRichEmbed({
-                        title: 'Evaluated Code',
-                        fields: [
-                            {
-                                name: 'Input',
-                                value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
-                            }, {
-                                name: 'Output',
-                                value: [
-                                    `${'```'}`,
-                                    !code_has_return_statement ? (
-                                        'No return statement was specified!'
-                                    ) : (
-                                        eval_output_string.length < 1024 ? (
-                                            eval_output_string
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: 'Evaluated Code',
+                            fields: [
+                                {
+                                    name: 'Input',
+                                    value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
+                                }, {
+                                    name: 'Output',
+                                    value: [
+                                        `${'```'}`,
+                                        !code_has_return_statement ? (
+                                            'No return statement was specified!'
                                         ) : (
-                                            '\`Check the console for output!\`'
-                                        )
-                                    ),
-                                    `${'```'}`,
-                                ].join('\n'),
-                            },
-                        ],
-                        footer: null,
-                    }, message),
+                                            eval_output_string.length < 1024 ? (
+                                                eval_output_string
+                                            ) : (
+                                                '\`Check the console for output!\`'
+                                            )
+                                        ),
+                                        `${'```'}`,
+                                    ].join('\n'),
+                                },
+                            ],
+                            footer: null,
+                        }, message),
+                    ],
                 });
             }
         } catch (error) {
             console.trace(error);
             message.reply({
-                embed: new CustomRichEmbed({
-                    color: 0xFF0000,
-                    title: 'Evaluated Code Resulted In Error',
-                    fields: [
-                        {
-                            name: 'Input',
-                            value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
-                        }, {
-                            name: 'Error',
-                            value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`,
-                        },
-                    ],
-                }),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFF0000,
+                        title: 'Evaluated Code Resulted In Error',
+                        fields: [
+                            {
+                                name: 'Input',
+                                value: `${'```'}\n${discord_command}\n${eval_input}\n${'```'}`,
+                            }, {
+                                name: 'Error',
+                                value: `${'```'}\n${error}\n${'```'}\nCheck the console for more information!`,
+                            },
+                        ],
+                    }),
+                ],
             });
         }
         console.info('----------------------------------------------------------------------------------------------------------------');

@@ -18,20 +18,24 @@ module.exports = new DisBotCommand({
         const invite_blocking = guild_config.invite_blocking === 'enabled';
         if (invite_blocking === true) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Invite Blocking: disabled;',
-                    description: 'Invites sent by members sent in this server will not be automatically deleted.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Invite Blocking: disabled;',
+                        description: 'Invites sent by members sent in this server will not be automatically deleted.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 invite_blocking: 'disabled',
             });
         } else {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: 'Invite Blocking: enabled;',
-                    description: 'Invites sent by members sent in this server will be automatically deleted.',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: 'Invite Blocking: enabled;',
+                        description: 'Invites sent by members sent in this server will be automatically deleted.',
+                    }, message),
+                ],
             });
             client.$.guild_configs_manager.updateConfig(message.guild.id, {
                 invite_blocking: 'enabled',

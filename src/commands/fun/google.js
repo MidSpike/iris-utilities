@@ -21,10 +21,12 @@ module.exports = new DisBotCommand({
 
         const google_search_query = clean_command_args.join(' ').trim();
         const bot_message = await message.channel.send({
-            embed: new CustomRichEmbed({
-                title: 'Searching Google For:',
-                description: `${'```'}\n${google_search_query}\n${'```'}`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: 'Searching Google For:',
+                    description: `${'```'}\n${google_search_query}\n${'```'}`,
+                }, message),
+            ],
         });
 
         try {
@@ -39,25 +41,29 @@ module.exports = new DisBotCommand({
 
             if (google_search_results.length > 0) {
                 bot_message.edit({
-                    embed: new CustomRichEmbed({
-                        title: 'Searched Google For:',
-                        description: `${'```'}\n${google_search_query}\n${'```'}`,
-                        fields: google_search_results.map(result => ({
-                            name: `${result.title}`,
-                            value: `<${result.link}>\n${result.snippet}`,
-                        })),
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            title: 'Searched Google For:',
+                            description: `${'```'}\n${google_search_query}\n${'```'}`,
+                            fields: google_search_results.map(result => ({
+                                name: `${result.title}`,
+                                value: `<${result.link}>\n${result.snippet}`,
+                            })),
+                        }, message),
+                    ],
                 });
             } else {
                 bot_message.edit({
-                    embed: new CustomRichEmbed({
-                        color: 0xFF0000,
-                        title: 'Something went wrong!',
-                        description: [
-                            'Google most likely changed their stuff, so now this stuff is broken.',
-                            'Try asking the maintainer of [github:PatNeedham/google-it](https://github.com/PatNeedham/google-it) to fix the issue!',
-                        ].join('\n'),
-                    }, message),
+                    embeds: [
+                        new CustomRichEmbed({
+                            color: 0xFF0000,
+                            title: 'Something went wrong!',
+                            description: [
+                                'Google most likely changed their stuff, so now this stuff is broken.',
+                                'Try asking the maintainer of [github:PatNeedham/google-it](https://github.com/PatNeedham/google-it) to fix the issue!',
+                            ].join('\n'),
+                        }, message),
+                    ],
                 });
             }
         } catch (error) {

@@ -45,11 +45,13 @@ module.exports = new DisBotCommand({
 
         if (number_of_dice > 100) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    color: 0xFFFF00,
-                    title: 'Why are you even trying that?',
-                    description: 'More than 100 dice is a bit too much for me :)',
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        color: 0xFFFF00,
+                        title: 'Why are you even trying that?',
+                        description: 'More than 100 dice is a bit too much for me :)',
+                    }, message),
+                ],
             }).catch(console.warn);
             return;
         }
@@ -58,14 +60,16 @@ module.exports = new DisBotCommand({
         const combined_dice_value = rolled_dice.reduce((a,b) => a + b, 0);
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Rolled ${number_of_dice}, ${number_of_sides ?? 6}-sided dice!`,
-                description: number_of_dice === 1 ? (
-                    `You rolled a ${(await constructNumberUsingEmoji(combined_dice_value))}`
-                ) : (
-                    `You rolled \`${rolled_dice.join(' + ')}\` = ${(await constructNumberUsingEmoji(combined_dice_value))}`
-                ),
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Rolled ${number_of_dice}, ${number_of_sides ?? 6}-sided dice!`,
+                    description: number_of_dice === 1 ? (
+                        `You rolled a ${(await constructNumberUsingEmoji(combined_dice_value))}`
+                    ) : (
+                        `You rolled \`${rolled_dice.join(' + ')}\` = ${(await constructNumberUsingEmoji(combined_dice_value))}`
+                    ),
+                }, message),
+            ],
         }).catch(console.warn);
     },
 });

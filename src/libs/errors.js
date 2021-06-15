@@ -54,13 +54,17 @@ async function logUserError(message, error=fallback_user_error) {
 
     /* output to message.channel */
     message.channel.send({
-        embed: error_embed,
+        embeds: [
+            error_embed,
+        ],
     }).catch(console.warn);
 
     /* output to central error logging channel */
     const central_errors_channel = client.$.bot_guilds.logging.channels.resolve(bot_central_errors_channel_id);
     await central_errors_channel.send({
-        embed: error_embed,
+        embeds: [
+            error_embed,
+        ],
     }).catch(console.trace);
 
     /* output to the console */

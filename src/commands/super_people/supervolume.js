@@ -34,9 +34,11 @@ module.exports = new DisBotCommand({
         const parsed_super_volume_input = parseFloat(super_volume_input);
         if (isNaN(parsed_super_volume_input)) {
             message.channel.send({
-                embed: new CustomRichEmbed({
-                    title: `\`${parsed_super_volume_input}\` is not a valid number!`,
-                }, message),
+                embeds: [
+                    new CustomRichEmbed({
+                        title: `\`${parsed_super_volume_input}\` is not a valid number!`,
+                    }, message),
+                ],
             });
             return;
         }
@@ -47,9 +49,11 @@ module.exports = new DisBotCommand({
         guild_dispatcher.setVolume(clamped_super_volume_input);
 
         message.channel.send({
-            embed: new CustomRichEmbed({
-                title: `Super Volume: ${(await constructNumberUsingEmoji(clamped_super_volume_input))}`,
-            }, message),
+            embeds: [
+                new CustomRichEmbed({
+                    title: `Super Volume: ${(await constructNumberUsingEmoji(clamped_super_volume_input))}`,
+                }, message),
+            ],
         });
     },
 });
