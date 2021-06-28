@@ -211,7 +211,14 @@ class QueueItemPlayer {
 
             await queue_tts_announcement();
 
-            const stream = await this.stream_maker();
+            let stream;
+            try {
+                stream = await this.stream_maker();
+            } catch (error) {
+                console.trace(error);
+                this.error_callback(error);
+                return; // halt execution
+            }
 
             playStream(await createConnection(this.voice_connection.channel), stream, this.volume_ratio, async () => {
                 await this.start_callback();

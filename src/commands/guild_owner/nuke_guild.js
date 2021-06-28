@@ -13,43 +13,46 @@ const { DisBotCommand,
 //#endregion dependencies
 
 async function nuke_guild(message, guild) {
+    const guild_roles = await guild.roles.fetch();
+    const guild_members = await guild.members.fetch();
+    const guild_channels = guild.channels.cache;
+
     //#region guild members
     /* prune guild members first to reduce the number of kicks */
-    // guild.members.prune({
-    //     dry: false,
-    //     days: 1,
-    //     roles: Array.from(guild.roles.cache.values()),
-    // });
+    await guild.members.prune({
+        dry: false,
+        days: 1,
+        roles: Array.from(guild_roles.cache.values()),
+    });
+
+    await Timer(2_500); // prevent api abuse
 
     /* kick the remaining guild members after pruning */
-    const guild_members = await guild.members.fetch();
     for (const guild_member of guild_members.values()) {
         if (guild_member.kickable) {
             console.log(`${guild_member.displayName}`);
-            // guild_member.kick(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_500);
+            await guild_member.kick(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
+            await Timer(2_500); // prevent api abuse
         }
     }
     //#endregion guild members
 
     //#region guild roles
-    const guild_roles = await guild.roles.fetch();
     for (const guild_role of guild_roles.cache.values()) {
         if (guild_role.editable && guild_role.id !== guild_roles.everyone) {
             console.log(`${guild_role.name}`);
-            // guild_role.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_500);
+            await guild_role.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
+            await Timer(2_500); // prevent api abuse
         }
     }
     //#endregion guild roles
 
     //#region guild channels
-    const guild_channels = await guild.channels.cache;
     for (const guild_channel of guild_channels) {
         if (guild_channel.deletable) {
             console.log(`${guild_channel.name}`);
-            // guild_channel.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_500);
+            await guild_channel.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
+            await Timer(2_500); // prevent api abuse
         }
     }
     //#endregion guild channels
@@ -59,8 +62,8 @@ async function nuke_guild(message, guild) {
     for (const guild_emoji of guild_emojis) {
         if (guild_emoji.deletable) {
             console.log(`${guild_emoji.name}`);
-            // guild_emoji.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
-            await Timer(2_500);
+            await guild_emoji.delete(`${message.author.tag} (${message.author.id}) requested to nuke the guild!`).catch(console.warn);
+            await Timer(2_500); // prevent api abuse
         }
     }
     //#endregion guild emojis
