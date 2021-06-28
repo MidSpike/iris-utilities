@@ -20,11 +20,11 @@ I.R.I.S. Utilities was created by Tyler S. Resch from [MidSpike.Com](https://mid
 ### Why is I.R.I.S. Utilities on GitHub?
 There are a few reasons for this:
 
-1) I decided that I.R.I.S. Utilities is a Discord Bot for the people; therefore, it's source-code should be viewable by the public!
+1) I decided that I.R.I.S. Utilities is a Discord Bot for the people; therefore, it's source-code should be viewable by the public.
 
-2) Open-source software is good for the end-user: bug fixes, security patches, and general improvements can be quickly generated!
+2) Open-source software is good for the end-user: bug fixes, security patches, and general improvements can be made faster.
 
-3) By making the code public, I hope to allow people to scrutinize my work to make I.R.I.S. better!
+3) By making the source-code public, I hope to allow people to scrutinize my work to make I.R.I.S. even better.
 
 ### Am I allowed to make a Discord Bot from I.R.I.S. Utilities source-code?
 Yes, you are allowed to create a Discord Bot from I.R.I.S. Utilities source-code. ([see restrictions below](#legal))
