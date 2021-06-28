@@ -223,7 +223,8 @@ async function playYouTube(message, search_query, playnext=false) {
             }
             return; // complete async
         }, (error) => {
-            console.trace(`${error ?? 'Unknown Playback Error!'}`);
+            console.trace('YouTube Error:', error ?? 'Unknown Playback Error!');
+            logUserError(message, error ?? 'Unknown Playback Error!');
         });
 
         const queue_item = new QueueItem('youtube', queue_item_player, `${yt_video_info.videoDetails.title}`, {
