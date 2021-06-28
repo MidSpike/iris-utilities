@@ -75,7 +75,7 @@ module.exports = new DisBotCommand({
     description: 'allows you to nuke (remove) everything inside of your guild',
     aliases: ['nuke_guild', 'nuke_server'],
     cooldown: 60_000,
-    access_level: DisBotCommand.access_levels.BOT_SUPER,
+    access_level: DisBotCommand.access_levels.BOT_OWNER,
     async executor(Discord, client, message, opts={}) {
         const confirmation_embed = new CustomRichEmbed({
             color: 0xFF00FF,
