@@ -152,12 +152,6 @@ const SUPER_PEOPLE = new Collection([
         allowed_permissions: [ '*' ],
         denied_permissions: [],
     }, {
-        id: '255071492801429504',
-        name: 'QuackAttack',
-        public: true,
-        allowed_permissions: [ '*' ],
-        denied_permissions: [],
-    }, {
         id: '196254672418373632',
         name: 'Will F.',
         public: true,
