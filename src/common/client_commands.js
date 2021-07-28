@@ -6,7 +6,73 @@ const Discord = require('discord.js');
 
 //------------------------------------------------------------//
 
-const client_commands = new Discord.Collection();
+class ClientCommandManager {
+    /**
+     * @type {Discord.Collection<ClientCommandName, ClientCommand>}
+     */
+    static commands = new Discord.Collection();
+
+    static command_permission_levels = {
+        PUBLIC: 1,
+        DONATOR: 2,
+        GUILD_MOD: 3,
+        GUILD_ADMIN: 4,
+        GUILD_OWNER: 5,
+        BOT_MOD: 6,
+        BOT_ADMIN: 7,
+        BOT_OWNER: 8,
+    };
+
+    static command_categories = {
+        PUBLIC: {
+            name: 'Public',
+            description: 'Commands that can be used in any channel.',
+            permission_level: ClientCommandManager.command_permission_levels.PUBLIC,
+        },
+        DONATOR: {
+            name: 'Donator',
+            description: 'Commands that can only be used by donators.',
+            permission_level: ClientCommandManager.command_permission_levels.DONATOR,
+        },
+        GUILD_MOD: {
+            name: 'Guild Mod',
+            description: 'Commands that can only be used by guild mods.',
+            permission_level: ClientCommandManager.command_permission_levels.GUILD_MOD,
+        },
+        GUILD_ADMIN: {
+            name: 'Guild Admin',
+            description: 'Commands that can only be used by guild admins.',
+            permission_level: ClientCommandManager.command_permission_levels.GUILD_ADMIN,
+        },
+        GUILD_OWNER: {
+            name: 'Guild Owner',
+            description: 'Commands that can only be used by guild owners.',
+            permission_level: ClientCommandManager.command_permission_levels.GUILD_OWNER,
+        },
+        BOT_MOD: {
+            name: 'Bot Mod',
+            description: 'Commands that can only be used by bot mods.',
+            permission_level: ClientCommandManager.command_permission_levels.BOT_MOD,
+        },
+        BOT_ADMIN: {
+            name: 'Bot Admin',
+            description: 'Commands that can only be used by bot admins.',
+            permission_level: ClientCommandManager.command_permission_levels.BOT_ADMIN,
+        },
+        BOT_OWNER: {
+            name: 'Bot Owner',
+            description: 'Commands that can only be used by bot owners.',
+            permission_level: ClientCommandManager.command_permission_levels.BOT_OWNER,
+        },
+    };
+
+    /**
+     * @param {ClientCommand} command
+     */
+    static async loadCommand(command) {
+        ClientCommandManager.commands.set(command.name, command);
+    }
+}
 
 //------------------------------------------------------------//
 
@@ -21,6 +87,8 @@ const client_commands = new Discord.Collection();
  * @typedef {string[]} ClientCommandAliases
  * @typedef {string} ClientCommandDescription
  * @typedef {Discord.PermissionResolvable[]} ClientCommandPermissions
+ * @typedef {'ALL_CHANNELS'|'GUILD_CHANNELS'|'DM_CHANNELS'} ClientCommandContext
+ * @typedef {ClientCommandContext[]} ClientCommandContexts
  * @typedef {(message: Discord.Message, opts: ClientCommandHandlerOptions) => Promise<void>} ClientCommandHandler
  * 
  * @typedef {{
@@ -28,6 +96,7 @@ const client_commands = new Discord.Collection();
  *  aliases: ClientCommandAliases,
  *  description: ClientCommandDescription,
  *  permissions: ClientCommandPermissions,
+ *  contexts: ClientCommandContexts,
  *  handler: ClientCommandHandler,
  * }} ClientCommandOptions
  */
@@ -35,6 +104,13 @@ const client_commands = new Discord.Collection();
 //------------------------------------------------------------//
 
 class ClientCommand {
+    #name;
+    #aliases;
+    #description;
+    #permissions;
+    #contexts;
+    #handler;
+
     /**
      * @param {ClientCommandOptions} opts
      */
@@ -43,6 +119,7 @@ class ClientCommand {
         this.#aliases = opts.aliases;
         this.#description = opts.description;
         this.#permissions = opts.permissions;
+        this.#contexts = opts.contexts;
         this.#handler = opts.handler;
     }
 
@@ -64,6 +141,11 @@ class ClientCommand {
     /** @type {ClientCommandPermissions} */
     get permissions() {
         return this.#permissions;
+    }
+
+    /** @type {ClientCommandContexts} */
+    get contexts() {
+        return this.#contexts;
     }
 
     /** @type {ClientCommandHandler} */
@@ -97,7 +179,7 @@ function parseCommandFromMessageContent(message_content, guild_command_prefix) {
     const potential_command_name = `${message_args[0]}`.toLowerCase().trim();
 
     /** @type {ClientCommand?} */
-    const potential_command = client_commands.find(command => command.aliases.includes(potential_command_name));
+    const potential_command = ClientCommandManager.commands.find(command => command.aliases.includes(potential_command_name));
 
     if (!potential_command) return null;
 
@@ -112,6 +194,6 @@ function parseCommandFromMessageContent(message_content, guild_command_prefix) {
 
 module.exports = {
     parseCommandFromMessageContent,
+    ClientCommandManager,
     ClientCommand,
-    client_commands,
 };

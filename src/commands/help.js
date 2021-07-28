@@ -15,6 +15,9 @@ module.exports = new ClientCommand({
     permissions: [
         Discord.Permissions.FLAGS.SEND_MESSAGES,
     ],
+    contexts: [
+        'ALL_CHANNELS',
+    ],
     /**
      * @param {Discord.Message} message
      * @param {ClientCommandHandlerOptions} opts
