@@ -4,4 +4,4 @@
 Coming soon.
 
 ## Copyright
-Copyright ©️ MidSpike, All Rights Reserved.
+Copyright © MidSpike, All Rights Reserved.
