@@ -11,7 +11,7 @@ const path = require('path');
 const Discord = require('discord.js');
 const recursiveReadDirectory = require('recursive-read-directory');
 
-const { client_commands } = require('./common/client_commands');
+const { ClientCommandManager } = require('./common/client_commands');
 
 //------------------------------------------------------------//
 
@@ -48,35 +48,41 @@ const discord_client = new Discord.Client({
 
 //------------------------------------------------------------//
 
-function registerDiscordClientEvents() {
+async function registerDiscordClientEvents() {
     const path_to_event_files = path.join(process.cwd(), 'src', 'events');
     const client_event_file_names = recursiveReadDirectory(path_to_event_files);
 
     for (const client_event_file_name of client_event_file_names) {
-        const event_file_path = path.join(path_to_event_files, client_event_file_name);
-        const client_event = require(event_file_path);
+        const client_event_file_path = path.join(path_to_event_files, client_event_file_name);
 
-        console.log({
-            client_event,
-        });
+        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> loading client event...`, { client_event_file_path });
 
-        discord_client.on(client_event.name, client_event.handler);
+        try {
+            const client_event = require(client_event_file_path);
+            discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
+        } catch {
+            console.trace('unable to load client event:', client_event_file_path);
+            continue;
+        }
     }
 }
 
-function registerDiscordClientCommands() {
+async function registerDiscordClientCommands() {
     const path_to_command_files = path.join(process.cwd(), 'src', 'commands');
     const client_command_file_names = recursiveReadDirectory(path_to_command_files);
 
     for (const client_command_file_name of client_command_file_names) {
-        const command_file_path = path.join(path_to_command_files, client_command_file_name);
-        const client_command = require(command_file_path);
+        const client_command_file_path = path.join(path_to_command_files, client_command_file_name);
 
-        console.log({
-            client_command,
-        });
+        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> loading client command...`, { client_command_file_path });
 
-        client_commands.set(client_command.name, client_command);
+        try {
+            const client_command = require(client_command_file_path);
+            await ClientCommandManager.loadCommand(client_command);
+        } catch {
+            console.trace('unable to load client command:', client_command_file_path);
+            continue;
+        }
     }
 }
 
@@ -84,13 +90,13 @@ function registerDiscordClientCommands() {
 
 async function main() {
     console.log('<DC> Logging in...');
-    discord_client.login(process.env.BOT_DISCORD_API_TOKEN);
+    discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
     
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
-    registerDiscordClientEvents();
+    await registerDiscordClientEvents();
     
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering commands...`);
-    registerDiscordClientCommands();
+    await registerDiscordClientCommands();
     
     console.success(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
 }

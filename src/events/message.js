@@ -3,18 +3,19 @@
 //------------------------------------------------------------//
 
 const { parseCommandFromMessageContent } = require('../common/client_commands');
+const { GuildConfigsManager } = require('../common/guild_configs');
 
 //------------------------------------------------------------//
 
 module.exports = {
     name: 'messageCreate',
-    async handler(message) {
+    async handler(discord_client, message) {
         if (!message.id) return;
         if (!message.content) return;
         if (message.deleted) return;
         if (message.author.bot || message.author.system) return;
 
-        const guild_command_prefix = '~';
+        const guild_command_prefix = GuildConfigsManager.guild_config_template.command_prefix;
 
         const parsed_command = parseCommandFromMessageContent(message.content, guild_command_prefix);
 

@@ -15,6 +15,7 @@
     "discord.js": "^13.0.0-dev.4886ae2.1627128182",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
+    "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.1-beta",
     "libsodium-wrappers": "^0.7.9",
     "manakin": "^0.5.2",
     "opusscript": "0.0.8",
