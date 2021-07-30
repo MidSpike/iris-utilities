@@ -11,8 +11,6 @@ const path = require('path');
 const Discord = require('discord.js');
 const recursiveReadDirectory = require('recursive-read-directory');
 
-const { ClientCommandManager } = require('./common/client_commands');
-
 //------------------------------------------------------------//
 
 const discord_client = new Discord.Client({
@@ -60,27 +58,8 @@ async function registerDiscordClientEvents() {
         try {
             const client_event = require(client_event_file_path);
             discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
-        } catch {
-            console.trace('unable to load client event:', client_event_file_path);
-            continue;
-        }
-    }
-}
-
-async function registerDiscordClientCommands() {
-    const path_to_command_files = path.join(process.cwd(), 'src', 'commands');
-    const client_command_file_names = recursiveReadDirectory(path_to_command_files);
-
-    for (const client_command_file_name of client_command_file_names) {
-        const client_command_file_path = path.join(path_to_command_files, client_command_file_name);
-
-        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> loading client command...`, { client_command_file_path });
-
-        try {
-            const client_command = require(client_command_file_path);
-            await ClientCommandManager.loadCommand(client_command);
-        } catch {
-            console.trace('unable to load client command:', client_command_file_path);
+        } catch (error) {
+            console.trace('unable to load client event:', client_event_file_path, error);
             continue;
         }
     }
@@ -91,13 +70,10 @@ async function registerDiscordClientCommands() {
 async function main() {
     console.log('<DC> Logging in...');
     discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
-    
+
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
     await registerDiscordClientEvents();
-    
-    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering commands...`);
-    await registerDiscordClientCommands();
-    
+
     console.success(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
 }
 

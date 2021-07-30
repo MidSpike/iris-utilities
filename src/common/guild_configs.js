@@ -30,7 +30,6 @@ class GuildConfigsManager {
     static get guild_config_template() {
         return {
             _creation_epoch: Date.now(),
-            command_prefix: process.env.DISCORD_BOT_PREFIX,
         };
     }
 
