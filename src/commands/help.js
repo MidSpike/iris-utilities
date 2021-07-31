@@ -23,9 +23,7 @@ module.exports = new ClientCommand({
         Discord.Permissions.FLAGS.VIEW_CHANNEL,
         Discord.Permissions.FLAGS.SEND_MESSAGES,
     ],
-    contexts: [
-        'ALL_CHANNELS',
-    ],
+    context: 'ALL_CHANNELS',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
         command_interaction.reply({
