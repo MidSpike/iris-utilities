@@ -17,14 +17,13 @@ const Discord = require('discord.js');
  * @typedef {Discord.ApplicationCommandOptionData[]} ClientCommandOptions
  * @typedef {Discord.PermissionResolvable[]} ClientCommandPermissions
  * @typedef {'ALL_CHANNELS'|'GUILD_CHANNELS'|'DM_CHANNELS'} ClientCommandContext
- * @typedef {ClientCommandContext[]} ClientCommandContexts
- * @typedef {(discord_client: Discord.Client, command_interaction: Discord.CommandInteraction) => Promise<void>} ClientCommandHandler
+ * @typedef {(discord_client: Discord.Client, command_interaction: Discord.CommandInteraction) => Promise<unknown>} ClientCommandHandler
  * 
  * @typedef {{
  *  name: ClientCommandName,
  *  description: ClientCommandDescription,
  *  permissions: ClientCommandPermissions,
- *  contexts: ClientCommandContexts,
+ *  context: ClientCommandContext,
  *  handler: ClientCommandHandler,
  * }} ClientCommandConstructorOptions
  */
@@ -78,7 +77,7 @@ class ClientCommand {
     #description;
     #options;
     #permissions;
-    #contexts;
+    #context;
     #handler;
 
     /**
@@ -89,7 +88,7 @@ class ClientCommand {
         this.#description = opts.description;
         this.#options = opts.options;
         this.#permissions = opts.permissions;
-        this.#contexts = opts.contexts;
+        this.#context = opts.context;
         this.#handler = opts.handler;
     }
 
@@ -113,13 +112,39 @@ class ClientCommand {
         return this.#permissions;
     }
 
-    /** @type {ClientCommandContexts} */
-    get contexts() {
-        return this.#contexts;
+    /** @type {ClientCommandContext} */
+    get context() {
+        return this.#context;
     }
 
-    /** @type {ClientCommandHandler} */
+    /**
+     * @param {Discord.Client} discord_client
+     * @param {Discord.CommandInteraction} command_interaction
+     * @returns {Promise<unknown>}
+     */
     async handler(discord_client, command_interaction) {
+        /* validate the command context */
+        const interaction_originated_from_guild = !!command_interaction.guildId;
+        if (interaction_originated_from_guild && this.context === 'DM_CHANNELS') {
+            return command_interaction.reply('This command can only be used in a dm channel.');
+        }
+        if (!interaction_originated_from_guild && this.context === 'GUILD_CHANNELS') {
+            return command_interaction.reply('This command can only be used in a guild channel.');
+        }
+
+        /* validate the command permissions */
+        const command_permissions = this.permissions;
+        const channel = await discord_client.channels.fetch(command_interaction.channelId);
+        if (channel.isText() && channel.type !== 'DM') {
+            const bot_permissions = channel.permissionsFor(discord_client.user.id);
+            const missing_permissions = command_permissions.filter(command_permission => !bot_permissions.has(command_permission));
+            if (missing_permissions.length > 0) {
+                const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
+                return command_interaction.reply('In order to execute this command, I need you to grant me the following permission(s):\n>>> ' + mapped_missing_permission_flags.join('\n'));
+            }
+        }
+
+        /* run the command handler */
         return this.#handler(discord_client, command_interaction);
     }
 }
