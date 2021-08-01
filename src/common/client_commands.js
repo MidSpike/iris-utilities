@@ -14,6 +14,12 @@ const Discord = require('discord.js');
  * 
  * @typedef {string} ClientCommandName
  * @typedef {string} ClientCommandDescription
+ * @typedef {{
+ *  id: string,
+ *  name: string,
+ *  description: string,
+ *  required_permission_levels: number[],
+ * }} ClientCommandCategory
  * @typedef {Discord.ApplicationCommandOptionData[]} ClientCommandOptions
  * @typedef {Discord.PermissionResolvable[]} ClientCommandPermissions
  * @typedef {'ALL_CHANNELS'|'GUILD_CHANNELS'|'DM_CHANNELS'} ClientCommandContext
@@ -22,6 +28,7 @@ const Discord = require('discord.js');
  * @typedef {{
  *  name: ClientCommandName,
  *  description: ClientCommandDescription,
+ *  category: ClientCommandCategory,
  *  permissions: ClientCommandPermissions,
  *  context: ClientCommandContext,
  *  handler: ClientCommandHandler,
@@ -31,50 +38,76 @@ const Discord = require('discord.js');
 //------------------------------------------------------------//
 
 class ClientCommand {
+    /** @type {Object.<string, number>} */
     static permission_levels = {
         PUBLIC: 1,
-        DONATOR: 2,
-        GUILD_MOD: 3,
-        GUILD_ADMIN: 4,
-        GUILD_OWNER: 5,
-        BOT_SUPER: 6,
+        GUILD_MOD: 2,
+        GUILD_ADMIN: 3,
+        GUILD_OWNER: 4,
+        BOT_SUPER: 5,
     };
 
-    static categories = {
-        PUBLIC: {
-            name: 'Public',
-            description: 'Commands that can be used in any channel.',
+    /** @type {Discord.Collection<string, ClientCommandCategory>} */
+    static categories = new Discord.Collection([
+        {
+            id: 'HELP_AND_INFORMATION',
+            name: 'Help And Information',
+            description: 'n/a',
             required_permission_levels: [
                 ClientCommand.permission_levels.PUBLIC,
             ],
-        },
-        DONATOR: {
-            name: 'Donator',
-            description: 'Commands that can only be used by donators.',
+        }, {
+            id: 'MUSIC_CONTROLS',
+            name: 'Music Controls',
+            description: 'n/a',
             required_permission_levels: [
-                ClientCommand.permission_levels.DONATOR,
+                ClientCommand.permission_levels.PUBLIC,
             ],
-        },
-        GUILD_STAFF: {
+        }, {
+            id: 'FUN_STUFF',
+            name: 'Fun Stuff',
+            description: 'n/a',
+            required_permission_levels: [
+                ClientCommand.permission_levels.PUBLIC,
+            ],
+        }, {
+            id: 'UTILITIES',
+            name: 'Utilities',
+            description: 'n/a',
+            required_permission_levels: [
+                ClientCommand.permission_levels.PUBLIC,
+            ],
+        }, {
+            id: 'GUILD_STAFF',
             name: 'Guild Staff',
-            description: 'Commands that can only be used by guild mods / admins / owner.',
+            description: 'Commands that can only be used by guild mods, admins, owner, and bot super.',
             required_permission_levels: [
                 ClientCommand.permission_levels.GUILD_MOD,
                 ClientCommand.permission_levels.GUILD_ADMIN,
                 ClientCommand.permission_levels.GUILD_OWNER,
             ],
-        },
-        SUPER: {
-            name: 'Super',
-            description: 'Commands that can only be used by bot admins / owner.',
+        }, {
+            id: 'GUILD_CONFIGURATION',
+            name: 'Guild Configuration',
+            description: 'Commands that can only be used by guild admins, owner, and bot super.',
             required_permission_levels: [
-                ClientCommand.permission_levels.BOT_SUPER
+                ClientCommand.permission_levels.GUILD_ADMIN,
+                ClientCommand.permission_levels.GUILD_OWNER,
+                ClientCommand.permission_levels.BOT_SUPER,
+            ],
+        }, {
+            id: 'BOT_SUPER',
+            name: 'Bot Super',
+            description: 'Commands that can only be used by bot admins and owner.',
+            required_permission_levels: [
+                ClientCommand.permission_levels.BOT_SUPER,
             ],
         },
-    };
+    ].map((command_category) => [command_category.id, command_category]));
 
     #name;
     #description;
+    #category;
     #options;
     #permissions;
     #context;
@@ -86,6 +119,7 @@ class ClientCommand {
     constructor(opts) {
         this.#name = opts.name;
         this.#description = opts.description;
+        this.#category = opts.category;
         this.#options = opts.options;
         this.#permissions = opts.permissions;
         this.#context = opts.context;
@@ -100,6 +134,11 @@ class ClientCommand {
     /** @type {ClientCommandDescription} */
     get description() {
         return this.#description;
+    }
+
+    /** @type {ClientCommandCategory} */
+    get category() {
+        return this.#category;
     }
 
     /** @type {ClientCommandOptions} */
@@ -158,21 +197,36 @@ class ClientCommandManager {
     static commands = new Discord.Collection();
 
     /**
-     * @param {Discord.Client} discord_client
      * @param {ClientCommand} command
      */
-    static async registerGlobalCommand(discord_client, command) {
-        const command_is_registered = discord_client.application.commands.cache.find(cmd => cmd.name === command?.name);
-        if (!command_is_registered) {
-            await discord_client.application.commands.create({
+    static async loadCommand(discord_client, command) {
+        ClientCommandManager.commands.set(command.name, command);
+
+        const application_commands = await discord_client.application.commands.fetch();
+        const global_command_is_registered = application_commands.find(application_command => application_command.name === command.name);
+        if (!global_command_is_registered) {
+            discord_client.application.commands.delete(command.id);
+        }
+    }
+
+    /**
+     * @param {Discord.Client} discord_client
+     * @param {Discord.Snowflake} guild_id
+     */
+    static async registerAllCommandsToGuild(discord_client, guild_id) {
+        const guild = discord_client.guilds.resolve(guild_id);
+        if (!guild) return;
+
+        const guild_commands = await guild.commands.fetch();
+        const guild_command_is_registered = guild_commands.find(guild_command => guild_command.name === command.name);
+        if (!guild_command_is_registered) {
+            await guild.commands.create({
                 name: command.name,
                 description: command.description,
                 options: command.options,
                 defaultPermission: true,
             });
         }
-
-        ClientCommandManager.commands.set(command.name, command);
     }
 }
 

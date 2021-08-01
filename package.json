@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@discord-player/extractor": "^3.0.2",
     "@discordjs/opus": "^0.5.3",
-    "@discordjs/voice": "^0.5.4",
-    "discord.js": "^13.0.0-dev.4886ae2.1627128182",
+    "@discordjs/voice": "^0.5.5",
+    "discord-player": "^5.0.0-dev.399105e.1627171348",
+    "discord.js": "^13.0.0-dev.t1627831263.774f5b7",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.1-beta",
