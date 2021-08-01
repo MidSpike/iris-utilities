@@ -21,7 +21,7 @@ module.exports = {
             const command_interaction = interaction;
             console.log({ command_interaction });
 
-            const command = ClientCommandManager.commands.get(command_interaction.command.name);
+            const command = ClientCommandManager.commands.get(command_interaction.commandName);
             if (!command) return;
 
             await command.handler(discord_client, command_interaction);

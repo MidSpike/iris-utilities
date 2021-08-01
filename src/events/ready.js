@@ -5,7 +5,7 @@
 const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
 
-const { ClientCommandManager } = require('../common/client_commands');
+const { ClientCommand, ClientCommandManager } = require('../common/client_commands');
 const { GuildConfigsManager } = require('../common/guild_configs');
 
 //------------------------------------------------------------//
@@ -33,7 +33,9 @@ async function registerDiscordClientCommands(discord_client) {
 
         try {
             const client_command = require(client_command_file_path);
-            await ClientCommandManager.registerGlobalCommand(discord_client, client_command);
+            if (!(client_command instanceof ClientCommand)) throw new Error('client_command is not an instance of ClientCommand');
+
+            await ClientCommandManager.loadCommand(discord_client, client_command);
         } catch (error) {
             console.trace('unable to register global command:', client_command_file_path, error);
             continue;
