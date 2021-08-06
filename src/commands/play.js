@@ -28,7 +28,7 @@ module.exports = new ClientCommand({
         Discord.Permissions.FLAGS.CONNECT,
         Discord.Permissions.FLAGS.SPEAK,
     ],
-    context: 'GUILD_CHANNELS',
+    context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
         await command_interaction.defer();
