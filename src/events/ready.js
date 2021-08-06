@@ -41,6 +41,11 @@ async function registerDiscordClientCommands(discord_client) {
             continue;
         }
     }
+
+    for (const [ guild_id ] of discord_client.guilds.cache) {
+        console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering all commands to guild: ${guild_id};`);
+        await ClientCommandManager.registerAllCommandsToGuild(discord_client, guild_id);
+    }
 }
 
 //------------------------------------------------------------//

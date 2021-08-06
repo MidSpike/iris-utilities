@@ -14,7 +14,7 @@
     "@discordjs/opus": "^0.5.3",
     "@discordjs/voice": "^0.5.5",
     "discord-player": "^5.0.0-dev.399105e.1627171348",
-    "discord.js": "^13.0.0-dev.t1627831263.774f5b7",
+    "discord.js": "^13.0.0-dev.t1628165339.3eb4140",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.1-beta",
@@ -23,6 +23,7 @@
     "opusscript": "0.0.8",
     "path": "^0.12.7",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "ytdl-core": "^4.9.1"
   }
 }

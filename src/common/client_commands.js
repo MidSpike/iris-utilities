@@ -202,11 +202,11 @@ class ClientCommandManager {
     static async loadCommand(discord_client, command) {
         ClientCommandManager.commands.set(command.name, command);
 
-        const application_commands = await discord_client.application.commands.fetch();
-        const global_command_is_registered = application_commands.find(application_command => application_command.name === command.name);
-        if (!global_command_is_registered) {
-            discord_client.application.commands.delete(command.id);
-        }
+        // const application_commands = await discord_client.application.commands.fetch();
+        // const global_command_is_registered = application_commands.find(application_command => application_command.name === command.name);
+        // if (!global_command_is_registered) {
+        //     discord_client.application.commands.delete(command.id);
+        // }
     }
 
     /**
@@ -217,16 +217,23 @@ class ClientCommandManager {
         const guild = discord_client.guilds.resolve(guild_id);
         if (!guild) return;
 
-        const guild_commands = await guild.commands.fetch();
-        const guild_command_is_registered = guild_commands.find(guild_command => guild_command.name === command.name);
-        if (!guild_command_is_registered) {
-            await guild.commands.create({
-                name: command.name,
-                description: command.description,
-                options: command.options,
-                defaultPermission: true,
-            });
+        for (const command of ClientCommandManager.commands.values()) {
+            if (command.context === 'DM_CHANNELS') return;
+
+            const guild_commands = await guild.commands.fetch();
+            const guild_command_is_registered = guild_commands.find(guild_command => guild_command.name === command.name);
+
+            if (!guild_command_is_registered) {
+                console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering command: ${command.name}; to guild: ${guild.id};`);
+                await guild.commands.create({
+                    name: command.name,
+                    description: command.description,
+                    options: command.options,
+                    defaultPermission: true,
+                });
+            }
         }
+
     }
 }
 
