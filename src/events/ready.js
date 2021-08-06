@@ -35,7 +35,7 @@ async function registerDiscordClientCommands(discord_client) {
             const client_command = require(client_command_file_path);
             if (!(client_command instanceof ClientCommand)) throw new Error('client_command is not an instance of ClientCommand');
 
-            await ClientCommandManager.loadCommand(discord_client, client_command);
+            await ClientCommandManager.loadCommand(client_command);
         } catch (error) {
             console.trace('unable to register global command:', client_command_file_path, error);
             continue;

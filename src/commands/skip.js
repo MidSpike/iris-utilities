@@ -3,7 +3,6 @@
 //------------------------------------------------------------//
 
 const Discord = require('discord.js');
-const { QueueRepeatMode } = require('discord-player');
 
 const { AudioManager } = require('../common/audio_player');
 const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
@@ -11,7 +10,7 @@ const { ClientCommand, ClientCommandHandler } = require('../common/client_comman
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
-    name: 'autoplay',
+    name: 'skip',
     description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     options: [],
@@ -36,10 +35,27 @@ module.exports = new ClientCommand({
             });
         }
 
-        queue.setRepeatMode(queue.repeatMode === QueueRepeatMode.AUTOPLAY ? QueueRepeatMode.OFF : QueueRepeatMode.AUTOPLAY);
+        /** @type {Discord.GuildMember} */
+        const guild_member = command_interaction.member;
+
+        const guild_member_voice_channel = guild_member.voice.channel;
+        const bot_voice_channel = command_interaction.guild.me.voice.channel;
+
+        console.log({
+            bot_voice_channel,
+            guild_member_voice_channel,
+        });
+
+        if (guild_member_voice_channel.id !== bot_voice_channel.id) {
+            return command_interaction.followUp({
+                content: 'You must be in the same voice channel as me to skip.',
+            });
+        }
+
+        queue.skip();
 
         command_interaction.followUp({
-            content: `${queue.repeatMode === QueueRepeatMode.AUTOPLAY ? 'Enabled' : 'Disabled'} autoplay!`,
+            content: `Skipped song!`,
         });
     },
 });

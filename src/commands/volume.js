@@ -28,7 +28,7 @@ module.exports = new ClientCommand({
         Discord.Permissions.FLAGS.CONNECT,
         Discord.Permissions.FLAGS.SPEAK,
     ],
-    context: 'GUILD_CHANNELS',
+    context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
         await command_interaction.defer();
@@ -85,7 +85,8 @@ module.exports = new ClientCommand({
         });
 
         const interaction_collector = await bot_message.createMessageComponentCollector({
-            filter: (interaction) => interaction.user.id === command_interaction.user.id,
+            // filter: (interaction) => interaction.user.id === command_interaction.user.id,
+            filter: (interaction) => true,
         });
 
         interaction_collector.on('collect', async (interaction) => {

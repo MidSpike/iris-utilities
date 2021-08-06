@@ -22,7 +22,7 @@ const Discord = require('discord.js');
  * }} ClientCommandCategory
  * @typedef {Discord.ApplicationCommandOptionData[]} ClientCommandOptions
  * @typedef {Discord.PermissionResolvable[]} ClientCommandPermissions
- * @typedef {'ALL_CHANNELS'|'GUILD_CHANNELS'|'DM_CHANNELS'} ClientCommandContext
+ * @typedef {'GUILD_COMMAND'|'GLOBAL_COMMAND'} ClientCommandContext
  * @typedef {(discord_client: Discord.Client, command_interaction: Discord.CommandInteraction) => Promise<unknown>} ClientCommandHandler
  * 
  * @typedef {{
@@ -162,13 +162,15 @@ class ClientCommand {
      * @returns {Promise<unknown>}
      */
     async handler(discord_client, command_interaction) {
-        /* validate the command context */
-        const interaction_originated_from_guild = !!command_interaction.guildId;
-        if (interaction_originated_from_guild && this.context === 'DM_CHANNELS') {
-            return command_interaction.reply('This command can only be used in a dm channel.');
-        }
-        if (!interaction_originated_from_guild && this.context === 'GUILD_CHANNELS') {
-            return command_interaction.reply('This command can only be used in a guild channel.');
+        /* validate the command context execution environment */
+        if (this.context !== 'ALL') {
+            const interaction_originated_from_guild = !!command_interaction.guildId;
+            if (!interaction_originated_from_guild && this.context === 'GUILDS') {
+                return command_interaction.reply('This command can only be used inside of guilds.');
+            }
+            if (interaction_originated_from_guild && this.context === 'DMS') {
+                return command_interaction.reply('This command can only be used inside of direct messages.');
+            }
         }
 
         /* validate the command permissions */
@@ -179,7 +181,7 @@ class ClientCommand {
             const missing_permissions = command_permissions.filter(command_permission => !bot_permissions.has(command_permission));
             if (missing_permissions.length > 0) {
                 const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
-                return command_interaction.reply('In order to execute this command, I need you to grant me the following permission(s):\n>>> ' + mapped_missing_permission_flags.join('\n'));
+                return command_interaction.reply(`In order to execute this command, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`);
             }
         }
 
@@ -199,14 +201,8 @@ class ClientCommandManager {
     /**
      * @param {ClientCommand} command
      */
-    static async loadCommand(discord_client, command) {
+    static async loadCommand(command) {
         ClientCommandManager.commands.set(command.name, command);
-
-        // const application_commands = await discord_client.application.commands.fetch();
-        // const global_command_is_registered = application_commands.find(application_command => application_command.name === command.name);
-        // if (!global_command_is_registered) {
-        //     discord_client.application.commands.delete(command.id);
-        // }
     }
 
     /**
