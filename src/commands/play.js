@@ -44,7 +44,7 @@ module.exports = new ClientCommand({
 
         if (!search_result?.tracks?.length) {
             return command_interaction.followUp({
-                content: 'No results were found!',
+                content: `${command_interaction.user}`,
             });
         }
 
@@ -60,23 +60,21 @@ module.exports = new ClientCommand({
             console.trace(`Failed to connect to the voice channel: ${error.message}`, error);
             player.deleteQueue(command_interaction.guildId);
             return command_interaction.followUp({
-                content: 'Could not join your voice channel!',
+                content: `${command_interaction.user}, I was unable to join your voice channel!`,
             });
         }
 
+        const tracks = search_result.playlist?.tracks ?? [search_result.tracks[0]];
+
         await command_interaction.followUp({
-            content: `⏱ | Loading your ${search_result.playlist ? 'playlist' : 'track'}...`,
+            content: `${command_interaction.user}, adding ${tracks.length} track(s) to the queue...`,
         });
 
-        if (search_result.playlist) {
-            queue.addTracks(search_result.tracks);
-        } else {
-            queue.addTrack(search_result.tracks[0]);
-        }
+        queue.addTracks(tracks);
 
         if (!queue.playing) {
             await queue.play();
-            queue.setVolume(AudioManager.scaleVolume(50)); // force a sensible volume
+            queue.setVolume(AudioManager.scaleVolume(50)); // this will force a sensible volume
         }
     },
 });

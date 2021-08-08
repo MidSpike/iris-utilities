@@ -41,7 +41,7 @@ async function createHelpEmbed(command_category_id) {
 
 module.exports = new ClientCommand({
     name: 'help',
-    description: 'Displays a list of commands.',
+    description: 'displays a list of commands',
     category: ClientCommand.categories.get('HELP_AND_INFORMATION'),
     options: [
         {

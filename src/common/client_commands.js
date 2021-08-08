@@ -217,9 +217,9 @@ class ClientCommandManager {
             if (command.context === 'DM_CHANNELS') return;
 
             const guild_commands = await guild.commands.fetch();
-            const guild_command_is_registered = guild_commands.find(guild_command => guild_command.name === command.name);
+            const guild_command = guild_commands.find(guild_command => guild_command.name === command.name);
 
-            if (!guild_command_is_registered) {
+            if (!guild_command) {
                 console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering command: ${command.name}; to guild: ${guild.id};`);
                 await guild.commands.create({
                     name: command.name,
@@ -228,6 +228,15 @@ class ClientCommandManager {
                     defaultPermission: true,
                 });
             }
+            // uncomment to update existing commands
+            // else {
+            //     await guild.commands.edit(guild_command, {
+            //         name: command.name,
+            //         description: command.description,
+            //         options: command.options,
+            //         defaultPermission: true,
+            //     });
+            // }
         }
 
     }

@@ -39,7 +39,7 @@ module.exports = new ClientCommand({
         queue.setRepeatMode(queue.repeatMode === QueueRepeatMode.AUTOPLAY ? QueueRepeatMode.OFF : QueueRepeatMode.AUTOPLAY);
 
         command_interaction.followUp({
-            content: `${queue.repeatMode === QueueRepeatMode.AUTOPLAY ? 'Enabled' : 'Disabled'} autoplay!`,
+            content: `${command_interaction.user}, ${queue.repeatMode === QueueRepeatMode.AUTOPLAY ? 'enabled' : 'disabled'} autoplay!`,
         });
     },
 });

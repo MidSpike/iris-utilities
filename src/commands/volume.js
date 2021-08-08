@@ -3,10 +3,15 @@
 //------------------------------------------------------------//
 
 const Discord = require('discord.js');
-const { QueryType } = require('discord-player');
 
 const { AudioManager } = require('../common/audio_player');
 const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
+
+//------------------------------------------------------------//
+
+function roundToNearestMultipleOf(input, multiple) {
+    return Math.round(input / multiple) * multiple;
+}
 
 //------------------------------------------------------------//
 
@@ -33,7 +38,8 @@ module.exports = new ClientCommand({
     async handler(discord_client, command_interaction) {
         await command_interaction.defer();
 
-        const volume_level = command_interaction.options.get('level').value;
+        /** @type {number?} */
+        const volume_level = command_interaction.options.get('level')?.value;
 
         const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
 
@@ -41,15 +47,18 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: 'Nothing is playing right now!',
+                content: 'You can\'t change the volume as nothing is playing right now!',
             });
         }
 
-        queue.setVolume(AudioManager.scaleVolume(volume_level));
+        if (volume_level) {
+            queue.setVolume(AudioManager.scaleVolume(volume_level));
+        }
 
+        /** @type {Discord.Message} */
         const bot_message = await command_interaction.followUp({
             fetchReply: true,
-            content: `Set volume to **${volume_level}**!`,
+            content: `${command_interaction.user} set the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
             components: [
                 {
                     type: 1,
@@ -57,7 +66,7 @@ module.exports = new ClientCommand({
                         {
                             type: 2,
                             style: 2,
-                            custom_id: 'mute',
+                            custom_id: 'volume_mute',
                             emoji: {
                                 id: '678696291185983497',
                                 name: 'bot_emoji_mute',
@@ -84,48 +93,49 @@ module.exports = new ClientCommand({
             ],
         });
 
-        const interaction_collector = await bot_message.createMessageComponentCollector({
-            // filter: (interaction) => interaction.user.id === command_interaction.user.id,
-            filter: (interaction) => true,
+        const button_interaction_collector = await bot_message.createMessageComponentCollector({
+            filter: (button_interaction) => true,
         });
 
-        interaction_collector.on('collect', async (interaction) => {
-            await interaction.deferUpdate();
+        button_interaction_collector.on('collect', async (button_interaction) => {
+            await button_interaction.deferUpdate();
 
             console.log({
-                interaction,
+                button_interaction,
             });
 
-            function roundToNearestMultipleOf(input, multiple) {
-                return Math.round(input / multiple) * multiple;
-            }
-
-            switch (interaction.customId) {
-                case 'mute': {
+            switch (button_interaction.customId) {
+                case 'volume_mute': {
                     if (queue.volume === 0) {
                         queue.unmute();
                     } else {
                         queue.mute();
                     }
-                    await interaction.editReply({
-                        content: queue.volume === 0 ? 'Muted!' : 'Unmuted!',
+
+                    await button_interaction.editReply({
+                        content: `${button_interaction.user}, ${queue.volume === 0 ? 'muted' : 'unmuted'}!`,
                     });
+
                     break;
                 }
                 case 'volume_down': {
                     const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) - 10, 10);
                     queue.setVolume(AudioManager.scaleVolume(new_volume_level));
-                    await interaction.editReply({
-                        content: `Set volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+
+                    await button_interaction.editReply({
+                        content: `${button_interaction.user}, decreased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
                     });
+
                     break;
                 }
                 case 'volume_up': {
                     const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) + 10, 10);
                     queue.setVolume(AudioManager.scaleVolume(new_volume_level));
-                    await interaction.editReply({
-                        content: `Set volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+
+                    await button_interaction.editReply({
+                        content: `${button_interaction.user}, increased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
                     });
+
                     break;
                 }
                 default: {
@@ -134,7 +144,7 @@ module.exports = new ClientCommand({
             }
         });
 
-        interaction_collector.on('end', async () => {
+        button_interaction_collector.on('end', () => {
             bot_message.delete();
         });
     },
