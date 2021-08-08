@@ -12,7 +12,7 @@ const { ClientCommand, ClientCommandHandler } = require('../common/client_comman
 
 module.exports = new ClientCommand({
     name: 'loop',
-    description: 'Loops the current track.',
+    description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     options: [
         {
@@ -21,19 +21,19 @@ module.exports = new ClientCommand({
             description: 'the type of looping method',
             choices: [
                 {
-                  name: 'off',
-                  value: 'off',
+                    name: 'off',
+                    value: 'off',
                 }, {
-                  name: 'current track',
-                  value: 'track',
+                    name: 'current track',
+                    value: 'track',
                 }, {
-                  name: 'all tracks',
-                  value: 'queue',
+                    name: 'all tracks',
+                    value: 'queue',
                 }, {
-                  name: 'autoplay',
-                  value: 'autoplay',
+                    name: 'autoplay',
+                    value: 'autoplay',
                 },
-              ],
+            ],
             required: true,
         },
     ],
@@ -54,7 +54,7 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: 'Nothing is playing right now!',
+                content: `${command_interaction.user}, nothing is playing right now!`,
             });
         }
 
@@ -83,7 +83,7 @@ module.exports = new ClientCommand({
         }
 
         command_interaction.followUp({
-            content: `${command_interaction.user}, set queue looping to **${looping_type}**`,
+            content: `${command_interaction.user}, set queue looping to **${looping_type}**.`,
         });
     },
 });

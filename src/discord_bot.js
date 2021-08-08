@@ -81,6 +81,16 @@ main();
 
 //------------------------------------------------------------//
 
-module.exports = {
-    discord_client,
-};
+/* prevent the process from crashing for unhandledRejections */
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('----------------------------------------------------------------------------------------------------------------');
+    console.trace('unhandledRejection:', reason?.stack ?? reason, promise);
+    console.error('----------------------------------------------------------------------------------------------------------------');
+});
+
+/* prevent the process from crashing for uncaughtExceptions */
+process.on('uncaughtException', (error) => {
+    console.error('----------------------------------------------------------------------------------------------------------------');
+    console.trace('uncaughtException:', error);
+    console.error('----------------------------------------------------------------------------------------------------------------');
+});
