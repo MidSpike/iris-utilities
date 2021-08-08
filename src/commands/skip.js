@@ -41,21 +41,16 @@ module.exports = new ClientCommand({
         const guild_member_voice_channel = guild_member.voice.channel;
         const bot_voice_channel = command_interaction.guild.me.voice.channel;
 
-        console.log({
-            bot_voice_channel,
-            guild_member_voice_channel,
-        });
-
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
             return command_interaction.followUp({
-                content: 'You must be in the same voice channel as me to skip.',
+                content: `${command_interaction.user}, you must be in the same voice channel as me to skip.`,
             });
         }
 
         queue.skip();
 
         command_interaction.followUp({
-            content: `Skipped song!`,
+            content: `${command_interaction.user}, skipped!`,
         });
     },
 });
