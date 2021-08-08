@@ -3,7 +3,6 @@
 //------------------------------------------------------------//
 
 const Discord = require('discord.js');
-const { QueueRepeatMode } = require('discord-player');
 
 const { AudioManager } = require('../common/audio_player');
 const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
@@ -11,39 +10,17 @@ const { ClientCommand, ClientCommandHandler } = require('../common/client_comman
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
-    name: 'loop',
+    name: 'stop',
     description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
-    options: [
-        {
-            type: 'STRING',
-            name: 'type',
-            description: 'the type of looping method',
-            choices: [
-                {
-                    name: 'off',
-                    value: 'off',
-                }, {
-                    name: 'current track',
-                    value: 'track',
-                }, {
-                    name: 'all tracks',
-                    value: 'queue',
-                }, {
-                    name: 'autoplay',
-                    value: 'autoplay',
-                },
-            ],
-            required: true,
-        },
-    ],
+    options: [],
     permissions: [
         Discord.Permissions.FLAGS.VIEW_CHANNEL,
         Discord.Permissions.FLAGS.SEND_MESSAGES,
         Discord.Permissions.FLAGS.CONNECT,
         Discord.Permissions.FLAGS.SPEAK,
     ],
-    context: 'GUILD_CHANNELS',
+    context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
         await command_interaction.defer();
@@ -54,7 +31,7 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: `${command_interaction.user}, nothing is playing right now!`,
+                content: 'Nothing is playing right now!',
             });
         }
 
@@ -70,32 +47,10 @@ module.exports = new ClientCommand({
             });
         }
 
-        const looping_type = command_interaction.options.get('type').value;
-
-        switch (looping_type) {
-            case 'off': {
-                queue.setRepeatMode(QueueRepeatMode.OFF);
-                break;
-            }
-            case 'track': {
-                queue.setRepeatMode(QueueRepeatMode.TRACK);
-                break;
-            }
-            case 'queue': {
-                queue.setRepeatMode(QueueRepeatMode.QUEUE);
-                break;
-            }
-            case 'autoplay': {
-                queue.setRepeatMode(QueueRepeatMode.AUTOPLAY);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
+        queue.stop();
 
         command_interaction.followUp({
-            content: `${command_interaction.user}, set queue looping to **${looping_type}**.`,
+            content: `${command_interaction.user}, stopped!`,
         });
     },
 });
