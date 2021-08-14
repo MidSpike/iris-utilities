@@ -47,7 +47,7 @@ module.exports = new ClientCommand({
             });
         }
 
-        const filter = 'reverse';
+        const filter = 'nightcore';
         const filter_enabled = queue.getFiltersEnabled().includes(filter);
         queue.setFilters({ [filter]: !filter_enabled });
 

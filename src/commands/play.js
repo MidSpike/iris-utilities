@@ -49,7 +49,29 @@ module.exports = new ClientCommand({
         }
 
         const queue = await player.createQueue(command_interaction.guildId, {
-            metadata: command_interaction.channel
+            metadata: command_interaction.channel,
+            enableLive: true,
+            // initialVolume: 1, // this line possibly does nothing, but might be needed
+            useSafeSearch: false,
+            bufferingTimeout: 2_500,
+            leaveOnEnd: false,
+            leaveOnEndCooldown: 5 * 60_000,
+            leaveOnStop: false,
+            leaveOnEmpty: false,
+            leaveOnEmptyCooldown: 1 * 60_000,
+            ytdlOptions: {
+                lang: 'en',
+                filter: 'audioonly',
+                highWaterMark: 1<<25,
+                requestOptions: {
+                    headers: {
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'User-Agent': process.env.YTDL_USER_AGENT,
+                        'Cookie': process.env.YTDL_COOKIE,
+                        'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
+                    },
+                },
+            },
         });
 
         try {

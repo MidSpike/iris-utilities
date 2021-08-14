@@ -43,7 +43,7 @@ module.exports = new ClientCommand({
 
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
             return command_interaction.followUp({
-                content: `${command_interaction.user}, you must be in the same voice channel as me to stop.`,
+                content: `${command_interaction.user}, you must be in the same voice channel as me.`,
             });
         }
 
