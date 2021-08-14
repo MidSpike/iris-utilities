@@ -13,7 +13,7 @@
     "@discord-player/extractor": "^3.0.2",
     "@discordjs/opus": "^0.5.3",
     "@discordjs/voice": "^0.5.5",
-    "discord-player": "^5.0.0-dev.399105e.1627171348",
+    "discord-player": "^5.0.1",
     "discord.js": "^13.0.0-dev.t1628165339.3eb4140",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",

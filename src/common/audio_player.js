@@ -24,25 +24,7 @@ class AudioManager {
      * @returns {Promise<Player>}
      */
     static async #createPlayer(discord_client, guild_id) {
-        const player = new Player(discord_client, {
-            enableLive: true,
-            volume: 100, // this line possibly does nothing, but might be needed
-            useSafeSearch: false,
-            bufferingTimeout: 2_500,
-            ytdlOptions: {
-                lang: 'en',
-                filter: 'audioonly',
-                highWaterMark: 1<<25,
-                requestOptions: {
-                    headers: {
-                        'Accept-Language': 'en-US,en;q=0.5',
-                        'User-Agent': process.env.YTDL_USER_AGENT,
-                        'Cookie': process.env.YTDL_COOKIE,
-                        'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
-                    },
-                },
-            },
-        });
+        const player = new Player(discord_client, {});
 
         player.on('error', (queue, error) => console.trace('error', { queue }, error));
         player.on('connectionError', (queue, error) => console.trace('connectionError', { queue }, error));
@@ -64,7 +46,7 @@ class AudioManager {
         });
 
         player.on('queueEnd', (queue) => {
-            queue.metadata.send('Queue finished!');
+            queue.metadata.send('Queue ended!');
         });
 
         AudioManager.players.set(guild_id, player);
@@ -88,7 +70,7 @@ class AudioManager {
     static scaleVolume(normalized_volume_level) {
         const minimum_allowed_volume = 0;
         const maximum_allowed_volume = 100;
-        const scaled_maximum_volume = 30;
+        const scaled_maximum_volume = 25;
 
         const clamped_volume_level = Math.max(minimum_allowed_volume, Math.min(normalized_volume_level, maximum_allowed_volume));
 
@@ -103,7 +85,7 @@ class AudioManager {
      */
     static normalizeVolume(scaled_volume_level) {
         const maximum_allowed_volume = 100;
-        const scaled_maximum_volume = 30;
+        const scaled_maximum_volume = 25;
 
         const normalized_volume_level = Math.round(scaled_volume_level * maximum_allowed_volume / scaled_maximum_volume);
 
