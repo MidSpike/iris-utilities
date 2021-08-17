@@ -31,7 +31,11 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: 'Nothing is playing right now!',
+                embeds: [
+                    {
+                        description: `${command_interaction.user}, nothing is playing right now!`,
+                    },
+                ],
             });
         }
 
