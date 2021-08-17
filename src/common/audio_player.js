@@ -29,24 +29,54 @@ class AudioManager {
         player.on('error', (queue, error) => console.trace('error', { queue }, error));
         player.on('connectionError', (queue, error) => console.trace('connectionError', { queue }, error));
 
-        player.on('trackStart', (queue, track) => {
-            queue.metadata.send(`Started playing: **${track.title}** in **${queue.connection.channel.name}**!`);
-        });
-
-        player.on('trackAdd', (queue, track) => {
-            queue.metadata.send(`Track **${track.title}** queued!`);
-        });
-
         player.on('botDisconnect', (queue) => {
-            queue.metadata.send('I was manually disconnected from the voice channel, clearing queue!');
-        });
-
-        player.on('channelEmpty', (queue) => {
-            queue.metadata.send('Nobody is in the voice channel, leaving...');
+            queue.metadata.channel.send({
+                embeds: [
+                    {
+                        description: 'I was manually disconnected from the voice channel, clearing queue!',
+                    },
+                ],
+            });
         });
 
         player.on('queueEnd', (queue) => {
-            queue.metadata.send('Queue ended!');
+            queue.metadata.channel.send({
+                embeds: [
+                    {
+                        description: 'Queue ended!',
+                    },
+                ],
+            });
+        });
+
+        player.on('channelEmpty', (queue) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    {
+                        description: 'Nobody is in the voice channel, leaving...',
+                    },
+                ],
+            });
+        });
+
+        player.on('trackStart', (queue, track) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    {
+                        description: `${queue.metadata.user}, Started playing: **${track.title}** in **${queue.connection.channel.name}**!`,
+                    },
+                ],
+            });
+        });
+
+        player.on('trackAdd', (queue, track) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    {
+                        description: `${queue.metadata.user}, Added **${track.title}** to the queue!`,
+                    },
+                ],
+            });
         });
 
         AudioManager.players.set(guild_id, player);
@@ -70,7 +100,7 @@ class AudioManager {
     static scaleVolume(normalized_volume_level) {
         const minimum_allowed_volume = 0;
         const maximum_allowed_volume = 100;
-        const scaled_maximum_volume = 25;
+        const scaled_maximum_volume = 30;
 
         const clamped_volume_level = Math.max(minimum_allowed_volume, Math.min(normalized_volume_level, maximum_allowed_volume));
 
@@ -85,9 +115,9 @@ class AudioManager {
      */
     static normalizeVolume(scaled_volume_level) {
         const maximum_allowed_volume = 100;
-        const scaled_maximum_volume = 25;
+        const scaled_maximum_volume = 30;
 
-        const normalized_volume_level = Math.round(scaled_volume_level * maximum_allowed_volume / scaled_maximum_volume);
+        const normalized_volume_level = Math.floor(scaled_volume_level * maximum_allowed_volume / scaled_maximum_volume);
 
         return normalized_volume_level;
     }

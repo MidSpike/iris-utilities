@@ -39,7 +39,7 @@ module.exports = new ClientCommand({
         await command_interaction.defer();
 
         /** @type {number?} */
-        const volume_level = command_interaction.options.get('level')?.value;
+        const volume_input = command_interaction.options.get('level')?.value;
 
         const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
 
@@ -47,18 +47,31 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: 'You can\'t change the volume as nothing is playing right now!',
+                embeds: [
+                    {
+                        description: `${command_interaction.user} you can\'t change the volume as nothing is playing right now!`,
+                    },
+                ],
             });
         }
 
-        if (volume_level) {
-            queue.setVolume(AudioManager.scaleVolume(volume_level));
+        if (volume_input) {
+            const minimum_allowed_volume = 0;
+            const maximum_allowed_volume = 100;
+            const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
+            queue.setVolume(AudioManager.scaleVolume(roundToNearestMultipleOf(volume_level, 5)));
         }
 
         /** @type {Discord.Message} */
         const bot_message = await command_interaction.followUp({
             fetchReply: true,
-            content: `${command_interaction.user} set the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+            embeds: [
+                (volume_input ? {
+                    description: `${command_interaction.user} set the volume to **${volume_input}**!`,
+                } : {
+                    description: `${command_interaction.user} the current volume is **${roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume), 5)}**!`,
+                }),
+            ],
             components: [
                 {
                     type: 1,
@@ -113,27 +126,39 @@ module.exports = new ClientCommand({
                     }
 
                     await button_interaction.editReply({
-                        content: `${button_interaction.user}, ${queue.volume === 0 ? 'muted' : 'unmuted'}!`,
+                        embeds: [
+                            {
+                                description: `${button_interaction.user}, ${queue.volume === 0 ? 'muted' : 'unmuted'}!`,
+                            },
+                        ],
                     });
 
                     break;
                 }
                 case 'volume_down': {
-                    const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) - 10, 10);
+                    const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) - 10, 5);
                     queue.setVolume(AudioManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({
-                        content: `${button_interaction.user}, decreased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+                        embeds: [
+                            {
+                                description: `${button_interaction.user}, decreased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+                            },
+                        ],
                     });
 
                     break;
                 }
                 case 'volume_up': {
-                    const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) + 10, 10);
+                    const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) + 10, 5);
                     queue.setVolume(AudioManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({
-                        content: `${button_interaction.user}, increased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+                        embeds: [
+                            {
+                                description: `${button_interaction.user}, increased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+                            },
+                        ],
                     });
 
                     break;
