@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 const { QueryType } = require('discord-player');
 
 const { delay } = require('../common/utilities');
-const { AudioManager } = require('../common/audio');
+const { AudioManager, VolumeManager } = require('../common/audio');
 const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
 
 //------------------------------------------------------------//
@@ -144,7 +144,7 @@ module.exports = new ClientCommand({
         setTimeout(async () => {
             if (!queue.playing) {
                 await queue.play();
-                queue.setVolume(AudioManager.scaleVolume(50)); // this will force a sensible volume
+                queue.setVolume(VolumeManager.scaleVolume(50)); // this will force a sensible volume
             }
         }, 100); // allow at least one track to be added to the queue before playing
     },
