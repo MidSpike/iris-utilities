@@ -27,7 +27,10 @@ module.exports = new DisBotCommand({
 
         let bot_message;
 
-        const akinator_api = new Akinator_API('en');
+        const akinator_api = new Akinator_API({
+            region: 'en',
+            childMode: false,
+        });
         await akinator_api.start();
 
         let question_num = 1;
