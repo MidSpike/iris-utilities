@@ -92,19 +92,33 @@ class AudioManager {
     static async fetchPlayer(discord_client, guild_id) {
         return AudioManager.players.get(guild_id) ?? await AudioManager.#createPlayer(discord_client, guild_id);
     }
+}
+
+//------------------------------------------------------------//
+
+class VolumeManager {
+    static global_minimum_volume = 0;
+    static global_default_volume = 50;
+    static global_maximum_volume = 100;
+    static global_scaled_maximum_volume = 30;
+
+    /**
+     * @param {Number} input
+     * @param {Number} multiple
+     * @returns {Number} the locked multiple
+     */
+    static lockToNearestMultipleOf(input, multiple) {
+        return Math.round(input / multiple) * multiple;
+    }
 
     /**
      * @param {Number} normalized_volume_level
      * @returns {Number} the scaled volume level
      */
     static scaleVolume(normalized_volume_level) {
-        const minimum_allowed_volume = 0;
-        const maximum_allowed_volume = 100;
-        const scaled_maximum_volume = 30;
+        const clamped_volume_level = Math.max(VolumeManager.global_minimum_volume, Math.min(normalized_volume_level, VolumeManager.global_maximum_volume));
 
-        const clamped_volume_level = Math.max(minimum_allowed_volume, Math.min(normalized_volume_level, maximum_allowed_volume));
-
-        const scaled_volume_level = scaled_maximum_volume * clamped_volume_level / maximum_allowed_volume;
+        const scaled_volume_level = VolumeManager.global_scaled_maximum_volume * clamped_volume_level / VolumeManager.global_maximum_volume;
 
         return scaled_volume_level;
     }
@@ -114,10 +128,7 @@ class AudioManager {
      * @returns {Number} the normalized volume level
      */
     static normalizeVolume(scaled_volume_level) {
-        const maximum_allowed_volume = 100;
-        const scaled_maximum_volume = 30;
-
-        const normalized_volume_level = Math.floor(scaled_volume_level * maximum_allowed_volume / scaled_maximum_volume);
+        const normalized_volume_level = Math.floor(scaled_volume_level * VolumeManager.global_maximum_volume / VolumeManager.global_scaled_maximum_volume);
 
         return normalized_volume_level;
     }
@@ -127,4 +138,5 @@ class AudioManager {
 
 module.exports = {
     AudioManager,
+    VolumeManager,
 };
