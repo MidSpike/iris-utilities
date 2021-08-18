@@ -4,14 +4,8 @@
 
 const Discord = require('discord.js');
 
-const { AudioManager } = require('../common/audio_player');
+const { AudioManager, VolumeManager } = require('../common/audio');
 const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
-
-//------------------------------------------------------------//
-
-function roundToNearestMultipleOf(input, multiple) {
-    return Math.round(input / multiple) * multiple;
-}
 
 //------------------------------------------------------------//
 
@@ -59,7 +53,7 @@ module.exports = new ClientCommand({
             const minimum_allowed_volume = 0;
             const maximum_allowed_volume = 100;
             const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
-            queue.setVolume(AudioManager.scaleVolume(roundToNearestMultipleOf(volume_level, 5)));
+            queue.setVolume(VolumeManager.scaleVolume(VolumeManager.lockToNearestMultipleOf(volume_level, 5)));
         }
 
         /** @type {Discord.Message} */
@@ -69,7 +63,7 @@ module.exports = new ClientCommand({
                 (volume_input ? {
                     description: `${command_interaction.user} set the volume to **${volume_input}**!`,
                 } : {
-                    description: `${command_interaction.user} the current volume is **${roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume), 5)}**!`,
+                    description: `${command_interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5)}**!`,
                 }),
             ],
             components: [
@@ -136,13 +130,13 @@ module.exports = new ClientCommand({
                     break;
                 }
                 case 'volume_down': {
-                    const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) - 10, 5);
-                    queue.setVolume(AudioManager.scaleVolume(new_volume_level));
+                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume) - 10, 5);
+                    queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({
                         embeds: [
                             {
-                                description: `${button_interaction.user}, decreased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+                                description: `${button_interaction.user}, decreased the volume to **${VolumeManager.normalizeVolume(queue.volume)}**!`,
                             },
                         ],
                     });
@@ -150,13 +144,13 @@ module.exports = new ClientCommand({
                     break;
                 }
                 case 'volume_up': {
-                    const new_volume_level = roundToNearestMultipleOf(AudioManager.normalizeVolume(queue.volume) + 10, 5);
-                    queue.setVolume(AudioManager.scaleVolume(new_volume_level));
+                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume) + 10, 5);
+                    queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({
                         embeds: [
                             {
-                                description: `${button_interaction.user}, increased the volume to **${AudioManager.normalizeVolume(queue.volume)}**!`,
+                                description: `${button_interaction.user}, increased the volume to **${VolumeManager.normalizeVolume(queue.volume)}**!`,
                             },
                         ],
                     });

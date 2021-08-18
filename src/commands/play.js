@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 const { QueryType } = require('discord-player');
 
 const { delay } = require('../common/utilities');
-const { AudioManager } = require('../common/audio_player');
+const { AudioManager } = require('../common/audio');
 const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
 
 //------------------------------------------------------------//
