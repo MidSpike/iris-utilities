@@ -100,7 +100,7 @@ class VolumeManager {
     static global_minimum_volume = 0;
     static global_default_volume = 50;
     static global_maximum_volume = 100;
-    static global_scaled_maximum_volume = 30;
+    static global_scaled_maximum_volume = 50;
 
     /**
      * @param {Number} input
@@ -108,7 +108,7 @@ class VolumeManager {
      * @returns {Number} the locked multiple
      */
     static lockToNearestMultipleOf(input, multiple) {
-        return Math.round(input / multiple) * multiple;
+        return Math.ceil(input / multiple) * multiple;
     }
 
     /**
