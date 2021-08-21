@@ -14,7 +14,7 @@
     "@discordjs/opus": "^0.5.3",
     "@discordjs/voice": "^0.5.5",
     "discord-player": "^5.0.1",
-    "discord.js": "^13.0.0-dev.t1628165339.3eb4140",
+    "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.1-beta",

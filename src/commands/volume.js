@@ -30,7 +30,7 @@ module.exports = new ClientCommand({
     context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
-        await command_interaction.defer();
+        await command_interaction.deferReply();
 
         /** @type {number?} */
         const volume_input = command_interaction.options.get('level')?.value;
@@ -102,6 +102,7 @@ module.exports = new ClientCommand({
 
         const button_interaction_collector = await bot_message.createMessageComponentCollector({
             filter: (button_interaction) => true,
+            time: 5 * 60_000,
         });
 
         button_interaction_collector.on('collect', async (button_interaction) => {
@@ -130,7 +131,7 @@ module.exports = new ClientCommand({
                     break;
                 }
                 case 'volume_down': {
-                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume) - 10, 5);
+                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5) - 10;
                     queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({
@@ -144,7 +145,7 @@ module.exports = new ClientCommand({
                     break;
                 }
                 case 'volume_up': {
-                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume) + 10, 5);
+                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5) + 10;
                     queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({

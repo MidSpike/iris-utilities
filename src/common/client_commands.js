@@ -213,10 +213,11 @@ class ClientCommandManager {
         const guild = discord_client.guilds.resolve(guild_id);
         if (!guild) return;
 
+        const guild_commands = await guild.commands.fetch();
+
         for (const command of ClientCommandManager.commands.values()) {
             if (command.context === 'DM_CHANNELS') return;
 
-            const guild_commands = await guild.commands.fetch();
             const guild_command = guild_commands.find(guild_command => guild_command.name === command.name);
 
             if (!guild_command) {

@@ -37,7 +37,7 @@ module.exports = new ClientCommand({
     context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
-        await command_interaction.defer();
+        await command_interaction.deferReply();
 
         const guild_member_voice_channel_id = command_interaction.member.voice.channelId;
         const bot_voice_channel_id = command_interaction.guild.me.voice.channelId;
@@ -87,15 +87,15 @@ module.exports = new ClientCommand({
             enableLive: true,
             initialVolume: 1, // this line possibly does nothing, but might be needed
             useSafeSearch: false,
-            bufferingTimeout: 2_500,
+            bufferingTimeout: 5_000,
             leaveOnEnd: true,
             leaveOnStop: false,
             leaveOnEmpty: false,
-            leaveOnEmptyCooldown: 1 * 60_000,
+            leaveOnEmptyCooldown: 5 * 60_000,
             ytdlOptions: {
                 lang: 'en',
                 filter: 'audioonly',
-                // highWaterMark: 1<<25,
+                highWaterMark: 1<<25,
                 requestOptions: {
                     headers: {
                         'Accept-Language': 'en-US,en;q=0.5',
@@ -135,7 +135,7 @@ module.exports = new ClientCommand({
 
         setImmediate(async () => {
             for (let i = 0; i < tracks.length; i++) {
-                const insert_index = playnext ? i : undefined;
+                const insert_index = playnext ? i : queue.tracks.length;
                 queue.insert(tracks[i], insert_index);
                 await delay(1_000);
             }

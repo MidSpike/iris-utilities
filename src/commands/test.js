@@ -23,7 +23,7 @@ module.exports = new ClientCommand({
     context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
-        await command_interaction.defer();
+        await command_interaction.deferReply();
 
         const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
 
