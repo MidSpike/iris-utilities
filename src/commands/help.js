@@ -4,6 +4,7 @@
 
 const Discord = require('discord.js');
 
+const { CustomEmbed } = require('../common/message');
 const { ClientCommand, ClientCommandManager, ClientCommandHandler } = require('../common/client_commands');
 
 //------------------------------------------------------------//
@@ -22,8 +23,7 @@ async function createHelpEmbed(command_category_id) {
         return `/${command.name} ${command_usage}`;
     });
 
-    return {
-        color: 0xFF5500,
+    return new CustomEmbed({
         title: `${command_category.name}`,
         description: [
             '\`\`\`',
@@ -34,7 +34,7 @@ async function createHelpEmbed(command_category_id) {
             ),
             '\`\`\`',
         ].join('\n'),
-    };
+    });
 }
 
 //------------------------------------------------------------//

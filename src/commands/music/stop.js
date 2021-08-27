@@ -4,8 +4,8 @@
 
 const Discord = require('discord.js');
 
-const { AudioManager } = require('../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
+const { AudioManager } = require('../../common/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
 
 //------------------------------------------------------------//
 
