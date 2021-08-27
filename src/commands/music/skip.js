@@ -4,8 +4,9 @@
 
 const Discord = require('discord.js');
 
-const { AudioManager } = require('../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
+const { CustomEmbed } = require('../../common/message');
+const { AudioManager } = require('../../common/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
 
 //------------------------------------------------------------//
 
@@ -32,9 +33,9 @@ module.exports = new ClientCommand({
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
                 embeds: [
-                    {
+                    new CustomEmbed({
                         description: `${command_interaction.user}, nothing is playing right now!`,
-                    },
+                    }),
                 ],
             });
         }
@@ -47,14 +48,22 @@ module.exports = new ClientCommand({
 
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
             return command_interaction.followUp({
-                content: `${command_interaction.user}, you must be in the same voice channel as me to skip.`,
+                embeds: [
+                    new CustomEmbed({
+                        description: `${command_interaction.user}, you must be in the same voice channel as me to skip.`,
+                    }),
+                ],
             });
         }
 
         queue.skip();
 
         command_interaction.followUp({
-            content: `${command_interaction.user}, skipped!`,
+            embeds: [
+                new CustomEmbed({
+                    description: `${command_interaction.user}, skipped!`,
+                }),
+            ],
         });
     },
 });

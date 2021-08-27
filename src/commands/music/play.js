@@ -5,9 +5,10 @@
 const Discord = require('discord.js');
 const { QueryType } = require('discord-player');
 
-const { delay } = require('../common/utilities');
-const { AudioManager, VolumeManager } = require('../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
+const { delay } = require('../../common/utilities');
+const { CustomEmbed } = require('../../common/message');
+const { AudioManager, VolumeManager } = require('../../common/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
 
 //------------------------------------------------------------//
 
@@ -45,9 +46,9 @@ module.exports = new ClientCommand({
         if (!guild_member_voice_channel_id) {
             return command_interaction.followUp({
                 embeds: [
-                    {
+                    new CustomEmbed({
                         description: `${command_interaction.user}, you need to be in a voice channel to use this command.`,
-                    },
+                    }),
                 ],
             });
         }
@@ -55,9 +56,9 @@ module.exports = new ClientCommand({
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
             return command_interaction.followUp({
                 embeds: [
-                    {
+                    new CustomEmbed({
                         description: `${command_interaction.user}, you must be in the same voice channel as me.`,
-                    },
+                    }),
                 ],
             });
         }
@@ -67,6 +68,61 @@ module.exports = new ClientCommand({
 
         const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
 
+        player.removeAllListeners('botDisconnect');
+        player.once('botDisconnect', (queue) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        description: 'I was manually disconnected from the voice channel, clearing queue!',
+                    }),
+                ],
+            });
+        });
+
+        player.removeAllListeners('queueEnd');
+        player.once('queueEnd', (queue) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        description: 'Queue ended!',
+                    }),
+                ],
+            });
+        });
+
+        player.removeAllListeners('channelEmpty');
+        player.once('channelEmpty', (queue) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        description: 'Nobody is in the voice channel, leaving...',
+                    }),
+                ],
+            });
+        });
+
+        player.removeAllListeners('trackStart');
+        player.once('trackStart', (queue, track) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        description: `${queue.metadata.user}, Started playing: **${track.title}** in **${queue.connection.channel.name}**!`,
+                    }),
+                ],
+            });
+        });
+
+        player.removeAllListeners('trackAdd');
+        player.once('trackAdd', (queue, track) => {
+            queue.metadata.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        description: `${queue.metadata.user}, Added **${track.title}** to the queue!`,
+                    }),
+                ],
+            });
+        });
+
         const search_result = await player.search(query, {
             requestedBy: command_interaction.user,
             searchEngine: QueryType.AUTO,
@@ -75,9 +131,9 @@ module.exports = new ClientCommand({
         if (!search_result?.tracks?.length) {
             return command_interaction.followUp({
                 embeds: [
-                    {
+                    new CustomEmbed({
                         description: `${command_interaction.user}, I couldn't find anything for **${query}**.`,
-                    },
+                    }),
                 ],
             });
         }
@@ -115,9 +171,9 @@ module.exports = new ClientCommand({
                 player.deleteQueue(command_interaction.guildId);
                 return command_interaction.followUp({
                     embeds: [
-                        {
+                        new CustomEmbed({
                             description: `${command_interaction.user}, I was unable to join your voice channel!`,
-                        },
+                        }),
                     ],
                 });
             }
@@ -127,25 +183,27 @@ module.exports = new ClientCommand({
 
         await command_interaction.followUp({
             embeds: [
-                {
+                new CustomEmbed({
                     description: `${command_interaction.user}, adding ${tracks.length} track(s) to the queue...`,
-                },
+                }),
             ],
         });
 
-        setImmediate(async () => {
+        // asynchronously add tracks to the queue to allow the first item to play
+        (async () => {
             for (let i = 0; i < tracks.length; i++) {
                 const insert_index = playnext ? i : queue.tracks.length;
                 queue.insert(tracks[i], insert_index);
                 await delay(1_000);
             }
-        }); // asynchronously add tracks to the queue to allow the first item to play
+        })();
 
-        setTimeout(async () => {
-            if (!queue.playing) {
-                await queue.play();
-                queue.setVolume(VolumeManager.scaleVolume(50)); // this will force a sensible volume
-            }
-        }, 100); // allow at least one track to be added to the queue before playing
+        // wait for the queue to be populated
+        while (!queue.tracks.length) await delay(10);
+
+        if (!queue.playing) {
+            await queue.play();
+            queue.setVolume(VolumeManager.scaleVolume(50)); // this will force a sensible volume
+        }
     },
 });

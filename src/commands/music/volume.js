@@ -4,8 +4,9 @@
 
 const Discord = require('discord.js');
 
-const { AudioManager, VolumeManager } = require('../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
+const { CustomEmbed, disableMessageComponents } = require('../../common/message');
+const { AudioManager, VolumeManager } = require('../../common/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
 
 //------------------------------------------------------------//
 
@@ -42,9 +43,9 @@ module.exports = new ClientCommand({
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
                 embeds: [
-                    {
+                    new CustomEmbed({
                         description: `${command_interaction.user} you can\'t change the volume as nothing is playing right now!`,
-                    },
+                    }),
                 ],
             });
         }
@@ -60,10 +61,12 @@ module.exports = new ClientCommand({
         const bot_message = await command_interaction.followUp({
             fetchReply: true,
             embeds: [
-                (volume_input ? {
-                    description: `${command_interaction.user} set the volume to **${volume_input}**!`,
-                } : {
-                    description: `${command_interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5)}**!`,
+                new CustomEmbed({
+                    ...(volume_input ? {
+                        description: `${command_interaction.user} set the volume to **${volume_input}**!`,
+                    } : {
+                        description: `${command_interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5)}**!`,
+                    }),
                 }),
             ],
             components: [
@@ -122,9 +125,9 @@ module.exports = new ClientCommand({
 
                     await button_interaction.editReply({
                         embeds: [
-                            {
+                            new CustomEmbed({
                                 description: `${button_interaction.user}, ${queue.volume === 0 ? 'muted' : 'unmuted'}!`,
-                            },
+                            }),
                         ],
                     });
 
@@ -136,9 +139,9 @@ module.exports = new ClientCommand({
 
                     await button_interaction.editReply({
                         embeds: [
-                            {
+                            new CustomEmbed({
                                 description: `${button_interaction.user}, decreased the volume to **${VolumeManager.normalizeVolume(queue.volume)}**!`,
-                            },
+                            }),
                         ],
                     });
 
@@ -150,9 +153,9 @@ module.exports = new ClientCommand({
 
                     await button_interaction.editReply({
                         embeds: [
-                            {
+                            new CustomEmbed({
                                 description: `${button_interaction.user}, increased the volume to **${VolumeManager.normalizeVolume(queue.volume)}**!`,
-                            },
+                            }),
                         ],
                     });
 
@@ -164,8 +167,8 @@ module.exports = new ClientCommand({
             }
         });
 
-        button_interaction_collector.on('end', () => {
-            bot_message.delete();
+        button_interaction_collector.on('end', async () => {
+            await disableMessageComponents(bot_message);
         });
     },
 });

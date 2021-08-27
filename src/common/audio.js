@@ -29,56 +29,6 @@ class AudioManager {
         player.on('error', (queue, error) => console.trace('error', { queue }, error));
         player.on('connectionError', (queue, error) => console.trace('connectionError', { queue }, error));
 
-        player.on('botDisconnect', (queue) => {
-            queue.metadata.channel.send({
-                embeds: [
-                    {
-                        description: 'I was manually disconnected from the voice channel, clearing queue!',
-                    },
-                ],
-            });
-        });
-
-        player.on('queueEnd', (queue) => {
-            queue.metadata.channel.send({
-                embeds: [
-                    {
-                        description: 'Queue ended!',
-                    },
-                ],
-            });
-        });
-
-        player.on('channelEmpty', (queue) => {
-            queue.metadata.channel.send({
-                embeds: [
-                    {
-                        description: 'Nobody is in the voice channel, leaving...',
-                    },
-                ],
-            });
-        });
-
-        player.on('trackStart', (queue, track) => {
-            queue.metadata.channel.send({
-                embeds: [
-                    {
-                        description: `${queue.metadata.user}, Started playing: **${track.title}** in **${queue.connection.channel.name}**!`,
-                    },
-                ],
-            });
-        });
-
-        player.on('trackAdd', (queue, track) => {
-            queue.metadata.channel.send({
-                embeds: [
-                    {
-                        description: `${queue.metadata.user}, Added **${track.title}** to the queue!`,
-                    },
-                ],
-            });
-        });
-
         AudioManager.players.set(guild_id, player);
 
         return player;
