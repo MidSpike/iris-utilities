@@ -5,12 +5,13 @@
 const Discord = require('discord.js');
 const { QueueRepeatMode } = require('discord-player');
 
-const { AudioManager } = require('../../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
+const { AudioManager } = require('../../../common/app/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
+    type: 'CHAT_INPUT',
     name: 'loop',
     description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),

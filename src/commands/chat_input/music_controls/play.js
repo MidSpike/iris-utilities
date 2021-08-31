@@ -5,14 +5,15 @@
 const Discord = require('discord.js');
 const { QueryType } = require('discord-player');
 
-const { delay } = require('../../common/utilities');
-const { CustomEmbed } = require('../../common/message');
-const { AudioManager, VolumeManager } = require('../../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
+const { delay } = require('../../../common/lib/utilities');
+const { CustomEmbed } = require('../../../common/app/message');
+const { AudioManager, VolumeManager } = require('../../../common/app/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
+    type: 'CHAT_INPUT',
     name: 'play',
     description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
@@ -47,7 +48,7 @@ module.exports = new ClientCommand({
             return command_interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        description: `${command_interaction.user}, you need to be in a voice channel to use this command.`,
+                        description: `${command_interaction.user}, you need to be in a voice channel.`,
                     }),
                 ],
             });
@@ -73,18 +74,7 @@ module.exports = new ClientCommand({
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        description: 'I was manually disconnected from the voice channel, clearing queue!',
-                    }),
-                ],
-            });
-        });
-
-        player.removeAllListeners('queueEnd');
-        player.once('queueEnd', (queue) => {
-            queue.metadata.channel.send({
-                embeds: [
-                    new CustomEmbed({
-                        description: 'Queue ended!',
+                        description: 'I was disconnected from the voice channel, cleared the queue!',
                     }),
                 ],
             });
@@ -101,12 +91,12 @@ module.exports = new ClientCommand({
             });
         });
 
-        player.removeAllListeners('trackStart');
-        player.once('trackStart', (queue, track) => {
+        player.removeAllListeners('queueEnd');
+        player.once('queueEnd', (queue) => {
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        description: `${queue.metadata.user}, Started playing: **${track.title}** in **${queue.connection.channel.name}**!`,
+                        description: 'Queue ended!',
                     }),
                 ],
             });
@@ -117,7 +107,25 @@ module.exports = new ClientCommand({
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        description: `${queue.metadata.user}, Added **${track.title}** to the queue!`,
+                        description: `${queue.metadata.user}, added **[${track.title}](${track.url})** to the queue!`,
+                    }),
+                ],
+            });
+        });
+
+        player.removeAllListeners('trackStart');
+        player.once('trackStart', (queue, track) => {
+            console.log(track, track.thumbnail);
+            queue.metadata.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        thumbnail: {
+                            url: track.thumbnail,
+                        },
+                        description: [
+                            `Now playing: **[${track.title}](${track.url})**`,
+                            `Requested by: ${queue.metadata.user}`,
+                        ].join('\n'),
                     }),
                 ],
             });
@@ -181,7 +189,7 @@ module.exports = new ClientCommand({
 
         const tracks = search_result.playlist?.tracks ?? [search_result.tracks[0]];
 
-        await command_interaction.followUp({
+        const added_tracks_to_queue_message = await command_interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     description: `${command_interaction.user}, adding ${tracks.length} track(s) to the queue...`,
@@ -194,8 +202,10 @@ module.exports = new ClientCommand({
             for (let i = 0; i < tracks.length; i++) {
                 const insert_index = playnext ? i : queue.tracks.length;
                 queue.insert(tracks[i], insert_index);
-                await delay(1_000);
+                await delay(5_000);
             }
+
+            added_tracks_to_queue_message.delete();
         })();
 
         // wait for the queue to be populated

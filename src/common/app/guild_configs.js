@@ -4,7 +4,7 @@
 
 const Discord = require('discord.js');
 
-const { go_mongo_db } = require('./go_mongo_db');
+const { go_mongo_db } = require('../lib/go_mongo_db');
 
 //------------------------------------------------------------//
 

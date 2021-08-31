@@ -4,15 +4,16 @@
 
 const Discord = require('discord.js');
 
-const { AudioManager } = require('../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../common/client_commands');
+const { AudioManager } = require('../../../common/app/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
-    name: 'test',
+    type: 'CHAT_INPUT',
+    name: 'stop',
     description: 'n/a',
-    category: ClientCommand.categories.get('BOT_SUPER'),
+    category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     options: [],
     permissions: [
         Discord.Permissions.FLAGS.VIEW_CHANNEL,
@@ -47,12 +48,10 @@ module.exports = new ClientCommand({
             });
         }
 
-        const filter = 'nightcore';
-        const filter_enabled = queue.getFiltersEnabled().includes(filter);
-        queue.setFilters({ [filter]: !filter_enabled });
+        queue.stop();
 
         command_interaction.followUp({
-            content: `${command_interaction.user}, did the test!`,
+            content: `${command_interaction.user}, stopped!`,
         });
     },
 });

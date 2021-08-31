@@ -4,16 +4,16 @@
 
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../common/message');
-const { AudioManager } = require('../../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
+const { AudioManager } = require('../../../common/app/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
-    name: 'skip',
+    type: 'CHAT_INPUT',
+    name: 'test',
     description: 'n/a',
-    category: ClientCommand.categories.get('MUSIC_CONTROLS'),
+    category: ClientCommand.categories.get('BOT_SUPER'),
     options: [],
     permissions: [
         Discord.Permissions.FLAGS.VIEW_CHANNEL,
@@ -32,11 +32,7 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        description: `${command_interaction.user}, nothing is playing right now!`,
-                    }),
-                ],
+                content: 'Nothing is playing right now!',
             });
         }
 
@@ -48,22 +44,16 @@ module.exports = new ClientCommand({
 
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
             return command_interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        description: `${command_interaction.user}, you must be in the same voice channel as me to skip.`,
-                    }),
-                ],
+                content: `${command_interaction.user}, you must be in the same voice channel as me.`,
             });
         }
 
-        queue.skip();
+        const filter = 'nightcore';
+        const filter_enabled = queue.getFiltersEnabled().includes(filter);
+        queue.setFilters({ [filter]: !filter_enabled });
 
         command_interaction.followUp({
-            embeds: [
-                new CustomEmbed({
-                    description: `${command_interaction.user}, skipped!`,
-                }),
-            ],
+            content: `${command_interaction.user}, did the test!`,
         });
     },
 });

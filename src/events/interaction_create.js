@@ -4,8 +4,8 @@
 
 const Discord = require('discord.js');
 
-const { ClientCommandManager } = require('../common/client_commands');
-const { GuildConfigsManager } = require('../common/guild_configs');
+const { ClientCommandManager } = require('../common/app/client_commands');
+const { GuildConfigsManager } = require('../common/app/guild_configs');
 
 //------------------------------------------------------------//
 
@@ -13,18 +13,18 @@ module.exports = {
     name: 'interactionCreate',
     /**
      * @param {Discord.Client} discord_client
-     * @param {Discord.Interaction} interaction
+     * @param {Discord.Interaction} unknown_interaction
      */
-    async handler(discord_client, interaction) {
-        if (interaction.isCommand()) {
-            /** @type {Discord.CommandInteraction} */
-            const command_interaction = interaction;
-            console.log({ command_interaction });
+    async handler(discord_client, unknown_interaction) {
+        if (unknown_interaction.isCommand() || unknown_interaction.isContextMenu()) {
+            /** @type {Discord.CommandInteraction | Discord.ContextMenuInteraction} */
+            const interaction = unknown_interaction;
+            console.log({ interaction });
 
-            const command = ClientCommandManager.commands.get(command_interaction.commandName);
+            const command = ClientCommandManager.commands.get(interaction.commandName);
             if (!command) return;
 
-            await command.handler(discord_client, command_interaction);
+            await command.handler(discord_client, interaction);
         }
     },
 };

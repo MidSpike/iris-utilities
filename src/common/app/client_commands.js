@@ -12,6 +12,7 @@ const Discord = require('discord.js');
  *  command: ClientCommand,
  * }} ClientCommandHandlerOptions
  * 
+ * @typedef {Discord.ApplicationCommandType} ClientCommandType
  * @typedef {string} ClientCommandName
  * @typedef {string} ClientCommandDescription
  * @typedef {{
@@ -23,9 +24,10 @@ const Discord = require('discord.js');
  * @typedef {Discord.ApplicationCommandOptionData[]} ClientCommandOptions
  * @typedef {Discord.PermissionResolvable[]} ClientCommandPermissions
  * @typedef {'GUILD_COMMAND'|'GLOBAL_COMMAND'} ClientCommandContext
- * @typedef {(discord_client: Discord.Client, command_interaction: Discord.CommandInteraction) => Promise<unknown>} ClientCommandHandler
+ * @typedef {(discord_client: Discord.Client, interaction: Discord.Interaction) => Promise<unknown>} ClientCommandHandler
  * 
  * @typedef {{
+ *  type: ClientCommandType,
  *  name: ClientCommandName,
  *  description: ClientCommandDescription,
  *  category: ClientCommandCategory,
@@ -105,6 +107,7 @@ class ClientCommand {
         },
     ].map((command_category) => [command_category.id, command_category]));
 
+    #type;
     #name;
     #description;
     #category;
@@ -117,13 +120,28 @@ class ClientCommand {
      * @param {ClientCommandConstructorOptions} opts
      */
     constructor(opts) {
+        if (typeof opts.type !== 'string') throw new TypeError('opts.type must be a string');
+        if (typeof opts.name !== 'string') throw new TypeError('opts.name must be a string');
+        if (opts.description && typeof opts.description !== 'string') throw new TypeError('opts.description must be a string');
+        if (opts.category && typeof opts.category !== 'object') throw new TypeError('opts.category must be an object');
+        if (opts.options && typeof opts.options !== 'object') throw new TypeError('opts.options must be an object');
+        if (typeof opts.permissions !== 'object') throw new TypeError('opts.permissions must be an object');
+        if (typeof opts.context !== 'string') throw new TypeError('opts.context must be a string');
+        if (typeof opts.handler !== 'function') throw new TypeError('opts.handler must be a function');
+
+        this.#type = opts.type;
         this.#name = opts.name;
-        this.#description = opts.description;
-        this.#category = opts.category;
-        this.#options = opts.options;
+        this.#description = opts.description ?? null;
+        this.#category = opts.category ?? null;
+        this.#options = opts.options ?? null;
         this.#permissions = opts.permissions;
         this.#context = opts.context;
         this.#handler = opts.handler;
+    }
+
+    /** @type {ClientCommandType} */
+    get type() {
+        return this.#type;
     }
 
     /** @type {ClientCommandName} */
@@ -158,35 +176,35 @@ class ClientCommand {
 
     /**
      * @param {Discord.Client} discord_client
-     * @param {Discord.CommandInteraction} command_interaction
+     * @param {Discord.Interaction} interaction
      * @returns {Promise<unknown>}
      */
-    async handler(discord_client, command_interaction) {
+    async handler(discord_client, interaction) {
         /* validate the command context execution environment */
         if (this.context !== 'ALL') {
-            const interaction_originated_from_guild = !!command_interaction.guildId;
+            const interaction_originated_from_guild = !!interaction.guildId;
             if (!interaction_originated_from_guild && this.context === 'GUILDS') {
-                return command_interaction.reply('This command can only be used inside of guilds.');
+                return interaction.reply('This command can only be used inside of guilds.');
             }
             if (interaction_originated_from_guild && this.context === 'DMS') {
-                return command_interaction.reply('This command can only be used inside of direct messages.');
+                return interaction.reply('This command can only be used inside of direct messages.');
             }
         }
 
         /* validate the command permissions */
         const command_permissions = this.permissions;
-        const channel = await discord_client.channels.fetch(command_interaction.channelId);
+        const channel = await discord_client.channels.fetch(interaction.channelId);
         if (channel.isText() && channel.type !== 'DM') {
             const bot_permissions = channel.permissionsFor(discord_client.user.id);
             const missing_permissions = command_permissions.filter(command_permission => !bot_permissions.has(command_permission));
             if (missing_permissions.length > 0) {
                 const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
-                return command_interaction.reply(`In order to execute this command, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`);
+                return interaction.reply(`In order to execute this command, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`);
             }
         }
 
         /* run the command handler */
-        return this.#handler(discord_client, command_interaction);
+        return this.#handler(discord_client, interaction);
     }
 }
 
@@ -223,6 +241,7 @@ class ClientCommandManager {
             if (!guild_command) {
                 console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering command: ${command.name}; to guild: ${guild.id};`);
                 await guild.commands.create({
+                    type: command.type,
                     name: command.name,
                     description: command.description,
                     options: command.options,

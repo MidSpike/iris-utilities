@@ -4,13 +4,14 @@
 
 const Discord = require('discord.js');
 
-const { CustomEmbed, disableMessageComponents } = require('../../common/message');
-const { AudioManager, VolumeManager } = require('../../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
+const { CustomEmbed, disableMessageComponents } = require('../../../common/app/message');
+const { AudioManager, VolumeManager } = require('../../../common/app/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
+    type: 'CHAT_INPUT',
     name: 'volume',
     description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),

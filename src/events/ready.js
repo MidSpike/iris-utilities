@@ -5,8 +5,8 @@
 const path = require('path');
 const recursiveReadDirectory = require('recursive-read-directory');
 
-const { ClientCommand, ClientCommandManager } = require('../common/client_commands');
-const { GuildConfigsManager } = require('../common/guild_configs');
+const { ClientCommand, ClientCommandManager } = require('../common/app/client_commands');
+const { GuildConfigsManager } = require('../common/app/guild_configs');
 
 //------------------------------------------------------------//
 
