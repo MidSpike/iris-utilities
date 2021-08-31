@@ -4,8 +4,8 @@
 
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../common/message');
-const { ClientCommand, ClientCommandManager, ClientCommandHandler } = require('../common/client_commands');
+const { CustomEmbed } = require('../../../common/app/message');
+const { ClientCommand, ClientCommandManager, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
@@ -13,14 +13,19 @@ async function createHelpEmbed(command_category_id) {
     const command_category = ClientCommand.categories.get(command_category_id);
     if (!command_category) throw new Error(`No command category with id ${command_category_id}`);
 
-    const all_commands = ClientCommandManager.commands;
+    const chat_input_commands = ClientCommandManager.commands.filter(command => command.type === 'CHAT_INPUT');
 
-    const commands_in_specified_category = all_commands.filter(command => command.category.id === command_category.id);
+    const commands_in_specified_category = chat_input_commands.filter(command => command.category.id === command_category.id);
     const mapped_commands_in_specified_category = commands_in_specified_category.map(command => {
         const command_usage = command.options.map(({ required, name, type }) => {
             return `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
         }).join(' ');
         return `/${command.name} ${command_usage}`;
+    });
+
+    console.log({
+        chat_input_commands,
+        commands_in_specified_category,
     });
 
     return new CustomEmbed({
@@ -40,6 +45,7 @@ async function createHelpEmbed(command_category_id) {
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
+    type: 'CHAT_INPUT',
     name: 'help',
     description: 'displays a list of commands',
     category: ClientCommand.categories.get('HELP_AND_INFORMATION'),
@@ -92,6 +98,7 @@ module.exports = new ClientCommand({
 
         const interaction_collector = await bot_message.createMessageComponentCollector({
             filter: (interaction) => interaction.user.id === command_interaction.user.id,
+            time: 5 * 60_000,
         });
 
         interaction_collector.on('collect', async (interaction) => {

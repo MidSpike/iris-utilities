@@ -4,13 +4,15 @@
 
 const Discord = require('discord.js');
 
-const { AudioManager } = require('../../common/audio');
-const { ClientCommand, ClientCommandHandler } = require('../../common/client_commands');
+const { CustomEmbed } = require('../../../common/app/message');
+const { AudioManager } = require('../../../common/app/audio');
+const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientCommand({
-    name: 'stop',
+    type: 'CHAT_INPUT',
+    name: 'skip',
     description: 'n/a',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     options: [],
@@ -31,7 +33,11 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: 'Nothing is playing right now!',
+                embeds: [
+                    new CustomEmbed({
+                        description: `${command_interaction.user}, nothing is playing right now!`,
+                    }),
+                ],
             });
         }
 
@@ -43,14 +49,22 @@ module.exports = new ClientCommand({
 
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
             return command_interaction.followUp({
-                content: `${command_interaction.user}, you must be in the same voice channel as me.`,
+                embeds: [
+                    new CustomEmbed({
+                        description: `${command_interaction.user}, you must be in the same voice channel as me to skip.`,
+                    }),
+                ],
             });
         }
 
-        queue.stop();
+        queue.skip();
 
         command_interaction.followUp({
-            content: `${command_interaction.user}, stopped!`,
+            embeds: [
+                new CustomEmbed({
+                    description: `${command_interaction.user}, skipped!`,
+                }),
+            ],
         });
     },
 });
