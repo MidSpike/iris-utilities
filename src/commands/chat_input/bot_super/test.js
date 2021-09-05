@@ -3,6 +3,7 @@
 //------------------------------------------------------------//
 
 const Discord = require('discord.js');
+const { Track } = require('discord-player');
 
 const { AudioManager } = require('../../../common/app/audio');
 const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
@@ -25,32 +26,6 @@ module.exports = new ClientCommand({
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
         await command_interaction.deferReply();
-
-        const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
-
-        const queue = player.getQueue(command_interaction.guildId);
-
-        if (!queue?.connection || !queue?.playing) {
-            return command_interaction.followUp({
-                content: 'Nothing is playing right now!',
-            });
-        }
-
-        /** @type {Discord.GuildMember} */
-        const guild_member = command_interaction.member;
-
-        const guild_member_voice_channel = guild_member.voice.channel;
-        const bot_voice_channel = command_interaction.guild.me.voice.channel;
-
-        if (guild_member_voice_channel.id !== bot_voice_channel.id) {
-            return command_interaction.followUp({
-                content: `${command_interaction.user}, you must be in the same voice channel as me.`,
-            });
-        }
-
-        const filter = 'nightcore';
-        const filter_enabled = queue.getFiltersEnabled().includes(filter);
-        queue.setFilters({ [filter]: !filter_enabled });
 
         command_interaction.followUp({
             content: `${command_interaction.user}, did the test!`,
