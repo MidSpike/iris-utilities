@@ -13,7 +13,7 @@ const { ClientCommand, ClientCommandHandler } = require('../../../common/app/cli
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'volume',
-    description: 'n/a',
+    description: 'allows you to view / control the volume',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     options: [
         {
