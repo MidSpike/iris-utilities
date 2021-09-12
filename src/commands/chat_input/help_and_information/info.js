@@ -12,7 +12,7 @@ const { ClientCommand, ClientCommandHandler } = require('../../../common/app/cli
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'info',
-    description: 'n/a',
+    description: 'displays various information about the bot',
     category: ClientCommand.categories.get('HELP_AND_INFORMATION'),
     options: [],
     permissions: [

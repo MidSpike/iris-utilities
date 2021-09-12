@@ -15,7 +15,7 @@ const { ClientCommand, ClientCommandHandler } = require('../../../common/app/cli
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'play',
-    description: 'n/a',
+    description: 'allows for playing audio resources',
     category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     options: [
         {
