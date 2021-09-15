@@ -29,8 +29,9 @@ const Discord = require('discord.js');
  * @typedef {{
  *  type: ClientCommandType,
  *  name: ClientCommandName,
- *  description: ClientCommandDescription,
- *  category: ClientCommandCategory,
+ *  description?: ClientCommandDescription,
+ *  category?: ClientCommandCategory,
+ *  options?: ClientCommandOptions,
  *  permissions: ClientCommandPermissions,
  *  context: ClientCommandContext,
  *  handler: ClientCommandHandler,
