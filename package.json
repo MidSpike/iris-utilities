@@ -21,6 +21,7 @@
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.1-beta",
     "libsodium-wrappers": "^0.7.9",
     "manakin": "^0.5.2",
+    "moment-timezone": "^0.5.33",
     "opusscript": "0.0.8",
     "path": "^0.12.7",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory",
