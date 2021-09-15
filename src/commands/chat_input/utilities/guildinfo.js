@@ -13,8 +13,8 @@ const { ClientCommand, ClientCommandHandler } = require('../../../common/app/cli
 
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
-    name: 'serverinfo',
-    description: 'displays various information about a discord server',
+    name: 'guildinfo',
+    description: 'displays various information about a guild',
     category: ClientCommand.categories.get('UTILITIES'),
     options: [],
     permissions: [
