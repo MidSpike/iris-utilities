@@ -18,7 +18,8 @@ async function createHelpEmbed(command_category_id) {
     const commands_in_specified_category = chat_input_commands.filter(command => command.category.id === command_category.id);
     const mapped_commands_in_specified_category = commands_in_specified_category.map(command => {
         const command_usage = command.options.map(({ required, name, type }) => {
-            return `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
+            return `${required ? '<' : '['}${name}${required ? '>' : ']'}`;
+            // return `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
         }).join(' ');
         return `/${command.name} ${command_usage}`;
     });
