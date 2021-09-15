@@ -246,51 +246,73 @@ module.exports = new ClientCommand({
                                         name: 'Creation Date',
                                         value: `${'```'}\n${moment(guild.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
                                         inline: false,
+                                    }, {
+                                        name: 'Description',
+                                        value: `${'```'}\n${guild.description || 'n/a'}\n${'```'}`,
+                                        inline: false,
                                     },
+
+                                    // {
+                                    //     name: '\u200b',
+                                    //     value: '\u200b',
+                                    //     inline: false,
+                                    // },
 
                                     {
                                         name: 'Owner',
                                         value: `<@!${guild.ownerId}>`,
                                         inline: true,
                                     }, {
-                                        name: 'Preferred Locale',
-                                        value: `\`${guild.preferredLocale}\``,
+                                        name: 'Discord Partner',
+                                        value: `\`${guild.partnered ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Verified By Discord',
-                                        value: `\`${guild.verified}\``,
+                                        value: `\`${guild.verified ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
-                                        name: 'Partnered With Discord',
-                                        value: `\`${guild.partnered}\``,
-                                        inline: true,
-                                    }, {
-                                        name: 'Verification Level',
-                                        value: `\`${guild.verificationLevel}\``,
+                                        name: 'Moderation Level',
+                                        value: `\`${guild.verificationLevel ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Explicit Content Filter',
-                                        value: `\`${guild.explicitContentFilter}\``,
+                                        value: `\`${guild.explicitContentFilter ?? 'n/a'}\``,
+                                        inline: true,
+                                    }, {
+                                        name: 'Preferred Locale',
+                                        value: `\`${guild.preferredLocale ?? 'n/a'}\``,
+                                        inline: true,
+                                    }, {
+                                        name: 'NSFW Level',
+                                        value: `\`${guild.nsfwLevel ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Booster Level',
-                                        value: `\`${guild.premiumTier}\``,
+                                        value: `\`${guild.premiumTier ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Boosters',
-                                        value: `\`${guild.premiumSubscriptionCount}\``,
+                                        value: `\`${guild.premiumSubscriptionCount ?? 'n/a'}\``,
+                                        inline: true,
+                                    }, {
+                                        name: 'Invites',
+                                        value: `\`${guild.invites.cache.size ?? 'n/a'}\``,
+                                        inline: true,
+                                    }, {
+                                        name: 'Roles',
+                                        value: `\`${guild.roles.cache.size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Channels',
-                                        value: `\`${guild.channels.cache.size}\``,
+                                        value: `\`${guild.channels.cache.size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Bots',
-                                        value: `\`${guild_members.filter(m => m.user.bot).size}\``,
+                                        value: `\`${guild_members.filter(m => m.user.bot).size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Members',
-                                        value: `\`${guild_members.filter(m => !m.user.bot).size}\``,
+                                        value: `\`${guild_members.filter(m => !m.user.bot).size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: '\u200b',
