@@ -39,7 +39,7 @@ const result_key_overrides = {
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'ipinfo',
-    description: 'displays various information about an ip',
+    description: 'displays information about an ip address',
     category: ClientCommand.categories.get('UTILITIES'),
     options: [
         {

@@ -13,7 +13,7 @@ const { ClientCommand, ClientCommandHandler } = require('../../../common/app/cli
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'roleinfo',
-    description: 'displays various information about a guild role',
+    description: 'displays information about a guild role',
     category: ClientCommand.categories.get('UTILITIES'),
     options: [
         {
