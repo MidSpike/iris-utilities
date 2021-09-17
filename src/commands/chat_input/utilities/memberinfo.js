@@ -14,7 +14,7 @@ const { ClientCommand, ClientCommandHandler } = require('../../../common/app/cli
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'memberinfo',
-    description: 'displays various information about a guild member',
+    description: 'displays information about a guild member',
     category: ClientCommand.categories.get('UTILITIES'),
     options: [
         {
