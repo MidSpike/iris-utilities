@@ -48,7 +48,7 @@ async function createHelpEmbed(command_category_id) {
 module.exports = new ClientCommand({
     type: 'CHAT_INPUT',
     name: 'help',
-    description: 'displays a list of commands',
+    description: 'displays available commands',
     category: ClientCommand.categories.get('HELP_AND_INFORMATION'),
     options: [
         {
@@ -88,7 +88,7 @@ module.exports = new ClientCommand({
                             max_values: 1,
                             options: ClientCommand.categories.map(({ id, name, description }) => ({
                                 label: name,
-                                description: description.slice(0, 50),
+                                description: description.slice(0, 100),
                                 value: id,
                             })),
                         },
@@ -119,6 +119,7 @@ module.exports = new ClientCommand({
                     });
                     break;
                 }
+
                 default: {
                     break;
                 }
