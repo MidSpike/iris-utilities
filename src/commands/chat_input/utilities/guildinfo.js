@@ -42,7 +42,7 @@ module.exports = new ClientCommand({
         const guild_role_chunks = array_chunks(guild_roles, 25);
 
         const guild_emojis = guild.emojis.cache.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
-        const guild_emoji_chunks = array_chunks(guild_emojis, 5);
+        const guild_emoji_chunks = array_chunks(guild_emojis, 25);
 
         /**
          * @param {'default'|'roles'|'emojis'|'features'|'channels'|'media'} mode
@@ -66,7 +66,7 @@ module.exports = new ClientCommand({
                                     },
 
                                     ...guild_role_chunks.map((guild_roles_chunk, chunk_index, guild_roles_chunks) => ({
-                                        name: `Roles ${chunk_index+1}/${guild_roles_chunks.length}`,
+                                        name: `Roles ${chunk_index + 1}/${guild_roles_chunks.length}`,
                                         value: `${guild_roles_chunk.join(' - ')}`,
                                     })),
                                 ],
@@ -93,11 +93,10 @@ module.exports = new ClientCommand({
                                         inline: false,
                                     },
 
-                                    {
-                                        name: 'Emojis',
-                                        value: guild_emoji_chunks.map((guild_emoji_chunk) => guild_emoji_chunk.join('')).join('\n'),
-                                        inline: false,
-                                    },
+                                    ...guild_emoji_chunks.map((guild_emoji_chunk, chunk_index, guild_emoji_chunks) => ({
+                                        name: `Roles ${chunk_index + 1}/${guild_emoji_chunks.length}`,
+                                        value: array_chunks(guild_emoji_chunk, 5).map((guild_emoji_mini_chunk) => guild_emoji_mini_chunk.join('')).join('\n'),
+                                    })),
                                 ],
                             }),
                         ],
