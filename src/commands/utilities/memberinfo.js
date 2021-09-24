@@ -47,12 +47,12 @@ module.exports = new DisBotCommand({
             title: 'Don\'t go wild with this guild member information!',
             fields: [
                 {
-                    name: 'Snowflake',
-                    value: `${'```'}\n${member.id}\n${'```'}`,
-                    inline: false,
-                }, {
                     name: 'Username',
                     value: `${'```'}\n${member.user.tag}\n${'```'}`,
+                    inline: false,
+                }, {
+                    name: 'Snowflake',
+                    value: `${'```'}\n${member.id}\n${'```'}`,
                     inline: false,
                 },
 
