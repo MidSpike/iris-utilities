@@ -244,7 +244,7 @@ class ClientCommand {
                     new CustomEmbed({
                         color: 0xFF00FF,
                         title: 'Access Denied',
-                        description: `You don\'t aren\'t allowed to use the \`${this.name}\` command.`,
+                        description: `You aren\'t allowed to use the \`${this.name}\` command.`,
                         fields: [
                             {
                                 name: 'Required Access Level',
