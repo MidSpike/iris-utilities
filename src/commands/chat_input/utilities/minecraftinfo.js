@@ -5,7 +5,6 @@
 const axios = require('axios');
 const Discord = require('discord.js');
 
-const { array_chunks } = require('../../../common/lib/utilities');
 const { CustomEmbed } = require('../../../common/app/message');
 const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
@@ -99,7 +98,7 @@ module.exports = new ClientCommand({
                 await bot_message.edit({
                     embeds: [
                         new CustomEmbed({
-                            title: `MC User > ${mc_user_username}`,
+                            title: `MC User > ${Discord.Util.escapeMarkdown(mc_user_username)}`,
                             fields: [
                                 {
                                     name: 'UUID',
@@ -107,7 +106,7 @@ module.exports = new ClientCommand({
                                     inline: false,
                                 }, {
                                     name: 'Name History',
-                                    value: mc_user_name_history.map(({ name, changedToAt }) => `${name} (<t:${`${changedToAt ?? Date.now()}`.slice(0, -3)}:f>)`).join('\n'),
+                                    value: mc_user_name_history.map(({ name, changedToAt }) => `${Discord.Util.escapeMarkdown(name)} ${changedToAt ? `(<t:${`${changedToAt}`.slice(0, -3)}:f>)` : ''}`).join('\n'),
                                     inline: false,
                                 }, {
                                     name: 'Avatar',
@@ -189,7 +188,8 @@ module.exports = new ClientCommand({
 
                 const mc_server_info_icon_base64 = (mc_server_info_raw_icon ?? '').split(',')[1] || null;
                 const mc_server_info_icon_buffer = mc_server_info_icon_base64 ? Buffer.from(mc_server_info_icon_base64, 'base64') : null;
-                const mc_server_info_icon_attachment = mc_server_info_icon_buffer ? new Discord.MessageAttachment(mc_server_info_icon_buffer, 'mc-server-icon.png') : null;
+                const mc_server_info_icon_attachment_name = 'mc-server-icon.png';
+                const mc_server_info_icon_attachment = mc_server_info_icon_buffer ? new Discord.MessageAttachment(mc_server_info_icon_buffer, mc_server_info_icon_attachment_name) : null;
 
                 await bot_message.edit({
                     embeds: [
@@ -228,7 +228,7 @@ module.exports = new ClientCommand({
                             ],
                             ...(mc_server_info_icon_attachment ? {
                                 thumbnail: {
-                                    url: `attachment://mc-server-icon.png`,
+                                    url: `attachment://${mc_server_info_icon_attachment_name}`,
                                 },
                             } : {}),
                         }),

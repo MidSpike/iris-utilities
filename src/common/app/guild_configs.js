@@ -29,8 +29,39 @@ class GuildConfigsManager {
 
     static get guild_config_template() {
         return {
-            _creation_epoch: Date.now(),
+            '_creation_epoch': Date.now(),
+            'staff_role_ids': [],
+            'admin_role_ids': [],
         };
+    }
+
+    /**
+     * @param {GuildId} guild_id
+     * @return {Promise<GuildConfig>}
+     * @private
+     */
+    static async _create(guild_id) {
+        if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
+
+        const guild_config_template = GuildConfigsManager.guild_config_template;
+
+        const new_guild_config = {
+            'guild_id': guild_id,
+            ...guild_config_template,
+        };
+
+        try {
+            await go_mongo_db.add(process.env.MONGO_DATABASE_NAME, process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME, [
+                new_guild_config,
+            ]);
+        } catch (error) {
+            console.trace(error);
+            throw new Error(`GuildConfigsManager._create(): failed to create new guild_config for ${guild_id} in the database`);
+        }
+
+        GuildConfigsManager.cache.set(guild_id, new_guild_config);
+
+        return new_guild_config;
     }
 
     /**
@@ -54,38 +85,10 @@ class GuildConfigsManager {
                 'guild_id': guild_id,
             });
 
-            guild_config = db_guild_config ?? await GuildConfigsManager.create(guild_id);
+            guild_config = db_guild_config ?? await GuildConfigsManager._create(guild_id);
         }
 
         return guild_config;
-    }
-
-    /**
-     * @param {GuildId} guild_id
-     * @return {Promise<GuildConfig>}
-     */
-    static async create(guild_id) {
-        if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
-
-        const guild_config_template = GuildConfigsManager.guild_config_template;
-
-        const new_guild_config = {
-            'guild_id': guild_id,
-            ...guild_config_template,
-        };
-
-        try {
-            await go_mongo_db.add(process.env.MONGO_DATABASE_NAME, process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME, [
-                new_guild_config,
-            ]);
-        } catch (error) {
-            console.trace(error);
-            throw new Error(`GuildConfigsManager.create(): failed to create new guild_config for ${guild_id} in the database`);
-        }
-
-        GuildConfigsManager.cache.set(guild_id, new_guild_config);
-
-        return new_guild_config;
     }
 
     /**
@@ -119,7 +122,7 @@ class GuildConfigsManager {
             });
         } catch (error) {
             console.trace(error);
-            throw new Error(`GuildConfigsManager.create(): failed to update guild_config for ${guild_id} in the database`);
+            throw new Error(`GuildConfigsManager.update(): failed to update guild_config for ${guild_id} in the database`);
         }
 
         GuildConfigsManager.cache.set(guild_id, updated_guild_config);
