@@ -4,6 +4,11 @@
 
 const Discord = require('discord.js');
 
+const { go_mongo_db } = require('../lib/go_mongo_db');
+
+const { CustomEmbed } = require('./message');
+const { GuildConfigsManager } = require('./guild_configs');
+
 //------------------------------------------------------------//
 
 /**
@@ -19,7 +24,7 @@ const Discord = require('discord.js');
  *  id: string,
  *  name: string,
  *  description: string,
- *  required_permission_levels: number[],
+ *  required_access_level: number,
  * }} ClientCommandCategory
  * @typedef {Discord.ApplicationCommandOptionData[]} ClientCommandOptions
  * @typedef {Discord.PermissionResolvable[]} ClientCommandPermissions
@@ -30,7 +35,7 @@ const Discord = require('discord.js');
  *  type: ClientCommandType,
  *  name: ClientCommandName,
  *  description?: ClientCommandDescription,
- *  category?: ClientCommandCategory,
+ *  category: ClientCommandCategory,
  *  options?: ClientCommandOptions,
  *  permissions: ClientCommandPermissions,
  *  context: ClientCommandContext,
@@ -42,9 +47,9 @@ const Discord = require('discord.js');
 
 class ClientCommand {
     /** @type {Object.<string, number>} */
-    static permission_levels = {
-        PUBLIC: 1,
-        GUILD_MOD: 2,
+    static access_levels = {
+        EVERYONE: 1,
+        GUILD_STAFF: 2,
         GUILD_ADMIN: 3,
         GUILD_OWNER: 4,
         BOT_SUPER: 5,
@@ -56,57 +61,44 @@ class ClientCommand {
             id: 'HELP_AND_INFORMATION',
             name: 'Help And Information',
             description: 'n/a',
-            required_permission_levels: [
-                ClientCommand.permission_levels.PUBLIC,
-            ],
+            required_access_level: ClientCommand.access_levels.EVERYONE,
         }, {
             id: 'MUSIC_CONTROLS',
             name: 'Music Controls',
             description: 'n/a',
-            required_permission_levels: [
-                ClientCommand.permission_levels.PUBLIC,
-            ],
+            required_access_level: ClientCommand.access_levels.EVERYONE,
         }, {
             id: 'FUN_STUFF',
             name: 'Fun Stuff',
             description: 'n/a',
-            required_permission_levels: [
-                ClientCommand.permission_levels.PUBLIC,
-            ],
+            required_access_level: ClientCommand.access_levels.EVERYONE,
         }, {
             id: 'UTILITIES',
             name: 'Utilities',
             description: 'n/a',
-            required_permission_levels: [
-                ClientCommand.permission_levels.PUBLIC,
-            ],
+            required_access_level: ClientCommand.access_levels.EVERYONE,
         }, {
             id: 'GUILD_STAFF',
             name: 'Guild Staff',
-            description: 'Commands that can only be used by guild mods, admins, owner, and bot super.',
-            required_permission_levels: [
-                ClientCommand.permission_levels.GUILD_MOD,
-                ClientCommand.permission_levels.GUILD_ADMIN,
-                ClientCommand.permission_levels.GUILD_OWNER,
-            ],
+            description: 'Commands for guild mods, guild admins, guild owner, and bot super.',
+            required_access_level: ClientCommand.access_levels.GUILD_STAFF,
         }, {
-            id: 'GUILD_CONFIGURATION',
-            name: 'Guild Configuration',
-            description: 'Commands that can only be used by guild admins, owner, and bot super.',
-            required_permission_levels: [
-                ClientCommand.permission_levels.GUILD_ADMIN,
-                ClientCommand.permission_levels.GUILD_OWNER,
-                ClientCommand.permission_levels.BOT_SUPER,
-            ],
+            id: 'GUILD_STAFF',
+            name: 'Guild Admin',
+            description: 'Commands for guild admins, guild owner, and bot super.',
+            required_access_level: ClientCommand.access_levels.GUILD_ADMIN,
+        }, {
+            id: 'GUILD_OWNER',
+            name: 'Guild Owner',
+            description: 'Commands for the guild owner and bot super.',
+            required_access_level: ClientCommand.access_levels.GUILD_OWNER,
         }, {
             id: 'BOT_SUPER',
             name: 'Bot Super',
-            description: 'Commands that can only be used by bot admins and owner.',
-            required_permission_levels: [
-                ClientCommand.permission_levels.BOT_SUPER,
-            ],
+            description: 'Commands for bot admins and the bot owner.',
+            required_access_level: ClientCommand.access_levels.BOT_SUPER,
         },
-    ].map((command_category) => [command_category.id, command_category]));
+    ].map((command_category) => ([ command_category.id, command_category ])));
 
     #type;
     #name;
@@ -124,7 +116,7 @@ class ClientCommand {
         if (typeof opts.type !== 'string') throw new TypeError('opts.type must be a string');
         if (typeof opts.name !== 'string') throw new TypeError('opts.name must be a string');
         if (opts.description && typeof opts.description !== 'string') throw new TypeError('opts.description must be a string');
-        if (opts.category && typeof opts.category !== 'object') throw new TypeError('opts.category must be an object');
+        if (typeof opts.category !== 'object') throw new TypeError('opts.category must be an object');
         if (opts.options && typeof opts.options !== 'object') throw new TypeError('opts.options must be an object');
         if (typeof opts.permissions !== 'object') throw new TypeError('opts.permissions must be an object');
         if (typeof opts.context !== 'string') throw new TypeError('opts.context must be a string');
@@ -200,8 +192,74 @@ class ClientCommand {
             const missing_permissions = command_permissions.filter(command_permission => !bot_permissions.has(command_permission));
             if (missing_permissions.length > 0) {
                 const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
-                return interaction.reply(`In order to execute this command, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`);
+                return interaction.reply(`In order to run this command, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`);
             }
+        }
+
+        const access_levels_for_user = [ ClientCommand.access_levels.EVERYONE ]; // default access level
+
+        /* determine the user's access levels */
+        if (interaction.guildId) {
+            const guild = await discord_client.guilds.fetch(interaction.guildId);
+            const guild_owner_id = guild.ownerID;
+
+            const guild_member = await guild.members.fetch(interaction.member.id);
+            const guild_member_roles = guild_member.roles.cache;
+            const guild_member_is_administrator = guild_member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR);
+
+            const guild_config = await GuildConfigsManager.fetch(guild.id);
+            const guild_staff_role_ids = guild_config.staff_role_ids;
+            const guild_admin_role_ids = guild_config.admin_role_ids;
+
+            /* check for guild staff */
+            if (guild_member_roles.hasAny(...guild_staff_role_ids)) {
+                access_levels_for_user.push(ClientCommand.access_levels.GUILD_STAFF);
+            }
+
+            /* check for guild admin */
+            if (guild_member_roles.hasAny(...guild_admin_role_ids) || guild_member_is_administrator) {
+                access_levels_for_user.push(ClientCommand.access_levels.GUILD_ADMIN);
+            }
+
+            /* check for guild owner */
+            if (guild_owner_id === interaction.user.id) {
+                access_levels_for_user.push(ClientCommand.access_levels.GUILD_OWNER);
+            }
+
+        }
+
+        /* check for bot super */
+        const bot_super_people = await go_mongo_db.find(process.env.MONGO_DATABASE_NAME, process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME);
+        const bot_super_people_ids = bot_super_people.map(bot_super_person => bot_super_person.discord_user_id);
+        if (bot_super_people_ids.includes(interaction.user.id)) {
+            access_levels_for_user.push(ClientCommand.access_levels.BOT_SUPER);
+        }
+
+        /* check the user's access levels */
+        const highest_access_level_for_user = Math.max(...access_levels_for_user);
+        if (highest_access_level_for_user < this.category.required_access_level) {
+            await interaction.reply({
+                ephemeral: true,
+                embeds: [
+                    new CustomEmbed({
+                        color: 0xFF00FF,
+                        title: 'Access Denied',
+                        description: `You don\'t aren\'t allowed to use the \`${this.name}\` command.`,
+                        fields: [
+                            {
+                                name: 'Required Access Level',
+                                value: `${this.category.required_access_level}`,
+                                inline: true,
+                            }, {
+                                name: 'Your Access Level',
+                                value: `${highest_access_level_for_user}`,
+                                inline: true,
+                            },
+                        ],
+                    }),
+                ],
+            }).catch(console.warn);
+            return;
         }
 
         /* run the command handler */

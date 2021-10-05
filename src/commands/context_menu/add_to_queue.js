@@ -15,6 +15,7 @@ const { ClientCommand, ClientCommandHandler } = require('../../common/app/client
 module.exports = new ClientCommand({
     type: 'MESSAGE',
     name: 'add_to_queue',
+    category: ClientCommand.categories.get('MUSIC_CONTROLS'),
     permissions: [
         Discord.Permissions.FLAGS.VIEW_CHANNEL,
         Discord.Permissions.FLAGS.SEND_MESSAGES,

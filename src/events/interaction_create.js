@@ -5,7 +5,6 @@
 const Discord = require('discord.js');
 
 const { ClientCommandManager } = require('../common/app/client_commands');
-const { GuildConfigsManager } = require('../common/app/guild_configs');
 
 //------------------------------------------------------------//
 
