@@ -83,7 +83,7 @@ class ClientCommand {
             description: 'Commands for guild mods, guild admins, guild owner, and bot super.',
             required_access_level: ClientCommand.access_levels.GUILD_STAFF,
         }, {
-            id: 'GUILD_STAFF',
+            id: 'GUILD_ADMIN',
             name: 'Guild Admin',
             description: 'Commands for guild admins, guild owner, and bot super.',
             required_access_level: ClientCommand.access_levels.GUILD_ADMIN,
