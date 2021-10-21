@@ -37,9 +37,7 @@ module.exports = new ClientCommand({
         /** @type {number?} */
         const volume_input = command_interaction.options.get('level')?.value;
 
-        const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
-
-        const queue = player.getQueue(command_interaction.guildId);
+        const queue = await AudioManager.createQueue(discord_client, command_interaction.guildId);
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
