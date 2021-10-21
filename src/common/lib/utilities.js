@@ -19,7 +19,7 @@ function delay(time_in_milliseconds) {
  * @param {Number} max
  * @returns {Number}
  */
- function random_range_inclusive(min, max) {
+function random_range_inclusive(min, max) {
     if (typeof min !== 'number') throw new TypeError('\`min\` must be a number!');
     if (typeof max !== 'number') throw new TypeError('\`max\` must be a number!');
 

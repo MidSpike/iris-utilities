@@ -27,9 +27,7 @@ module.exports = new ClientCommand({
     async handler(discord_client, command_interaction) {
         await command_interaction.deferReply();
 
-        const player = await AudioManager.fetchPlayer(discord_client, command_interaction.guild_id);
-
-        const queue = player.getQueue(command_interaction.guildId);
+        const queue = await AudioManager.createQueue(discord_client, command_interaction.guildId);
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
