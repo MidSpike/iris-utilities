@@ -5,7 +5,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.6.0",
     "aki-api": "^6.0.8",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "bufferutil": "^4.0.4",
     "discord.js": "^12.5.1",
     "dogeify-js": "^1.2.1",
