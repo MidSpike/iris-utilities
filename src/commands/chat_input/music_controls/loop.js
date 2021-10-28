@@ -6,6 +6,7 @@ const Discord = require('discord.js');
 const { QueueRepeatMode } = require('discord-player');
 
 const { AudioManager } = require('../../../common/app/audio');
+const { CustomEmbed } = require('../../../common/app/message');
 const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
 
 //------------------------------------------------------------//
@@ -53,7 +54,11 @@ module.exports = new ClientCommand({
 
         if (!queue?.connection || !queue?.playing) {
             return command_interaction.followUp({
-                content: `${command_interaction.user}, nothing is playing right now!`,
+                embeds: [
+                    new CustomEmbed({
+                        description: `${command_interaction.user}, nothing is playing right now!`,
+                    }),
+                ],
             });
         }
 
@@ -65,7 +70,11 @@ module.exports = new ClientCommand({
 
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
             return command_interaction.followUp({
-                content: `${command_interaction.user}, you must be in the same voice channel as me.`,
+                embeds: [
+                    new CustomEmbed({
+                        description: `${command_interaction.user}, you must be in the same voice channel as me.`,
+                    }),
+                ],
             });
         }
 
@@ -94,7 +103,11 @@ module.exports = new ClientCommand({
         }
 
         command_interaction.followUp({
-            content: `${command_interaction.user}, set queue looping to **${looping_type}**.`,
+            embeds: [
+                new CustomEmbed({
+                    description: `${command_interaction.user}, set queue looping to **${looping_type}**.`,
+                }),
+            ],
         });
     },
 });

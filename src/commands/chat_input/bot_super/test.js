@@ -3,10 +3,9 @@
 //------------------------------------------------------------//
 
 const Discord = require('discord.js');
-const { Track } = require('discord-player');
 
-const { AudioManager } = require('../../../common/app/audio');
 const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 //------------------------------------------------------------//
 
@@ -27,8 +26,18 @@ module.exports = new ClientCommand({
     async handler(discord_client, command_interaction) {
         await command_interaction.deferReply();
 
-        command_interaction.followUp({
-            content: `${command_interaction.user}, did the test!`,
+        const voice_channel = command_interaction.member?.voice.channel;
+        if (!voice_channel) return;
+
+        joinVoiceChannel({
+            channelId: voice_channel.id,
+            guildId: voice_channel.guild.id,
+            adapterCreator: voice_channel.guild.voiceAdapterCreator,
+            selfDeaf: false,
         });
+
+        await command_interaction.followUp({
+            content: `${command_interaction.member}, did the test!`,
+        }).catch(console.warn);
     },
 });

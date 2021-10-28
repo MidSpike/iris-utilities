@@ -66,6 +66,14 @@ module.exports = new ClientCommand({
         const query = command_interaction.options.get('query').value;
         const playnext = command_interaction.options.get('playnext')?.value ?? false;
 
+        await command_interaction.followUp({
+            embeds: [
+                new CustomEmbed({
+                    description: `${command_interaction.user}, searching for:\`\`\`\n${query}\n\`\`\``,
+                }),
+            ],
+        });
+
         const queue = await AudioManager.createQueue(discord_client, command_interaction.guildId, {
             user: command_interaction.user,
             channel: command_interaction.channel,
