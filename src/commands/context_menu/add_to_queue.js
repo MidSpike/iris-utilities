@@ -25,7 +25,7 @@ module.exports = new ClientCommand({
     context: 'GUILD_COMMAND',
     /** @type {ClientCommandHandler} */
     async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+        await command_interaction.deferUpdate();
 
         const guild_member_voice_channel_id = command_interaction.member.voice.channelId;
         const bot_voice_channel_id = command_interaction.guild.me.voice.channelId;
