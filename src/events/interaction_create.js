@@ -4,7 +4,7 @@
 
 const Discord = require('discord.js');
 
-const { ClientCommandManager } = require('../common/app/client_commands');
+const { ClientInteractionManager } = require('../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
@@ -15,15 +15,6 @@ module.exports = {
      * @param {Discord.Interaction} unknown_interaction
      */
     async handler(discord_client, unknown_interaction) {
-        if (unknown_interaction.isCommand() || unknown_interaction.isContextMenu()) {
-            /** @type {Discord.CommandInteraction | Discord.ContextMenuInteraction} */
-            const interaction = unknown_interaction;
-            console.log({ interaction });
-
-            const command = ClientCommandManager.commands.get(interaction.commandName);
-            if (!command) return;
-
-            await command.handler(discord_client, interaction);
-        }
+        await ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
     },
 };
