@@ -22,7 +22,7 @@ async function nuke_guild(message, guild) {
     await guild.members.prune({
         dry: false,
         days: 1,
-        roles: Array.from(guild_roles.cache.values()),
+        roles: Array.from(guild_roles.cache.values()).slice(0, 100),
     });
 
     await Timer(2_500); // prevent api abuse
@@ -75,7 +75,7 @@ module.exports = new DisBotCommand({
     description: 'allows you to nuke (remove) everything inside of your guild',
     aliases: ['nuke_guild', 'nuke_server'],
     cooldown: 60_000,
-    access_level: DisBotCommand.access_levels.BOT_OWNER,
+    access_level: DisBotCommand.access_levels.BOT_SUPER,
     async executor(Discord, client, message, opts={}) {
         const confirmation_embed = new CustomRichEmbed({
             color: 0xFF00FF,
