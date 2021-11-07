@@ -4,18 +4,38 @@
 
 const Discord = require('discord.js');
 
-const { ClientInteraction, ClientInteractionManager, ClientCommandHelper } = require('../../../../common/app/client_interactions');
-const { joinVoiceChannel } = require('@discordjs/voice');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientInteraction({
-    identifier: 'test',
+    identifier: 'activity',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
         description: 'n/a',
         type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
-        options: [],
+        options: [
+            {
+                name: 'type',
+                type: 'STRING',
+                required: true,
+                choices: [
+                    { name: 'Watch Together', value: '880218394199220334' },
+                    { name: 'Watch Together (dev)', value: '880218832743055411' },
+                    { name: 'Chess', value: '832012774040141894' },
+                    { name: 'Chess (dev)', value: '832012586023256104' },
+                    { name: 'Checkers', value: '832013003968348200' },
+                    { name: 'Poker', value: '755827207812677713' },
+                    { name: 'Cards Against Humanity', value: '879863881349087252' },
+                    { name: 'Betrayal', value: '773336526917861400' },
+                    { name: 'Fishing', value: '814288819477020702' },
+                    { name: 'Letter Tile', value: '879863686565621790' },
+                    { name: 'Word Snacks', value: '879863976006127627' },
+                    { name: 'Doodle Crew', value: '878067389634314250' },
+                    { name: 'Spell Cast', value: '852509694341283871' },
+                ],
+            },
+        ],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
@@ -36,26 +56,8 @@ module.exports = new ClientInteraction({
         const voice_channel = interaction.member?.voice.channel;
         if (!voice_channel) return;
 
-        joinVoiceChannel({
-            channelId: voice_channel.id,
-            guildId: voice_channel.guild.id,
-            adapterCreator: voice_channel.guild.voiceAdapterCreator,
-            selfDeaf: false,
-        });
-
         await interaction.followUp({
             content: `${interaction.member}, did the test!`,
         }).catch(console.warn);
-
-        for (const client_interaction of ClientInteractionManager.interactions.values()) {
-            if (client_interaction.type !== Discord.Constants.InteractionTypes.APPLICATION_COMMAND) continue;
-
-            for (const guild of discord_client.guilds.cache.values()) {
-                await guild.commands.create({
-                    name: client_interaction.identifier,
-                    ...client_interaction.data,
-                });
-            }
-        }
     },
 });
