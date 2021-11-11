@@ -12,12 +12,13 @@ module.exports = new ClientInteraction({
     identifier: 'activity',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
-        description: 'n/a',
         type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'n/a',
         options: [
             {
                 name: 'type',
-                type: 'STRING',
+                description: 'n/a',
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
                 required: true,
                 choices: [
                     { name: 'Watch Together', value: '880218394199220334' },
@@ -56,8 +57,16 @@ module.exports = new ClientInteraction({
         const voice_channel = interaction.member?.voice.channel;
         if (!voice_channel) return;
 
+        const game_invite = await voice_channel.createInvite({
+            temporary: false,
+            maxAge: 0,
+            maxUses: 0,
+            targetType: 2,
+            targetApplication: interaction.options.getString('type'),
+        });
+
         await interaction.followUp({
-            content: `${interaction.member}, did the test!`,
+            content: `${interaction.member}, [click me](${game_invite.url})!`,
         }).catch(console.warn);
     },
 });

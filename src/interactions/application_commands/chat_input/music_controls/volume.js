@@ -4,46 +4,53 @@
 
 const Discord = require('discord.js');
 
-const { CustomEmbed, disableMessageComponents } = require('../../../common/app/message');
-const { AudioManager, VolumeManager } = require('../../../common/app/audio');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { CustomEmbed, disableMessageComponents } = require('../../../../common/app/message');
+const { AudioManager, VolumeManager } = require('../../../../common/app/audio');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'volume',
-    description: 'allows you to view / control the volume',
-    category: ClientCommand.categories.get('MUSIC_CONTROLS'),
-    options: [
-        {
-            type: 'INTEGER',
-            name: 'level',
-            description: 'the volume level',
-            required: false,
-        },
-    ],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-        Discord.Permissions.FLAGS.CONNECT,
-        Discord.Permissions.FLAGS.SPEAK,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'volume',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'allows you to view / control the volume',
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.INTEGER,
+                name: 'level',
+                description: 'the volume level',
+                required: false,
+            },
+        ],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.Permissions.FLAGS.CONNECT,
+            Discord.Permissions.FLAGS.SPEAK,
+        ],
+        command_category: ClientCommandHelper.categories.get('MUSIC_CONTROLS'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
+
+        await interaction.deferReply();
 
         /** @type {number?} */
-        const volume_input = command_interaction.options.get('level')?.value;
+        const volume_input = interaction.options.getInteger('level');
 
-        const queue = await AudioManager.createQueue(discord_client, command_interaction.guildId);
+        const queue = await AudioManager.createQueue(discord_client, interaction.guildId);
 
         if (!queue?.connection || !queue?.playing) {
-            return command_interaction.followUp({
+            return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        description: `${command_interaction.user} you can\'t change the volume as nothing is playing right now!`,
+                        description: `${interaction.user} you can\'t change the volume as nothing is playing right now!`,
                     }),
                 ],
             });
@@ -57,14 +64,14 @@ module.exports = new ClientCommand({
         }
 
         /** @type {Discord.Message} */
-        const bot_message = await command_interaction.followUp({
+        const bot_message = await interaction.followUp({
             fetchReply: true,
             embeds: [
                 new CustomEmbed({
                     ...(volume_input ? {
-                        description: `${command_interaction.user} set the volume to **${volume_input}**!`,
+                        description: `${interaction.user} set the volume to **${volume_input}**!`,
                     } : {
-                        description: `${command_interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5)}**!`,
+                        description: `${interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5)}**!`,
                     }),
                 }),
             ],

@@ -5,34 +5,41 @@
 const moment = require('moment-timezone');
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'roleinfo',
-    description: 'displays information about a guild role',
-    category: ClientCommand.categories.get('UTILITIES'),
-    options: [
-        {
-            type: 'ROLE',
-            name: 'role',
-            description: 'the guild role to lookup',
-            required: true,
-        },
-    ],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'roleinfo',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays information about a guild role',
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                name: 'role',
+                description: 'the guild role to lookup',
+                required: true,
+            },
+        ],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+        ],
+        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
 
-        const bot_message = await command_interaction.followUp({
+        await interaction.deferReply();
+
+        const bot_message = await interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     description: 'Loading...',
@@ -40,12 +47,12 @@ module.exports = new ClientCommand({
             ],
         });
 
-        await command_interaction.guild.members.fetch(); // cache all members
+        await interaction.guild.members.fetch(); // cache all members
 
-        const role_id = command_interaction.options.get('role').value;
-        const role = await command_interaction.guild.roles.fetch(role_id);
+        const role_id = interaction.options.get('role').value;
+        const role = await interaction.guild.roles.fetch(role_id);
 
-        const everyone_permissions = command_interaction.guild.roles.everyone.permissions.toArray();
+        const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
         const role_permissions = role.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
 
         await bot_message.edit({
@@ -66,7 +73,7 @@ module.exports = new ClientCommand({
                             value: `${'```'}\n${moment(role.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
                             inline: false,
                         }, {
-                            name: 'Unique Permissions',
+                            name: 'Enhanced Permissions',
                             value: `${'```'}\n${role_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : role_permissions.join('\n') || 'n/a'}\n${'```'}`,
                             inline: false,
                         }, {
@@ -77,7 +84,7 @@ module.exports = new ClientCommand({
 
                         {
                             name: 'Color',
-                            value: `\`${role.hexColor}\``,
+                            value: `\`${role.color === 0x000000 ? 'n/a' : role.hexColor}\``,
                             inline: true,
                         }, {
                             name: 'Position',

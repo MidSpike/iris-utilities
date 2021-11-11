@@ -4,6 +4,7 @@
 
 const Discord = require('discord.js');
 
+const { delay } = require('../../../../common/lib/utilities');
 const { ClientInteraction, ClientInteractionManager, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 const { joinVoiceChannel } = require('@discordjs/voice');
 
@@ -34,27 +35,48 @@ module.exports = new ClientInteraction({
         await interaction.deferReply();
 
         const voice_channel = interaction.member?.voice.channel;
-        if (!voice_channel) return;
-
-        joinVoiceChannel({
-            channelId: voice_channel.id,
-            guildId: voice_channel.guild.id,
-            adapterCreator: voice_channel.guild.voiceAdapterCreator,
-            selfDeaf: false,
-        });
+        if (voice_channel) {
+            joinVoiceChannel({
+                channelId: voice_channel.id,
+                guildId: voice_channel.guild.id,
+                adapterCreator: voice_channel.guild.voiceAdapterCreator,
+                selfDeaf: false,
+            });
+        }
 
         await interaction.followUp({
             content: `${interaction.member}, did the test!`,
         }).catch(console.warn);
 
-        for (const client_interaction of ClientInteractionManager.interactions.values()) {
-            if (client_interaction.type !== Discord.Constants.InteractionTypes.APPLICATION_COMMAND) continue;
 
-            for (const guild of discord_client.guilds.cache.values()) {
-                await guild.commands.create({
+        for (const guild of discord_client.guilds.cache.values()) {
+            /* remove non-existent commands */
+            for (const [ guild_command_id, guild_command ] of await guild.commands.fetch()) {
+                const command_exists = ClientInteractionManager.interactions.find(interaction => interaction.identifier === guild_command.name);
+
+                if (!command_exists) {
+                    console.info(`Guild: ${guild.id}; removing command: ${guild_command.name};`);
+                    await guild.commands.delete(guild_command_id);
+                }
+
+                await delay(100); // prevent api abuse
+            }
+
+            const commands_to_register = [];
+            for (const client_interaction of ClientInteractionManager.interactions.values()) {
+                if (client_interaction.type !== Discord.Constants.InteractionTypes.APPLICATION_COMMAND) continue;
+
+                commands_to_register.push({
                     name: client_interaction.identifier,
                     ...client_interaction.data,
                 });
+            }
+
+            try {
+                console.info(`Guild: ${guild.id}; registering commands`);
+                await guild.commands.set(commands_to_register);
+            } catch (error) {
+                console.trace(error);
             }
         }
     },

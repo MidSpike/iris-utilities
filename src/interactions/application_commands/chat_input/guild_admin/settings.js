@@ -4,10 +4,9 @@
 
 const Discord = require('discord.js');
 
-
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
-const { GuildConfigsManager } = require('../../../common/app/guild_configs');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+const { GuildConfigsManager } = require('../../../../common/app/guild_configs');
 
 //------------------------------------------------------------//
 
@@ -53,7 +52,12 @@ const settings = [
                 name: 'add',
                 description: 'adds a specified role',
                 options: [
-                    { required: true, type: 'ROLE', name: 'value', description: 'the role to add to the admins list' },
+                    {
+                        required: true,
+                        type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                        name: 'value',
+                        description: 'the role to add to the admins list',
+                    },
                 ],
                 async handler(setting, guild_config, command_interaction) {
                     const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
@@ -89,7 +93,12 @@ const settings = [
                 name: 'remove',
                 description: 'removes a specified role',
                 options: [
-                    { required: true, type: 'ROLE', name: 'value', description: 'the role to remove from the admins list' },
+                    {
+                        required: true,
+                        type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                        name: 'value',
+                        description: 'the role to remove from the admins list',
+                    },
                 ],
                 async handler(setting, guild_config, command_interaction) {
                     const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
@@ -153,39 +162,43 @@ const settings = [
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'settings',
-    description: 'n/a',
-    category: ClientCommand.categories.get('GUILD_ADMIN'),
-    options: settings.map(setting => ({
-        type: 'SUB_COMMAND_GROUP',
-        name: setting.name,
+module.exports = new ClientInteraction({
+    identifier: 'settings',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
         description: 'n/a',
-        options: setting.actions.map(action => ({
-            type: 'SUB_COMMAND',
-            name: action.name,
-            description: action.description,
-            options: action.options,
+        options: settings.map(setting => ({
+            type: Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+            name: setting.name,
+            description: 'n/a',
+            options: setting.actions.map(action => ({
+                type: Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                name: action.name,
+                description: action.description,
+                options: action.options,
+            })),
         })),
-    })),
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+        ],
+        command_category: ClientCommandHelper.categories.get('GUILD_ADMIN'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
 
-        const guild_config = await GuildConfigsManager.fetch(command_interaction.guildId);
+        await interaction.deferReply();
 
-        const setting_name = command_interaction.options.getSubcommandGroup(true);
-        const setting_action_name = command_interaction.options.getSubcommand(true);
+        const setting_name = interaction.options.getSubcommandGroup(true);
 
         const setting = settings.find(setting => setting.name === setting_name);
         if (!setting) {
-            await command_interaction.followUp({
+            return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
                         color: 0xFFFF00,
@@ -193,12 +206,13 @@ module.exports = new ClientCommand({
                     }),
                 ],
             }).catch(console.warn);
-            return;
         }
+
+        const setting_action_name = interaction.options.getSubcommand(true);
 
         const setting_action = setting.actions.find(action => action.name === setting_action_name);
         if (!setting_action) {
-            await command_interaction.followUp({
+            return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
                         color: 0xFFFF00,
@@ -206,9 +220,10 @@ module.exports = new ClientCommand({
                     }),
                 ],
             }).catch(console.warn);
-            return;
         }
 
-        await setting_action.handler(setting, guild_config, command_interaction);
+        const guild_config = await GuildConfigsManager.fetch(interaction.guildId);
+
+        await setting_action.handler(setting, guild_config, interaction);
     },
 });
