@@ -5,8 +5,8 @@
 const axios = require('axios');
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
@@ -36,34 +36,41 @@ const result_key_overrides = {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'ipinfo',
-    description: 'displays information about an ip address',
-    category: ClientCommand.categories.get('UTILITIES'),
-    options: [
-        {
-            type: 'STRING',
-            name: 'query',
-            description: 'the ip address to lookup',
-            required: true,
-        },
-    ],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'ipinfo',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays information about an ip address',
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                name: 'query',
+                description: 'the ip address to lookup',
+                required: true,
+            },
+        ],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+        ],
+        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
 
-        const query = command_interaction.options.get('query').value;
+        await interaction.deferReply();
+
+        const query = interaction.options.get('query').value;
 
         /* documentation: https://ip-api.com/docs/api:json */
         const { data: response_data } = await axios.get(`http://ip-api.com/json/${query}?fields=66846719`);
 
-        await command_interaction.followUp({
+        await interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     title: 'IP Info',

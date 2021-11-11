@@ -5,30 +5,37 @@
 const moment = require('moment-timezone');
 const Discord = require('discord.js');
 
-const { array_chunks } = require('../../../common/lib/utilities');
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { array_chunks } = require('../../../../common/lib/utilities');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'guildinfo',
-    description: 'displays information about a guild',
-    category: ClientCommand.categories.get('UTILITIES'),
-    options: [],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'guildinfo',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays information about this guild',
+        options: [],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+        ],
+        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
 
-        const guild = command_interaction.guild;
+        await interaction.deferReply();
 
-        const bot_message = await command_interaction.followUp({
+        const guild = interaction.guild;
+
+        const bot_message = await interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     description: 'Loading...',
@@ -193,9 +200,6 @@ module.exports = new ClientCommand({
                         embeds: [
                             new CustomEmbed({
                                 title: 'Don\'t go wild with this guild information!',
-                                thumbnail: {
-                                    url: guild_icon_url,
-                                },
                                 fields: [
                                     {
                                         name: 'Name',
@@ -209,17 +213,14 @@ module.exports = new ClientCommand({
 
                                     {
                                         name: 'Icon',
-                                        value: `\`${guild_icon_url || 'n/a'}\``,
+                                        value: `${guild_icon_url ? `[Image](${guild_icon_url})` : '\`n/a\`'}`,
                                         inline: false,
                                     }, {
                                         name: 'Banner',
-                                        value: `\`${guild_banner_url || 'n/a'}\``,
+                                        value: `${guild_banner_url ? `[Image](${guild_banner_url})` : '\`n/a\`'}`,
                                         inline: false,
                                     },
                                 ],
-                                image: {
-                                    url: guild_banner_url,
-                                },
                             }),
                         ],
                     });
@@ -350,13 +351,7 @@ module.exports = new ClientCommand({
                             style: 2,
                             custom_id: 'emojis',
                             label: 'Emojis',
-                        },
-                    ],
-                },
-                {
-                    type: 1,
-                    components: [
-                        {
+                        }, {
                             type: 2,
                             style: 2,
                             custom_id: 'media',
@@ -366,7 +361,13 @@ module.exports = new ClientCommand({
                             style: 2,
                             custom_id: 'features',
                             label: 'Features',
-                        }, {
+                        },
+                    ],
+                },
+                {
+                    type: 1,
+                    components: [
+                        {
                             type: 2,
                             style: 2,
                             custom_id: 'channels',
@@ -378,7 +379,7 @@ module.exports = new ClientCommand({
         });
 
         const message_button_collector = bot_message.createMessageComponentCollector({
-            filter: (button_interaction) => button_interaction.user.id === command_interaction.user.id,
+            filter: (button_interaction) => button_interaction.user.id === interaction.user.id,
             time: 5 * 60_000, // 5 minutes
         });
 

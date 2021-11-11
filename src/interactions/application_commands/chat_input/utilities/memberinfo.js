@@ -5,35 +5,42 @@
 const moment = require('moment-timezone');
 const Discord = require('discord.js');
 
-const { array_chunks } = require('../../../common/lib/utilities');
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { array_chunks } = require('../../../../common/lib/utilities');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'memberinfo',
-    description: 'displays information about a guild member',
-    category: ClientCommand.categories.get('UTILITIES'),
-    options: [
-        {
-            type: 'USER',
-            name: 'member',
-            description: 'the guild member to lookup',
-            required: false,
-        },
-    ],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'memberinfo',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays information about a guild member',
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.USER,
+                name: 'member',
+                description: 'the guild member to lookup',
+                required: false,
+            },
+        ],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+        ],
+        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
 
-        const bot_message = await command_interaction.followUp({
+        await interaction.deferReply();
+
+        const bot_message = await interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     description: 'Loading...',
@@ -41,12 +48,14 @@ module.exports = new ClientCommand({
             ],
         });
 
-        await command_interaction.guild.members.fetch(); // cache all members
+        await interaction.guild.members.fetch(); // cache all members
 
-        const member_id = command_interaction.options.get('member')?.value ?? command_interaction.member.id;
-        const member = await command_interaction.guild.members.fetch(member_id);
+        const member_id = interaction.options.getUser('member') ?? interaction.member.id;
+        const member = await interaction.guild.members.fetch(member_id);
 
-        const everyone_permissions = command_interaction.guild.roles.everyone.permissions.toArray();
+        await member.user.fetch(true); // force fetch the user
+
+        const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
         const member_permissions = member.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
 
         const member_user_flags = member.user.flags?.toArray() ?? [];
@@ -76,7 +85,7 @@ module.exports = new ClientCommand({
 
                                     {
                                         name: 'Flags',
-                                        value: `${'```'}\n${member_user_flags.length > 1 ? member_user_flags.join('\n') : 'NO_FLAGS'}\n${'```'}`,
+                                        value: `${member_user_flags.length > 0 ? member_user_flags.map(user_flag => `- \`${user_flag}\``).join('\n') : '\`n/a\`'}`,
                                         inline: false,
                                     },
                                 ],
@@ -88,7 +97,9 @@ module.exports = new ClientCommand({
                 }
 
                 case 'media': {
-                    const member_icon_url = member.user.displayAvatarURL({ format: 'png', size: 4096, dynamic: true });
+                    const guild_member_icon_url = member.avatarURL({ format: 'png', size: 4096, dynamic: true });
+                    const global_user_icon_url = member.user.displayAvatarURL({ format: 'png', size: 4096, dynamic: true });
+                    const global_user_banner_url = member.user.bannerURL({ format: 'png', size: 4096, dynamic: true });
 
                     await bot_message.edit({
                         embeds: [
@@ -106,14 +117,19 @@ module.exports = new ClientCommand({
                                     },
 
                                     {
-                                        name: 'Icon',
-                                        value: `\`${member_icon_url || 'n/a'}\``,
+                                        name: 'Member Avatar',
+                                        value: `${guild_member_icon_url ? `[Image](${guild_member_icon_url})` : '\`n/a\`'}`,
+                                        inline: false,
+                                    }, {
+                                        name: 'Global Avatar',
+                                        value: `${global_user_icon_url ? `[Image](${global_user_icon_url})` : '\`n/a\`'}`,
+                                        inline: false,
+                                    }, {
+                                        name: 'Global Banner',
+                                        value: `${global_user_banner_url ? `[Image](${global_user_banner_url})` : '\`n/a\`'}`,
                                         inline: false,
                                     },
                                 ],
-                                image: {
-                                    url: member_icon_url,
-                                },
                             }),
                         ],
                     });
@@ -138,7 +154,7 @@ module.exports = new ClientCommand({
                                     },
 
                                     {
-                                        name: 'Unique Permissions',
+                                        name: 'Enhanced Permissions',
                                         value: `${'```'}\n${member_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     }, {
@@ -249,10 +265,6 @@ module.exports = new ClientCommand({
                                         name: 'Display Color',
                                         value: `\`${member.displayHexColor}\``,
                                         inline: true,
-                                    }, {
-                                        name: '\u200b',
-                                        value: '\u200b',
-                                        inline: true,
                                     },
                                 ],
                             }),
@@ -286,13 +298,7 @@ module.exports = new ClientCommand({
                             style: 2,
                             custom_id: 'media',
                             label: 'Media',
-                        },
-                    ],
-                },
-                {
-                    type: 1,
-                    components: [
-                        {
+                        }, {
                             type: 2,
                             style: 2,
                             custom_id: 'permissions',
@@ -309,7 +315,7 @@ module.exports = new ClientCommand({
         });
 
         const message_button_collector = bot_message.createMessageComponentCollector({
-            filter: (button_interaction) => button_interaction.user.id === command_interaction.user.id,
+            filter: (button_interaction) => button_interaction.user.id === interaction.user.id,
             time: 5 * 60_000, // 5 minutes
         });
 

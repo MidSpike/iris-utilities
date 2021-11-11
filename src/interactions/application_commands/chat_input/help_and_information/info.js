@@ -4,30 +4,39 @@
 
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'info',
-    description: 'displays various information about the bot',
-    category: ClientCommand.categories.get('HELP_AND_INFORMATION'),
-    options: [],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'info',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays various information about the bot',
+        options: [],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.Permissions.FLAGS.CONNECT,
+            Discord.Permissions.FLAGS.SPEAK,
+        ],
+        command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
+
+        await interaction.deferReply();
 
         const bot_application = await discord_client.application.fetch();
-        const bot_application_owner = !!bot_application.owner?.owner
-                                    ? bot_application.owner.owner
-                                    : bot_application.owner;
+        const bot_application_owner_id = bot_application.owner instanceof Discord.Team
+                                       ? bot_application.owner.owner.user.id
+                                       : bot_application.owner.id;
 
         const bot_invite_url = discord_client.generateInvite({
             scopes: [ 'applications.commands', 'bot' ],
@@ -48,12 +57,12 @@ module.exports = new ClientCommand({
             ].join('\n');
         });
 
-        await command_interaction.followUp({
+        await interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     title: `Hello world, I\'m ${discord_client.user.username}`,
                     description: [
-                        `I was created by ${bot_application_owner} <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
+                        `I was created by <@!${bot_application_owner_id}> <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
                     ].join('\n'),
                     fields: [
                         {

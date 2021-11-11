@@ -5,48 +5,55 @@
 const axios = require('axios');
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'minecraftinfo',
-    description: 'displays information about a minecraft user or server',
-    category: ClientCommand.categories.get('UTILITIES'),
-    options: [
-        {
-            type: 'STRING',
-            name: 'type',
-            description: 'the query type to lookup',
-            choices: [
-                {
-                    name: 'User',
-                    value: 'user',
-                }, {
-                    name: 'Server',
-                    value: 'server',
-                },
-            ],
-            required: true,
-        }, {
-            type: 'STRING',
-            name: 'query',
-            description: 'the query value to lookup',
-            required: true,
-        },
-    ],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
-        await command_interaction.deferReply();
+module.exports = new ClientInteraction({
+    identifier: 'minecraftinfo',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays information about a minecraft user or server',
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                name: 'type',
+                description: 'the query type to lookup',
+                choices: [
+                    {
+                        name: 'User',
+                        value: 'user',
+                    }, {
+                        name: 'Server',
+                        value: 'server',
+                    },
+                ],
+                required: true,
+            }, {
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                name: 'query',
+                description: 'the query value to lookup',
+                required: true,
+            },
+        ],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+        ],
+        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
 
-        const bot_message = await command_interaction.followUp({
+        await interaction.deferReply();
+
+        const bot_message = await interaction.followUp({
             embeds: [
                 new CustomEmbed({
                     description: 'Loading...',
@@ -54,8 +61,8 @@ module.exports = new ClientCommand({
             ],
         });
 
-        const query_type = command_interaction.options.get('type')?.value;
-        const query_value = command_interaction.options.get('query')?.value;
+        const query_type = interaction.options.get('type')?.value;
+        const query_value = interaction.options.get('query')?.value;
 
         switch (query_type) {
             case 'user': {

@@ -4,24 +4,27 @@
 
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../../common/app/message');
-const { ClientCommand, ClientCommandManager, ClientCommandHandler } = require('../../../common/app/client_commands');
+const { CustomEmbed } = require('../../../../common/app/message');
+const { ClientInteractionManager, ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
 async function createHelpEmbed(command_category_id) {
-    const command_category = ClientCommand.categories.get(command_category_id);
+    const command_category = ClientCommandHelper.categories.get(command_category_id);
     if (!command_category) throw new Error(`No command category with id ${command_category_id}`);
 
-    const chat_input_commands = ClientCommandManager.commands.filter(command => command.type === 'CHAT_INPUT');
+    const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.Constants.ApplicationCommandTypes.CHAT_INPUT);
 
-    const commands_in_specified_category = chat_input_commands.filter(command => command.category.id === command_category.id);
-    const mapped_commands_in_specified_category = commands_in_specified_category.map(command => {
-        const command_usage = command.options.map(({ required, name, type }) => {
+    const commands_in_specified_category = chat_input_commands.filter(client_interaction => client_interaction.metadata.command_category.id === command_category.id);
+    const mapped_commands_in_specified_category = commands_in_specified_category.map(client_interaction => {
+        const command_usage = client_interaction.data.options.filter(option => ![
+            Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+            Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+        ].includes(option.type)).map(({ required, name, type }) => {
             return `${required ? '<' : '['}${name}${required ? '>' : ']'}`;
             // return `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
         }).join(' ');
-        return `/${command.name} ${command_usage}`;
+        return `/${client_interaction.identifier} ${command_usage}`;
     });
 
     console.log({
@@ -45,36 +48,45 @@ async function createHelpEmbed(command_category_id) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientCommand({
-    type: 'CHAT_INPUT',
-    name: 'help',
-    description: 'displays available commands',
-    category: ClientCommand.categories.get('HELP_AND_INFORMATION'),
-    options: [
-        {
-            type: 'STRING',
-            name: 'category',
-            description: 'the category to show',
-            choices: ClientCommand.categories.map(category => ({
-                name: category.name,
-                value: category.id,
-            })),
-            required: false,
-        },
-    ],
-    permissions: [
-        Discord.Permissions.FLAGS.VIEW_CHANNEL,
-        Discord.Permissions.FLAGS.SEND_MESSAGES,
-    ],
-    context: 'GUILD_COMMAND',
-    /** @type {ClientCommandHandler} */
-    async handler(discord_client, command_interaction) {
+module.exports = new ClientInteraction({
+    identifier: 'help',
+    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    data: {
+        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        description: 'displays various information about the bot',
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                name: 'category',
+                description: 'the category to show',
+                choices: ClientCommandHelper.categories.map(category => ({
+                    name: category.name,
+                    value: category.id,
+                })),
+                required: false,
+            },
+        ],
+    },
+    metadata: {
+        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
+        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_bot_permissions: [
+            Discord.Permissions.FLAGS.VIEW_CHANNEL,
+            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.Permissions.FLAGS.CONNECT,
+            Discord.Permissions.FLAGS.SPEAK,
+        ],
+        command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
+    },
+    async handler(discord_client, interaction) {
+        if (!interaction.isCommand()) return;
+
         /** @type {Discord.Message} */
-        const bot_message = await command_interaction.reply({
+        const bot_message = await interaction.reply({
             fetchReply: true,
             content: `Hello there, I\'m ${discord_client.user.username}!`,
             embeds: [
-                await createHelpEmbed(command_interaction.options.get('category')?.value ?? 'HELP_AND_INFORMATION'),
+                await createHelpEmbed(interaction.options.getString('category') ?? 'HELP_AND_INFORMATION'),
             ],
             components: [
                 {
@@ -86,7 +98,7 @@ module.exports = new ClientCommand({
                             placeholder: 'Select a page!',
                             min_values: 1,
                             max_values: 1,
-                            options: ClientCommand.categories.map(({ id, name, description }) => ({
+                            options: ClientCommandHelper.categories.map(({ id, name, description }) => ({
                                 label: name,
                                 description: description.slice(0, 100),
                                 value: id,
@@ -98,7 +110,7 @@ module.exports = new ClientCommand({
         });
 
         const interaction_collector = await bot_message.createMessageComponentCollector({
-            filter: (interaction) => interaction.user.id === command_interaction.user.id,
+            filter: (interaction) => interaction.user.id === interaction.user.id,
             time: 5 * 60_000,
         });
 
