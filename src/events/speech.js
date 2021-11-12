@@ -47,7 +47,7 @@ module.exports = {
 
         if (!voice_command_name.length) return;
 
-        const voice_command_text_channel = discord_client.channels.cache.get('810555581177397248');
+        const voice_command_text_channel = discord_client.channels.cache.get('909136093516029972');
 
         await voice_command_text_channel.send({
             embeds: [
