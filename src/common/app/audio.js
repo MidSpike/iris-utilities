@@ -131,7 +131,8 @@ class AudioManager {
         });
 
         player.on('trackStart', (queue, track) => {
-            console.log(track, track.thumbnail);
+            console.log(track);
+
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
@@ -163,7 +164,7 @@ class AudioManager {
 
         return player.createQueue(guild_id, {
             autoSelfDeaf: false,
-            metadata: metadata,
+            metadata: metadata ?? player.getQueue(guild_id)?.metadata,
             enableLive: true,
             initialVolume: VolumeManager.scaleVolume(50),
             useSafeSearch: false,
