@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "@discordjs/opus": "^0.6.0",
+    "@discordjs/opus": "^0.7.0",
     "@mapbox/node-pre-gyp": "^1.0.6",
     "aki-api": "^6.0.8",
     "axios": "^0.24.0",
@@ -22,7 +22,7 @@
     "languagedetect": "^2.0.0",
     "libsodium-wrappers": "^0.7.8",
     "manakin": "^0.5.2",
-    "mathjs": "^9.5.1",
+    "mathjs": "^10.0.0",
     "moment-timezone": "^0.5.32",
     "node-emoji": "^1.11.0",
     "node-gtts": "^2.0.2",
