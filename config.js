@@ -22,7 +22,7 @@ const { Collection } = require('discord.js');
  * semi-version:
  * - used to denote minor patches to an already released PUBLIC_VERSION
  */
-const PUBLIC_VERSION = 'vS_2021-06-07_1';
+const PUBLIC_VERSION = 'vU_2021-11-15_0'; // marked as unstable in preparation of rewrite
 
 /**
  * The various names given to this bot matching the schemes below
@@ -148,7 +148,7 @@ const SUPER_PEOPLE = new Collection([
     {
         id: '163646957783482370',
         name: 'MidSpike',
-        public: false,
+        public: false, // set as `false` due to the bot owner appearing separately
         allowed_permissions: [ '*' ],
         denied_permissions: [],
     }, {
@@ -160,12 +160,6 @@ const SUPER_PEOPLE = new Collection([
     }, {
         id: '196254672418373632',
         name: 'Will F.',
-        public: true,
-        allowed_permissions: [ '*' ],
-        denied_permissions: [],
-    }, {
-        id: '199641055837159425',
-        name: 'Anthony',
         public: true,
         allowed_permissions: [ '*' ],
         denied_permissions: [ 'evaluate_code', 'blacklist' ],
@@ -183,13 +177,13 @@ const SUPER_PEOPLE = new Collection([
  */
 const DEFAULT_GUILD_CONFIG = {
     command_prefix: '%',
-    command_message_removal: 'enabled',
-    unknown_command_warnings: 'enabled',
+    command_message_removal: 'disabled', // changed in preparation for rewrite
+    unknown_command_warnings: 'disabled', // changed in preparation for rewrite
     clear_message: 'enabled',
     player_description: 'disabled',
     url_blocking: 'disabled',
     invite_blocking: 'disabled',
-    disconnect_tts_voice: 'enabled',
+    disconnect_tts_voice: 'disabled', // changed in preparation for rewrite
     queue_tts_voice: 'disabled',
     beta_programs: [],
     user_warnings: [],
