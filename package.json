@@ -24,6 +24,7 @@
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.1-beta",
     "libsodium-wrappers": "^0.7.9",
     "manakin": "^0.5.2",
+    "mathjs": "^10.0.0",
     "moment-timezone": "^0.5.33",
     "node-gyp": "^8.2.0",
     "node-pre-gyp": "^0.17.0",
