@@ -400,6 +400,22 @@ class ClientInteractionManager {
                 client_interaction: client_interaction,
                 error_message: error,
             });
+
+            unknown_interaction.channel.send({
+                embeds: [
+                    new CustomEmbed({
+                        color: 0xFF0000,
+                        title: 'Interaction Error',
+                        description: `An error occurred while handling: \`${client_interaction.identifier}\``,
+                        fields: [
+                            {
+                                name: 'Error Message',
+                                value: `\`\`\`\n${error}\n\`\`\``,
+                            },
+                        ],
+                    }),
+                ],
+            }).catch(console.warn);
         }
     }
 }
