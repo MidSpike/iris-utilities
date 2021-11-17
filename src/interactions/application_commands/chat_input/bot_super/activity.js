@@ -32,18 +32,18 @@ const discord_activities = [
 
     { id: '755600276941176913', name: 'YouTube Together (Old)' },
 
-    // { id: '832025144389533716', name: 'CG4 Prod' },
-    // { id: '832025179659960360', name: 'Discord Game 14' },
-    // { id: '832025219526033439', name: 'Discord Game 15' },
-    // { id: '832025249335738428', name: 'Discord Game 16' },
-    // { id: '832025333930524692', name: 'Discord Game 17' },
-    // { id: '832025385159622656', name: 'Discord Game 18' },
-    // { id: '832025431280320532', name: 'Discord Game 19' },
-    // { id: '832025470685937707', name: 'Discord Game 20' },
-    // { id: '832025799590281238', name: 'Discord Game 21' },
-    // { id: '832025857525678142', name: 'Discord Game 22' },
-    // { id: '832025886030168105', name: 'Discord Game 23' },
-    // { id: '832025928938946590', name: 'Discord Game 24' },
+    // { id: '832025144389533716', name: 'CG4 Prod' }, // does not work
+    // { id: '832025179659960360', name: 'Discord Game 14' }, // does not work
+    // { id: '832025219526033439', name: 'Discord Game 15' }, // does not work
+    // { id: '832025249335738428', name: 'Discord Game 16' }, // does not work
+    // { id: '832025333930524692', name: 'Discord Game 17' }, // does not work
+    // { id: '832025385159622656', name: 'Discord Game 18' }, // does not work
+    // { id: '832025431280320532', name: 'Discord Game 19' }, // does not work
+    // { id: '832025470685937707', name: 'Discord Game 20' }, // does not work
+    // { id: '832025799590281238', name: 'Discord Game 21' }, // does not work
+    // { id: '832025857525678142', name: 'Discord Game 22' }, // does not work
+    // { id: '832025886030168105', name: 'Discord Game 23' }, // does not work
+    // { id: '832025928938946590', name: 'Discord Game 24' }, // does not work
 ];
 
 //------------------------------------------------------------//
