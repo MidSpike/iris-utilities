@@ -63,8 +63,6 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
-        await interaction.deferReply();
-
         const query = interaction.options.get('query').value;
 
         /* documentation: https://ip-api.com/docs/api:json */

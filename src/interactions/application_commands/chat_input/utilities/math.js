@@ -37,8 +37,6 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
-        await interaction.deferReply();
-
         const math_expression = interaction.options.getString('expression', true);
 
         try {

@@ -28,8 +28,6 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isContextMenu()) return;
 
-        await interaction.deferReply();
-
         /** @type {Discord.Message} */
         const message = interaction.options.resolved.messages.first();
 
