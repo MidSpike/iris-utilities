@@ -51,8 +51,6 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
-        await interaction.deferReply();
-
         const bot_message = await interaction.followUp({
             embeds: [
                 new CustomEmbed({
