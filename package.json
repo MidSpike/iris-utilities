@@ -31,6 +31,7 @@
     "opusscript": "^0.0.8",
     "path": "^0.12.7",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory",
+    "translate-google": "github:MidSpike/NODE_GOOGLE_TRANSLATE",
     "tweetnacl": "^1.0.3",
     "ytdl-core": "^4.9.1"
   }

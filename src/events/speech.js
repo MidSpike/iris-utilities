@@ -26,7 +26,7 @@ module.exports = {
             voice_recognition: msg.content,
         });
 
-        const voice_command_activation_regex = /^(\b(hey|a|play|yo|yellow|ok|oi)\b\s)?\b(Ir(i?)s(h?)|Discord|Ziggy|Alexa|Google|Siri|Bixby|Cortana|Tesla)\b/gi;
+        const voice_command_activation_regex = /^(\b(hey|a|play|yo|yellow|ok|okay|oi)\b\s)?\b(Ir(i?)s(h?)|Discord|Ziggy|Alexa|Google|Siri|Bixby|Cortana|Tesla)\b/gi;
 
         if (!voice_command_activation_regex.test(msg.content)) return;
 

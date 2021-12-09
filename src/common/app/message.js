@@ -40,7 +40,7 @@ class CustomEmbed {
 function disableMessageComponents(message) {
     if (!(message instanceof Discord.Message)) throw new TypeError('message must be an instance of Discord.Message');
 
-    return message.edit({
+    return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
@@ -49,7 +49,7 @@ function disableMessageComponents(message) {
                 disabled: true,
             })),
         })),
-    });
+    }));
 }
 
 //------------------------------------------------------------//
