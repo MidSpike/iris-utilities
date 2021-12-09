@@ -46,7 +46,6 @@ module.exports = new ClientInteraction({
             content: `${interaction.member}, did the test!`,
         }).catch(console.warn);
 
-
         for (const guild of discord_client.guilds.cache.values()) {
             /* remove non-existent commands */
             for (const [ guild_command_id, guild_command ] of await guild.commands.fetch()) {
