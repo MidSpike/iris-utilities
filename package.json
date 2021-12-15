@@ -17,7 +17,7 @@
     "axios": "^0.24.0",
     "discord-api-types": "^0.24.0",
     "discord-player": "^5.1.0",
-    "discord-speech-recognition": "^2.1.0",
+    "discord-speech-recognition": "github:Rei-x/discord-speech-recognition",
     "discord.js": "^13.3.0",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
