@@ -47,7 +47,7 @@ module.exports = new ClientInteraction({
 
         const distributed_bot_sharding_info = await discord_client.shard.broadcastEval((client) => {
             return [
-                `[ shard ${client.shard.ids[0]} ]:`,
+                `[ shard ${client.shard.ids.join(', ')} ]:`,
                 `> - ${client.users.cache.size} user(s)`,
                 `> - ${client.guilds.cache.size} guild(s)`,
                 `> - ${client.channels.cache.size} channel(s)`,
