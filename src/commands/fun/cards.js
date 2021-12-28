@@ -15,7 +15,7 @@ const cards_against_humanity_json = require('../../../files/cards_against_humani
 
 module.exports = new DisBotCommand({
     name: 'CARDS',
-    category: `${DisBotCommander.categories.HIDDEN}`,
+    category: `${DisBotCommander.categories.FUN}`,
     description: 'Cards Against Humanity',
     aliases: ['cards'],
     async executor(Discord, client, message, opts={}) {
@@ -31,7 +31,6 @@ module.exports = new DisBotCommand({
 
         const black_cards = cards_against_humanity_json.filter(card => card.cardType === 'Q');
         const white_cards = cards_against_humanity_json.filter(card => card.cardType === 'A');
-
 
         const selected_black_card = array_random(black_cards.filter(card => card.numAnswers === 2));
         const selected_white_cards = array_make(selected_black_card.numAnswers).map(() => array_random(white_cards));
