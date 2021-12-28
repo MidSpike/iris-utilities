@@ -75,29 +75,29 @@ module.exports = new DisBotCommand({
     description: 'allows you to nuke (remove) everything inside of your guild',
     aliases: ['nuke_guild', 'nuke_server'],
     cooldown: 60_000,
-    access_level: DisBotCommand.access_levels.BOT_SUPER,
+    access_level: DisBotCommand.access_levels.BOT_OWNER,
     async executor(Discord, client, message, opts={}) {
-        const confirmation_embed = new CustomRichEmbed({
-            color: 0xFF00FF,
-            title: 'Are you absolutely certain that you want to nuke your guild?',
-            description: [
-                '**This command holds the power for guild owners to nuke / delete / remove everything in their guild!**',
-                `\n**_For best results, move the ${bot_config.COMMON_NAME} role to the top of the roles list!_**`,
-                '\n**Do you want to remove everything in your guild?**',
-                'If you say **yes**, all (members, roles, channels, emojis) in this guild will be nuked (removed).',
-                'If you say **no**, then nothing will be touched.',
-            ].join('\n'),
-        }, message);
-        const yes_callback = async () => {
-            sendCaptchaMessage(message.author.id, message.channel.id, async (bot_captcha_message, collected_message) => {
-                await bot_captcha_message.delete().catch(console.warn);
-                await collected_message.delete().catch(console.warn);
-                await message.reply('The captcha code was recognized!').catch(console.warn);
-                await Timer(5_000);
-                nuke_guild(message, message.guild);
-            });
-        };
-        const no_callback = () => {};
-        sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, yes_callback, no_callback);
+        // const confirmation_embed = new CustomRichEmbed({
+        //     color: 0xFF00FF,
+        //     title: 'Are you absolutely certain that you want to nuke your guild?',
+        //     description: [
+        //         '**This command holds the power for guild owners to nuke / delete / remove everything in their guild!**',
+        //         `\n**_For best results, move the ${bot_config.COMMON_NAME} role to the top of the roles list!_**`,
+        //         '\n**Do you want to remove everything in your guild?**',
+        //         'If you say **yes**, all (members, roles, channels, emojis) in this guild will be nuked (removed).',
+        //         'If you say **no**, then nothing will be touched.',
+        //     ].join('\n'),
+        // }, message);
+        // const yes_callback = async () => {
+        //     sendCaptchaMessage(message.author.id, message.channel.id, async (bot_captcha_message, collected_message) => {
+        //         await bot_captcha_message.delete().catch(console.warn);
+        //         await collected_message.delete().catch(console.warn);
+        //         await message.reply('The captcha code was recognized!').catch(console.warn);
+        //         await Timer(5_000);
+        //         nuke_guild(message, message.guild);
+        //     });
+        // };
+        // const no_callback = () => {};
+        // sendConfirmationMessage(message.author.id, message.channel.id, true, confirmation_embed, yes_callback, no_callback);
     },
 });
