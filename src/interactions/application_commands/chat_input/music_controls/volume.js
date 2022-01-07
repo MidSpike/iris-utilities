@@ -39,6 +39,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         /** @type {number?} */
         const volume_input = interaction.options.getInteger('level');
 

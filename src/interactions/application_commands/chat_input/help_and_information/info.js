@@ -31,6 +31,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const bot_application = await discord_client.application.fetch();
         const bot_application_owner_id = bot_application.owner instanceof Discord.Team
                                        ? bot_application.owner.owner.user.id

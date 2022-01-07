@@ -38,6 +38,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const bot_message = await interaction.followUp({
             embeds: [
                 new CustomEmbed({
@@ -223,18 +225,18 @@ module.exports = new ClientInteraction({
 
                                     {
                                         name: 'Account Creation Date',
-                                        value: `${'```'}\n${moment(member.user.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                                        value: `<t:${member.user.createdTimestamp}:F> (<t:${member.user.createdTimestamp}:R>)`,
                                         inline: false,
                                     }, {
                                         name: 'Joined Guild Date',
-                                        value: `${'```'}\n${moment(member.joinedTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                                        value: `<t:${member.joinedTimestamp}:F> (<t:${member.joinedTimestamp}:R>)`,
                                         inline: false,
                                     },
 
                                     (member.premiumSinceTimestamp ? [
                                         {
                                             name: 'Boosting Since Date',
-                                            value: `${'```'}\n${moment(member.premiumSinceTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                                            value: `<t:${member.premiumSinceTimestamp}:F> (<t:${member.premiumSinceTimestamp}:R>)`,
                                             inline: false,
                                         },
                                     ]: []),

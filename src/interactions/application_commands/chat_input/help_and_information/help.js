@@ -81,9 +81,10 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         /** @type {Discord.Message} */
-        const bot_message = await interaction.reply({
-            fetchReply: true,
+        const bot_message = await interaction.editReply({
             content: `Hello there, I\'m ${discord_client.user.username}!`,
             embeds: [
                 await createHelpEmbed(interaction.options.getString('category') ?? 'HELP_AND_INFORMATION'),
@@ -110,7 +111,7 @@ module.exports = new ClientInteraction({
         });
 
         const interaction_collector = await bot_message.createMessageComponentCollector({
-            filter: (interaction) => interaction.user.id === interaction.user.id,
+            filter: (inter) => inter.user.id === interaction.user.id,
             time: 5 * 60_000,
         });
 

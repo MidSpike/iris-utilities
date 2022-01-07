@@ -94,7 +94,7 @@ class ClientCommandHelper {
             }
 
             case ClientCommandHelper.execution_environments.GUILD_ONLY: {
-                is_valid_environment = interaction.guildId;
+                is_valid_environment = Boolean(interaction.guildId);
                 break;
             }
 
@@ -109,7 +109,7 @@ class ClientCommandHelper {
         }
 
         if (!is_valid_environment) {
-            interaction.followUp({
+            interaction.reply({
                 ephemeral: true,
                 embeds: [
                     new CustomEmbed({
@@ -160,7 +160,6 @@ class ClientCommandHelper {
             if (guild_owner_id === interaction.user.id) {
                 access_levels_for_user.push(ClientCommandHelper.access_levels.GUILD_OWNER);
             }
-
         }
 
         /* check for bot super */
@@ -173,7 +172,7 @@ class ClientCommandHelper {
         /* check the user's access levels */
         const highest_access_level_for_user = Math.max(...access_levels_for_user);
         if (highest_access_level_for_user < required_access_level) {
-            interaction.followUp({
+            interaction.reply({
                 ephemeral: true,
                 embeds: [
                     new CustomEmbed({
@@ -217,7 +216,7 @@ class ClientCommandHelper {
         if (missing_permissions.length > 0) {
             const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
 
-            interaction.followUp({
+            interaction.reply({
                 ephemeral: true,
                 embeds: [
                     new CustomEmbed({
@@ -260,7 +259,6 @@ class ClientCommandHelper {
  *      command_category?: ClientCommandCategory,
  *      required_bot_permissions?: Discord.PermissionResolvable[],
  *      required_user_access_level?: number,
- *      not_safe_for_work?: boolean,
  *  },
  *  handler: ClientInteractionHandler,
  * }} ClientInteractionConstructorOptions
@@ -308,8 +306,6 @@ class ClientInteraction {
      * @param {Discord.Interaction} interaction
      */
     async handler(discord_client, interaction) {
-        await interaction.deferReply?.();
-
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
             if (!is_allowed_execution_environment) return;
@@ -323,48 +319,6 @@ class ClientInteraction {
         if (this.metadata.required_bot_permissions) {
             const is_bot_permitted = await ClientCommandHelper.checkBotPermissions(discord_client, interaction, this.metadata.required_bot_permissions);
             if (!is_bot_permitted) return;
-        }
-
-        if (this.metadata.not_safe_for_work) {
-            await interaction.channel.send({
-                content: null,
-                embeds: [
-                    new CustomEmbed({
-                        title: 'Warning, this command might contain NSFW content!',
-                        description: 'Do you wish to proceed?',
-                    }),
-                ],
-                components: [
-                    {
-                        type: 1,
-                        components: [
-                            {
-                                type: 2,
-                                style: 2,
-                                custom_id: 'user_consents_to_potential_nsfw_content',
-                                label: 'Yes',
-                            }, {
-                                type: 2,
-                                style: 2,
-                                custom_id: 'user_does_not_consent_to_potential_nsfw_content',
-                                label: 'No',
-                            },
-                        ],
-                    },
-                ],
-            });
-
-            /** @type {Discord.MessageComponentInteraction} */
-            const collected_consent_interaction = await interaction.channel.awaitMessageComponent({
-                filter: (component_interaction) => component_interaction.user.id === interaction.user.id,
-            });
-
-            await interaction.channel.messages.delete(collected_consent_interaction.message.id);
-
-            if (collected_consent_interaction?.customId !== 'user_consents_to_potential_nsfw_content') {
-                interaction.deleteReply();
-                return;
-            }
         }
 
         return await this._handler(discord_client, interaction);

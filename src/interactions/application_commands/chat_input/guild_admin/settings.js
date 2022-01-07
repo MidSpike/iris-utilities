@@ -83,6 +83,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const setting_name = interaction.options.getSubcommandGroup(true);
 
         const setting = settings.find(setting => setting.name === setting_name);
