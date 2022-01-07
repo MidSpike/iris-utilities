@@ -31,6 +31,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const guild = interaction.guild;
 
         const bot_message = await interaction.followUp({

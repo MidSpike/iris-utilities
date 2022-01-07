@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 
 const { delay, array_random } = require('../../../../common/lib/utilities')
 
-const { CustomEmbed, disableMessageComponents } = require('../../../../common/app/message');
+const { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } = require('../../../../common/app/message');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 const cah_card_set = require('../../../../misc/cards_against_humanity.json');
@@ -63,10 +63,14 @@ module.exports = new ClientInteraction({
             Discord.Permissions.FLAGS.SEND_MESSAGES,
         ],
         command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
-        not_safe_for_work: true,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+
+        await interaction.deferReply({ ephemeral: false });
+
+        const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel, interaction.user);
+        if (!user_consents_to_potential_nsfw) return;
 
         /** @type {Discord.Message} */
         const bot_message = await interaction.followUp({

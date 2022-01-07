@@ -32,6 +32,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const voice_channel = interaction.member?.voice.channel;
         if (voice_channel) {
             joinVoiceChannel({

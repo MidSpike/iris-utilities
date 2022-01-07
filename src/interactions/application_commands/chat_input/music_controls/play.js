@@ -45,6 +45,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const guild_member_voice_channel_id = interaction.member.voice.channelId;
         const bot_voice_channel_id = interaction.guild.me.voice.channelId;
 

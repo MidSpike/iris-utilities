@@ -32,6 +32,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const queue = await AudioManager.createQueue(discord_client, interaction.guildId);
 
         const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;

@@ -59,6 +59,8 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
+        await interaction.deferReply({ ephemeral: false });
+
         const english_phrase = interaction.options.getString('english-word', true);
 
         const api_response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(english_phrase)}`).catch((res) => res);
