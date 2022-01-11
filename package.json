@@ -10,7 +10,7 @@
     "bufferutil": "^4.0.5",
     "discord.js": "^12.5.1",
     "dogeify-js": "^1.2.1",
-    "dotenv": "^10.0.0",
+    "dotenv": "^11.0.0",
     "erlpack": "github:discord/erlpack",
     "express": "^4.17.1",
     "ffmpeg": "^0.0.4",
