@@ -14,36 +14,24 @@ const discord_activities = [
     { id: '832013003968348200', name: 'Checkers In The Park' },
     { id: '832012774040141894', name: 'Chess In The Park' },
     { id: '880218394199220334', name: 'Watch Together' },
-    { id: '755827207812677713', name: 'Poker Night' },
-    { id: '773336526917861400', name: 'Betrayal' },
     { id: '814288819477020702', name: 'Fishington.io' },
-    { id: '879863686565621790', name: 'Letter Tile' },
+    { id: '879863686565621790', name: 'Letter League' },
     { id: '879863976006127627', name: 'Word Snacks' },
     { id: '878067389634314250', name: 'Doodle Crew' },
-    { id: '852509694341283871', name: 'Spell Cast' },
-    { id: '879863881349087252', name: 'Awkword' },
-    { id: '879864070101172255', name: 'Sketchy Artist' },
-    { id: '832012854282158180', name: 'Putts' },
+    { id: '755827207812677713', name: 'Poker Night' },
+    { id: '773336526917861400', name: 'Betrayal' },
+    { id: '832025144389533716', name: 'Ocho' },
+    { id: '852509694341283871', name: 'SpellCast' },
+    { id: '832012854282158180', name: 'Putts (dev)' },
+    { id: '879863881349087252', name: 'Awkword (dev)' },
+    { id: '879864070101172255', name: 'Sketchy Artist (dev)' },
+    { id: '891001866073296967', name: 'Decoders (dev)' },
 
-    { id: '832012586023256104', name: 'Chess In The Park (Dev)' },
-    { id: '880218832743055411', name: 'Watch Together (Dev)' },
-    { id: '763133495793942528', name: 'Poker Night (Dev)' },
-    { id: '891001866073296967', name: 'Decoders (Dev)' },
+    // { id: '832012586023256104', name: 'Chess In The Park (Dev)' },
+    // { id: '880218832743055411', name: 'Watch Together (Dev)' },
+    // { id: '763133495793942528', name: 'Poker Night (Dev)' },
 
-    { id: '755600276941176913', name: 'YouTube Together (Old)' },
-
-    // { id: '832025144389533716', name: 'CG4 Prod' }, // does not work
-    // { id: '832025179659960360', name: 'Discord Game 14' }, // does not work
-    // { id: '832025219526033439', name: 'Discord Game 15' }, // does not work
-    // { id: '832025249335738428', name: 'Discord Game 16' }, // does not work
-    // { id: '832025333930524692', name: 'Discord Game 17' }, // does not work
-    // { id: '832025385159622656', name: 'Discord Game 18' }, // does not work
-    // { id: '832025431280320532', name: 'Discord Game 19' }, // does not work
-    // { id: '832025470685937707', name: 'Discord Game 20' }, // does not work
-    // { id: '832025799590281238', name: 'Discord Game 21' }, // does not work
-    // { id: '832025857525678142', name: 'Discord Game 22' }, // does not work
-    // { id: '832025886030168105', name: 'Discord Game 23' }, // does not work
-    // { id: '832025928938946590', name: 'Discord Game 24' }, // does not work
+    // { id: '755600276941176913', name: 'YouTube Together (Old)' },
 ];
 
 //------------------------------------------------------------//
@@ -80,7 +68,14 @@ module.exports = new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const voice_channel = interaction.member?.voice.channel;
-        if (!voice_channel) return;
+        if (!voice_channel) {
+            return await interaction.editReply({
+                embed: new CustomEmbed({
+                    color: 0xFFFF00,
+                    description: 'You must be in a voice channel to use this command.',
+                }),
+            });
+        }
 
         const specified_activity_id = interaction.options.getString('id', false);
 
@@ -89,16 +84,19 @@ module.exports = new ClientInteraction({
                 embeds: [
                     new CustomEmbed({
                         title: 'Available Activities',
-                        description: discord_activities.map(({ id, name }) => `\`${id}\` - ${name}`).join('\n'),
+                        description: discord_activities.map(({ id, name }) => `[\`${id}\`] - ${name}`).join('\n'),
                     }),
                 ],
             });
         }
 
-        const activity = discord_activities.find(activity => activity.id === specified_activity_id);
+        const activity = discord_activities.find(activity => activity.id === specified_activity_id) ?? {
+            id: specified_activity_id,
+            name: 'Unknown Activity',
+        };
 
         if (!activity) {
-            return interaction.followUp({
+            interaction.followUp({
                 embeds: [
                     new CustomEmbed({
                         color: 0xFFFF00,

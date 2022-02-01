@@ -204,13 +204,17 @@ class ClientCommandHelper {
      * @param {Discord.Client} discord_client
      * @param {Discord.Interaction} interaction
      * @param {Discord.PermissionResolvable[]} required_permissions
-     * @returns {Promise<boolean}
+     * @returns {Promise<boolean>}
      */
     static async checkBotPermissions(discord_client, interaction, required_permissions) {
+        /** @type {Discord.TextChannel | Discord.NewsChannel} */
         const channel = await discord_client.channels.fetch(interaction.channelId);
         if (!channel.isText()) return true; // the channel is not a text channel, so we can't check permissions
 
-        const bot_permissions = channel.permissionsFor(discord_client.user.id);
+        const bot_guild_permissions = channel.guild.me.permissions;
+        const bot_channel_permissions = channel.permissionsFor(discord_client.user.id);
+        const bot_permissions = new Discord.Permissions([ bot_guild_permissions, bot_channel_permissions ]);
+
         const missing_permissions = required_permissions.filter(required_permission => !bot_permissions.has(required_permission));
 
         if (missing_permissions.length > 0) {

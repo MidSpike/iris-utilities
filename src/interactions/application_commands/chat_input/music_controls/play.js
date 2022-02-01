@@ -137,7 +137,7 @@ module.exports = new ClientInteraction({
         })();
 
         // wait for the queue to be populated
-        while (!queue.tracks.length) await delay(10);
+        while (queue.tracks.length === 0) await delay(10);
 
         if (!queue.playing) {
             await queue.play();

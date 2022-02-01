@@ -75,7 +75,7 @@ class AudioManager {
             ytdlOptions: {
                 lang: 'en',
                 filter: 'audioonly',
-                highWaterMark: 1<<25,
+                // highWaterMark: 1<<25,
                 requestOptions: {
                     headers: {
                         'Accept-Language': 'en-US,en;q=0.5',
@@ -94,7 +94,7 @@ class AudioManager {
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        description: 'I was disconnected from the voice channel, cleared the queue!',
+                        description: 'I was disconnected from the voice channel!',
                     }),
                 ],
             });
@@ -114,7 +114,7 @@ class AudioManager {
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        description: 'Queue ended!',
+                        description: 'Nothing left in the queue!',
                     }),
                 ],
             });
@@ -124,7 +124,10 @@ class AudioManager {
             queue.metadata.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        description: `${queue.metadata.user}, added **[${track.title}](${track.url})** to the queue!`,
+                        description: [
+                            `Added: **[${track.title}](${track.url})**`,
+                            `Requested by: ${queue.metadata.user}`,
+                        ].join('\n'),
                     }),
                 ],
             });
@@ -162,18 +165,24 @@ class AudioManager {
     static async createQueue(discord_client, guild_id, metadata=undefined) {
         const player = await AudioManager.createPlayer(discord_client, guild_id);
 
-        return player.createQueue(guild_id, {
+        // returns the existing queue if it exists, or creates a new one
+        const queue = player.createQueue(guild_id, {
             autoSelfDeaf: false,
-            metadata: metadata ?? player.getQueue(guild_id)?.metadata,
+            metadata: metadata,
             enableLive: true,
             initialVolume: VolumeManager.scaleVolume(50),
             useSafeSearch: false,
-            bufferingTimeout: 5_000,
+            // bufferingTimeout: 5_000,
             leaveOnEnd: true,
             leaveOnStop: false,
             leaveOnEmpty: false,
-            leaveOnEmptyCooldown: 5 * 60_000,
+            leaveOnEmptyCooldown: 5 * 60_000, // 5 minutes
         });
+
+        // this is required to override the existing metadata if it exists
+        queue.metadata = metadata ?? queue.metadata;
+
+        return queue;
     }
 }
 

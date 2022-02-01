@@ -63,7 +63,14 @@ module.exports = new ClientInteraction({
 
         const english_phrase = interaction.options.getString('english-word', true);
 
-        const api_response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(english_phrase)}`).catch((res) => res);
+        const api_response = await axios({
+            method: 'get',
+            url: `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(english_phrase)}`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            timeout: 1000,
+        }).catch((res) => res);
 
         if (api_response.status !== 200) {
             console.log({
