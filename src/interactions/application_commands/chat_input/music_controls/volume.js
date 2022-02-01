@@ -60,7 +60,7 @@ module.exports = new ClientInteraction({
             const minimum_allowed_volume = 0;
             const maximum_allowed_volume = 100;
             const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
-            queue.setVolume(VolumeManager.scaleVolume(VolumeManager.lockToNearestMultipleOf(volume_level, 5)));
+            queue.setVolume(VolumeManager.scaleVolume(VolumeManager.lockToNearestMultipleOf(volume_level, 1)));
         }
 
         /** @type {Discord.Message} */
@@ -71,7 +71,7 @@ module.exports = new ClientInteraction({
                     ...(volume_input ? {
                         description: `${interaction.user} set the volume to **${volume_input}**!`,
                     } : {
-                        description: `${interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5)}**!`,
+                        description: `${interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 1)}**!`,
                     }),
                 }),
             ],
@@ -110,7 +110,7 @@ module.exports = new ClientInteraction({
         });
 
         const button_interaction_collector = await bot_message.createMessageComponentCollector({
-            filter: (button_interaction) => true,
+            // filter: (button_interaction) => true,
             time: 5 * 60_000,
         });
 
@@ -140,7 +140,7 @@ module.exports = new ClientInteraction({
                     break;
                 }
                 case 'volume_down': {
-                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5) - 10;
+                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 1) - 10;
                     queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({
@@ -154,7 +154,7 @@ module.exports = new ClientInteraction({
                     break;
                 }
                 case 'volume_up': {
-                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 5) + 10;
+                    const new_volume_level = VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(queue.volume), 1) + 10;
                     queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
 
                     await button_interaction.editReply({

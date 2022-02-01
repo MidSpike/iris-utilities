@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node --trace-warnings ./index.js"
   },
   "keywords": [],
   "author": "",
@@ -15,16 +15,16 @@
     "@discordjs/voice": "^0.7.5",
     "@mapbox/node-pre-gyp": "^1.0.6",
     "axios": "^0.24.0",
-    "discord-api-types": "^0.25.2",
-    "discord-player": "^5.1.0",
+    "discord-api-types": "^0.26.1",
+    "discord-player": "^5.2.0",
     "discord-speech-recognition": "^2.2.0",
-    "discord.js": "^13.4.0",
-    "dotenv": "^10.0.0",
-    "ffmpeg-static": "^4.4.0",
+    "discord.js": "^13.5.1",
+    "dotenv": "^11.0.0",
+    "ffmpeg-static": "^4.4.1",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.4-beta",
     "libsodium-wrappers": "^0.7.9",
     "manakin": "^0.5.2",
-    "mathjs": "^10.0.0",
+    "mathjs": "^10.0.2",
     "moment-timezone": "^0.5.33",
     "node-gyp": "^8.2.0",
     "node-pre-gyp": "^0.17.0",
@@ -34,6 +34,6 @@
     "recursive-read-directory": "github:MidSpike/recursive-read-directory",
     "translate-google": "github:MidSpike/NODE_GOOGLE_TRANSLATE",
     "tweetnacl": "^1.0.3",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.10.0"
   }
 }

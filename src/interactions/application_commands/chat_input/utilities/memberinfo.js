@@ -200,6 +200,10 @@ module.exports = new ClientInteraction({
                 }
 
                 default: {
+                    const member_created_timestamp_epoch = `${member.user.createdTimestamp}`.slice(0, -3);
+                    const member_joined_timestamp_epoch = `${member.joinedTimestamp}`.slice(0, -3);
+                    const member_premium_since_timestamp_epoch = `${member.premiumSinceTimestamp}`.slice(0, -3);
+
                     await bot_message.edit({
                         embeds: [
                             new CustomEmbed({
@@ -225,18 +229,18 @@ module.exports = new ClientInteraction({
 
                                     {
                                         name: 'Account Creation Date',
-                                        value: `<t:${member.user.createdTimestamp}:F> (<t:${member.user.createdTimestamp}:R>)`,
+                                        value: `<t:${member_created_timestamp_epoch}:F> (<t:${member_created_timestamp_epoch}:R>)`,
                                         inline: false,
                                     }, {
                                         name: 'Joined Guild Date',
-                                        value: `<t:${member.joinedTimestamp}:F> (<t:${member.joinedTimestamp}:R>)`,
+                                        value: `<t:${member_joined_timestamp_epoch}:F> (<t:${member_joined_timestamp_epoch}:R>)`,
                                         inline: false,
                                     },
 
                                     (member.premiumSinceTimestamp ? [
                                         {
                                             name: 'Boosting Since Date',
-                                            value: `<t:${member.premiumSinceTimestamp}:F> (<t:${member.premiumSinceTimestamp}:R>)`,
+                                            value: `<t:${member_premium_since_timestamp_epoch}:F> (<t:${member_premium_since_timestamp_epoch}:R>)`,
                                             inline: false,
                                         },
                                     ]: []),
