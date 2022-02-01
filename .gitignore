@@ -20,7 +20,6 @@
 # node stuff
 node_modules
 npm
-package-lock.json
 
 # bot-related sensitive stuff and runtime generated content
 private
