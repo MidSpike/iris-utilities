@@ -22,7 +22,7 @@
     "languagedetect": "^2.0.0",
     "libsodium-wrappers": "^0.7.8",
     "manakin": "^0.5.2",
-    "mathjs": "^10.0.0",
+    "mathjs": "^10.1.1",
     "moment-timezone": "^0.5.32",
     "node-emoji": "^1.11.0",
     "node-gtts": "^2.0.2",
