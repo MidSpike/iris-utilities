@@ -11,7 +11,7 @@ const path = require('path');
 const Discord = require('discord.js');
 const recursiveReadDirectory = require('recursive-read-directory');
 
-// const { addSpeechEvent } = require('discord-speech-recognition');
+const { addSpeechEvent } = require('discord-speech-recognition');
 
 //------------------------------------------------------------//
 
@@ -47,7 +47,7 @@ const discord_client = new Discord.Client({
 });
 
 /* adds speech recognition to discord client */
-// addSpeechEvent(discord_client);
+addSpeechEvent(discord_client);
 
 //------------------------------------------------------------//
 
