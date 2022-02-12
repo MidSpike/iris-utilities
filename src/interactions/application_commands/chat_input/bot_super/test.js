@@ -44,9 +44,22 @@ module.exports = new ClientInteraction({
             });
         }
 
-        await interaction.followUp({
-            content: `${interaction.member}, did the test!`,
-        }).catch(console.warn);
+        // await interaction.followUp({
+        //     content: `${interaction.member}, did the test!`,
+        //     components: [
+        //         {
+        //             type: 1,
+        //             components: [
+        //                 {
+        //                     type: 2,
+        //                     style: 1,
+        //                     custom_id: 'test_button',
+        //                     label: 'Test Button',
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // }).catch(console.warn);
 
         for (const guild of discord_client.guilds.cache.values()) {
             /* remove non-existent commands */
