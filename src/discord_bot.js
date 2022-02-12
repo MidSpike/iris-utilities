@@ -73,11 +73,11 @@ async function registerDiscordClientEvents() {
 //------------------------------------------------------------//
 
 async function main() {
-    console.log('<DC> Logging in...');
-    discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
-
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
     await registerDiscordClientEvents();
+
+    console.log('<DC> Logging in...');
+    discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
 
     console.success(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
 }
