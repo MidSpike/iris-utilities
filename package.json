@@ -12,7 +12,7 @@
     "dogeify-js": "^1.2.1",
     "dotenv": "^16.0.0",
     "erlpack": "github:discord/erlpack",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^4.4.0",
     "google-it": "^1.6.1",
