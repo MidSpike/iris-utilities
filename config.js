@@ -22,7 +22,7 @@ const { Collection } = require('discord.js');
  * semi-version:
  * - used to denote minor patches to an already released PUBLIC_VERSION
  */
-const PUBLIC_VERSION = 'vU_2021-11-15_0'; // marked as unstable in preparation of rewrite
+const PUBLIC_VERSION = 'vU_2022-02-20_0'; // marked as unstable in preparation of rewrite
 
 /**
  * The various names given to this bot matching the schemes below
@@ -204,7 +204,7 @@ const DEFAULT_GUILD_CONFIG = {
 const BOT_LIST_GUILDS = [
     '264445053596991498', // Discord Bot List (https://top.gg/)
     '446425626988249089', // Bots On Discord (https://bots.ondiscord.xyz/)
-    '439866052684283905', // Discord Boats (https://discord.boats/)
+    // removed due to company shutting down // '439866052684283905', // Discord Boats (https://discord.boats/)
     '110373943822540800', // Discord Bots (https://discord.bots.gg/)
     '561851349831122954', // Arcane Center (https://arcane-center.xyz/)
     '568567800910839811', // Discord Extreme List (https://discordextremelist.xyz/)
