@@ -27,7 +27,7 @@ class VolumeManager {
      * @returns {Number} the locked multiple
      */
     static lockToNearestMultipleOf(input, multiple) {
-        return Math.ceil(input / multiple) * multiple;
+        return Math.ceil(Math.floor(input) / multiple) * multiple;
     }
 
     /**
@@ -48,6 +48,13 @@ class VolumeManager {
      */
     static normalizeVolume(scaled_volume_level) {
         const normalized_volume_level = Math.floor(scaled_volume_level * VolumeManager.global_maximum_volume / VolumeManager.global_scaled_maximum_volume);
+
+        console.warn('normalizeVolume()', {
+            scaled_volume_level,
+            'VolumeManager.global_maximum_volume': VolumeManager.global_maximum_volume,
+            'VolumeManager.global_scaled_maximum_volume': VolumeManager.global_scaled_maximum_volume,
+            'normalized_volume_level': normalized_volume_level,
+        });
 
         return normalized_volume_level;
     }
@@ -75,7 +82,7 @@ class AudioManager {
             ytdlOptions: {
                 lang: 'en',
                 filter: 'audioonly',
-                // highWaterMark: 1<<25,
+                highWaterMark: 1 << 25,
                 requestOptions: {
                     headers: {
                         'Accept-Language': 'en-US,en;q=0.5',
@@ -172,7 +179,7 @@ class AudioManager {
             enableLive: true,
             initialVolume: VolumeManager.scaleVolume(50),
             useSafeSearch: false,
-            // bufferingTimeout: 5_000,
+            bufferingTimeout: 5_000,
             leaveOnEnd: true,
             leaveOnStop: false,
             leaveOnEmpty: false,
