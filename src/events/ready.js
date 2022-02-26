@@ -2,7 +2,6 @@
 
 //------------------------------------------------------------//
 
-const { ClientInteractionManager } = require('../common/app/client_interactions');
 const { GuildConfigsManager } = require('../common/app/guild_configs');
 
 //------------------------------------------------------------//
@@ -38,8 +37,5 @@ module.exports = {
 
         /* update all guild configs */
         updateAllGuildConfigs(discord_client);
-
-        /* load all client interactions */
-        ClientInteractionManager.loadClientInteractions();
     },
 };

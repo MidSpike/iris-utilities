@@ -13,6 +13,8 @@ const recursiveReadDirectory = require('recursive-read-directory');
 
 const { addSpeechEvent } = require('discord-speech-recognition');
 
+const { ClientInteractionManager } = require('./common/app/client_interactions');
+
 //------------------------------------------------------------//
 
 const discord_client = new Discord.Client({
@@ -73,6 +75,9 @@ async function registerDiscordClientEvents() {
 //------------------------------------------------------------//
 
 async function main() {
+    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interactions...`);
+    ClientInteractionManager.loadClientInteractions();
+
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
     await registerDiscordClientEvents();
 

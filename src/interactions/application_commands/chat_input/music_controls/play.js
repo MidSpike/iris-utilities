@@ -71,7 +71,7 @@ module.exports = new ClientInteraction({
         }
 
         const query = interaction.options.getString('query', true);
-        const playnext = interaction.options.getString('playnext', false) ?? false;
+        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
 
         await interaction.followUp({
             embeds: [
@@ -100,7 +100,7 @@ module.exports = new ClientInteraction({
             });
         }
 
-        if (!queue.connection) {
+        if (!queue.connection || !interaction.guild.me.voice.channelId) {
             try {
                 await queue.connect(interaction.member.voice.channelId);
             } catch (error) {

@@ -16,7 +16,7 @@
     "@mapbox/node-pre-gyp": "^1.0.6",
     "axios": "^0.26.0",
     "discord-api-types": "^0.27.0",
-    "discord-player": "^5.2.0",
+    "discord-player": "^5.2.2",
     "discord-speech-recognition": "github:MidSpike/discord-speech-recognition",
     "discord.js": "^13.5.1",
     "dotenv": "^16.0.0",
