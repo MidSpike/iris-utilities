@@ -66,7 +66,7 @@ module.exports = {
                     return command_interaction.followUp({
                         embeds: [
                             new CustomEmbed({
-                                color: 0xFFFF00,
+                                color: CustomEmbed.colors.YELLOW,
                                 title: 'Role already added',
                                 description: `<@&${role_id}> is already an admin role`,
                             }),
@@ -107,7 +107,7 @@ module.exports = {
                     return command_interaction.followUp({
                         embeds: [
                             new CustomEmbed({
-                                color: 0xFFFF00,
+                                color: CustomEmbed.colors.YELLOW,
                                 title: 'Role already added',
                                 description: `<@&${role_id}> is already an admin role`,
                             }),

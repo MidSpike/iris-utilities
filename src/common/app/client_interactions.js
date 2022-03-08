@@ -113,7 +113,7 @@ class ClientCommandHelper {
                 ephemeral: true,
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFF00FF,
+                        color: CustomEmbed.colors.VIOLET,
                         title: 'Invalid Execution Environment',
                         description: `This command can only be executed in ${required_environment}`,
                     }),
@@ -176,7 +176,7 @@ class ClientCommandHelper {
                 ephemeral: true,
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFF00FF,
+                        color: CustomEmbed.colors.VIOLET,
                         title: 'Access Denied',
                         description: `You aren\'t allowed to do that!`,
                         fields: [
@@ -224,7 +224,7 @@ class ClientCommandHelper {
                 ephemeral: true,
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFF00FF,
+                        color: CustomEmbed.colors.VIOLET,
                         title: 'Missing Permissions',
                         description: `In order to do that, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`,
                     }),
@@ -411,7 +411,7 @@ class ClientInteractionManager {
             unknown_interaction.channel.send({
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFF0000,
+                        color: CustomEmbed.colors.RED,
                         title: 'Interaction Error',
                         description: `An error occurred while handling: \`${client_interaction.identifier}\``,
                         fields: [

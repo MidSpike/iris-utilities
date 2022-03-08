@@ -20,13 +20,13 @@
     "discord-speech-recognition": "github:MidSpike/discord-speech-recognition",
     "discord.js": "^13.5.1",
     "dotenv": "^16.0.0",
-    "ffmpeg-static": "^4.4.1",
+    "ffmpeg-static": "^5.0.0",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.4-beta",
     "libsodium-wrappers": "^0.7.9",
     "manakin": "^0.5.2",
     "mathjs": "^10.0.2",
     "moment-timezone": "^0.5.33",
-    "node-gyp": "^8.2.0",
+    "node-gyp": "^9.0.0",
     "node-pre-gyp": "^0.17.0",
     "opusscript": "^0.0.8",
     "path": "^0.12.7",
@@ -34,6 +34,6 @@
     "sodium": "^3.0.2",
     "translate-google": "github:MidSpike/NODE_GOOGLE_TRANSLATE",
     "tweetnacl": "^1.0.3",
-    "ytdl-core": "^4.10.1"
+    "ytdl-core": "^4.11.0"
   }
 }

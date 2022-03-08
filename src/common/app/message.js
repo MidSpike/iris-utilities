@@ -7,6 +7,17 @@ const Discord = require('discord.js');
 //------------------------------------------------------------//
 
 class CustomEmbed {
+    static colors = {
+        BRAND: 0xFF5500,
+        RED: 0xFF0000,
+        ORANGE: 0xFF5500,
+        YELLOW: 0xFFFF00,
+        GREEN: 0x00FF00,
+        BLUE: 0x0000FF,
+        INDIGO: 0x550088,
+        VIOLET: 0xAA00FF,
+    };
+
     constructor({
         color,
         author,
@@ -18,7 +29,7 @@ class CustomEmbed {
         footer,
     }) {
         return new Discord.MessageEmbed({
-            color: color ?? 0xFF5500,
+            color: color ?? CustomEmbed.colors.BRAND,
             author: author,
             title: title,
             description: description,

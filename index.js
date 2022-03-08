@@ -16,7 +16,7 @@ const sharding_manager = new Discord.ShardingManager('./src/discord_bot.js', {
         '--trace-warnings',
     ],
     token: process.env.DISCORD_BOT_API_TOKEN,
-    totalShards: 1, // 'auto'
+    totalShards: 'auto',
 });
 
 //------------------------------------------------------------//

@@ -141,7 +141,7 @@ class AudioManager {
         });
 
         player.on('trackStart', (queue, track) => {
-            console.log(track);
+            console.log('trackStart:', track);
 
             queue.metadata.channel.send({
                 embeds: [
@@ -166,6 +166,17 @@ class AudioManager {
     /**
      * @param {Discord.Client} discord_client
      * @param {GuildId} guild_id
+     * @returns {Promise<Queue?>}
+     */
+    static async fetchQueue(discord_client, guild_id) {
+        const player = await AudioManager.createPlayer(discord_client, guild_id);
+
+        return player.getQueue(guild_id);
+    }
+
+    /**
+     * @param {Discord.Client} discord_client
+     * @param {GuildId} guild_id
      * @param {Object?} metadata
      * @returns {Promise<Queue>}
      */
@@ -175,19 +186,19 @@ class AudioManager {
         // returns the existing queue if it exists, or creates a new one
         const queue = player.createQueue(guild_id, {
             autoSelfDeaf: false,
-            metadata: metadata,
+            metadata: metadata ?? {}, // default to an empty object
             enableLive: true,
             initialVolume: VolumeManager.scaleVolume(50),
             useSafeSearch: false,
-            bufferingTimeout: 5_000,
-            leaveOnEnd: true,
-            leaveOnStop: false,
+            bufferingTimeout: 5_000, // 5 seconds
+            leaveOnEnd: false,
+            leaveOnStop: true,
             leaveOnEmpty: false,
             leaveOnEmptyCooldown: 5 * 60_000, // 5 minutes
         });
 
         // this is required to override the existing metadata if it exists
-        queue.metadata = metadata ?? queue.metadata;
+        queue.metadata = metadata ?? queue.metadata ?? {}; // default to an empty object
 
         return queue;
     }
