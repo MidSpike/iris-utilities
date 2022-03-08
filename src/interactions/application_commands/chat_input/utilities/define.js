@@ -80,7 +80,7 @@ module.exports = new ClientInteraction({
             return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFFFF00,
+                        color: CustomEmbed.colors.YELLOW,
                         title: 'Something went wrong!',
                         description: 'Perhaps that was an unknown English word, or maybe a server issue occurred!',
                     }),

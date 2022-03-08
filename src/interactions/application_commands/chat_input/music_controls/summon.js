@@ -4,18 +4,19 @@
 
 const Discord = require('discord.js');
 
+const { joinVoiceChannel } = require('@discordjs/voice');
+
 const { CustomEmbed } = require('../../../../common/app/message');
-const { AudioManager } = require('../../../../common/app/audio');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
 module.exports = new ClientInteraction({
-    identifier: 'stop',
+    identifier: 'summon',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
         type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
-        description: 'allows for playing audio resources',
+        description: 'n/a',
         options: [],
     },
     metadata: {
@@ -34,50 +35,29 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
-
-        if (!queue?.connection || !queue?.playing) {
-            return interaction.followUp({
+        const voice_channel = interaction.member?.voice.channel;
+        if (!voice_channel) {
+            return await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, nothing is playing right now!`,
+                        description: `${interaction.user}, you must be in a voice channel to use this command!`,
                     }),
                 ],
             });
         }
 
-        const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
-        const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
+        joinVoiceChannel({
+            channelId: voice_channel.id,
+            guildId: voice_channel.guild.id,
+            adapterCreator: voice_channel.guild.voiceAdapterCreator,
+            selfDeaf: false,
+        });
 
-        if (!bot_voice_channel_id) {
-            return interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, I\'m not connected to a voice channel!`,
-                    }),
-                ],
-            });
-        }
-
-        if (guild_member_voice_channel_id !== bot_voice_channel_id) {
-            return interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you need to be in the same voice channel as me!`,
-                    }),
-                ],
-            });
-        }
-
-        queue.stop();
-
-        interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, stopped the music!`,
+                    description: `${interaction.user}, summoned me to <#${voice_channel.id}>!`,
                 }),
             ],
         });

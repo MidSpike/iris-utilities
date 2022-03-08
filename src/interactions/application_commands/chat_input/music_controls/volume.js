@@ -44,7 +44,7 @@ module.exports = new ClientInteraction({
         /** @type {number?} */
         const volume_input = interaction.options.getInteger('level');
 
-        const initial_queue = await AudioManager.createQueue(discord_client, interaction.guildId);
+        const initial_queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
 
         if (!initial_queue?.connection || !initial_queue?.playing) {
             return interaction.followUp({
@@ -121,7 +121,7 @@ module.exports = new ClientInteraction({
                 button_interaction,
             });
 
-            const queue = await AudioManager.createQueue(discord_client, interaction.guildId);
+            const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
 
             switch (button_interaction.customId) {
                 case 'volume_mute': {

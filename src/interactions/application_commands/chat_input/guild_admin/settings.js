@@ -92,7 +92,7 @@ module.exports = new ClientInteraction({
             return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFFFF00,
+                        color: CustomEmbed.colors.YELLOW,
                         description: `The setting \`${setting_name}\` is unavailable.`,
                     }),
                 ],
@@ -106,7 +106,7 @@ module.exports = new ClientInteraction({
             return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFFFF00,
+                        color: CustomEmbed.colors.YELLOW,
                         description: `The action \`${setting_action_name}\` is unavailable for setting \`${setting_name}\`.`,
                     }),
                 ],

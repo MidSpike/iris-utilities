@@ -92,7 +92,7 @@ module.exports = {
                 const maximum_allowed_volume = 100;
                 const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
 
-                const queue = await AudioManager.createQueue(discord_client, msg.channel.guild.id);
+                const queue = await AudioManager.fetchQueue(discord_client, msg.channel.guild.id);
                 queue.setVolume(VolumeManager.scaleVolume(VolumeManager.lockToNearestMultipleOf(volume_level, 5)));
 
                 break;
@@ -101,7 +101,7 @@ module.exports = {
             case 'skit': // this is needed b/c google sometimes picks up 'skit' instead of 'skip'
             case 'skin': // this is needed b/c google sometimes picks up 'skin' instead of 'skip'
             case 'skip': {
-                const queue = await AudioManager.createQueue(discord_client, msg.channel.guild.id);
+                const queue = await AudioManager.fetchQueue(discord_client, msg.channel.guild.id);
                 queue.skip();
 
                 break;
@@ -109,7 +109,7 @@ module.exports = {
 
             case 'star': // this is needed b/c google sometimes picks up 'star' instead of 'stop'
             case 'stop': {
-                const queue = await AudioManager.createQueue(discord_client, msg.channel.guild.id);
+                const queue = await AudioManager.fetchQueue(discord_client, msg.channel.guild.id);
                 queue.stop();
 
                 break;

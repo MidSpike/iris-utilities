@@ -28,6 +28,7 @@ const discord_client = new Discord.Client({
         Discord.Intents.FLAGS.GUILD_WEBHOOKS,
         Discord.Intents.FLAGS.GUILD_INTEGRATIONS,
         Discord.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+        Discord.Intents.FLAGS.GUILD_SCHEDULED_EVENTS,
         Discord.Intents.FLAGS.DIRECT_MESSAGES,
     ],
     partials: [
@@ -39,12 +40,6 @@ const discord_client = new Discord.Client({
     ],
     presence: {
         status: 'online',
-        activities: [
-            {
-                type: 'PLAYING',
-                name: 'hello world!',
-            },
-        ],
     },
 });
 

@@ -71,7 +71,7 @@ module.exports = new ClientInteraction({
         if (!voice_channel) {
             return await interaction.editReply({
                 embed: new CustomEmbed({
-                    color: 0xFFFF00,
+                    color: CustomEmbed.colors.YELLOW,
                     description: 'You must be in a voice channel to use this command.',
                 }),
             });
@@ -99,7 +99,7 @@ module.exports = new ClientInteraction({
             interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        color: 0xFFFF00,
+                        color: CustomEmbed.colors.YELLOW,
                         title: 'Unknown Activity ID',
                         description: 'The activity id you specified is unknown.',
                     }),
