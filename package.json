@@ -28,7 +28,7 @@
     "node-gtts": "^2.0.2",
     "node-gyp": "^8.3.0",
     "node-html-to-image": "^3.2.4",
-    "node-ipc": "<10.0.0",
+    "node-ipc": "<12.0.0",
     "node-pre-gyp": "^0.17.0",
     "node-schedule": "^2.0.0",
     "os": "^0.1.2",
