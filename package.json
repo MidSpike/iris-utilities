@@ -6,7 +6,7 @@
     "@discordjs/opus": "^0.7.0",
     "@mapbox/node-pre-gyp": "^1.0.6",
     "aki-api": "^6.0.8",
-    "axios": "^0.26.0",
+    "axios": "^0.26.1",
     "bufferutil": "^4.0.5",
     "discord.js": "^12.5.1",
     "dogeify-js": "^1.2.1",
