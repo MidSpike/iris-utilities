@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------//
 
-const path = require('path');
+const path = require('node:path');
 const recursiveReadDirectory = require('recursive-read-directory');
 const Discord = require('discord.js');
 
