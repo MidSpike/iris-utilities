@@ -7,7 +7,7 @@ require('manakin').global;
 
 //------------------------------------------------------------//
 
-const path = require('path');
+const path = require('node:path');
 const Discord = require('discord.js');
 const recursiveReadDirectory = require('recursive-read-directory');
 
