@@ -299,14 +299,14 @@ async function playYouTube(message, search_query, playnext=false) {
         description: `${'```'}\n${search_query}\n${'```'}`,
     }));
 
-    const potential_playlist_id = await get_potential_playlist_id_from_query(search_query);
-    const potential_video_id = await get_potential_video_id_from_query(search_query);
+    // const potential_playlist_id = await get_potential_playlist_id_from_query(search_query);
+    // const potential_video_id = await get_potential_video_id_from_query(search_query);
 
-    if (potential_playlist_id && potential_video_id) {
-        _play_as_playlist(potential_playlist_id, potential_video_id);
-    } else {
+    // if (potential_playlist_id && potential_video_id) {
+    //     _play_as_playlist(potential_playlist_id, potential_video_id);
+    // } else {
         _play_as_video(search_query);
-    }
+    // }
 }
 
 module.exports = {

@@ -38,10 +38,10 @@ function detect_unsupported_urls(search_query) {
 //---------------------------------------------------------------------------------------------------------------//
 
 async function detect_remote_audio_stream(search_query='') {
-    if (validator.isURL(search_query)) {
+    if (validator.isURL(search_query) && !/(youtube\.com)|(youtu\.be)/gi.test(search_query)) {
         try {
             /* check the mime-type of the remote resource */
-            const response = await forcePromise(axios.head(search_query), 15_0000, undefined);
+            const response = await forcePromise(axios.head(search_query), 150_000, undefined);
             const content_type = response?.headers?.['content-type'];
             const is_valid_audio_stream = ['audio/mpeg'].includes(content_type);
             return is_valid_audio_stream;
