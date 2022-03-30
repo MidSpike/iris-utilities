@@ -6,7 +6,6 @@ const validator = require('validator');
 const urlParser = require('url-parameter-parser');
 const youtubeSearch = require('youtube-search');
 const youtubeSearchBackup = require('yt-search');
-const videoIdFromYouTubeURL = require(`parse-video-id-from-yt-url`);
 
 const { Timer,
         array_random } = require('../utilities.js');
@@ -23,6 +22,42 @@ const { logUserError } = require('./errors.js');
 //---------------------------------------------------------------------------------------------------------------//
 
 const bot_api_url = `${process.env.BOT_API_SERVER_URL}:${process.env.BOT_API_SERVER_PORT}`;
+
+//---------------------------------------------------------------------------------------------------------------//
+
+const youtube_hostnames = [
+    'music.youtube.com',
+    'youtube.com',
+    'youtu.be',
+];
+
+/**
+ * Attempts to retrieve a youtube video id from a youtube url
+ * @param {string} youtube_url_input 
+ * @returns {string?} a youtube video if it finds it, undefined if not
+ */
+function videoIdFromYouTubeURL(youtube_url_input) {
+    youtube_url_input = youtube_url_input.replace(`/www.`, '/'); // Remove `www.` from the url_input
+
+    let potential_url = undefined;
+    try {
+        potential_url = new URL(`${youtube_url_input}`);
+    } catch {} // Carry on by treating any non-url as undefined
+
+    if (!youtube_hostnames.includes(potential_url?.hostname)) throw new TypeError('youtube_url_input must be a valid youtube url!');
+
+    const youtube_url = potential_url; // We can safely assume that it is a youtube url now
+
+    let parsed_youtube_id = undefined;
+    if (['youtube.com', 'music.youtube.com'].includes(youtube_url.hostname)) {
+        const youtube_url_search_params = new URLSearchParams(youtube_url.search);
+        parsed_youtube_id = youtube_url_search_params.get('v');
+    } else if (['youtu.be'].includes(youtube_url.hostname)) {
+        parsed_youtube_id = youtube_url.pathname.replace('/', '');
+    }
+
+    return parsed_youtube_id;
+}
 
 //---------------------------------------------------------------------------------------------------------------//
 
