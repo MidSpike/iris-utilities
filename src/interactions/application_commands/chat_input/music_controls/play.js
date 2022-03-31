@@ -86,20 +86,6 @@ module.exports = new ClientInteraction({
             channel: interaction.channel,
         });
 
-        const search_result = await queue.player.search(query, {
-            requestedBy: interaction.user,
-        });
-
-        if (!search_result?.tracks?.length) {
-            return interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        description: `${interaction.user}, I couldn't find anything for **${query}**.`,
-                    }),
-                ],
-            });
-        }
-
         if (!queue.connection || !interaction.guild.me.voice.channelId) {
             try {
                 await queue.connect(interaction.member.voice.channelId);
@@ -115,7 +101,21 @@ module.exports = new ClientInteraction({
             }
         }
 
+        const search_result = await queue.player.search(query, {
+            requestedBy: interaction.user,
+        });
+
         const tracks = search_result.playlist?.tracks ?? [ search_result.tracks[0] ];
+
+        if (tracks.length === 0) {
+            return await interaction.followUp({
+                embeds: [
+                    new CustomEmbed({
+                        description: `${interaction.user}, I couldn't find anything for **${query}**.`,
+                    }),
+                ],
+            });
+        }
 
         if (tracks.length > 1) {
             await interaction.followUp({
