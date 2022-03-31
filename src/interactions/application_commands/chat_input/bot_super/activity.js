@@ -22,6 +22,8 @@ const discord_activities = [
     { id: '773336526917861400', name: 'Betrayal' },
     { id: '832025144389533716', name: 'Ocho' },
     { id: '852509694341283871', name: 'SpellCast' },
+    { id: '903769130790969345', name: 'Land-io' },
+    { id: '945737671223947305', name: 'Putt Party' },
     { id: '832012854282158180', name: 'Putts (dev)' },
     { id: '879863881349087252', name: 'Awkword (dev)' },
     { id: '879864070101172255', name: 'Sketchy Artist (dev)' },
