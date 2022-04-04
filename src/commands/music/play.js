@@ -25,9 +25,20 @@ const bot_cdn_url = process.env.BOT_CDN_URL;
 //#endregion dependencies
 
 function detect_unsupported_urls(search_query) {
-    if (search_query.includes('vimeo.com/')
-     || search_query.includes('twitter.com/')
-     || search_query.includes('facebook.com/')
+    if (typeof search_query !== 'string') throw new TypeError('search_query must be a string');
+
+    const trimmed_search_query = search_query.trim();
+
+    let potential_url;
+    try {
+        potential_url = new URL(trimmed_search_query);
+    } catch {
+        return false;
+    }
+
+    if (potential_url.hostname.endsWith('vimeo.com')
+     || potential_url.hostname.endsWith('twitter.com')
+     || potential_url.hostname.endsWith('facebook.com')
     ) {
         return true;
     } else {
@@ -392,15 +403,17 @@ module.exports = new DisBotCommand({
 
         const message_attachment = message.attachments.first() ?? undefined;
 
-        if (detect_unsupported_urls(command_args.join(' '))) {
-            message.channel.send(new CustomRichEmbed({
-                color: 0xFFFF00,
-                title: `Playing music from that website isn't supported!`,
-                description: `Use \`${discord_command}\` to see how to use this command.`,
-            }));
-        } else if (message_attachment) {
+         if (message_attachment) {
             playUserUploadedMP3(message, playnext);
         } else if (command_args.join('').length > 0) {
+            if (detect_unsupported_urls(command_args.join(' '))) {
+                message.channel.send(new CustomRichEmbed({
+                    color: 0xFFFF00,
+                    title: `Playing music from that website isn't supported!`,
+                    description: `Use \`${discord_command}\` to see how to use this command.`,
+                }));
+                return;
+            }
             if (await detect_remote_audio_stream(command_args.join(' '))) {
                 playRemoteMP3(message, command_args.join(' '), playnext);
             } else if (detect_broadcastify(command_args.join(' '))) {
