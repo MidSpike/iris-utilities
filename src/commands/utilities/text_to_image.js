@@ -14,33 +14,37 @@ const { DisBotCommand,
 
 /**
  * Escape un-unwanted html
- * @param {String} text 
- * @returns {String} 
+ * @param {String} text
+ * @returns {String}
  */
 function escapeHTML(text) {
-    return text.replace(`&`, '&amp;')
-               .replace(`"`, '&quot;')
-               .replace(`'`, '&apos;')
-               .replace(`\``, '&grave;')
-               .replace(`<`, '&lt;')
-               .replace(`>`, '&gt;')
-               .replace(`/`, '&#47;')
-               .replace(`\\`, '&#92;');
+    if (typeof text !== 'string') throw new TypeError('text must be a string');
+
+    return text.replace(/\&/gi, '&amp;')
+               .replace(/\"/gi, '&quot;')
+               .replace(/\'/gi, '&apos;')
+               .replace(/\`/gi, '&grave;')
+               .replace(/\</gi, '&lt;')
+               .replace(/\>/gi, '&gt;')
+               .replace(/\//gi, '&#47;')
+               .replace(/\\/gi, '&#92;');
 }
 
 /**
  * Escape un-unwanted css properties
- * @param {String} text 
- * @returns {String} 
+ * @param {String} text
+ * @returns {String}
  */
 function escapeCSSProperty(text) {
+    if (typeof text !== 'string') throw new TypeError('text must be a string');
+
     return text.replace(/([^a-zA-Z\-])/gi, ''); // anything not an alpha character nor a '-'
 }
 
 /**
  * Escape un-unwanted css values
- * @param {String} text 
- * @returns {String} 
+ * @param {String} text
+ * @returns {String}
  */
 function escapeCSSValue(text) {
     return text.replace(/((\:(?!\/\/))|((?<!\:)\/\/))/gi, '') // removes any ':' or '/' unless it is '://'
@@ -59,12 +63,10 @@ module.exports = new DisBotCommand({
         const { discord_command } = opts;
 
         const user_raw_args_start_end_regex = /(format(\s*?)\{|\})/i;
-        const user_raw_args_regex = /(format(\s*?)\{(.|\s)*?\})/i;
+        const user_raw_args_regex = /(format(\s*?)\{(.|\s)*\})/i;
         const user_raw_args = message.cleanContent.match(user_raw_args_regex)?.[0] ?? '';
         // console.log({user_raw_args});
 
-        // const user_args_invalid_regex = /([^a-z0-9\#\_\-])/gi;
-        
         const user_args = user_raw_args.replace(user_raw_args_start_end_regex, '').trim().split(';').map(kv => {
             const kv_split_by_colons = kv.split(':');
             const k = escapeCSSProperty(kv_split_by_colons.slice(0, 1).join(':').trim());
@@ -73,7 +75,7 @@ module.exports = new DisBotCommand({
             return [k, v];
         });
         // console.log({user_args});
-        
+
         const user_args_map = new Map(user_args);
         // console.log({ user_args_map });
 
