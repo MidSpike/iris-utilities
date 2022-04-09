@@ -2,12 +2,28 @@
 
 //------------------------------------------------------------//
 
+const {
+    Player: DiscordPlayer,
+    QueryType: DiscordPlayerQueryType,
+} = require('discord-player');
+
 const Discord = require('discord.js');
 
+const {
+	AudioPlayerStatus,
+	AudioResource,
+	entersState,
+	joinVoiceChannel,
+	VoiceConnectionStatus,
+} = require('@discordjs/voice');
+
 const { delay } = require('../../../../common/lib/utilities');
+
 const { CustomEmbed } = require('../../../../common/app/message');
-const { AudioManager, VolumeManager } = require('../../../../common/app/audio');
+const { VolumeManager } = require('../../../../common/app/audio');
+const { Track, MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+
 
 //------------------------------------------------------------//
 
@@ -47,6 +63,9 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
+        const query = interaction.options.getString('query', true);
+        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
+
         const guild_member_voice_channel_id = interaction.member.voice.channelId;
         const bot_voice_channel_id = interaction.guild.me.voice.channelId;
 
@@ -54,6 +73,7 @@ module.exports = new ClientInteraction({
             return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
+                        color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in a voice channel.`,
                     }),
                 ],
@@ -61,51 +81,63 @@ module.exports = new ClientInteraction({
         }
 
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     new CustomEmbed({
-                        description: `${interaction.user}, you must be in the same voice channel as me.`,
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, you need to summon me or join my voice channel.`,
                     }),
                 ],
             });
         }
 
-        const query = interaction.options.getString('query', true);
-        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
-
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, searching for:\`\`\`\n${query}\n\`\`\``,
+                    description: `${interaction.user}, searched for:\`\`\`\n${query}\n\`\`\``,
                 }),
             ],
         });
 
-        const queue = await AudioManager.createQueue(discord_client, interaction.guildId, {
-            user: interaction.user,
-            channel: interaction.channel,
-        });
+        /** @type {MusicSubscription} */
+        let music_subscription = music_subscriptions.get(interaction.guildId);
 
-        if (!queue.connection || !interaction.guild.me.voice.channelId) {
-            try {
-                await queue.connect(interaction.member.voice.channelId);
-            } catch (error) {
-                console.trace(`Failed to connect to the voice channel: ${error.message}`, error);
-                return interaction.followUp({
-                    embeds: [
-                        new CustomEmbed({
-                            description: `${interaction.user}, I was unable to join your voice channel!`,
-                        }),
-                    ],
-                });
-            }
+        // If a connection to the guild doesn't already exist and the user is in a voice channel,
+        // join that channel and create a subscription.
+        if (!music_subscription) {
+            music_subscription = new MusicSubscription(
+                joinVoiceChannel({
+                    channelId: guild_member_voice_channel_id,
+                    guildId: interaction.guildId,
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                })
+            );
+            music_subscription.voiceConnection.on('error', console.warn);
+            music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
-        const search_result = await queue.player.search(query, {
-            requestedBy: interaction.user,
+        // Make sure the connection is ready before processing the user's request
+        try {
+            await entersState(music_subscription.voiceConnection, VoiceConnectionStatus.Ready, 10e3);
+        } catch (error) {
+            console.warn(error);
+            return await interaction.followUp({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                    }),
+                ],
+            });
+        }
+
+        const player = new DiscordPlayer(discord_client);
+
+        const search_result = await player.search(query, {
+            searchEngine: DiscordPlayerQueryType.YOUTUBE_SEARCH,
         });
 
-        const tracks = search_result.playlist?.tracks ?? [ search_result.tracks[0] ];
+        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks[0] ]).filter(track => !!track);
 
         if (tracks.length === 0) {
             return await interaction.followUp({
@@ -130,18 +162,66 @@ module.exports = new ClientInteraction({
         // asynchronously add tracks to the queue to allow the first item to play
         (async () => {
             for (let i = 0; i < tracks.length; i++) {
-                const insert_index = playnext ? i : queue.tracks.length;
-                queue.insert(tracks[i], insert_index);
+                const insert_index = playnext ? i : music_subscription.queue.length;
+
+                try {
+                    // Attempt to create a Track from the user's video URL
+                    const track = await Track.from(tracks[i].url, {
+                        onStart() {
+                            interaction.followUp({
+                                embeds: [
+                                    new CustomEmbed({
+                                        description: `${interaction.user}, is playing **[${track.title}](${track.url})**.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        },
+                        onFinish() {
+                            interaction.followUp({
+                                embeds: [
+                                    new CustomEmbed({
+                                        description: `${interaction.user}, finished playing **${track.title}**.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        },
+                        onError(error) {
+                            console.warn(error);
+                            interaction.followUp({
+                                embeds: [
+                                    new CustomEmbed({
+                                        color: CustomEmbed.colors.RED,
+                                        description: `${interaction.user}, failed to play **${track.title}**.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        },
+                    });
+
+                    // Add the track and reply a success message to the user
+                    music_subscription.addTrack(track, insert_index);
+
+                    await interaction.followUp({
+                        embeds: [
+                            new CustomEmbed({
+                                description: `Added **[${track.title}](${track.url})** to the queue.`,
+                            }),
+                        ],
+                    });
+                } catch (error) {
+                    console.warn(error);
+                    await interaction.followUp({
+                        embeds: [
+                            new CustomEmbed({
+                                color: CustomEmbed.colors.RED,
+                                description: `${interaction.user}, failed to add **${tracks[i].title}** to the queue.`,
+                            }),
+                        ],
+                    });
+                }
+
                 await delay(5_000);
             }
         })();
-
-        // wait for the queue to be populated
-        while (queue.tracks.length === 0) await delay(10);
-
-        if (!queue.playing) {
-            await queue.play();
-            queue.setVolume(queue.volume ?? VolumeManager.scaleVolume(50)); // this will force a sensible volume
-        }
     },
 });

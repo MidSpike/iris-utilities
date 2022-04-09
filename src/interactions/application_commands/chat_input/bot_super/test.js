@@ -5,8 +5,12 @@
 const Discord = require('discord.js');
 
 const { delay } = require('../../../../common/lib/utilities');
+
+const {
+	joinVoiceChannel,
+} = require('@discordjs/voice');
+
 const { ClientInteraction, ClientInteractionManager, ClientCommandHelper } = require('../../../../common/app/client_interactions');
-const { joinVoiceChannel } = require('@discordjs/voice');
 
 //------------------------------------------------------------//
 
@@ -34,7 +38,7 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const voice_channel = interaction.member?.voice.channel;
+        const voice_channel = interaction.member?.voice?.channel;
         if (voice_channel) {
             joinVoiceChannel({
                 channelId: voice_channel.id,
