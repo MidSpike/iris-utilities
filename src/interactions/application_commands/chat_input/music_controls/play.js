@@ -20,7 +20,6 @@ const {
 const { delay } = require('../../../../common/lib/utilities');
 
 const { CustomEmbed } = require('../../../../common/app/message');
-const { VolumeManager } = require('../../../../common/app/audio');
 const { Track, MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
@@ -104,7 +103,7 @@ module.exports = new ClientInteraction({
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
         // join that channel and create a subscription.
-        if (!music_subscription) {
+        if (!music_subscription || !bot_voice_channel_id) {
             music_subscription = new MusicSubscription(
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
@@ -140,13 +139,14 @@ module.exports = new ClientInteraction({
         const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks[0] ]).filter(track => !!track);
 
         if (tracks.length === 0) {
-            return await interaction.followUp({
+            await interaction.followUp({
                 embeds: [
                     new CustomEmbed({
                         description: `${interaction.user}, I couldn't find anything for **${query}**.`,
                     }),
                 ],
             });
+            return;
         }
 
         if (tracks.length > 1) {
@@ -199,7 +199,10 @@ module.exports = new ClientInteraction({
                     });
 
                     // Add the track and reply a success message to the user
-                    music_subscription.addTrack(track, insert_index);
+                    music_subscription.queue.addTrack(track, insert_index);
+
+                    // Process the music subscription's queue
+                    await music_subscription.processQueue();
 
                     await interaction.followUp({
                         embeds: [
