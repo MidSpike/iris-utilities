@@ -5,8 +5,8 @@
 const Discord = require('discord.js');
 
 const { CustomEmbed } = require('../../../../common/app/message');
-const { AudioManager } = require('../../../../common/app/audio');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
 
@@ -34,19 +34,6 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
-
-        if (!queue?.connection || !queue?.playing) {
-            return interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, nothing is playing right now!`,
-                    }),
-                ],
-            });
-        }
-
         const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
@@ -72,14 +59,34 @@ module.exports = new ClientInteraction({
             });
         }
 
-        queue.skip();
+        const music_subscription = music_subscriptions.get(interaction.guildId);
+        if (!music_subscription) {
+            await interaction.editReply({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'Nothing is playing right now!',
+                    }),
+                ],
+            }).catch(() => {});
+            return;
+        }
 
-        interaction.followUp({
+        if (music_subscription.queue.length === 0) {
+            music_subscription.kill();
+            return;
+        }
+
+        const track_before_skip = music_subscription.queue.current_track;
+
+        await music_subscription.processQueue(true);
+
+        await interaction.followUp({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, skipped the current item in the queue!`,
+                    description: `${interaction.user}, skipped **${track_before_skip.title}**!`,
                 }),
             ],
-        });
+        }).catch(() => {});
     },
 });

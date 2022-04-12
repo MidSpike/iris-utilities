@@ -5,8 +5,15 @@
 const Discord = require('discord.js');
 
 const { CustomEmbed, disableMessageComponents } = require('../../../../common/app/message');
-const { AudioManager, VolumeManager } = require('../../../../common/app/audio');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+
+const { music_subscriptions } = require('../../../../common/app/music/music');
+
+//------------------------------------------------------------//
+
+function clampVolume(volume, min_volume=0, max_volume=200) {
+    return Math.max(min_volume, Math.min(max_volume, volume));
+}
 
 //------------------------------------------------------------//
 
@@ -41,26 +48,24 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        /** @type {number?} */
-        const volume_input = interaction.options.getInteger('level');
-
-        const initial_queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
-
-        if (!initial_queue?.connection || !initial_queue?.playing) {
-            return interaction.followUp({
+        const music_subscription = music_subscriptions.get(interaction.guildId);
+        if (!music_subscription) {
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
-                        description: `${interaction.user} you can\'t change the volume as nothing is playing right now!`,
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'Nothing is playing right now!',
                     }),
                 ],
-            });
+            }).catch(() => {});
+            return;
         }
 
-        if (volume_input) {
-            const minimum_allowed_volume = 0;
-            const maximum_allowed_volume = 100;
-            const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
-            initial_queue.setVolume(VolumeManager.scaleVolume(volume_level));
+        /** @type {number?} */
+        const raw_volume_input = interaction.options.getInteger('level');
+        const volume_input = typeof raw_volume_input === 'number' ? clampVolume(raw_volume_input) : null;
+        if (typeof volume_input === 'number') {
+            music_subscription.queue.volume_manager.volume = volume_input;
         }
 
         /** @type {Discord.Message} */
@@ -71,7 +76,7 @@ module.exports = new ClientInteraction({
                     ...(volume_input ? {
                         description: `${interaction.user} set the volume to **${volume_input}**!`,
                     } : {
-                        description: `${interaction.user} the current volume is **${VolumeManager.lockToNearestMultipleOf(VolumeManager.normalizeVolume(initial_queue.volume), 1)}**!`,
+                        description: `${interaction.user} the current volume is **${music_subscription.queue.volume_manager.volume}**!`,
                     }),
                 }),
             ],
@@ -117,54 +122,53 @@ module.exports = new ClientInteraction({
         button_interaction_collector.on('collect', async (button_interaction) => {
             await button_interaction.deferUpdate();
 
-            console.log({
-                button_interaction,
-            });
-
-            const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
-
             switch (button_interaction.customId) {
                 case 'volume_mute': {
-                    queue.setVolume(0);
+                    music_subscription.queue.volume_manager.toggleMute();
 
                     await button_interaction.editReply({
                         embeds: [
                             new CustomEmbed({
-                                description: `${button_interaction.user}, muted!`,
+                                ...(music_subscription.queue.volume_manager.muted ? {
+                                    description: `${interaction.user} muted the volume!`,
+                                } : {
+                                    description: `${interaction.user} unmuted the volume!`,
+                                }),
                             }),
                         ],
                     });
 
                     break;
                 }
+
                 case 'volume_down': {
-                    const new_volume_level = VolumeManager.normalizeVolume(queue.volume) - 10;
-                    queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
+                    music_subscription.queue.volume_manager.volume = clampVolume(music_subscription.queue.volume_manager.volume - 10);
 
                     await button_interaction.editReply({
                         embeds: [
                             new CustomEmbed({
-                                description: `${button_interaction.user}, decreased the volume to **${VolumeManager.normalizeVolume(queue.volume)}**!`,
+                                description: `${button_interaction.user}, decreased the volume to **${music_subscription.queue.volume_manager.volume}**!`,
                             }),
                         ],
                     });
 
                     break;
                 }
+
                 case 'volume_up': {
-                    const new_volume_level = VolumeManager.normalizeVolume(queue.volume) + 10;
-                    queue.setVolume(VolumeManager.scaleVolume(new_volume_level));
+                    music_subscription.queue.volume_manager.volume = clampVolume(music_subscription.queue.volume_manager.volume + 10);
 
                     await button_interaction.editReply({
                         embeds: [
                             new CustomEmbed({
-                                description: `${button_interaction.user}, increased the volume to **${VolumeManager.normalizeVolume(queue.volume)}**!`,
+                                description: `${button_interaction.user}, increased the volume to **${music_subscription.queue.volume_manager.volume}**!`,
                             }),
                         ],
                     });
 
                     break;
                 }
+
                 default: {
                     break;
                 }

@@ -37,7 +37,7 @@ module.exports = new ClientInteraction({
 
         const voice_channel = interaction.member?.voice.channel;
         if (!voice_channel) {
-            return await interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
@@ -45,6 +45,7 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             });
+            return;
         }
 
         joinVoiceChannel({
