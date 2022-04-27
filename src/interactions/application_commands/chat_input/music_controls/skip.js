@@ -6,6 +6,7 @@ const Discord = require('discord.js');
 
 const { CustomEmbed } = require('../../../../common/app/message');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+
 const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
@@ -72,8 +73,8 @@ module.exports = new ClientInteraction({
             return;
         }
 
-        if (music_subscription.queue.length === 0) {
-            music_subscription.kill();
+        if (music_subscription.queue.future_tracks.length === 0) {
+            await music_subscription.kill();
             return;
         }
 

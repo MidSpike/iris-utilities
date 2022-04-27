@@ -5,8 +5,9 @@
 const Discord = require('discord.js');
 
 const { CustomEmbed } = require('../../../../common/app/message');
-const { AudioManager } = require('../../../../common/app/audio');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+
+const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
 
@@ -34,52 +35,52 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
-
-        if (!queue?.connection || !queue?.playing) {
-            return interaction.followUp({
-                embeds: [
-                    new CustomEmbed({
-                        color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, nothing is playing right now!`,
-                    }),
-                ],
-            });
-        }
-
         const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
         if (!bot_voice_channel_id) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, I\'m not connected to a voice channel!`,
                     }),
                 ],
-            });
+            }).catch(() => {});
         }
 
         if (guild_member_voice_channel_id !== bot_voice_channel_id) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in the same voice channel as me!`,
                     }),
                 ],
-            });
+            }).catch(() => {});
         }
 
-        queue.stop();
+        const music_subscription = music_subscriptions.get(interaction.guildId);
+        if (!music_subscription) {
+            await interaction.editReply({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'Nothing is playing right now!',
+                    }),
+                ],
+            }).catch(() => {});
+            return;
+        }
 
-        interaction.followUp({
+        await music_subscription.kill();
+
+        await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, stopped the music!`,
+                    description: `${interaction.user}, stopped the queue!`,
                 }),
             ],
-        });
+        }).catch(() => {});
     },
 });

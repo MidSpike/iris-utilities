@@ -10,11 +10,11 @@ const {
 const Discord = require('discord.js');
 
 const {
-	AudioPlayerStatus,
-	AudioResource,
-	entersState,
-	joinVoiceChannel,
-	VoiceConnectionStatus,
+    AudioPlayerStatus,
+    AudioResource,
+    entersState,
+    joinVoiceChannel,
+    VoiceConnectionStatus,
 } = require('@discordjs/voice');
 
 const { delay } = require('../../../../common/lib/utilities');

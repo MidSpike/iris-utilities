@@ -4,9 +4,16 @@
 
 const Discord = require('discord.js');
 
+const {
+    entersState,
+    joinVoiceChannel,
+    VoiceConnectionStatus,
+} = require('@discordjs/voice');
+
 const { CustomEmbed } = require('../../../../common/app/message');
-const { AudioManager } = require('../../../../common/app/audio');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+
+const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
 
@@ -34,12 +41,10 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
-
         const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
-        if (!bot_voice_channel_id) {
+        if (bot_voice_channel_id && guild_member_voice_channel_id !== bot_voice_channel_id) {
             return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
@@ -50,35 +55,62 @@ module.exports = new ClientInteraction({
             });
         }
 
-        if (guild_member_voice_channel_id !== bot_voice_channel_id) {
-            return interaction.followUp({
+        const music_subscription = music_subscriptions.get(interaction.guildId);
+        if (!music_subscription) {
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you need to be in the same voice channel as me!`,
+                        title: 'Nothing is playing right now!',
                     }),
                 ],
-            });
+            }).catch(() => {});
+            return;
         }
 
-        if (!queue?.connection || !queue?.playing) {
-            return interaction.followUp({
+        if (!bot_voice_channel_id) {
+            joinVoiceChannel({
+                channelId: guild_member_voice_channel_id,
+                guildId: interaction.guildId,
+                adapterCreator: interaction.guild.voiceAdapterCreator,
+            });
+
+            try {
+                await entersState(music_subscription.voiceConnection, VoiceConnectionStatus.Ready, 10e3);
+            } catch (error) {
+                console.warn(error);
+                return await interaction.followUp({
+                    embeds: [
+                        new CustomEmbed({
+                            color: CustomEmbed.colors.RED,
+                            description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                        }),
+                    ],
+                });
+            }
+        }
+
+        const most_recent_track = music_subscription.queue.previous_tracks.at(0);
+        if (!most_recent_track) {
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
-                        description: `${interaction.user}, nothing is playing right now!`,
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'There is no track to replay!',
                     }),
                 ],
-            });
+            }).catch(() => {});
+            return;
         }
 
-        await queue.insert(queue.previousTracks.at(-2), 0); // replay the last active item in the queue
+        music_subscription.queue.addTrack(most_recent_track, 0);
 
-        interaction.followUp({
+        await interaction.followUp({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, replaying the last track next!`,
+                    description: `${interaction.user}, replaying **${most_recent_track.title}** next!`,
                 }),
             ],
-        });
+        }).catch(() => {});
     },
 });

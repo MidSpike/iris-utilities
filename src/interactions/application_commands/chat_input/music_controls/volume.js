@@ -115,12 +115,13 @@ module.exports = new ClientInteraction({
         });
 
         const button_interaction_collector = await bot_message.createMessageComponentCollector({
-            // filter: (button_interaction) => true,
-            time: 5 * 60_000,
+            time: 1 * 60_000, // 1 minute
         });
 
         button_interaction_collector.on('collect', async (button_interaction) => {
             await button_interaction.deferUpdate();
+
+            button_interaction_collector.resetTimer();
 
             switch (button_interaction.customId) {
                 case 'volume_mute': {
