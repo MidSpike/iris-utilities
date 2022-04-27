@@ -69,7 +69,9 @@ class Track {
      * Creates an AudioResource from this Track.
      * @returns {Promise<AudioResource>}
      */
-    createAudioResource() {
+    initializeResource() {
+        this.#resource = undefined; // reset the resource
+
         return new Promise((resolve, reject) => {
             const process = ytdl(this.url, {
                 o: '-',
@@ -95,9 +97,9 @@ class Track {
             process.once('spawn', () => {
                 demuxProbe(stream).then((probe) => {
                     this.#resource = createAudioResource(probe.stream, {
-                        metadata: this, // the track
                         inputType: probe.type,
                         inlineVolume: true, // allows volume to be adjusted while playing
+                        metadata: this, // the track
                     });
 
                     // IMPORTANT: set a sensible default volume
@@ -206,11 +208,14 @@ class Queue {
     /** @type {boolean} */
     locked = false;
 
+    /** @type {'off'|'track'|'queue'|'autoplay'} */
+    looping_mode = 'off';
+
     /** @type {Track[]} */
     #previous_tracks = [];
 
     /** @type {Track?} */
-    #current_track = null;
+    #current_track = undefined;
 
     /** @type {Track[]} */
     #future_tracks = [];
@@ -220,11 +225,16 @@ class Queue {
 
     constructor() {}
 
-    /**
-     * @type {Track?} The current track
-     */
+    get previous_tracks() {
+        return this.#previous_tracks;
+    }
+
     get current_track() {
         return this.#current_track;
+    }
+
+    get future_tracks() {
+        return this.#future_tracks;
     }
 
     /**
@@ -278,7 +288,7 @@ class Queue {
         }
 
         try {
-            await next_track.createAudioResource();
+            await next_track.initializeResource();
         } catch (error) {
             next_track.onError(error);
             this.locked = false;
@@ -349,7 +359,7 @@ class Queue {
                 /**
                  * Once destroyed, kill the subscription.
                  */
-                this.kill();
+                await this.kill();
             } else if (
                 !this.#readyLock &&
                 (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)
@@ -393,7 +403,7 @@ class Queue {
     /**
      * Kills the subscription, clears the queue, stops the audio player.
      */
-    kill() {
+    async kill() {
         this.queue.clearTracks();
         this.audioPlayer.stop(true);
     }
