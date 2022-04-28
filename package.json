@@ -16,7 +16,7 @@
     "dogeify-js": "1.2.1",
     "dotenv": "16.0.0",
     "erlpack": "0.1.4",
-    "express": "4.17.3",
+    "express": "4.18.0",
     "ffmpeg": "0.0.4",
     "ffmpeg-static": "4.4.0",
     "google-it": "1.6.2",
