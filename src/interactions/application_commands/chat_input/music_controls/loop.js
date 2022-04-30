@@ -60,13 +60,13 @@ module.exports = new ClientInteraction({
         const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
 
         if (!queue?.connection || !queue?.playing) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         description: `${interaction.user}, nothing is playing right now!`,
                     }),
                 ],
-            });
+            }).catch(() => {});
         }
 
         /** @type {Discord.GuildMember} */
@@ -76,13 +76,13 @@ module.exports = new ClientInteraction({
         const bot_voice_channel = interaction.guild.me.voice.channel;
 
         if (guild_member_voice_channel.id !== bot_voice_channel.id) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         description: `${interaction.user}, you must be in the same voice channel as me.`,
                     }),
                 ],
-            });
+            }).catch(() => {});
         }
 
         const looping_type = interaction.options.getString('type');
@@ -109,12 +109,12 @@ module.exports = new ClientInteraction({
             }
         }
 
-        interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new CustomEmbed({
                     description: `${interaction.user}, set queue looping to **${looping_type}**.`,
                 }),
             ],
-        });
+        }).catch(() => {});
     },
 });
