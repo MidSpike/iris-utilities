@@ -5,12 +5,14 @@
 const { promisify } = require('node:util');
 
 const {
-    AudioResource,
-    AudioPlayerStatus,
     createAudioPlayer,
     createAudioResource,
     demuxProbe,
     entersState,
+    AudioPlayer,
+    AudioPlayerStatus,
+    AudioResource,
+    VoiceConnection,
     VoiceConnectionDisconnectReason,
     VoiceConnectionStatus,
 } = require('@discordjs/voice');
@@ -166,6 +168,7 @@ class QueueVolumeManager {
 
     get volume() {
         const active_resource = this.#getActiveResource();
+        if (!active_resource) return 0;
 
         const active_resource_volume = active_resource?.volume?.volumeLogarithmic;
 
@@ -209,7 +212,7 @@ class Queue {
     locked = false;
 
     /** @type {'off'|'track'|'queue'|'autoplay'} */
-    looping_mode = 'off';
+    #looping_mode = 'off';
 
     /** @type {Track[]} */
     #previous_tracks = [];
@@ -220,7 +223,7 @@ class Queue {
     /** @type {Track[]} */
     #future_tracks = [];
 
-    /** @type {QueueVolumeManager} */
+    /** @type {QueueVolumeManager} @readonly */
     volume_manager = new QueueVolumeManager(this);
 
     constructor() {}
@@ -235,6 +238,18 @@ class Queue {
 
     get future_tracks() {
         return this.#future_tracks;
+    }
+
+    get looping_mode() {
+        return this.#looping_mode;
+    }
+
+    set looping_mode(mode) {
+        if (!['off', 'track', 'queue', 'autoplay'].includes(mode)) {
+            throw new TypeError(`Invalid looping mode: ${mode}`);
+        }
+
+        this.#looping_mode = mode;
     }
 
     /**
@@ -260,8 +275,10 @@ class Queue {
         this.#future_tracks.splice(position, 1);
     }
 
-    clearTracks() {
+    clearAllTracks() {
         this.#future_tracks.splice(0, this.#future_tracks.length);
+        this.#current_track = undefined;
+        this.#previous_tracks.splice(0, this.#previous_tracks.length);
     }
 
     /**
@@ -271,17 +288,38 @@ class Queue {
         if (this.locked) return;
         this.locked = true;
 
-        if (this.#future_tracks.length === 0) {
-            this.locked = false;
-            return;
-        }
-
         const previous_track = this.#current_track;
-        if (previous_track) {
-            this.#previous_tracks.splice(0, 0, previous_track);
+        this.#previous_tracks.splice(0, 0, previous_track);
+
+        /** @type {Track} */
+        let next_track;
+        switch (this.#looping_mode) {
+            case 'off': {
+                next_track = this.#future_tracks.shift();
+                break;
+            }
+
+            case 'track': {
+                next_track = previous_track;
+                break;
+            }
+
+            case 'queue': {
+                this.#future_tracks.push(previous_track);
+                next_track = this.#future_tracks.shift();
+                break;
+            }
+
+            case 'autoplay': {
+                /** @todo */
+                break;
+            }
+
+            default: {
+                throw new Error(`Unknown looping mode: ${this.#looping_mode}`);
+            }
         }
 
-        const next_track = this.#future_tracks.shift();
         if (!next_track) {
             this.locked = false;
             return;
@@ -301,6 +339,11 @@ class Queue {
 
         return next_track;
     }
+
+    resetState() {
+        this.clearAllTracks();
+        this.#looping_mode = 'off';
+    }
 }
 
 //------------------------------------------------------------//
@@ -310,10 +353,10 @@ class Queue {
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
  */
  class MusicSubscription {
-    /** @readonly */
+    /** @type {VoiceConnection} @readonly */
     voiceConnection;
 
-    /** @readonly */
+    /** @type {AudioPlayer} @readonly */
     audioPlayer;
 
     /** @readonly */
@@ -404,8 +447,9 @@ class Queue {
      * Kills the subscription, clears the queue, stops the audio player.
      */
     async kill() {
-        this.queue.clearTracks();
+        this.queue.resetState();
         this.audioPlayer.stop(true);
+        this.voiceConnection.disconnect();
     }
 
     /**

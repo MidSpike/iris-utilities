@@ -73,14 +73,9 @@ module.exports = new ClientInteraction({
             return;
         }
 
-        if (music_subscription.queue.future_tracks.length === 0) {
-            await music_subscription.kill();
-            return;
-        }
-
-        const track_before_skip = music_subscription.queue.current_track;
-
         await music_subscription.processQueue(true);
+
+        const track_before_skip = music_subscription.queue.previous_tracks.at(0);
 
         await interaction.followUp({
             embeds: [
