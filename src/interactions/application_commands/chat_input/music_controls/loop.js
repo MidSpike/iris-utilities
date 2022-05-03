@@ -3,11 +3,11 @@
 //------------------------------------------------------------//
 
 const Discord = require('discord.js');
-const { QueueRepeatMode } = require('discord-player');
 
 const { CustomEmbed } = require('../../../../common/app/message');
-const { AudioManager } = require('../../../../common/app/audio');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+
+const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
 
@@ -57,62 +57,75 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const queue = await AudioManager.fetchQueue(discord_client, interaction.guildId);
+        const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
+        const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
-        if (!queue?.connection || !queue?.playing) {
-            return interaction.editReply({
+        if (!bot_voice_channel_id) {
+            return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
-                        description: `${interaction.user}, nothing is playing right now!`,
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, I\'m not connected to a voice channel!`,
+                    }),
+                ],
+            });
+        }
+
+        if (guild_member_voice_channel_id !== bot_voice_channel_id) {
+            return interaction.followUp({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, you need to be in the same voice channel as me!`,
+                    }),
+                ],
+            });
+        }
+
+        const music_subscription = music_subscriptions.get(interaction.guildId);
+        if (!music_subscription) {
+            await interaction.editReply({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'Nothing is playing right now!',
                     }),
                 ],
             }).catch(() => {});
+            return;
         }
 
-        /** @type {Discord.GuildMember} */
-        const guild_member = interaction.member;
+        const looping_mode_option = interaction.options.get('type');
 
-        const guild_member_voice_channel = guild_member.voice.channel;
-        const bot_voice_channel = interaction.guild.me.voice.channel;
+        try {
+            music_subscription.queue.looping_mode = looping_mode_option.value;
+        } catch (error) {
+            console.trace(error, { looping_mode_option });
 
-        if (guild_member_voice_channel.id !== bot_voice_channel.id) {
-            return interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
-                        description: `${interaction.user}, you must be in the same voice channel as me.`,
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, an error occurred while trying to set the looping mode!`,
                     }),
                 ],
             }).catch(() => {});
+
+            return;
         }
 
-        const looping_type = interaction.options.getString('type');
+        const command_looping_mode_option = this.data.options.find(option => option.name === looping_mode_option.name);
 
-        switch (looping_type) {
-            case 'off': {
-                queue.setRepeatMode(QueueRepeatMode.OFF);
-                break;
-            }
-            case 'track': {
-                queue.setRepeatMode(QueueRepeatMode.TRACK);
-                break;
-            }
-            case 'queue': {
-                queue.setRepeatMode(QueueRepeatMode.QUEUE);
-                break;
-            }
-            case 'autoplay': {
-                queue.setRepeatMode(QueueRepeatMode.AUTOPLAY);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
+        /** @type {import('discord.js').ApplicationCommandOptionChoice[]} */
+        const command_looping_mode_choices = command_looping_mode_option.choices;
+
+        /** @type {import('discord.js').ApplicationCommandOptionChoice} */
+        const command_looping_mode_choice = command_looping_mode_choices.find(choice => choice.value === looping_mode_option.value);
 
         await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, set queue looping to **${looping_type}**.`,
+                    description: `${interaction.user}, set queue looping to **${command_looping_mode_choice.name}**.`,
                 }),
             ],
         }).catch(() => {});

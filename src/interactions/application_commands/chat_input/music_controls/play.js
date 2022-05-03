@@ -93,7 +93,7 @@ module.exports = new ClientInteraction({
         await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, searched for:\`\`\`\n${query}\n\`\`\``,
+                    description: `${interaction.user}, searching for:\`\`\`\n${query}\n\`\`\``,
                 }),
             ],
         });
