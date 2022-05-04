@@ -44,15 +44,30 @@ module.exports = new ClientInteraction({
         const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
-        if (bot_voice_channel_id && guild_member_voice_channel_id !== bot_voice_channel_id) {
-            return interaction.followUp({
+        if (!bot_voice_channel_id) {
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, I\'m not connected to a voice channel!`,
                     }),
                 ],
-            });
+            }).catch(() => {});
+
+            return;
+        }
+
+        if (guild_member_voice_channel_id !== bot_voice_channel_id) {
+            await interaction.editReply({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, you need to be in the same voice channel as me!`,
+                    }),
+                ],
+            }).catch(() => {});
+
+            return;
         }
 
         const music_subscription = music_subscriptions.get(interaction.guildId);
@@ -65,29 +80,31 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             }).catch(() => {});
+
             return;
         }
 
-        if (!bot_voice_channel_id) {
-            joinVoiceChannel({
-                channelId: guild_member_voice_channel_id,
-                guildId: interaction.guildId,
-                adapterCreator: interaction.guild.voiceAdapterCreator,
+        joinVoiceChannel({
+            channelId: guild_member_voice_channel_id,
+            guildId: interaction.guildId,
+            adapterCreator: interaction.guild.voiceAdapterCreator,
+        });
+
+        try {
+            await entersState(music_subscription.voiceConnection, VoiceConnectionStatus.Ready, 10e3);
+        } catch (error) {
+            console.warn(error);
+
+            await interaction.followUp({
+                embeds: [
+                    new CustomEmbed({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                    }),
+                ],
             });
 
-            try {
-                await entersState(music_subscription.voiceConnection, VoiceConnectionStatus.Ready, 10e3);
-            } catch (error) {
-                console.warn(error);
-                return await interaction.followUp({
-                    embeds: [
-                        new CustomEmbed({
-                            color: CustomEmbed.colors.RED,
-                            description: `${interaction.user}, I couldn't connect to the voice channel.`,
-                        }),
-                    ],
-                });
-            }
+            return;
         }
 
         const most_recent_track = music_subscription.queue.previous_tracks.at(0);
@@ -100,6 +117,7 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             }).catch(() => {});
+
             return;
         }
 

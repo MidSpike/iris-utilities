@@ -23,7 +23,7 @@ const { exec: ytdl } = require('youtube-dl-exec');
 
 //------------------------------------------------------------//
 
-const wait = promisify(setTimeout);
+const delay = promisify(setTimeout);
 
 //------------------------------------------------------------//
 
@@ -49,6 +49,7 @@ class Track {
     onFinish;
     onError;
 
+    /** @type {AudioResource?} */
     #resource;
 
     constructor({ url, title, onStart, onFinish, onError }) {
@@ -104,8 +105,8 @@ class Track {
                         metadata: this, // the track
                     });
 
-                    // IMPORTANT: set a sensible default volume
-                    this.#resource.volume.setVolumeLogarithmic(0.125); // 50% in human volume
+                    // IMPORTANT: force the volume to be
+                    this.#resource.volume.setVolumeLogarithmic(0);
 
                     resolve(this.#resource);
                 }).catch(onError);
@@ -143,19 +144,23 @@ class Track {
 class QueueVolumeManager {
     #queue;
 
+    #volume_multiplier = 0.25;
+    #human_volume_multiplier = 100;
+
     #muted_previous_raw_volume;
     #muted = false;
 
-    #raw_volume;
-    #default_raw_volume = 0.25;
+    #default_volume = 50;
+    #default_raw_volume = (this.#default_volume / this.#human_volume_multiplier) * this.#volume_multiplier;
 
-    #volume_multiplier = 0.25;
-    #human_volume_multiplier = 100;
+    #raw_volume;
 
     /**
      * @param {Queue} queue
      */
     constructor(queue) {
+        if (!(queue instanceof Queue)) throw new TypeError('queue must be an instance of Queue');
+
         this.#queue = queue;
     }
 
@@ -167,11 +172,7 @@ class QueueVolumeManager {
     }
 
     get volume() {
-        const active_resource = this.#getActiveResource();
-        if (!active_resource) return 0;
-
-        const active_resource_volume = active_resource?.volume?.volumeLogarithmic;
-
+        const active_resource_volume = this.#getActiveResource()?.volume?.volumeLogarithmic;
         const raw_logarithmic_volume = this.#raw_volume ?? active_resource_volume ?? this.#default_raw_volume;
 
         return Math.round(raw_logarithmic_volume / this.#volume_multiplier * this.#human_volume_multiplier);
@@ -202,6 +203,19 @@ class QueueVolumeManager {
         }
 
         this.#muted = !this.#muted;
+    }
+
+    /**
+     * Initializes the volume manager.
+     * Intended purpose is to set a sensible default volume.
+     */
+    initialize() {
+        const active_resource = this.#getActiveResource();
+        if (!active_resource) return;
+
+        if (typeof this.#raw_volume !== 'number') return; // already initialized
+
+        active_resource.volume?.setVolumeLogarithmic(this.#default_raw_volume);
     }
 }
 
@@ -270,15 +284,20 @@ class Queue {
 
     /**
      * @param {number} position The position of the track to remove (0-indexed)
+     * @returns {Track?} The removed track
      */
     removeTrack(position) {
-        this.#future_tracks.splice(position, 1);
+        return this.#future_tracks.splice(position, 1).at(0);
     }
 
     clearAllTracks() {
         this.#future_tracks.splice(0, this.#future_tracks.length);
         this.#current_track = undefined;
         this.#previous_tracks.splice(0, this.#previous_tracks.length);
+    }
+
+    shuffleTracks() {
+        this.#future_tracks.sort(() => Math.random() - 0.5); // weighted, but works well enough
     }
 
     /**
@@ -289,7 +308,7 @@ class Queue {
         this.locked = true;
 
         const previous_track = this.#current_track;
-        this.#previous_tracks.splice(0, 0, previous_track);
+        if (previous_track) this.#previous_tracks.splice(0, 0, previous_track);
 
         /** @type {Track} */
         let next_track;
@@ -300,12 +319,12 @@ class Queue {
             }
 
             case 'track': {
-                next_track = previous_track;
+                if (previous_track) next_track = previous_track;
                 break;
             }
 
             case 'queue': {
-                this.#future_tracks.push(previous_track);
+                if (previous_track) this.#future_tracks.push(previous_track);
                 next_track = this.#future_tracks.shift();
                 break;
             }
@@ -352,7 +371,7 @@ class Queue {
  * A MusicSubscription exists for each active VoiceConnection. Each subscription has its own audio player and queue,
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
  */
- class MusicSubscription {
+class MusicSubscription {
     /** @type {VoiceConnection} @readonly */
     voiceConnection;
 
@@ -390,7 +409,7 @@ class Queue {
                     /**
                      * The disconnect in this case is recoverable, and we also have <5 repeated attempts so we will reconnect.
                      */
-                    await wait((this.voiceConnection.rejoinAttempts + 1) * 5_000);
+                    await delay((this.voiceConnection.rejoinAttempts + 1) * 5_000);
                     this.voiceConnection.rejoin();
                 } else {
                     /**
@@ -412,7 +431,6 @@ class Queue {
                  * before destroying the voice connection. This stops the voice connection permanently existing in one of these
                  * states.
                  */
-
                 this.#readyLock = true;
 
                 try {
@@ -434,6 +452,7 @@ class Queue {
                 this.processQueue();
             } else if (newState.status === AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
+                // track.onStart() is called to notify the track that playback has started.
                 newState.resource.metadata.onStart();
             }
         });

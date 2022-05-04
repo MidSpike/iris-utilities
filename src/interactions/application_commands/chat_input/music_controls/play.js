@@ -168,6 +168,9 @@ module.exports = new ClientInteraction({
                     // Attempt to create a Track from the user's video URL
                     const track = await Track.from(tracks[i].url, {
                         onStart() {
+                            // IMPORTANT: Initialize the volume interface
+                            music_subscription.queue.volume_manager.initialize();
+
                             interaction.followUp({
                                 embeds: [
                                     new CustomEmbed({
@@ -186,7 +189,8 @@ module.exports = new ClientInteraction({
                             }).catch(console.warn);
                         },
                         onError(error) {
-                            console.warn(error);
+                            console.trace(error);
+
                             interaction.followUp({
                                 embeds: [
                                     new CustomEmbed({
