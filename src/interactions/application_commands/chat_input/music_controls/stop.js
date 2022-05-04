@@ -39,7 +39,7 @@ module.exports = new ClientInteraction({
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
         if (!bot_voice_channel_id) {
-            return interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
@@ -47,10 +47,12 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             }).catch(() => {});
+
+            return;
         }
 
         if (guild_member_voice_channel_id !== bot_voice_channel_id) {
-            return interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
@@ -58,6 +60,8 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             }).catch(() => {});
+
+            return;
         }
 
         const music_subscription = music_subscriptions.get(interaction.guildId);

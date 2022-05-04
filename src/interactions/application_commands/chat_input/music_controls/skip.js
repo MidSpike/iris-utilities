@@ -39,25 +39,29 @@ module.exports = new ClientInteraction({
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
 
         if (!bot_voice_channel_id) {
-            return interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, I\'m not connected to a voice channel!`,
                     }),
                 ],
-            });
+            }).catch(() => {});
+
+            return;
         }
 
         if (guild_member_voice_channel_id !== bot_voice_channel_id) {
-            return interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in the same voice channel as me!`,
                     }),
                 ],
-            });
+            }).catch(() => {});
+
+            return;
         }
 
         const music_subscription = music_subscriptions.get(interaction.guildId);
@@ -77,7 +81,7 @@ module.exports = new ClientInteraction({
 
         const track_before_skip = music_subscription.queue.previous_tracks.at(0);
 
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new CustomEmbed({
                     description: `${interaction.user}, skipped **${track_before_skip.title}**!`,
