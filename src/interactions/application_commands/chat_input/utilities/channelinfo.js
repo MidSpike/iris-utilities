@@ -130,7 +130,7 @@ module.exports = new ClientInteraction({
                         ...(channel.isVoice() ? [
                             {
                                 name: 'Region',
-                                value: `\`${channel.rtcRegion ?? 'n/a'}\``,
+                                value: `\`${channel.rtcRegion ?? 'Automatic'}\``,
                                 inline: true,
                             }, {
                                 name: 'Joinable',
@@ -146,7 +146,7 @@ module.exports = new ClientInteraction({
                                 inline: true,
                             }, {
                                 name: 'Members',
-                                value: `${channel.members.size > 15 ? '\`more than 15 people\`' : channel.members.map(member => `${member}`).join(' - ')}`,
+                                value: `${channel.members.size > 15 ? '\`More than 15 people!\`' : channel.members.map(member => `${member}`).join(' - ')}`,
                                 inline: false,
                             },
                         ] : []),
