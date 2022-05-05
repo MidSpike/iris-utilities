@@ -115,9 +115,9 @@ class Track {
     }
 
     /**
-     * Creates a Track from a video URL and lifecycle callback methods.
+     * Creates a Track from a URL and lifecycle callback methods.
      *
-     * @param {string} url The URL of the video
+     * @param {string} url The URL of the track
      * @param {object} methods Lifecycle callbacks
      * @param {function} methods.onStart Called when the track starts playing
      * @param {function} methods.onFinish Called when the track finishes playing
@@ -126,11 +126,22 @@ class Track {
      * @returns {Promise<Track>} The created Track
      */
     static async from(url, { onStart, onFinish, onError }) {
-        const info = await getInfo(url);
+        let track_title = 'Unknown Track';
+        let track_url = url;
+
+        const urlObj = new URL(url);
+        if (/(youtu\.be|youtube\.com)$/gi.test(urlObj.hostname)) {
+            const info = await getInfo(url);
+
+            track_title = info.videoDetails.title;
+            track_url = info.videoDetails.video_url;
+        } else {
+            track_title = `Audio stream from ${urlObj.hostname}`;
+        }
 
         return new Track({
-            title: info.videoDetails.title,
-            url: info.videoDetails.video_url,
+            title: track_title,
+            url: track_url,
 
             onStart,
             onFinish,
@@ -144,7 +155,7 @@ class Track {
 class QueueVolumeManager {
     #queue;
 
-    #volume_multiplier = 0.25;
+    #volume_multiplier = 0.30;
     #human_volume_multiplier = 100;
 
     #muted_previous_raw_volume;
@@ -213,9 +224,7 @@ class QueueVolumeManager {
         const active_resource = this.#getActiveResource();
         if (!active_resource) return;
 
-        if (typeof this.#raw_volume !== 'number') return; // already initialized
-
-        active_resource.volume?.setVolumeLogarithmic(this.#default_raw_volume);
+        active_resource.volume?.setVolumeLogarithmic(this.#raw_volume ?? this.#default_raw_volume);
     }
 }
 
@@ -288,6 +297,14 @@ class Queue {
      */
     removeTrack(position) {
         return this.#future_tracks.splice(position, 1).at(0);
+    }
+
+    clearPreviousTracks() {
+        this.#previous_tracks.splice(0, this.#previous_tracks.length);
+    }
+
+    clearFutureTracks() {
+        this.#future_tracks.splice(0, this.#future_tracks.length);
     }
 
     clearAllTracks() {
@@ -444,12 +461,14 @@ class MusicSubscription {
         });
 
         // Configure audio player
-        this.audioPlayer.on('stateChange', (oldState, newState) => {
+        this.audioPlayer.on('stateChange', async (oldState, newState) => {
+            await delay(50); // wait a bit to prevent funny business
+
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
                 oldState.resource.metadata.onFinish();
-                this.processQueue();
+                this.processQueue(false);
             } else if (newState.status === AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
                 // track.onStart() is called to notify the track that playback has started.

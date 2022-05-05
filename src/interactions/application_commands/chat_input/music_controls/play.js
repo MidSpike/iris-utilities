@@ -109,6 +109,7 @@ module.exports = new ClientInteraction({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
                     adapterCreator: interaction.guild.voiceAdapterCreator,
+                    selfDeaf: false,
                 })
             );
             music_subscription.voiceConnection.on('error', console.warn);
@@ -133,7 +134,7 @@ module.exports = new ClientInteraction({
         const player = new DiscordPlayer(discord_client);
 
         const search_result = await player.search(query, {
-            searchEngine: DiscordPlayerQueryType.YOUTUBE_SEARCH,
+            searchEngine: DiscordPlayerQueryType.AUTO,
         });
 
         const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks[0] ]).filter(track => !!track);

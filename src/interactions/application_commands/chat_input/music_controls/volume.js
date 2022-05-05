@@ -69,7 +69,7 @@ module.exports = new ClientInteraction({
         }
 
         /** @type {Discord.Message} */
-        const bot_message = await interaction.followUp({
+        const bot_message = await interaction.editReply({
             fetchReply: true,
             embeds: [
                 new CustomEmbed({
@@ -88,26 +88,17 @@ module.exports = new ClientInteraction({
                             type: 2,
                             style: 2,
                             custom_id: 'volume_mute',
-                            emoji: {
-                                id: '678696291185983497',
-                                name: 'bot_emoji_mute',
-                            },
+                            emoji: '971821789594411078',
                         }, {
                             type: 2,
                             style: 2,
                             custom_id: 'volume_down',
-                            emoji: {
-                                id: '678696324618780702',
-                                name: 'bot_emoji_volume_down',
-                            },
+                            emoji: '971821711509041242',
                         }, {
                             type: 2,
                             style: 2,
                             custom_id: 'volume_up',
-                            emoji: {
-                                id: '678696352359776296',
-                                name: 'bot_emoji_volume_up',
-                            },
+                            emoji: '971821558735724614',
                         },
                     ],
                 },
