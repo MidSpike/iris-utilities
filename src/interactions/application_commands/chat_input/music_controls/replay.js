@@ -88,6 +88,7 @@ module.exports = new ClientInteraction({
             channelId: guild_member_voice_channel_id,
             guildId: interaction.guildId,
             adapterCreator: interaction.guild.voiceAdapterCreator,
+            selfDeaf: false,
         });
 
         try {

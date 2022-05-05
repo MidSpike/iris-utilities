@@ -17,6 +17,22 @@ const { ClientInteractionManager } = require('./common/app/client_interactions')
 
 //------------------------------------------------------------//
 
+/* prevent the process from crashing for unhandledRejections */
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('----------------------------------------------------------------');
+    console.trace('unhandledRejection:', reason?.stack ?? reason, promise);
+    console.error('----------------------------------------------------------------');
+});
+
+/* prevent the process from crashing for uncaughtExceptions */
+process.on('uncaughtException', (error) => {
+    console.error('----------------------------------------------------------------');
+    console.trace('uncaughtException:', error);
+    console.error('----------------------------------------------------------------');
+});
+
+//------------------------------------------------------------//
+
 const discord_client = new Discord.Client({
     intents: [
         Discord.Intents.FLAGS.GUILDS,
@@ -83,19 +99,3 @@ async function main() {
 }
 
 main();
-
-//------------------------------------------------------------//
-
-/* prevent the process from crashing for unhandledRejections */
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('----------------------------------------------------------------------------------------------------------------');
-    console.trace('unhandledRejection:', reason?.stack ?? reason, promise);
-    console.error('----------------------------------------------------------------------------------------------------------------');
-});
-
-/* prevent the process from crashing for uncaughtExceptions */
-process.on('uncaughtException', (error) => {
-    console.error('----------------------------------------------------------------------------------------------------------------');
-    console.trace('uncaughtException:', error);
-    console.error('----------------------------------------------------------------------------------------------------------------');
-});
