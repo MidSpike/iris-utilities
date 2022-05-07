@@ -74,9 +74,9 @@ module.exports = new ClientInteraction({
             embeds: [
                 new CustomEmbed({
                     ...(volume_input ? {
-                        description: `${interaction.user} set the volume to **${volume_input}**!`,
+                        description: `${interaction.user}, set the volume to **${volume_input}**!`,
                     } : {
-                        description: `${interaction.user} the current volume is **${music_subscription.queue.volume_manager.volume}**!`,
+                        description: `${interaction.user}, the current volume is **${music_subscription.queue.volume_manager.volume}**!`,
                     }),
                 }),
             ],
@@ -122,9 +122,9 @@ module.exports = new ClientInteraction({
                         embeds: [
                             new CustomEmbed({
                                 ...(music_subscription.queue.volume_manager.muted ? {
-                                    description: `${interaction.user} muted the volume!`,
+                                    description: `${interaction.user}, muted the volume!`,
                                 } : {
-                                    description: `${interaction.user} unmuted the volume!`,
+                                    description: `${interaction.user}, unmuted the volume!`,
                                 }),
                             }),
                         ],

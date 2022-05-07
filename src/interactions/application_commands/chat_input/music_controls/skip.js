@@ -74,17 +74,18 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             }).catch(() => {});
+
             return;
         }
 
-        await music_subscription.processQueue(true);
+        const track_before_skip = music_subscription.queue.current_track;
 
-        const track_before_skip = music_subscription.queue.previous_tracks.at(0);
+        music_subscription.processQueue(true);
 
         await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, skipped **${track_before_skip.title}**!`,
+                    description: `${interaction.user}, skipping **${track_before_skip.title}**!`,
                 }),
             ],
         }).catch(() => {});

@@ -10,17 +10,21 @@ const {
 const Discord = require('discord.js');
 
 const {
-    AudioPlayerStatus,
-    AudioResource,
+    createAudioResource,
+    demuxProbe,
     entersState,
     joinVoiceChannel,
     VoiceConnectionStatus,
 } = require('@discordjs/voice');
 
+const { getInfo: getYouTubeInfo } = require('ytdl-core');
+
+const { exec: ytdl } = require('youtube-dl-exec');
+
 const { delay } = require('../../../../common/lib/utilities');
 
 const { CustomEmbed } = require('../../../../common/app/message');
-const { Track, MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
+const { RemoteTrack, MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 
@@ -163,11 +167,63 @@ module.exports = new ClientInteraction({
         // asynchronously add tracks to the queue to allow the first item to play
         (async () => {
             for (let i = 0; i < tracks.length; i++) {
-                const insert_index = playnext ? i : music_subscription.queue.length;
+                const insert_index = playnext ? i : music_subscription.queue.future_tracks.length;
 
                 try {
-                    // Attempt to create a Track from the user's video URL
-                    const track = await Track.from(tracks[i].url, {
+                    let track_title = 'Unknown Track';
+                    let track_url = 'https://google.com/';
+
+                    const urlObj = new URL(tracks[i].url);
+                    if (/(youtu\.be|youtube\.com)$/gi.test(urlObj.hostname)) {
+                        const info = await getYouTubeInfo(`${urlObj}`);
+
+                        track_title = info.videoDetails.title;
+                        track_url = info.videoDetails.video_url;
+                    } else {
+                        track_title = `Audio stream from ${urlObj.hostname}`;
+                    }
+
+                    const track = new RemoteTrack({
+                        title: track_title,
+                        url: track_url,
+                    }, async (track) => await new Promise((resolve, reject) => {
+                        console.warn({
+                            track,
+                        });
+
+                        const process = ytdl(track.metadata.url, {
+                            o: '-',
+                            q: '',
+                            f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
+                            r: '100K',
+                        }, {
+                            stdio: [ 'ignore', 'pipe', 'ignore' ],
+                        });
+
+                        const stream = process?.stdout;
+                        if (!stream) {
+                            reject(new Error('No stdout'));
+                            return;
+                        }
+
+                        const onError = (error) => {
+                            console.trace(error);
+
+                            if (!process.killed) process.kill();
+                            stream.resume();
+                            reject(error);
+                        };
+
+                        process.once('spawn', () => {
+                            demuxProbe(stream).then((probe) => {
+                                resolve(createAudioResource(probe.stream, {
+                                    inputType: probe.type,
+                                    inlineVolume: true, // allows volume to be adjusted while playing
+                                    metadata: track, // the track
+                                }))
+                            }).catch(onError);
+                        }).catch(onError);
+                    }), {
                         onStart() {
                             // IMPORTANT: Initialize the volume interface
                             music_subscription.queue.volume_manager.initialize();
@@ -175,7 +231,7 @@ module.exports = new ClientInteraction({
                             interaction.followUp({
                                 embeds: [
                                     new CustomEmbed({
-                                        description: `${interaction.user}, is playing **[${track.title}](${track.url})**.`,
+                                        description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
                                     }),
                                 ],
                             }).catch(console.warn);
@@ -184,7 +240,7 @@ module.exports = new ClientInteraction({
                             interaction.followUp({
                                 embeds: [
                                     new CustomEmbed({
-                                        description: `${interaction.user}, finished playing **${track.title}**.`,
+                                        description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
                                     }),
                                 ],
                             }).catch(console.warn);
@@ -196,7 +252,7 @@ module.exports = new ClientInteraction({
                                 embeds: [
                                     new CustomEmbed({
                                         color: CustomEmbed.colors.RED,
-                                        description: `${interaction.user}, failed to play **${track.title}**.`,
+                                        description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
                                     }),
                                 ],
                             }).catch(console.warn);
@@ -207,12 +263,12 @@ module.exports = new ClientInteraction({
                     music_subscription.queue.addTrack(track, insert_index);
 
                     // Process the music subscription's queue
-                    await music_subscription.processQueue();
+                    await music_subscription.processQueue(false);
 
                     await interaction.followUp({
                         embeds: [
                             new CustomEmbed({
-                                description: `Added **[${track.title}](${track.url})** to the queue.`,
+                                description: `Added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
                             }),
                         ],
                     });
@@ -222,7 +278,7 @@ module.exports = new ClientInteraction({
                         embeds: [
                             new CustomEmbed({
                                 color: CustomEmbed.colors.RED,
-                                description: `${interaction.user}, failed to add **${tracks[i].title}** to the queue.`,
+                                description: `${interaction.user}, failed to add **${tracks[i].metadata.title}** to the queue.`,
                             }),
                         ],
                     });
