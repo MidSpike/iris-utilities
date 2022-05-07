@@ -17,10 +17,6 @@ const {
     VoiceConnectionStatus,
 } = require('@discordjs/voice');
 
-const { getInfo } = require('ytdl-core');
-
-const { exec: ytdl } = require('youtube-dl-exec');
-
 //------------------------------------------------------------//
 
 const delay = promisify(setTimeout);
@@ -33,120 +29,94 @@ const music_subscriptions = new Map();
 //------------------------------------------------------------//
 
 /**
- * A Track represents information about a YouTube video (in this context) that can be added to a queue.
- * It contains the title and URL of the video, as well as functions onStart, onFinish, onError, that act
- * as callbacks that are triggered at certain points during the track's lifecycle.
- *
- * Rather than creating an AudioResource for each video immediately and then keeping those in a queue,
- * we use tracks as they don't preemptively load the videos. Instead, once a Track is taken from the
- * queue, it is converted into an AudioResource just in time for playback.
+ * @typedef {{
+ *  [key: string]: any,
+ *  title: string,
+ *  url?: string,
+ *  tts_text?: string,
+ *  tts_lang?: string,
+ * }} BaseTrackMetadata
  */
-class Track {
-    url;
-    title;
 
-    onStart;
-    onFinish;
-    onError;
+//------------------------------------------------------------//
 
-    /** @type {AudioResource?} */
+class BaseTrack {
+    /** @type {AudioResource} */
     #resource;
 
-    constructor({ url, title, onStart, onFinish, onError }) {
-        this.url = url;
-        this.title = title;
+    /** @type {BaseTrackMetadata} */
+    #metadata;
 
-        this.onStart = onStart ?? (() => {});
-        this.onFinish = onFinish ?? (() => {});
-        this.onError = onError ?? (() => {});
+    /** @type {Promise<AudioResource>} */
+    #resource_creator;
+
+    /**
+     * @type {{
+     *  onStart: () => void,
+     *  onFinish: () => void,
+     *  onError: () => void,
+     * }}
+     */
+    #events;
+
+    /**
+     * @param {BaseTrackMetadata} metadata
+     * @param {Promise<AudioResource>} resource_creator
+     * @param {{
+     *  onStart: () => void,
+     *  onFinish: () => void,
+     *  onError: () => void,
+     * }} events
+     */
+    constructor(metadata, resource_creator, { onStart, onFinish, onError }) {
+        this.#metadata = metadata;
+        this.#resource_creator = resource_creator;
+        this.#events = { onStart, onFinish, onError };
     }
 
     /**
-     * @type {AudioResource}
+     * @returns {AudioResource}
      */
     get resource() {
         return this.#resource;
     }
 
     /**
-     * Creates an AudioResource from this Track.
-     * @returns {Promise<AudioResource>}
+     * @returns {BaseTrackMetadata}
      */
-    initializeResource() {
-        this.#resource = undefined; // reset the resource
-
-        return new Promise((resolve, reject) => {
-            const process = ytdl(this.url, {
-                o: '-',
-                q: '',
-                f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-                r: '100K',
-            }, {
-                stdio: [ 'ignore', 'pipe', 'ignore' ],
-            });
-
-            const stream = process?.stdout;
-            if (!stream) {
-                reject(new Error('No stdout'));
-                return;
-            }
-
-            const onError = (error) => {
-                if (!process.killed) process.kill();
-                stream.resume();
-                reject(error);
-            };
-
-            process.once('spawn', () => {
-                demuxProbe(stream).then((probe) => {
-                    this.#resource = createAudioResource(probe.stream, {
-                        inputType: probe.type,
-                        inlineVolume: true, // allows volume to be adjusted while playing
-                        metadata: this, // the track
-                    });
-
-                    // IMPORTANT: force the volume to be
-                    this.#resource.volume.setVolumeLogarithmic(0);
-
-                    resolve(this.#resource);
-                }).catch(onError);
-            }).catch(onError);
-        });
+    get metadata() {
+        return this.#metadata;
     }
 
     /**
-     * Creates a Track from a URL and lifecycle callback methods.
-     *
-     * @param {string} url The URL of the track
-     * @param {object} methods Lifecycle callbacks
-     * @param {function} methods.onStart Called when the track starts playing
-     * @param {function} methods.onFinish Called when the track finishes playing
-     * @param {function} methods.onError Called when the track fails to play
-     *
-     * @returns {Promise<Track>} The created Track
+     * @returns {Promise<AudioResource>}
      */
-    static async from(url, { onStart, onFinish, onError }) {
-        let track_title = 'Unknown Track';
-        let track_url = url;
+    async initializeResource() {
+        this.#resource = await this.#resource_creator(this);
 
-        const urlObj = new URL(url);
-        if (/(youtu\.be|youtube\.com)$/gi.test(urlObj.hostname)) {
-            const info = await getInfo(url);
+        this.#resource.volume.setVolumeLogarithmic(0);
 
-            track_title = info.videoDetails.title;
-            track_url = info.videoDetails.video_url;
-        } else {
-            track_title = `Audio stream from ${urlObj.hostname}`;
-        }
+        return this.#resource;
+    }
 
-        return new Track({
-            title: track_title,
-            url: track_url,
+    onStart() {
+        this.#events.onStart();
+    }
 
-            onStart,
-            onFinish,
-            onError,
-        });
+    onFinish() {
+        this.#events.onFinish();
+    }
+
+    onError() {
+        this.#events.onError();
+    }
+}
+
+//------------------------------------------------------------//
+
+class RemoteTrack extends BaseTrack {
+    constructor(metadata, resource_creator, { onStart, onFinish, onError }) {
+        super(...arguments);
     }
 }
 
@@ -155,7 +125,7 @@ class Track {
 class QueueVolumeManager {
     #queue;
 
-    #volume_multiplier = 0.30;
+    #volume_multiplier = 0.40;
     #human_volume_multiplier = 100;
 
     #muted_previous_raw_volume;
@@ -237,13 +207,13 @@ class Queue {
     /** @type {'off'|'track'|'queue'|'autoplay'} */
     #looping_mode = 'off';
 
-    /** @type {Track[]} */
+    /** @type {BaseTrack[]} */
     #previous_tracks = [];
 
-    /** @type {Track?} */
+    /** @type {BaseTrack?} */
     #current_track = undefined;
 
-    /** @type {Track[]} */
+    /** @type {BaseTrack[]} */
     #future_tracks = [];
 
     /** @type {QueueVolumeManager} @readonly */
@@ -277,14 +247,14 @@ class Queue {
 
     /**
      * @param {number} position The position of the track to get (0-indexed)
-     * @returns {Track?} The track at the given position
+     * @returns {BaseTrack?} The track at the given position
      */
     getTrack(position) {
         return this.#future_tracks[position];
     }
 
     /**
-     * @param {Track} track The track to add to the queue
+     * @param {BaseTrack} track The track to add to the queue
      * @param {number} position The position to add the track at (0-indexed)
      */
     addTrack(track, position=this.#future_tracks.length) {
@@ -293,7 +263,7 @@ class Queue {
 
     /**
      * @param {number} position The position of the track to remove (0-indexed)
-     * @returns {Track?} The removed track
+     * @returns {BaseTrack?} The removed track
      */
     removeTrack(position) {
         return this.#future_tracks.splice(position, 1).at(0);
@@ -318,7 +288,7 @@ class Queue {
     }
 
     /**
-     * @returns {Promise<Track|void>} The next track in the queue if possible
+     * @returns {Promise<BaseTrack|void>} The next track in the queue if possible
      */
     async processNextTrack() {
         if (this.locked) return;
@@ -327,7 +297,7 @@ class Queue {
         const previous_track = this.#current_track;
         if (previous_track) this.#previous_tracks.splice(0, 0, previous_track);
 
-        /** @type {Track} */
+        /** @type {BaseTrack} */
         let next_track;
         switch (this.#looping_mode) {
             case 'off': {
@@ -462,7 +432,7 @@ class MusicSubscription {
 
         // Configure audio player
         this.audioPlayer.on('stateChange', async (oldState, newState) => {
-            await delay(50); // wait a bit to prevent funny business
+            // await delay(50); // wait a bit to prevent funny business
 
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
@@ -491,33 +461,35 @@ class MusicSubscription {
     }
 
     /**
-     * Attempts to play a Track from the queue.
+     * Attempts to play a track from the queue.
+     * @param {boolean} [force=false] Whether to force the queue to be processed, even if not idling.
      */
     async processQueue(force=false) {
         if (!force && this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
             return;
         }
 
-        const track = await this.queue.processNextTrack();
-        if (!track) {
+        const next_track = await this.queue.processNextTrack();
+        if (!next_track) {
             return;
         }
 
         // Check if the queue is locked, and if so, allow the track to automatically be played.
         if (this.queue.locked) {
-            console.warn(`Queue locked, playing ${track.title}`);
+            console.warn(`Queue locked, playing ${next_track.title}`);
             return;
         }
 
-        // Play the track
-        this.audioPlayer.play(track.resource);
+        // Play the next track
+        this.audioPlayer.play(next_track.resource);
     }
 }
 
 //------------------------------------------------------------//
 
 module.exports = {
-    Track,
+    BaseTrack,
+    RemoteTrack,
     MusicSubscription,
     music_subscriptions,
 };

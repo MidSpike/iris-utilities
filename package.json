@@ -22,6 +22,7 @@
     "dotenv": "16.0.0",
     "ffmpeg-static": "4.4.1",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.4-beta",
+    "google-translate-tts": "github:MidSpike/google-translate-tts#v1.0.0",
     "libsodium-wrappers": "0.7.10",
     "manakin": "0.5.2",
     "mathjs": "10.5.1",
