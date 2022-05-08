@@ -2,6 +2,8 @@
 
 //------------------------------------------------------------//
 
+const { default: axios } = require('axios');
+
 const Discord = require('discord.js');
 
 const {
@@ -22,6 +24,27 @@ const { ClientInteraction, ClientCommandHelper } = require('../../../../common/a
 
 //------------------------------------------------------------//
 
+const voice_codes = [
+    { provider: 'google', name: 'Google British - English (United Kingdom)', code: 'en-GB' },
+    { provider: 'google', name: 'Google American - English (United States)', code: 'en-US' },
+    { provider: 'google', name: 'Google Australian - English (Australia)',   code: 'en-AU' },
+    { provider: 'ibm',    name: 'IBM Kate - English (United Kingdom)',       code: 'en-GB_KateV3Voice' },
+    { provider: 'ibm',    name: 'IBM James - English (United Kingdom)',      code: 'en-GB_JamesV3Voice' },
+    { provider: 'ibm',    name: 'IBM Charlotte - English (United Kingdom)',  code: 'en-GB_CharlotteV3Voice' },
+    // { provider: 'ibm',    name: 'IBM Craig - English (Australia)',           code: 'en-AU_CraigVoice' }, // deprecated
+    // { provider: 'ibm',    name: 'IBM Madison - English (Australia)',         code: 'en-AU_MadisonVoice' }, // deprecated
+    // { provider: 'ibm',    name: 'IBM Steve - English (Australia)',           code: 'en-AU_SteveVoice' }, // deprecated
+    { provider: 'ibm',    name: 'IBM Allison - English (United States)',     code: 'en-US_AllisonV3Voice' },
+    { provider: 'ibm',    name: 'IBM Emily - English (United States)',       code: 'en-US_EmilyV3Voice' },
+    { provider: 'ibm',    name: 'IBM Henry - English (United States)',       code: 'en-US_HenryV3Voice' },
+    { provider: 'ibm',    name: 'IBM Kevin - English (United States)',       code: 'en-US_KevinV3Voice' },
+    { provider: 'ibm',    name: 'IBM Lisa - English (United States)',        code: 'en-US_LisaV3Voice' },
+    { provider: 'ibm',    name: 'IBM Michael - English (United States)',     code: 'en-US_MichaelV3Voice' },
+    { provider: 'ibm',    name: 'IBM Olivia - English (United States)',      code: 'en-US_OliviaV3Voice' },
+];
+
+//------------------------------------------------------------//
+
 module.exports = new ClientInteraction({
     identifier: 'tts',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
@@ -34,6 +57,15 @@ module.exports = new ClientInteraction({
                 name: 'text',
                 description: 'the text to speak',
                 required: true,
+            }, {
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                name: 'voice',
+                description: 'the voice to use',
+                required: false,
+                choices: voice_codes.map(code => ({
+                    name: code.name,
+                    value: `${code.provider}:${code.code}`,
+                })),
             },
         ],
     },
@@ -54,6 +86,7 @@ module.exports = new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const text = interaction.options.getString('text', true);
+        const provider_voice = interaction.options.getString('voice', false) ?? 'ibm:en-GB_KateV3Voice';
 
         const guild_member_voice_channel_id = interaction.member.voice.channelId;
         const bot_voice_channel_id = interaction.guild.me.voice.channelId;
@@ -113,7 +146,7 @@ module.exports = new ClientInteraction({
             });
         }
 
-        const tts_text_chunks = array_chunks(text.split(/\s/g), 25).map(chunk => chunk.join(' '));
+        const tts_text_chunks = array_chunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
 
         if (tts_text_chunks.length > 1) {
             await interaction.editReply({
@@ -136,16 +169,50 @@ module.exports = new ClientInteraction({
         for (let i = 0; i < tts_text_chunks.length; i++) {
             const tts_text = tts_text_chunks[i];
 
+            const [ provider, voice ] = provider_voice.split(':');
+
             const track = new BaseTrack({
                 title: `${interaction.user}'s TTS Message`,
                 tts_text: tts_text,
+                tts_provider: provider,
+                tts_voice: voice,
             }, async (track) => await new Promise(async (resolve, reject) => {
-                const gt_tts = new GoogleTranslateTTS({
-                    language: 'en-us',
-                    text: track.metadata.tts_text,
-                });
+                /** @type {internal.Readable} */
+                let stream;
 
-                const stream = await gt_tts.stream();
+                try {
+                    switch (track.metadata.tts_provider) {
+                        case 'google': {
+                            const gt_tts = new GoogleTranslateTTS({
+                                language: 'en-us',
+                                text: track.metadata.tts_text,
+                            });
+
+                            stream = await gt_tts.stream();
+
+                            break;
+                        }
+
+                        case 'ibm':
+                        default: {
+                            const response = await axios({
+                                method: 'get',
+                                url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
+                                responseType: 'stream',
+                                timeout: 1 * 30_000,
+                            });
+
+                            stream = response.data;
+
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    console.trace(error);
+                    reject(error);
+                    return;
+                }
+
                 if (!stream) {
                     reject(new Error('No stdout'));
                     return;
