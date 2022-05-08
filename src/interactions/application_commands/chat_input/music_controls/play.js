@@ -268,7 +268,7 @@ module.exports = new ClientInteraction({
                     await interaction.followUp({
                         embeds: [
                             new CustomEmbed({
-                                description: `Added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
+                                description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
                             }),
                         ],
                     });

@@ -85,7 +85,7 @@ module.exports = new ClientInteraction({
         await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, skipping **${track_before_skip.title}**!`,
+                    description: `${interaction.user}, skipping **${track_before_skip.metadata.title}**!`,
                 }),
             ],
         }).catch(() => {});

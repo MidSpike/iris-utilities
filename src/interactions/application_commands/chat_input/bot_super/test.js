@@ -4,10 +4,12 @@
 
 const Discord = require('discord.js');
 
+const { CustomEmbed } = require('../../../../common/app/message');
+
 const { delay } = require('../../../../common/lib/utilities');
 
 const {
-	joinVoiceChannel,
+    joinVoiceChannel,
 } = require('@discordjs/voice');
 
 const { ClientInteraction, ClientInteractionManager, ClientCommandHelper } = require('../../../../common/app/client_interactions');
@@ -36,7 +38,13 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.reply({
+            embeds: [
+                new CustomEmbed({
+                    description: `${interaction.user}, running test...`,
+                }),
+            ],
+        }).catch(() => {});
 
         const voice_channel = interaction.member?.voice?.channel;
         if (voice_channel) {
@@ -95,5 +103,13 @@ module.exports = new ClientInteraction({
                 console.trace(error);
             }
         }
+
+        await interaction.followUp({
+            embeds: [
+                new CustomEmbed({
+                    description: `${interaction.user}, test complete!`,
+                }),
+            ],
+        }).catch(() => {});
     },
 });
