@@ -181,8 +181,8 @@ module.exports = new DisBotCommand({
             const tts_chunk_done = new Promise((resolve, reject) => tts_chunk_done_resolve = resolve);
 
             playTTS(voice_connection.channel, tts_chunk, {
-                provider:tts_provider,
-                voice:tts_voice,
+                provider: tts_provider,
+                voice: tts_voice,
                 callbacks: {
                     start_callback() {
                         if (!guild_queue_manager.loop_enabled) {
