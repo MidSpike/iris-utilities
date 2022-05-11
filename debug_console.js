@@ -8,10 +8,13 @@ require('manakin').global; // colors for Console.*
 const os = require('os');
 os.setPriority(0, os.constants.priority.PRIORITY_HIGH);
 
-const ipc = require('node-ipc');
 const moment = require('moment-timezone');
 
+const { IPCModule } = require('@midspike/node-ipc');
+
 //---------------------------------------------------------------------------------------------------------------//
+
+const ipc = new IPCModule();
 
 ipc.config.id = `discord_bot_${process.env.DEBUG_CONSOLE_IPC_ID}`;
 ipc.config.retry = 1500;

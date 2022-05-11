@@ -2,7 +2,9 @@
 
 //---------------------------------------------------------------------------------------------------------------//
 
-const ipc = require('node-ipc');
+const { IPCModule } = require('@midspike/node-ipc');
+
+const ipc = new IPCModule();
 
 ipc.config.id = `discord_bot_${process.env.DEBUG_CONSOLE_IPC_ID}`;
 ipc.config.retry = 1500;

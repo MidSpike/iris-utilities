@@ -9,6 +9,7 @@
   "dependencies": {
     "@discordjs/opus": "0.7.0",
     "@mapbox/node-pre-gyp": "1.0.9",
+    "@midspike/node-ipc": "github:MidSpike/node-ipc#457bb099a55ffa14e47674f5c6df65bc6e513db2",
     "aki-api": "6.0.8",
     "axios": "0.27.2",
     "bufferutil": "4.0.6",
@@ -32,7 +33,6 @@
     "node-gtts": "2.0.2",
     "node-gyp": "8.3.0",
     "node-html-to-image": "3.2.4",
-    "node-ipc": "9.2.1",
     "node-pre-gyp": "0.17.0",
     "node-schedule": "2.1.0",
     "os": "0.1.2",
