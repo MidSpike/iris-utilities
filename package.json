@@ -31,7 +31,7 @@
     "moment-timezone": "0.5.34",
     "node-emoji": "1.11.0",
     "node-gtts": "2.0.2",
-    "node-gyp": "8.3.0",
+    "node-gyp": "8.4.1",
     "node-html-to-image": "3.2.4",
     "node-pre-gyp": "0.17.0",
     "node-schedule": "2.1.0",
