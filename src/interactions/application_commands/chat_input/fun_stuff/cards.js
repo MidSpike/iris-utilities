@@ -4,7 +4,7 @@
 
 const Discord = require('discord.js');
 
-const { delay, array_random } = require('../../../../common/lib/utilities')
+const { delay, array_random } = require('../../../../common/lib/utilities');
 
 const { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } = require('../../../../common/app/message');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
@@ -96,9 +96,9 @@ module.exports = new ClientInteraction({
 
         await updateMessageWithNewContent(discord_client, bot_message);
 
-        const button_interaction_collector = await bot_message.createMessageComponentCollector({
+        const button_interaction_collector = bot_message.createMessageComponentCollector({
             filter: (button_interaction) => true,
-            time: 0.5 * 60_000,
+            time: 2 * 60_000, // 2 minutes
         });
 
         button_interaction_collector.on('collect', async (button_interaction) => {
