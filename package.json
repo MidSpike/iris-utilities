@@ -19,7 +19,7 @@
     "erlpack": "0.1.4",
     "express": "4.18.1",
     "ffmpeg": "0.0.4",
-    "ffmpeg-static": "4.4.0",
+    "ffmpeg-static": "4.4.1",
     "google-it": "1.6.2",
     "google-translate-tts": "github:MidSpike/google-translate-tts#v1.0.0",
     "html-entities": "2.3.3",
