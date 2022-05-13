@@ -31,9 +31,6 @@ const voice_codes = [
     { provider: 'ibm',    name: 'IBM Kate - English (United Kingdom)',       code: 'en-GB_KateV3Voice' },
     { provider: 'ibm',    name: 'IBM James - English (United Kingdom)',      code: 'en-GB_JamesV3Voice' },
     { provider: 'ibm',    name: 'IBM Charlotte - English (United Kingdom)',  code: 'en-GB_CharlotteV3Voice' },
-    // { provider: 'ibm',    name: 'IBM Craig - English (Australia)',           code: 'en-AU_CraigVoice' }, // deprecated
-    // { provider: 'ibm',    name: 'IBM Madison - English (Australia)',         code: 'en-AU_MadisonVoice' }, // deprecated
-    // { provider: 'ibm',    name: 'IBM Steve - English (Australia)',           code: 'en-AU_SteveVoice' }, // deprecated
     { provider: 'ibm',    name: 'IBM Allison - English (United States)',     code: 'en-US_AllisonV3Voice' },
     { provider: 'ibm',    name: 'IBM Emily - English (United States)',       code: 'en-US_EmilyV3Voice' },
     { provider: 'ibm',    name: 'IBM Henry - English (United States)',       code: 'en-US_HenryV3Voice' },
@@ -41,6 +38,12 @@ const voice_codes = [
     { provider: 'ibm',    name: 'IBM Lisa - English (United States)',        code: 'en-US_LisaV3Voice' },
     { provider: 'ibm',    name: 'IBM Michael - English (United States)',     code: 'en-US_MichaelV3Voice' },
     { provider: 'ibm',    name: 'IBM Olivia - English (United States)',      code: 'en-US_OliviaV3Voice' },
+    { provider: 'ibm',    name: 'IBM Birgit - Deutsch (Deutschland)',        code: 'de-DE_BirgitV3Voice' },
+    { provider: 'ibm',    name: 'IBM Dieter - Deutsch (Deutschland)',        code: 'de-DE_DieterV3Voice' },
+    { provider: 'ibm',    name: 'IBM Erika - Deutsch (Deutschland)',         code: 'de-DE_ErikaV3Voice' },
+    // { provider: 'ibm',    name: 'IBM Craig - English (Australia)',           code: 'en-AU_CraigVoice' }, // deprecated
+    // { provider: 'ibm',    name: 'IBM Madison - English (Australia)',         code: 'en-AU_MadisonVoice' }, // deprecated
+    // { provider: 'ibm',    name: 'IBM Steve - English (Australia)',           code: 'en-AU_SteveVoice' }, // deprecated
 ];
 
 //------------------------------------------------------------//
@@ -127,16 +130,16 @@ module.exports = new ClientInteraction({
                     selfDeaf: false,
                 })
             );
-            music_subscription.voiceConnection.on('error', console.warn);
             music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
         // Make sure the connection is ready before processing the user's request
         try {
-            await entersState(music_subscription.voiceConnection, VoiceConnectionStatus.Ready, 10e3);
+            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
             console.warn(error);
-            return await interaction.followUp({
+
+            await interaction.followUp({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.RED,
@@ -144,6 +147,8 @@ module.exports = new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         const tts_text_chunks = array_chunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
