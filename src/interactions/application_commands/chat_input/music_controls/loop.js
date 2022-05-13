@@ -32,10 +32,12 @@ module.exports = new ClientInteraction({
                     }, {
                         name: 'all tracks',
                         value: 'queue',
-                    }, {
-                        name: 'autoplay',
-                        value: 'autoplay',
                     },
+                    /** @todo */
+                    // {
+                    //     name: 'autoplay',
+                    //     value: 'autoplay',
+                    // },
                 ],
                 required: true,
             },

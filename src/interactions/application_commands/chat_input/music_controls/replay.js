@@ -92,7 +92,7 @@ module.exports = new ClientInteraction({
         });
 
         try {
-            await entersState(music_subscription.voiceConnection, VoiceConnectionStatus.Ready, 10e3);
+            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
             console.warn(error);
 
@@ -127,7 +127,7 @@ module.exports = new ClientInteraction({
         await interaction.followUp({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, replaying **${most_recent_track.title}** next!`,
+                    description: `${interaction.user}, replaying **${most_recent_track.metadata.title}** next!`,
                 }),
             ],
         }).catch(() => {});

@@ -127,15 +127,15 @@ module.exports = new ClientInteraction({
                             description: [
                                 ...(queue.previous_tracks.length > 0 ? [
                                     '**Previous Tracks (up to 5):**',
-                                    ...queue.previous_tracks.slice(0, 5).reverse().map((track, index) => `- [${track.title}](${track.url})`),
+                                    ...queue.previous_tracks.slice(0, 5).reverse().map((track, index) => `- [${track.metadata.title}](${track.metadata.url})`),
                                     '',
                                 ] : []),
                                 `**Current Playing:**`,
-                                `- [${queue.current_track.title}](${queue.current_track.url})`,
+                                `- [${queue.current_track.metadata.title}](${queue.current_track.metadata.url})`,
                                 ...(queue.future_tracks.length > 0 ? [
                                     '',
                                     `**Next Tracks (up to 10):**`,
-                                    ...queue.future_tracks.slice(0, 10).map((track, index) => `- [${track.title}](${track.url})`),
+                                    ...queue.future_tracks.slice(0, 10).map((track, index) => `- [${track.metadata.title}](${track.metadata.url})`),
                                 ] : []),
                             ].join('\n'),
                         }),
@@ -192,7 +192,7 @@ module.exports = new ClientInteraction({
                 await interaction.editReply({
                     embeds: [
                         new CustomEmbed({
-                            description: `${interaction.user}, removed ${removed_track.title} from the queue!`,
+                            description: `${interaction.user}, removed ${removed_track.metadata.title} from the queue!`,
                         }),
                     ],
                 }).catch(() => {});
