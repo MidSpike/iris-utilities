@@ -5,6 +5,11 @@
 const { promisify } = require('node:util');
 
 const {
+    Player: DiscordPlayer,
+    QueryType: DiscordPlayerQueryType,
+} = require('discord-player');
+
+const {
     createAudioPlayer,
     createAudioResource,
     demuxProbe,
@@ -123,8 +128,6 @@ class RemoteTrack extends BaseTrack {
 //------------------------------------------------------------//
 
 class QueueVolumeManager {
-    #queue;
-
     #volume_multiplier = 0.40;
     #human_volume_multiplier = 100;
 
@@ -135,6 +138,8 @@ class QueueVolumeManager {
     #default_raw_volume = (this.#default_volume / this.#human_volume_multiplier) * this.#volume_multiplier;
 
     #raw_volume;
+
+    #queue;
 
     /**
      * @param {Queue} queue
@@ -318,7 +323,7 @@ class Queue {
 
             case 'autoplay': {
                 /** @todo */
-                break;
+                throw new Error('Autoplay mode not implemented!');
             }
 
             default: {
@@ -360,22 +365,24 @@ class Queue {
  */
 class MusicSubscription {
     /** @type {VoiceConnection} @readonly */
-    voiceConnection;
+    #voice_connection;
 
     /** @type {AudioPlayer} @readonly */
-    audioPlayer;
+    #audio_player;
 
     /** @readonly */
     queue = new Queue();
 
     /** @private */
-    #readyLock = false;
+    #locked = false;
 
-    constructor(voiceConnection) {
-        this.voiceConnection = voiceConnection;
-        this.audioPlayer = createAudioPlayer();
+    constructor(voice_connection) {
+        this.#audio_player = createAudioPlayer();
 
-        this.voiceConnection.on('stateChange', async (oldState, newState) => {
+        this.#voice_connection = voice_connection;
+        this.#voice_connection.on('error', console.warn);
+
+        this.#voice_connection.on('stateChange', async (oldState, newState) => {
             if (newState.status === VoiceConnectionStatus.Disconnected) {
                 if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
                     /**
@@ -386,23 +393,23 @@ class MusicSubscription {
                      * the voice connection.
                      */
                     try {
-                        await entersState(this.voiceConnection, VoiceConnectionStatus.Connecting, 5_000);
+                        await entersState(this.#voice_connection, VoiceConnectionStatus.Connecting, 5_000);
                         // Probably moved voice channel
                     } catch {
-                        this.voiceConnection.destroy();
+                        this.#voice_connection.destroy();
                         // Probably removed from voice channel
                     }
-                } else if (this.voiceConnection.rejoinAttempts < 5) {
+                } else if (this.#voice_connection.rejoinAttempts < 5) {
                     /**
                      * The disconnect in this case is recoverable, and we also have <5 repeated attempts so we will reconnect.
                      */
-                    await delay((this.voiceConnection.rejoinAttempts + 1) * 5_000);
-                    this.voiceConnection.rejoin();
+                    await delay((this.#voice_connection.rejoinAttempts + 1) * 5_000);
+                    this.#voice_connection.rejoin();
                 } else {
                     /**
                      * The disconnect in this case may be recoverable, but we have no more remaining attempts - destroy.
                      */
-                    this.voiceConnection.destroy();
+                    this.#voice_connection.destroy();
                 }
             } else if (newState.status === VoiceConnectionStatus.Destroyed) {
                 /**
@@ -410,7 +417,7 @@ class MusicSubscription {
                  */
                 await this.kill();
             } else if (
-                !this.#readyLock &&
+                !this.#locked &&
                 (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)
             ) {
                 /**
@@ -418,25 +425,26 @@ class MusicSubscription {
                  * before destroying the voice connection. This stops the voice connection permanently existing in one of these
                  * states.
                  */
-                this.#readyLock = true;
+                this.#locked = true;
 
                 try {
-                    await entersState(this.voiceConnection, VoiceConnectionStatus.Ready, 20_000);
+                    await entersState(this.#voice_connection, VoiceConnectionStatus.Ready, 20_000);
                 } catch {
-                    if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy();
+                    if (this.#voice_connection.state.status !== VoiceConnectionStatus.Destroyed) this.#voice_connection.destroy();
                 } finally {
-                    this.#readyLock = false;
+                    this.#locked = false;
                 }
             }
         });
 
         // Configure audio player
-        this.audioPlayer.on('stateChange', async (oldState, newState) => {
+        this.#audio_player.on('stateChange', async (oldState, newState) => {
             // await delay(50); // wait a bit to prevent funny business
 
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
+                // track.onEnd() is called to notify the track that it has finished playing.
                 oldState.resource.metadata.onFinish();
                 this.processQueue(false);
             } else if (newState.status === AudioPlayerStatus.Playing) {
@@ -446,9 +454,13 @@ class MusicSubscription {
             }
         });
 
-        this.audioPlayer.on('error', (error) => error.resource.metadata.onError(error));
+        this.#audio_player.on('error', (error) => error.resource.metadata.onError(error));
 
-        voiceConnection.subscribe(this.audioPlayer);
+        this.#voice_connection.subscribe(this.#audio_player);
+    }
+
+    get voice_connection() {
+        return this.#voice_connection;
     }
 
     /**
@@ -456,8 +468,8 @@ class MusicSubscription {
      */
     async kill() {
         this.queue.resetState();
-        this.audioPlayer.stop(true);
-        this.voiceConnection.disconnect();
+        this.#audio_player.stop(true);
+        this.#voice_connection.disconnect();
     }
 
     /**
@@ -465,7 +477,7 @@ class MusicSubscription {
      * @param {boolean} [force=false] Whether to force the queue to be processed, even if not idling.
      */
     async processQueue(force=false) {
-        if (!force && this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
+        if (!force && this.#audio_player.state.status !== AudioPlayerStatus.Idle) {
             return;
         }
 
@@ -481,7 +493,42 @@ class MusicSubscription {
         }
 
         // Play the next track
-        this.audioPlayer.play(next_track.resource);
+        this.#audio_player.play(next_track.resource);
+    }
+}
+
+//------------------------------------------------------------//
+
+/**
+ * @typedef {{
+ *   title: string,
+ *   url: string,
+ * }} MusicReconnaissanceSearchResult
+ */
+
+class MusicReconnaissance {
+    /** @type {DiscordPlayer} @readonly */
+    #discord_player;
+
+    constructor(discord_client) {
+        this.#discord_player = new DiscordPlayer(discord_client);
+    }
+
+    /**
+     * @param {string} query
+     * @returns {Promise<MusicReconnaissanceSearchResult[]>}
+     */
+    async search(query) {
+        const search_result = await this.#discord_player.search(query, {
+            searchEngine: DiscordPlayerQueryType.AUTO,
+        });
+
+        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(track => Boolean(track));
+
+        return tracks.map(track => ({
+            title: track.title,
+            url: track.url,
+        }));
     }
 }
 
@@ -492,4 +539,5 @@ module.exports = {
     RemoteTrack,
     MusicSubscription,
     music_subscriptions,
+    MusicReconnaissance,
 };

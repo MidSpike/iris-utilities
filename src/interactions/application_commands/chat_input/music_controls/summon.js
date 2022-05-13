@@ -9,6 +9,8 @@ const { joinVoiceChannel } = require('@discordjs/voice');
 const { CustomEmbed } = require('../../../../common/app/message');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
+const { MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
+
 //------------------------------------------------------------//
 
 module.exports = new ClientInteraction({
@@ -35,30 +37,42 @@ module.exports = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const voice_channel = interaction.member?.voice.channel;
-        if (!voice_channel) {
-            await interaction.editReply({
+        const guild_member = await interaction.guild.members.fetch(interaction.user.id);
+        
+        const guild_member_voice_channel_id = guild_member.voice.channelId;
+
+        if (!guild_member_voice_channel_id) {
+            return interaction.followUp({
                 embeds: [
                     new CustomEmbed({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you must be in a voice channel to use this command!`,
+                        description: `${interaction.user}, you need to be in a voice channel.`,
                     }),
                 ],
             });
-            return;
         }
 
-        joinVoiceChannel({
-            channelId: voice_channel.id,
-            guildId: voice_channel.guild.id,
-            adapterCreator: voice_channel.guild.voiceAdapterCreator,
-            selfDeaf: false,
-        });
+        /** @type {MusicSubscription} */
+        let music_subscription = music_subscriptions.get(interaction.guildId);
+
+        // If a connection to the guild doesn't already exist and the user is in a voice channel,
+        // join that channel and create a subscription.
+        if (!music_subscription) {
+            music_subscription = new MusicSubscription(
+                joinVoiceChannel({
+                    channelId: guild_member_voice_channel_id,
+                    guildId: interaction.guildId,
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    selfDeaf: false,
+                })
+            );
+            music_subscriptions.set(interaction.guildId, music_subscription);
+        }
 
         await interaction.editReply({
             embeds: [
                 new CustomEmbed({
-                    description: `${interaction.user}, summoned me to <#${voice_channel.id}>!`,
+                    description: `${interaction.user}, summoned me to <#${guild_member_voice_channel_id}>!`,
                 }),
             ],
         });
