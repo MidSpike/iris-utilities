@@ -48,6 +48,11 @@ module.exports = new ClientInteraction({
                 name: 'query',
                 description: 'the ip address to lookup',
                 required: true,
+            }, {
+                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                name: 'ephemeral',
+                description: 'send the response as an ephemeral message',
+                required: false,
             },
         ],
     },
@@ -63,14 +68,16 @@ module.exports = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
 
-        const query = interaction.options.get('query').value;
+        await interaction.deferReply({ ephemeral: ephemeral });
+
+        const query = interaction.options.getString('query');
 
         /* documentation: https://ip-api.com/docs/api:json */
         const { data: response_data } = await axios.get(`http://ip-api.com/json/${query}?fields=66846719`);
 
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new CustomEmbed({
                     title: 'IP Info',
