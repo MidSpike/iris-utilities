@@ -22,7 +22,7 @@ const { go_mongo_db } = require('../lib/go_mongo_db');
 //------------------------------------------------------------//
 
 class GuildConfigsManager {
-    static cache_lifespan = 5 * 60_000; // 5 minutes
+    static cache_lifespan = 30_000; // 30 seconds
 
     /** @type {GuildConfigCacheItems} */
     static cache = new Discord.Collection();
@@ -98,7 +98,7 @@ class GuildConfigsManager {
      */
     static async update(guild_id, partial_guild_config={}) {
         if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
-        if (typeof partial_guild_config !== 'object') throw new TypeError('partial_guild_config must be an object');
+        if (partial_guild_config && typeof partial_guild_config !== 'object') throw new TypeError('partial_guild_config must be an object when specified');
 
         const guild_config = await GuildConfigsManager.fetch(guild_id, true);
 
