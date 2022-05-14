@@ -143,8 +143,8 @@ class ClientCommandHelper {
             const guild_member_is_administrator = guild_member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR);
 
             const guild_config = await GuildConfigsManager.fetch(guild.id);
-            const guild_staff_role_ids = guild_config.staff_role_ids;
-            const guild_admin_role_ids = guild_config.admin_role_ids;
+            const guild_staff_role_ids = guild_config.staff_role_ids ?? [];
+            const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
             /* check for guild staff */
             if (guild_member_roles.hasAny(...guild_staff_role_ids)) {
