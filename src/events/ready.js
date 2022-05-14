@@ -10,7 +10,7 @@ async function updateAllGuildConfigs(discord_client) {
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> updating all guild configs...`);
 
     for (const [ guild_id ] of discord_client.guilds.cache) {
-        await GuildConfigsManager.update(guild_id, {});
+        await GuildConfigsManager.update(guild_id);
     }
 
     console.success(`<DC S#(${discord_client.shard.ids.join(', ')})> updated all guild configs.`);
