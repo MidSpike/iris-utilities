@@ -63,6 +63,26 @@ function disableMessageComponents(message) {
     }));
 }
 
+/**
+ * Enables all message components on a message.
+ * @param {Discord.Message} message
+ * @returns {Promise<Discord.Message>}
+ */
+ function enableMessageComponents(message) {
+    if (!(message instanceof Discord.Message)) throw new TypeError('message must be an instance of Discord.Message');
+
+    return message.fetch(true).then(message => message.edit({
+        embeds: message.embeds,
+        components: message.components.map(component_row => ({
+            ...component_row.toJSON(),
+            components: component_row.components.map(component => ({
+                ...component.toJSON(),
+                disabled: false,
+            })),
+        })),
+    }));
+}
+
 //------------------------------------------------------------//
 
 /**
@@ -125,5 +145,6 @@ function disableMessageComponents(message) {
 module.exports = {
     CustomEmbed,
     disableMessageComponents,
+    enableMessageComponents,
     requestPotentialNotSafeForWorkContentConsent,
 };
