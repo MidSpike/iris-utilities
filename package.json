@@ -2,9 +2,17 @@
   "name": "test-discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "node --trace-warnings ."
+    "husky": "is-ci || husky install",
+    "lint": "npx eslint . --fix",
+    "build": "npx tsc --build",
+    "prepare": "npm run husky && npm run lint && npm run build",
+    "test": "npm run prepare",
+    "title": "run-script-os",
+    "title:windows": "title Test Discord Bot",
+    "title:default": "",
+    "start": "npm run prepare && npm run title && node --trace-warnings --enable-source-maps --require dotenv/config ."
   },
   "keywords": [],
   "author": "",
@@ -12,7 +20,7 @@
   "dependencies": {
     "@discord-player/extractor": "3.0.2",
     "@discordjs/opus": "0.7.0",
-    "@discordjs/voice": "^0.9.0",
+    "@discordjs/voice": "0.9.0",
     "@mapbox/node-pre-gyp": "1.0.9",
     "aki-api": "6.0.8",
     "axios": "0.27.2",
@@ -22,7 +30,7 @@
     "discord.js": "13.7.0",
     "dotenv": "16.0.1",
     "ffmpeg-static": "4.4.1",
-    "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v0.0.4-beta",
+    "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v1.2.0-stable",
     "google-translate-tts": "github:MidSpike/google-translate-tts#v1.0.0",
     "libsodium-wrappers": "0.7.10",
     "manakin": "0.5.2",
@@ -37,5 +45,16 @@
     "uuid": "8.3.2",
     "youtube-dl-exec": "2.0.11",
     "ytdl-core": "4.11.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "2.4.2",
+    "@types/express": "4.17.13",
+    "@typescript-eslint/eslint-plugin": "5.21.0",
+    "@typescript-eslint/parser": "5.21.0",
+    "eslint": "8.14.0",
+    "husky": "8.0.1",
+    "is-ci": "3.0.1",
+    "run-script-os": "1.1.6",
+    "typescript": "4.6.3"
   }
 }
