@@ -1,0 +1,28 @@
+{
+    "defaultSeverity": "error",
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": false,
+        "target": "ESNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
+        "strictNullChecks": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "declaration": true,
+        "typeRoots": [
+            "@types",
+            "./typings"
+        ],
+        "outDir": "./dist"
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+    "include": [
+        "src",
+        "typings"
+    ]
+}

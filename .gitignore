@@ -12,3 +12,6 @@
 
 # node
 node_modules
+
+# TypeScript generated
+/dist

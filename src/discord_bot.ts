@@ -2,25 +2,31 @@
 
 //------------------------------------------------------------//
 
-require('dotenv').config();
+// eslint-disable-next-line no-unused-expressions
 require('manakin').global;
 
 //------------------------------------------------------------//
 
-const path = require('node:path');
-const Discord = require('discord.js');
+import path from 'node:path';
+
+import Discord from 'discord.js';
+
+import { addSpeechEvent } from 'discord-speech-recognition';
+
+import { ClientInteractionManager } from './common/app/client_interactions';
+
 const recursiveReadDirectory = require('recursive-read-directory');
 
-const { addSpeechEvent } = require('discord-speech-recognition');
-
-const { ClientInteractionManager } = require('./common/app/client_interactions');
+type DiscordClientWithSharding = Discord.Client<true> & {
+    shard: Discord.ShardClientUtil;
+};
 
 //------------------------------------------------------------//
 
 /* prevent the process from crashing for unhandledRejections */
 process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------');
-    console.trace('unhandledRejection:', reason?.stack ?? reason, promise);
+    console.trace('unhandledRejection:', reason, promise);
     console.error('----------------------------------------------------------------');
 });
 
@@ -57,10 +63,10 @@ const discord_client = new Discord.Client({
     presence: {
         status: 'online',
     },
-});
+}) as DiscordClientWithSharding;
 
 /* adds speech recognition to discord client */
-addSpeechEvent(discord_client);
+addSpeechEvent(discord_client as any);
 
 //------------------------------------------------------------//
 
@@ -95,7 +101,7 @@ async function main() {
     console.log('<DC> Logging in...');
     discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
 
-    console.success(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
+    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
 }
 
 main();
