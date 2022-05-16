@@ -2,19 +2,15 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../common/app/message');
+import { CustomEmbed } from '../common/app/message';
 
 //------------------------------------------------------------//
 
-module.exports = {
+export default {
     name: 'messageCreate',
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {Discord.Message} message
-     */
-    async handler(discord_client, message) {
+    async handler(discord_client: Discord.Client<true>, message: Discord.Message) {
         if (message.author.bot) return; // don't respond to bots
         if (message.author.system) return; // don't respond to system messages
 
@@ -22,11 +18,11 @@ module.exports = {
         if (message.guild && !message.reference && message.mentions.users.has(discord_client.user.id)) {
             await message.reply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         title: `Hello there, I\'m ${discord_client.user.username}!`,
                         description: [
-                            `You might have noticed that this guild\'s command prefix no longer works.`,
-                            `Over the past few months my developer has completely rewritten my codebase.`,
+                            'You might have noticed that this guild\'s command prefix no longer works.',
+                            'Over the past few months my developer has completely rewritten my codebase.',
                             '',
                             'These changes come with massive improvements:',
                             '- Massive Performance Improvements',
@@ -46,6 +42,7 @@ module.exports = {
                     }),
                 ],
             }).catch(console.warn);
+
             return;
         }
     },

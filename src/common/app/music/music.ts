@@ -2,17 +2,16 @@
 'use strict';
 //------------------------------------------------------------//
 
-const { promisify } = require('node:util');
+import { promisify } from 'node:util';
 
-const {
-    Player: DiscordPlayer,
-    QueryType: DiscordPlayerQueryType,
-} = require('discord-player');
+import {
+    Player as DiscordPlayer,
+    QueryType as DiscordPlayerQueryType,
+    Track as DiscordPlayerTrack,
+} from 'discord-player';
 
-const {
+import {
     createAudioPlayer,
-    createAudioResource,
-    demuxProbe,
     entersState,
     AudioPlayer,
     AudioPlayerStatus,
@@ -20,21 +19,33 @@ const {
     VoiceConnection,
     VoiceConnectionDisconnectReason,
     VoiceConnectionStatus,
-} = require('@discordjs/voice');
+} from '@discordjs/voice';
 
-//------------------------------------------------------------//
+import { Client as DiscordClient } from 'discord.js';
 
 const delay = promisify(setTimeout);
 
 //------------------------------------------------------------//
 
-/** @type {Map<GuildId, MusicSubscription>} */
-const music_subscriptions = new Map();
+type GuildId = string;
 
 //------------------------------------------------------------//
 
+const music_subscriptions: Map<GuildId, MusicSubscription> = new Map();
+
+//------------------------------------------------------------//
+
+type BaseTrackMetadata = {
+    [key: string]: any;
+    title: string;
+    url?: string;
+}
+
+type ResourceCreator<T> = (track: T) => Promise<AudioResource>;
+
+
 /**
- * @typedef {{
+ * {{
  *  [key: string]: any,
  *  title: string,
  *  url?: string,
@@ -46,50 +57,37 @@ const music_subscriptions = new Map();
 //------------------------------------------------------------//
 
 class BaseTrack {
-    /** @type {AudioResource} */
-    #resource;
+    #resource: AudioResource | undefined;
 
-    /** @type {BaseTrackMetadata} */
-    #metadata;
+    #metadata: BaseTrackMetadata;
 
-    /** @type {Promise<AudioResource>} */
-    #resource_creator;
+    #resource_creator: ResourceCreator<this>;
 
-    /**
-     * @type {{
-     *  onStart: () => void,
-     *  onFinish: () => void,
-     *  onError: () => void,
-     * }}
-     */
-    #events;
+    #events: {
+        onStart: () => void;
+        onFinish: () => void;
+        onError: (error: unknown) => void;
+    };
 
-    /**
-     * @param {BaseTrackMetadata} metadata
-     * @param {Promise<AudioResource>} resource_creator
-     * @param {{
-     *  onStart: () => void,
-     *  onFinish: () => void,
-     *  onError: () => void,
-     * }} events
-     */
-    constructor(metadata, resource_creator, { onStart, onFinish, onError }) {
+    constructor(
+        metadata: BaseTrackMetadata,
+        resource_creator: ResourceCreator<BaseTrack>,
+        { onStart, onFinish, onError }: {
+            onStart: () => void;
+            onFinish: () => void;
+            onError: (error: unknown) => void;
+        }
+    ) {
         this.#metadata = metadata;
         this.#resource_creator = resource_creator;
         this.#events = { onStart, onFinish, onError };
     }
 
-    /**
-     * @returns {AudioResource}
-     */
     get resource() {
-        return this.#resource;
+        return this.#resource as AudioResource;
     }
 
-    /**
-     * @returns {BaseTrackMetadata}
-     */
-    get metadata() {
+    get metadata(): BaseTrackMetadata {
         return this.#metadata;
     }
 
@@ -99,7 +97,7 @@ class BaseTrack {
     async initializeResource() {
         this.#resource = await this.#resource_creator(this);
 
-        this.#resource.volume.setVolumeLogarithmic(0);
+        this.#resource.volume!.setVolumeLogarithmic(0);
 
         return this.#resource;
     }
@@ -112,48 +110,42 @@ class BaseTrack {
         this.#events.onFinish();
     }
 
-    onError() {
-        this.#events.onError();
+    onError(error: unknown) {
+        this.#events.onError(error);
     }
 }
 
 //------------------------------------------------------------//
 
-class RemoteTrack extends BaseTrack {
-    constructor(metadata, resource_creator, { onStart, onFinish, onError }) {
-        super(...arguments);
-    }
-}
+class RemoteTrack extends BaseTrack {}
 
 //------------------------------------------------------------//
 
 class QueueVolumeManager {
     #volume_multiplier = 0.40;
+
     #human_volume_multiplier = 100;
 
-    #muted_previous_raw_volume;
+    #muted_previous_raw_volume: number = 0;
+
     #muted = false;
 
     #default_volume = 50;
+
     #default_raw_volume = (this.#default_volume / this.#human_volume_multiplier) * this.#volume_multiplier;
 
-    #raw_volume;
+    #raw_volume = this.#default_raw_volume;
 
-    #queue;
+    #queue: Queue;
 
-    /**
-     * @param {Queue} queue
-     */
-    constructor(queue) {
+    constructor(queue: Queue) {
+        // eslint-disable-next-line no-use-before-define
         if (!(queue instanceof Queue)) throw new TypeError('queue must be an instance of Queue');
 
         this.#queue = queue;
     }
 
-    /**
-     * @returns {AudioResource?} The current track resource
-     */
-    #getActiveResource() {
+    #getActiveResource(): AudioResource | undefined {
         return this.#queue.current_track?.resource;
     }
 
@@ -182,10 +174,10 @@ class QueueVolumeManager {
         if (!active_resource) return;
 
         if (this.#muted) {
-            active_resource.volume.setVolumeLogarithmic(this.#muted_previous_raw_volume);
+            active_resource.volume!.setVolumeLogarithmic(this.#muted_previous_raw_volume);
         } else {
-            this.#muted_previous_raw_volume = active_resource.volume.volumeLogarithmic;
-            active_resource.volume.setVolumeLogarithmic(0);
+            this.#muted_previous_raw_volume = active_resource.volume!.volumeLogarithmic;
+            active_resource.volume!.setVolumeLogarithmic(0);
         }
 
         this.#muted = !this.#muted;
@@ -206,24 +198,19 @@ class QueueVolumeManager {
 //------------------------------------------------------------//
 
 class Queue {
-    /** @type {boolean} */
-    locked = false;
+    locked: boolean = false;
 
-    /** @type {'off'|'track'|'queue'|'autoplay'} */
-    #looping_mode = 'off';
+    #looping_mode: 'off' | 'track' | 'queue' | 'autoplay' = 'off';
 
-    /** @type {BaseTrack[]} */
-    #previous_tracks = [];
+    #previous_tracks: BaseTrack[] = [];
 
-    /** @type {BaseTrack?} */
-    #current_track = undefined;
+    #current_track: BaseTrack | undefined = undefined;
 
-    /** @type {BaseTrack[]} */
-    #future_tracks = [];
+    #future_tracks: BaseTrack[] = [];
 
-    /** @type {QueueVolumeManager} @readonly */
-    volume_manager = new QueueVolumeManager(this);
+    readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
 
+    // eslint-disable-next-line no-useless-constructor, no-empty-function
     constructor() {}
 
     get previous_tracks() {
@@ -250,11 +237,7 @@ class Queue {
         this.#looping_mode = mode;
     }
 
-    /**
-     * @param {number} position The position of the track to get (0-indexed)
-     * @returns {BaseTrack?} The track at the given position
-     */
-    getTrack(position) {
+    getTrack(position: number): BaseTrack | undefined {
         return this.#future_tracks[position];
     }
 
@@ -262,15 +245,14 @@ class Queue {
      * @param {BaseTrack} track The track to add to the queue
      * @param {number} position The position to add the track at (0-indexed)
      */
-    addTrack(track, position=this.#future_tracks.length) {
+    addTrack(
+        track: BaseTrack,
+        position: number = this.#future_tracks.length,
+    ) {
         this.#future_tracks.splice(position, 0, track);
     }
 
-    /**
-     * @param {number} position The position of the track to remove (0-indexed)
-     * @returns {BaseTrack?} The removed track
-     */
-    removeTrack(position) {
+    removeTrack(position: number): BaseTrack | undefined {
         return this.#future_tracks.splice(position, 1).at(0);
     }
 
@@ -364,11 +346,9 @@ class Queue {
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
  */
 class MusicSubscription {
-    /** @type {VoiceConnection} @readonly */
-    #voice_connection;
+    readonly #voice_connection: VoiceConnection;
 
-    /** @type {AudioPlayer} @readonly */
-    #audio_player;
+    readonly #audio_player: AudioPlayer;
 
     /** @readonly */
     queue = new Queue();
@@ -376,13 +356,13 @@ class MusicSubscription {
     /** @private */
     #locked = false;
 
-    constructor(voice_connection) {
+    constructor(voice_connection: VoiceConnection) {
         this.#audio_player = createAudioPlayer();
 
         this.#voice_connection = voice_connection;
-        this.#voice_connection.on('error', console.warn);
+        this.#voice_connection.on<'error'>('error', console.warn);
 
-        this.#voice_connection.on('stateChange', async (oldState, newState) => {
+        this.#voice_connection.on<'stateChange'>('stateChange', async (oldState, newState) => {
             if (newState.status === VoiceConnectionStatus.Disconnected) {
                 if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
                     /**
@@ -438,23 +418,23 @@ class MusicSubscription {
         });
 
         // Configure audio player
-        this.#audio_player.on('stateChange', async (oldState, newState) => {
+        this.#audio_player.on<'stateChange'>('stateChange', async (oldState, newState) => {
             // await delay(50); // wait a bit to prevent funny business
 
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
                 // track.onEnd() is called to notify the track that it has finished playing.
-                oldState.resource.metadata.onFinish();
+                (oldState.resource.metadata as BaseTrack).onFinish();
                 this.processQueue(false);
             } else if (newState.status === AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
                 // track.onStart() is called to notify the track that playback has started.
-                newState.resource.metadata.onStart();
+                (newState.resource.metadata as BaseTrack).onStart();
             }
         });
 
-        this.#audio_player.on('error', (error) => error.resource.metadata.onError(error));
+        this.#audio_player.on('error', (error) => (error.resource.metadata as BaseTrack).onError(error));
 
         this.#voice_connection.subscribe(this.#audio_player);
     }
@@ -488,7 +468,7 @@ class MusicSubscription {
 
         // Check if the queue is locked, and if so, allow the track to automatically be played.
         if (this.queue.locked) {
-            console.warn(`Queue locked, playing ${next_track.title}`);
+            console.warn(`Queue locked, playing ${next_track.metadata.title}`);
             return;
         }
 
@@ -506,24 +486,28 @@ class MusicSubscription {
  * }} MusicReconnaissanceSearchResult
  */
 
-class MusicReconnaissance {
-    /** @type {DiscordPlayer} @readonly */
-    #discord_player;
+type MusicReconnaissanceSearchResult = {
+    title: string;
+    url: string;
+}
 
-    constructor(discord_client) {
+class MusicReconnaissance {
+    readonly #client: DiscordClient<true>;
+    readonly #discord_player: DiscordPlayer;
+
+    constructor(discord_client: DiscordClient<true>) {
+        this.#client = discord_client;
+
         this.#discord_player = new DiscordPlayer(discord_client);
     }
 
-    /**
-     * @param {string} query
-     * @returns {Promise<MusicReconnaissanceSearchResult[]>}
-     */
-    async search(query) {
+    async search(query: string): Promise<MusicReconnaissanceSearchResult[]> {
         const search_result = await this.#discord_player.search(query, {
+            requestedBy: this.#client.user.id,
             searchEngine: DiscordPlayerQueryType.AUTO,
         });
 
-        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(track => Boolean(track));
+        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(track => track instanceof DiscordPlayerTrack) as DiscordPlayerTrack[];
 
         return tracks.map(track => ({
             title: track.title,
