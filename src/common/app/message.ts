@@ -2,11 +2,11 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
 //------------------------------------------------------------//
 
-class CustomEmbed {
+export class CustomEmbed {
     static colors = {
         BRAND: 0xFF5500,
         RED: 0xFF0000,
@@ -18,41 +18,19 @@ class CustomEmbed {
         VIOLET: 0xAA00FF,
     };
 
-    constructor({
-        color,
-        author,
-        title,
-        description,
-        thumbnail,
-        fields,
-        image,
-        footer,
-    }) {
-        return new Discord.MessageEmbed({
-            color: color ?? CustomEmbed.colors.BRAND,
-            author: author,
-            title: title,
-            description: description,
-            thumbnail: thumbnail,
-            fields: fields,
-            image: image,
-            footer: footer,
-        });
+    static from(options: Discord.MessageEmbedOptions): Discord.MessageEmbed {
+        options.color ??= this.colors.BRAND;
+
+        return new Discord.MessageEmbed(options);
     }
 }
 
 //------------------------------------------------------------//
 
-/**
- * Disables all message components on a message.
- * @param {Discord.Message} message
- * @returns {Promise<Discord.Message>}
- */
-function disableMessageComponents(message) {
-    if (!(message instanceof Discord.Message)) throw new TypeError('message must be an instance of Discord.Message');
-
+export function disableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
     return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
+        // @ts-ignore-next-line
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
             components: component_row.components.map(component => ({
@@ -63,16 +41,10 @@ function disableMessageComponents(message) {
     }));
 }
 
-/**
- * Enables all message components on a message.
- * @param {Discord.Message} message
- * @returns {Promise<Discord.Message>}
- */
- function enableMessageComponents(message) {
-    if (!(message instanceof Discord.Message)) throw new TypeError('message must be an instance of Discord.Message');
-
+export function enableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
     return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
+        // @ts-ignore-next-line
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
             components: component_row.components.map(component => ({
@@ -85,12 +57,7 @@ function disableMessageComponents(message) {
 
 //------------------------------------------------------------//
 
-/**
- * @param {Discord.Channel} channel text-based channel
- * @param {Discord.User} user
- * @returns {Promise<Boolean>}
- */
- async function requestPotentialNotSafeForWorkContentConsent(channel, user) {
+export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.Channel, user: Discord.User): Promise<boolean> {
     if (!(channel instanceof Discord.Channel)) throw new TypeError('channel must be an instance of Discord.Channel');
     if (!channel.isText()) throw new TypeError('channel must be a text-based channel');
     if (!(user instanceof Discord.User)) throw new TypeError('user must be an instance of Discord.User');
@@ -99,7 +66,7 @@ function disableMessageComponents(message) {
         await channel.send({
             content: `<@!${user.id}>`,
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'Warning, this might contain potential NSFW content!',
                     description: 'Do you wish to proceed?',
                 }),
@@ -139,12 +106,3 @@ function disableMessageComponents(message) {
 
     return collected_consent_interaction.customId === 'user_consents_to_potential_nsfw_content';
 }
-
-//------------------------------------------------------------//
-
-module.exports = {
-    CustomEmbed,
-    disableMessageComponents,
-    enableMessageComponents,
-    requestPotentialNotSafeForWorkContentConsent,
-};
