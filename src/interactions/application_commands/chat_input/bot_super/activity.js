@@ -72,7 +72,7 @@ module.exports = new ClientInteraction({
         const voice_channel = interaction.member?.voice.channel;
         if (!voice_channel) {
             return await interaction.editReply({
-                embed: new CustomEmbed({
+                embed: CustomEmbed.from({
                     color: CustomEmbed.colors.YELLOW,
                     description: 'You must be in a voice channel to use this command.',
                 }),
@@ -84,7 +84,7 @@ module.exports = new ClientInteraction({
         if (!specified_activity_id) {
             return interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         title: 'Available Activities',
                         description: discord_activities.map(({ id, name }) => `[\`${id}\`] - ${name}`).join('\n'),
                     }),
@@ -100,7 +100,7 @@ module.exports = new ClientInteraction({
         if (!activity) {
             interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         title: 'Unknown Activity ID',
                         description: 'The activity id you specified is unknown.',

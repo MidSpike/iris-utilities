@@ -2,7 +2,6 @@
 
 //------------------------------------------------------------//
 
-const moment = require('moment-timezone');
 const Discord = require('discord.js');
 
 const { array_chunks } = require('../../../../common/lib/utilities');
@@ -42,7 +41,7 @@ module.exports = new ClientInteraction({
 
         const bot_message = await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: 'Loading...',
                 }),
             ],
@@ -70,7 +69,7 @@ module.exports = new ClientInteraction({
                 case 'flags': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild member information!',
                                 fields: [
                                     {
@@ -103,7 +102,7 @@ module.exports = new ClientInteraction({
 
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild member information!',
                                 fields: [
                                     {
@@ -140,7 +139,7 @@ module.exports = new ClientInteraction({
                 case 'permissions': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild member information!',
                                 fields: [
                                     {
@@ -173,7 +172,7 @@ module.exports = new ClientInteraction({
                 case 'roles': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild member information!',
                                 fields: [
                                     {
@@ -206,7 +205,7 @@ module.exports = new ClientInteraction({
 
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild member information!',
                                 fields: [
                                     {

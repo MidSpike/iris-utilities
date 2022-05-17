@@ -38,13 +38,13 @@ module.exports = new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const guild_member = await interaction.guild.members.fetch(interaction.user.id);
-        
+
         const guild_member_voice_channel_id = guild_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in a voice channel.`,
                     }),
@@ -71,7 +71,7 @@ module.exports = new ClientInteraction({
 
         await interaction.editReply({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: `${interaction.user}, summoned me to <#${guild_member_voice_channel_id}>!`,
                 }),
             ],

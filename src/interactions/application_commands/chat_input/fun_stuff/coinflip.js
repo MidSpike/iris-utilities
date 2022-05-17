@@ -16,7 +16,7 @@ async function generateMessagePayload(interaction_author) {
 
     return {
         embeds: [
-            new CustomEmbed({
+            CustomEmbed.from({
                 description: `${interaction_author}, flipped a coin and it landed on **${coin_facing}**!`,
                 thumbnail: {
                     url: `https://cdn.midspike.com/projects/iris/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`,
@@ -79,7 +79,7 @@ module.exports = new ClientInteraction({
 
                     await button_interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 description: `${interaction.user}, flipping a coin...`,
                             }),
                         ],

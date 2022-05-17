@@ -37,11 +37,9 @@ module.exports = {
 
                 command_interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: 'Current guild admin roles',
-                            description: guild_admin_role_ids.length > 0
-                                       ? guild_admin_role_ids.map(role_id => `<@&${role_id}>`).join('\n')
-                                       : 'No guild admin roles exist yet!',
+                            description: guild_admin_role_ids.length > 0? guild_admin_role_ids.map(role_id => `<@&${role_id}>`).join('\n'): 'No guild admin roles exist yet!',
                         }),
                     ],
                 }).catch(console.warn);
@@ -65,7 +63,7 @@ module.exports = {
                 if (guild_admin_role_ids.includes(role_id)) {
                     return command_interaction.followUp({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
                                 title: 'Role already added',
                                 description: `<@&${role_id}> is already an admin role`,
@@ -76,11 +74,11 @@ module.exports = {
 
                 await GuildConfigsManager.update(command_interaction.guildId, {
                     admin_role_ids: [...guild_admin_role_ids, role_id],
-                })
+                });
 
                 await command_interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: 'Added guild admin role',
                             description: `<@&${role_id}>`,
                         }),
@@ -106,7 +104,7 @@ module.exports = {
                 if (guild_admin_role_ids.includes(role_id)) {
                     return command_interaction.followUp({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
                                 title: 'Role already added',
                                 description: `<@&${role_id}> is already an admin role`,
@@ -121,7 +119,7 @@ module.exports = {
 
                 await command_interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: 'Added guild admin role',
                             description: `<@&${role_id}>`,
                         }),
@@ -140,7 +138,7 @@ module.exports = {
 
                 command_interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: 'Reset the guild admin roles',
                         }),
                     ],
@@ -164,7 +162,7 @@ module.exports = {
 
                 command_interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: 'Cleaned up the guild admin roles',
                         }),
                     ],

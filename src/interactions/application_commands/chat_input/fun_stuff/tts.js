@@ -27,20 +27,20 @@ const { ClientInteraction, ClientCommandHelper } = require('../../../../common/a
 const voice_codes = [
     { provider: 'google', name: 'Google British - English (United Kingdom)', code: 'en-GB' },
     { provider: 'google', name: 'Google American - English (United States)', code: 'en-US' },
-    { provider: 'google', name: 'Google Australian - English (Australia)',   code: 'en-AU' },
-    { provider: 'ibm',    name: 'IBM Kate - English (United Kingdom)',       code: 'en-GB_KateV3Voice' },
-    { provider: 'ibm',    name: 'IBM James - English (United Kingdom)',      code: 'en-GB_JamesV3Voice' },
-    { provider: 'ibm',    name: 'IBM Charlotte - English (United Kingdom)',  code: 'en-GB_CharlotteV3Voice' },
-    { provider: 'ibm',    name: 'IBM Allison - English (United States)',     code: 'en-US_AllisonV3Voice' },
-    { provider: 'ibm',    name: 'IBM Emily - English (United States)',       code: 'en-US_EmilyV3Voice' },
-    { provider: 'ibm',    name: 'IBM Henry - English (United States)',       code: 'en-US_HenryV3Voice' },
-    { provider: 'ibm',    name: 'IBM Kevin - English (United States)',       code: 'en-US_KevinV3Voice' },
-    { provider: 'ibm',    name: 'IBM Lisa - English (United States)',        code: 'en-US_LisaV3Voice' },
-    { provider: 'ibm',    name: 'IBM Michael - English (United States)',     code: 'en-US_MichaelV3Voice' },
-    { provider: 'ibm',    name: 'IBM Olivia - English (United States)',      code: 'en-US_OliviaV3Voice' },
-    { provider: 'ibm',    name: 'IBM Birgit - Deutsch (Deutschland)',        code: 'de-DE_BirgitV3Voice' },
-    { provider: 'ibm',    name: 'IBM Dieter - Deutsch (Deutschland)',        code: 'de-DE_DieterV3Voice' },
-    { provider: 'ibm',    name: 'IBM Erika - Deutsch (Deutschland)',         code: 'de-DE_ErikaV3Voice' },
+    { provider: 'google', name: 'Google Australian - English (Australia)', code: 'en-AU' },
+    { provider: 'ibm', name: 'IBM Kate - English (United Kingdom)', code: 'en-GB_KateV3Voice' },
+    { provider: 'ibm', name: 'IBM James - English (United Kingdom)', code: 'en-GB_JamesV3Voice' },
+    { provider: 'ibm', name: 'IBM Charlotte - English (United Kingdom)', code: 'en-GB_CharlotteV3Voice' },
+    { provider: 'ibm', name: 'IBM Allison - English (United States)', code: 'en-US_AllisonV3Voice' },
+    { provider: 'ibm', name: 'IBM Emily - English (United States)', code: 'en-US_EmilyV3Voice' },
+    { provider: 'ibm', name: 'IBM Henry - English (United States)', code: 'en-US_HenryV3Voice' },
+    { provider: 'ibm', name: 'IBM Kevin - English (United States)', code: 'en-US_KevinV3Voice' },
+    { provider: 'ibm', name: 'IBM Lisa - English (United States)', code: 'en-US_LisaV3Voice' },
+    { provider: 'ibm', name: 'IBM Michael - English (United States)', code: 'en-US_MichaelV3Voice' },
+    { provider: 'ibm', name: 'IBM Olivia - English (United States)', code: 'en-US_OliviaV3Voice' },
+    { provider: 'ibm', name: 'IBM Birgit - Deutsch (Deutschland)', code: 'de-DE_BirgitV3Voice' },
+    { provider: 'ibm', name: 'IBM Dieter - Deutsch (Deutschland)', code: 'de-DE_DieterV3Voice' },
+    { provider: 'ibm', name: 'IBM Erika - Deutsch (Deutschland)', code: 'de-DE_ErikaV3Voice' },
     // { provider: 'ibm',    name: 'IBM Craig - English (Australia)',           code: 'en-AU_CraigVoice' }, // deprecated
     // { provider: 'ibm',    name: 'IBM Madison - English (Australia)',         code: 'en-AU_MadisonVoice' }, // deprecated
     // { provider: 'ibm',    name: 'IBM Steve - English (Australia)',           code: 'en-AU_SteveVoice' }, // deprecated
@@ -97,7 +97,7 @@ module.exports = new ClientInteraction({
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in a voice channel.`,
                     }),
@@ -108,7 +108,7 @@ module.exports = new ClientInteraction({
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
             return interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to summon me or join my voice channel.`,
                     }),
@@ -141,7 +141,7 @@ module.exports = new ClientInteraction({
 
             await interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
                         description: `${interaction.user}, I couldn't connect to the voice channel.`,
                     }),
@@ -156,7 +156,7 @@ module.exports = new ClientInteraction({
         if (tts_text_chunks.length > 1) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         description: `${interaction.user}, added ${tts_text_chunks.length} tts chunks to the queue.`,
                     }),
                 ],
@@ -164,7 +164,7 @@ module.exports = new ClientInteraction({
         } else {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         description: `${interaction.user}, added text-to-speech to the queue:\`\`\`\n${string_ellipses(text, 512)}\n\`\`\``,
                     }),
                 ],
@@ -238,7 +238,7 @@ module.exports = new ClientInteraction({
                         inputType: probe.type,
                         inlineVolume: true, // allows volume to be adjusted while playing
                         metadata: track, // the track
-                    }))
+                    }));
                 }).catch(onError);
             }), {
                 onStart() {
@@ -248,7 +248,7 @@ module.exports = new ClientInteraction({
                     if (i > 1) {
                         interaction.channel.send({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     description: [
                                         `${interaction.user}, playing text-to-speech:`,
                                         `\`\`\`\n${string_ellipses(tts_text, 512)}\n\`\`\``,
@@ -262,7 +262,7 @@ module.exports = new ClientInteraction({
                     if (i === tts_text_chunks.length - 1) {
                         interaction.channel.send({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     description: `${interaction.user}, finished playing text-to-speech.`,
                                 }),
                             ],
@@ -274,7 +274,7 @@ module.exports = new ClientInteraction({
 
                     interaction.channel.send({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 color: CustomEmbed.colors.RED,
                                 description: `${interaction.user}, failed to play text-to-speech.`,
                             }),
@@ -291,8 +291,8 @@ module.exports = new ClientInteraction({
 
             await interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
-                        description: `Added text to speech to the queue.`,
+                    CustomEmbed.from({
+                        description: 'Added text to speech to the queue.',
                     }),
                 ],
             });

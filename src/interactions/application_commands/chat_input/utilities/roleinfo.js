@@ -41,7 +41,7 @@ module.exports = new ClientInteraction({
 
         const bot_message = await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: 'Loading...',
                 }),
             ],
@@ -57,7 +57,7 @@ module.exports = new ClientInteraction({
 
         await bot_message.edit({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'Don\'t go wild with this role information!',
                     fields: [
                         {

@@ -4,6 +4,7 @@
 
 const { exec: ytdl } = require('youtube-dl-exec');
 
+// eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js');
 
 const {
@@ -107,7 +108,7 @@ module.exports = {
 
         await voice_command_text_channel.send({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'Voice Command',
                     description: `${msg.author.username} said:\`\`\`\n${voice_command_name} ${voice_command_args.join(' ')}\n\`\`\``,
                 }),
@@ -165,7 +166,7 @@ module.exports = {
                                 inputType: probe.type,
                                 inlineVolume: true, // allows volume to be adjusted while playing
                                 metadata: track, // the track
-                            }))
+                            }));
                         }).catch(onError);
                     }).catch(onError);
                 }), {
@@ -175,7 +176,7 @@ module.exports = {
 
                         voice_command_text_channel.send({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     description: `${msg.author}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
                                 }),
                             ],
@@ -184,7 +185,7 @@ module.exports = {
                     onFinish() {
                         voice_command_text_channel.send({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     description: `${msg.author}, finished playing **${track.metadata.title}**.`,
                                 }),
                             ],
@@ -195,7 +196,7 @@ module.exports = {
 
                         voice_command_text_channel.send({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     color: CustomEmbed.colors.RED,
                                     description: `${msg.author}, failed to play **${track.metadata.title}**.`,
                                 }),
@@ -215,7 +216,7 @@ module.exports = {
 
             case 'vol': // this is needed b/c google sometimes picks up 'vol' instead of 'volume'
             case 'volume': {
-                const volume_input = Number.parseInt(voice_command_args[0], 10);
+                const volume_input = Number.parseInt(voice_command_args[0]);
 
                 if (Number.isNaN(volume_input)) return;
 
@@ -223,6 +224,7 @@ module.exports = {
                 const maximum_allowed_volume = 100;
                 const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
 
+                // eslint-disable-next-line require-atomic-updates
                 music_subscription.queue.volume_manager.volume = volume_level;
 
                 break;

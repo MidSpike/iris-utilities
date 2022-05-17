@@ -66,7 +66,7 @@ module.exports = new ClientInteraction({
         if (!bot_voice_channel_id) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, I\'m not connected to a voice channel!`,
                     }),
@@ -79,7 +79,7 @@ module.exports = new ClientInteraction({
         if (guild_member_voice_channel_id !== bot_voice_channel_id) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in the same voice channel as me!`,
                     }),
@@ -93,7 +93,7 @@ module.exports = new ClientInteraction({
         if (!music_subscription) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         title: 'Nothing is playing right now!',
                     }),
@@ -111,7 +111,7 @@ module.exports = new ClientInteraction({
                 if (!queue.current_track) {
                     await interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
                                 title: 'Nothing is playing right now!',
                             }),
@@ -123,18 +123,18 @@ module.exports = new ClientInteraction({
 
                 await interaction.editReply({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             description: [
                                 ...(queue.previous_tracks.length > 0 ? [
                                     '**Previous Tracks (up to 5):**',
                                     ...queue.previous_tracks.slice(0, 5).reverse().map((track, index) => `- [${track.metadata.title}](${track.metadata.url})`),
                                     '',
                                 ] : []),
-                                `**Current Playing:**`,
+                                '**Current Playing:**',
                                 `- [${queue.current_track.metadata.title}](${queue.current_track.metadata.url})`,
                                 ...(queue.future_tracks.length > 0 ? [
                                     '',
-                                    `**Next Tracks (up to 10):**`,
+                                    '**Next Tracks (up to 10):**',
                                     ...queue.future_tracks.slice(0, 10).map((track, index) => `- [${track.metadata.title}](${track.metadata.url})`),
                                 ] : []),
                             ].join('\n'),
@@ -150,7 +150,7 @@ module.exports = new ClientInteraction({
 
                 await interaction.editReply({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             description: `${interaction.user}, shuffled the queue!`,
                         }),
                     ],
@@ -165,7 +165,7 @@ module.exports = new ClientInteraction({
                 if (position < 0 || position > queue.future_tracks.length) {
                     await interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
                                 description: `${interaction.user}, the position must be between 1 and ${queue.future_tracks.length}!`,
                             }),
@@ -179,7 +179,7 @@ module.exports = new ClientInteraction({
                 if (!removed_track) {
                     await interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
                                 description: `${interaction.user}, failed to remove track at position ${position + 1}!`,
                             }),
@@ -191,7 +191,7 @@ module.exports = new ClientInteraction({
 
                 await interaction.editReply({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             description: `${interaction.user}, removed ${removed_track.metadata.title} from the queue!`,
                         }),
                     ],
@@ -205,7 +205,7 @@ module.exports = new ClientInteraction({
 
                 await interaction.editReply({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             description: `${interaction.user}, cleared the queue!`,
                         }),
                     ],
@@ -217,7 +217,7 @@ module.exports = new ClientInteraction({
             default: {
                 await interaction.editReply({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             color: CustomEmbed.colors.RED,
                             title: 'Invalid sub-command!',
                         }),

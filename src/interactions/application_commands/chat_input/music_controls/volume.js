@@ -52,7 +52,7 @@ module.exports = new ClientInteraction({
         if (!music_subscription) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         title: 'Nothing is playing right now!',
                     }),
@@ -72,7 +72,7 @@ module.exports = new ClientInteraction({
         const bot_message = await interaction.editReply({
             fetchReply: true,
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     ...(volume_input ? {
                         description: `${interaction.user}, set the volume to **${volume_input}**!`,
                     } : {
@@ -120,7 +120,7 @@ module.exports = new ClientInteraction({
 
                     await button_interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 ...(music_subscription.queue.volume_manager.muted ? {
                                     description: `${interaction.user}, muted the volume!`,
                                 } : {
@@ -138,7 +138,7 @@ module.exports = new ClientInteraction({
 
                     await button_interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 description: `${button_interaction.user}, decreased the volume to **${music_subscription.queue.volume_manager.volume}**!`,
                             }),
                         ],
@@ -152,7 +152,7 @@ module.exports = new ClientInteraction({
 
                     await button_interaction.editReply({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 description: `${button_interaction.user}, increased the volume to **${music_subscription.queue.volume_manager.volume}**!`,
                             }),
                         ],

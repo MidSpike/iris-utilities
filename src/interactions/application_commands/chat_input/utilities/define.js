@@ -79,7 +79,7 @@ module.exports = new ClientInteraction({
 
             return interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         title: 'Something went wrong!',
                         description: 'Perhaps that was an unknown English word, or maybe a server issue occurred!',
@@ -117,7 +117,7 @@ module.exports = new ClientInteraction({
 
         interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: `Definitions for: ${word}`,
                     description: [
                         ...(word_part_of_speech ? [ `*(${word_part_of_speech})*` ] : []),
@@ -128,7 +128,7 @@ module.exports = new ClientInteraction({
                 }),
                 ...(word_definitions_and_examples ? (
                     word_definitions_and_examples.slice(0, 10).map(({ definition, example, synonyms, antonyms }) =>
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             description: [
                                 ...(definition?.length ? [
                                     `**Definition:**\n${definition}`,

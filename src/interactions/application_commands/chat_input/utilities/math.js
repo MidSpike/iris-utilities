@@ -46,9 +46,9 @@ module.exports = new ClientInteraction({
 
             interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         title: 'Math Expression Output',
-                        description: `I crunched the numbers, this is what I found!`,
+                        description: 'I crunched the numbers, this is what I found!',
                         fields: [
                             {
                                 name: 'Expression',
@@ -64,9 +64,9 @@ module.exports = new ClientInteraction({
         } catch {
             interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         title: 'Math Expression Output',
-                        description: `Something went wrong, I couldn't evaluate that math expression!`,
+                        description: 'Something went wrong, I couldn\'t evaluate that math expression!',
                     }),
                 ],
             }).catch(console.warn);

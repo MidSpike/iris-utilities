@@ -65,7 +65,7 @@ module.exports = new ClientInteraction({
         if (!bot_voice_channel_id) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, I\'m not connected to a voice channel!`,
                     }),
@@ -78,7 +78,7 @@ module.exports = new ClientInteraction({
         if (guild_member_voice_channel_id !== bot_voice_channel_id) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in the same voice channel as me!`,
                     }),
@@ -92,7 +92,7 @@ module.exports = new ClientInteraction({
         if (!music_subscription) {
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         title: 'Nothing is playing right now!',
                     }),
@@ -110,7 +110,7 @@ module.exports = new ClientInteraction({
 
             await interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
                         description: `${interaction.user}, an error occurred while trying to set the looping mode!`,
                     }),
@@ -130,7 +130,7 @@ module.exports = new ClientInteraction({
 
         await interaction.editReply({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: `${interaction.user}, set queue looping to **${command_looping_mode_choice.name}**.`,
                 }),
             ],
