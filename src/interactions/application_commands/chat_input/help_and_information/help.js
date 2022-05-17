@@ -20,10 +20,10 @@ async function createHelpEmbed(command_category_id) {
         const command_usage = client_interaction.data.options.filter(option => ![
             Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
             Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-        ].includes(option.type)).map(({ required, name, type }) => {
-            return `${required ? '<' : '['}${name}${required ? '>' : ']'}`;
+        ].includes(option.type)).map(({ required, name, type }) =>
+             `${required ? '<' : '['}${name}${required ? '>' : ']'}`
             // return `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
-        }).join(' ');
+        ).join(' ');
         return `/${client_interaction.identifier} ${command_usage}`;
     });
 
@@ -32,7 +32,7 @@ async function createHelpEmbed(command_category_id) {
         commands_in_specified_category,
     });
 
-    return new CustomEmbed({
+    return CustomEmbed.from({
         title: `${command_category.name}`,
         description: [
             '\`\`\`',
@@ -127,7 +127,7 @@ module.exports = new ClientInteraction({
                     console.log(interaction.values);
                     await interaction.editReply({
                         embeds: [
-                            await createHelpEmbed(interaction.values[0])
+                            await createHelpEmbed(interaction.values[0]),
                         ],
                     });
                     break;

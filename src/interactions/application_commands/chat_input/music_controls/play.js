@@ -70,7 +70,7 @@ module.exports = new ClientInteraction({
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to be in a voice channel.`,
                     }),
@@ -81,7 +81,7 @@ module.exports = new ClientInteraction({
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
             return interaction.editReply({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
                         description: `${interaction.user}, you need to summon me or join my voice channel.`,
                     }),
@@ -91,7 +91,7 @@ module.exports = new ClientInteraction({
 
         await interaction.editReply({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: `${interaction.user}, searching for:\`\`\`\n${query}\n\`\`\``,
                 }),
             ],
@@ -122,7 +122,7 @@ module.exports = new ClientInteraction({
 
             await interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
                         description: `${interaction.user}, I couldn't connect to the voice channel.`,
                     }),
@@ -139,7 +139,7 @@ module.exports = new ClientInteraction({
         if (search_results.length === 0) {
             await interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         description: `${interaction.user}, I couldn't find anything for **${query}**.`,
                     }),
                 ],
@@ -151,7 +151,7 @@ module.exports = new ClientInteraction({
         if (search_results.length > 1) {
             await interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         description: `${interaction.user}, added ${search_results.length} track(s) to the queue...`,
                     }),
                 ],
@@ -168,7 +168,7 @@ module.exports = new ClientInteraction({
                 let track_url = 'https://google.com/';
 
                 const urlObj = new URL(search_result.url);
-                if (/(youtu\.be|youtube\.com)$/gi.test(urlObj.hostname)) {
+                if ((/(youtu\.be|youtube\.com)$/gi).test(urlObj.hostname)) {
                     const info = await getYouTubeInfo(`${urlObj}`);
 
                     track_title = info.videoDetails.title;
@@ -214,7 +214,7 @@ module.exports = new ClientInteraction({
                                 inputType: probe.type,
                                 inlineVolume: true, // allows volume to be adjusted while playing
                                 metadata: track, // the track
-                            }))
+                            }));
                         }).catch(onError);
                     }).catch(onError);
                 }), {
@@ -224,7 +224,7 @@ module.exports = new ClientInteraction({
 
                         interaction.followUp({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
                                 }),
                             ],
@@ -233,7 +233,7 @@ module.exports = new ClientInteraction({
                     onFinish() {
                         interaction.followUp({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
                                 }),
                             ],
@@ -244,7 +244,7 @@ module.exports = new ClientInteraction({
 
                         interaction.followUp({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     color: CustomEmbed.colors.RED,
                                     description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
                                 }),
@@ -261,7 +261,7 @@ module.exports = new ClientInteraction({
 
                 await interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
                         }),
                     ],
@@ -270,7 +270,7 @@ module.exports = new ClientInteraction({
                 console.warn(error);
                 await interaction.followUp({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             color: CustomEmbed.colors.RED,
                             description: `${interaction.user}, failed to add **${search_result.title}** to the queue.`,
                         }),

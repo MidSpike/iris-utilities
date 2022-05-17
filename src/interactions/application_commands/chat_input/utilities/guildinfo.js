@@ -37,7 +37,7 @@ module.exports = new ClientInteraction({
 
         const bot_message = await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: 'Loading...',
                 }),
             ],
@@ -59,7 +59,7 @@ module.exports = new ClientInteraction({
                 case 'roles': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild information!',
                                 fields: [
                                     {
@@ -87,7 +87,7 @@ module.exports = new ClientInteraction({
                 case 'emojis': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild information!',
                                 fields: [
                                     {
@@ -115,7 +115,7 @@ module.exports = new ClientInteraction({
                 case 'features': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild information!',
                                 fields: [
                                     {
@@ -143,7 +143,7 @@ module.exports = new ClientInteraction({
                 case 'channels': {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild information!',
                                 fields: [
                                     {
@@ -182,7 +182,7 @@ module.exports = new ClientInteraction({
                                             value: `${guild.widgetChannel}`,
                                             inline: false,
                                         } : undefined),
-                                    ].filter(item => !!item),
+                                    ].filter(item => Boolean(item)),
                                 ],
                             }),
                         ],
@@ -198,7 +198,7 @@ module.exports = new ClientInteraction({
 
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild information!',
                                 fields: [
                                     {
@@ -231,7 +231,7 @@ module.exports = new ClientInteraction({
                 default: {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 title: 'Don\'t go wild with this guild information!',
                                 fields: [
                                     {

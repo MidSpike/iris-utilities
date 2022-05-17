@@ -40,7 +40,7 @@ module.exports = new ClientInteraction({
 
         await interaction.reply({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: `${interaction.user}, running test...`,
                 }),
             ],
@@ -106,7 +106,7 @@ module.exports = new ClientInteraction({
 
         await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: `${interaction.user}, test complete!`,
                 }),
             ],

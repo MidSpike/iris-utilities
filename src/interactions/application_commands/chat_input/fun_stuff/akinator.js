@@ -6,7 +6,7 @@ const { Aki: Akinator } = require('aki-api');
 
 const Discord = require('discord.js');
 
-const { CustomEmbed, disableMessageComponents, enableMessageComponents, requestPotentialNotSafeForWorkContentConsent } = require('../../../../common/app/message');
+const { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } = require('../../../../common/app/message');
 const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
@@ -21,7 +21,7 @@ const akinator_credit_text = 'Powered by https://akinator.com/';
 async function generateMessagePayload(akinator) {
     return {
         embeds: [
-            new CustomEmbed({
+            CustomEmbed.from({
                 title: `Akinator > Question #${akinator.currentStep + 1}`,
                 description: `${akinator.question}`,
                 footer: {
@@ -93,7 +93,7 @@ module.exports = new ClientInteraction({
         /** @type {Discord.Message?} */
         const bot_initial_message = await interaction.editReply({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'Akinator > Loading...',
                     footer: {
                         text: akinator_credit_text,
@@ -122,7 +122,7 @@ module.exports = new ClientInteraction({
                 await interaction.followUp({
                     ephemeral: true,
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             color: CustomEmbed.colors.RED,
                             description: `${button_interaction.user}, don\'t interfere with ${interaction.user}\'s Akinator session!`,
                         }),
@@ -156,7 +156,7 @@ module.exports = new ClientInteraction({
 
                     await disableMessageComponents(button_interaction.message);
 
-                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''), 10);
+                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''));
 
                     await akinator.step(step_number);
 
@@ -168,7 +168,7 @@ module.exports = new ClientInteraction({
 
                         await button_interaction.editReply({
                             embeds: [
-                                new CustomEmbed({
+                                CustomEmbed.from({
                                     title: 'Akinator > Guess',
                                     description: [
                                         '**It is very clear to me now!**',

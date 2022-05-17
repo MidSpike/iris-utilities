@@ -79,7 +79,7 @@ module.exports = new ClientInteraction({
 
         await interaction.editReply({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'IP Info',
                     description: `Here are the results for \`${query}\`!`,
                     fields: Object.entries(response_data).map(([ key, value ]) => ({

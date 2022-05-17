@@ -23,7 +23,7 @@ async function updateMessageWithNewContent(discord_client, message) {
 
     await message.edit({
         embeds: [
-            new CustomEmbed({
+            CustomEmbed.from({
                 title: `Cards Against ${discord_client.user.username}`,
                 fields: [
                     {
@@ -38,7 +38,7 @@ async function updateMessageWithNewContent(discord_client, message) {
                     })),
                 ],
                 footer: {
-                    text: `Inspired by Cards Against Humanity`,
+                    text: 'Inspired by Cards Against Humanity',
                 },
             }),
         ],
@@ -75,7 +75,7 @@ module.exports = new ClientInteraction({
         /** @type {Discord.Message} */
         const bot_message = await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'Loading...',
                 }),
             ],

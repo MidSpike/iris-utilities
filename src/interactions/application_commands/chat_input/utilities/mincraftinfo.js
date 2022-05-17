@@ -55,7 +55,7 @@ module.exports = new ClientInteraction({
 
         const bot_message = await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     description: 'Loading...',
                 }),
             ],
@@ -90,7 +90,7 @@ module.exports = new ClientInteraction({
                 if (!mc_user_uuid) {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 description: `Unable to find a user matching: \`${query_value}\``,
                             }),
                         ],
@@ -104,7 +104,7 @@ module.exports = new ClientInteraction({
 
                 await bot_message.edit({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: `MC User > ${Discord.Util.escapeMarkdown(mc_user_username)}`,
                             fields: [
                                 {
@@ -185,7 +185,7 @@ module.exports = new ClientInteraction({
                 if (!mc_server_info_found) {
                     await bot_message.edit({
                         embeds: [
-                            new CustomEmbed({
+                            CustomEmbed.from({
                                 description: `Unable to find a server matching: \`${query_value}\``,
                             }),
                         ],
@@ -200,7 +200,7 @@ module.exports = new ClientInteraction({
 
                 await bot_message.edit({
                     embeds: [
-                        new CustomEmbed({
+                        CustomEmbed.from({
                             title: `MC Server > ${mc_server_info_hostname}`,
                             fields: [
                                 ...(mc_server_info_motd_clean ? [

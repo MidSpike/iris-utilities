@@ -5,7 +5,6 @@
 const axios = require('axios');
 const Discord = require('discord.js');
 
-const { CustomEmbed } = require('../../../common/app/message');
 const { ClientInteraction, ClientCommandHelper } = require('../../../common/app/client_interactions');
 
 //------------------------------------------------------------//

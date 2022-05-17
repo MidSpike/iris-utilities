@@ -34,9 +34,7 @@ module.exports = new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const bot_application = await discord_client.application.fetch();
-        const bot_application_owner_id = bot_application.owner instanceof Discord.Team
-                                       ? bot_application.owner.owner.user.id
-                                       : bot_application.owner.id;
+        const bot_application_owner_id = bot_application.owner instanceof Discord.Team? bot_application.owner.owner.user.id: bot_application.owner.id;
 
         const bot_invite_url = discord_client.generateInvite({
             scopes: [ 'applications.commands', 'bot' ],
@@ -47,19 +45,17 @@ module.exports = new ClientInteraction({
 
         const bot_creation_unix_epoch = Math.floor(discord_client.user.createdTimestamp / 1000);
 
-        const distributed_bot_sharding_info = await discord_client.shard.broadcastEval((client) => {
-            return [
+        const distributed_bot_sharding_info = await discord_client.shard.broadcastEval((client) => [
                 `[ shard ${client.shard.ids.join(', ')} ]:`,
                 `> - ${client.users.cache.size} user(s)`,
                 `> - ${client.guilds.cache.size} guild(s)`,
                 `> - ${client.channels.cache.size} channel(s)`,
                 `> - ping ${client.ws.ping}ms`,
-            ].join('\n');
-        });
+            ].join('\n'));
 
         await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: `Hello world, I\'m ${discord_client.user.username}`,
                     description: [
                         `I was created by <@!${bot_application_owner_id}> <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
@@ -90,12 +86,12 @@ module.exports = new ClientInteraction({
                             type: 2,
                             style: 5,
                             label: 'Support Server',
-                            url: `https://discord.gg/BXJpS6g`,
+                            url: 'https://discord.gg/BXJpS6g',
                         }, {
                             type: 2,
                             style: 5,
                             label: 'Website',
-                            url: `https://iris-utilities.com/`,
+                            url: 'https://iris-utilities.com/',
                         },
                     ],
                 }, {
@@ -110,12 +106,12 @@ module.exports = new ClientInteraction({
                             type: 2,
                             style: 5,
                             label: 'Source Code',
-                            url: `https://github.com/MidSpike/iris-utilities`,
+                            url: 'https://github.com/MidSpike/iris-utilities',
                         }, {
                             type: 2,
                             style: 5,
                             label: 'Privacy Policy',
-                            url: `https://iris-utilities.com/pages/privacy.html`,
+                            url: 'https://iris-utilities.com/pages/privacy.html',
                         },
                     ],
                 },

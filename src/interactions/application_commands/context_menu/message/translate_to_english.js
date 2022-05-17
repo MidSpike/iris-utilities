@@ -38,7 +38,7 @@ module.exports = new ClientInteraction({
         if (!query.length) {
             return interaction.followUp({
                 embeds: [
-                    new CustomEmbed({
+                    CustomEmbed.from({
                         description: `${interaction.user}, you can only use this command on messages that have content.`,
                     }),
                 ],
@@ -50,7 +50,7 @@ module.exports = new ClientInteraction({
 
         await interaction.followUp({
             embeds: [
-                new CustomEmbed({
+                CustomEmbed.from({
                     title: 'Translation To English',
                     description: [
                         `${interaction.user}, here is the english translation of that message:`,
