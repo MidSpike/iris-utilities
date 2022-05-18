@@ -14,7 +14,7 @@ export default {
      * @param {Discord.Client} discord_client
      * @param {Discord.Interaction} unknown_interaction
      */
-    async handler(discord_client: Discord.Client, unknown_interaction: Discord.Interaction) {
+    async handler(discord_client: Discord.Client, unknown_interaction: Discord.Interaction<'cached'>) {
         await ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
     },
 };

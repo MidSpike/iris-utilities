@@ -2,14 +2,15 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'info',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -34,7 +35,7 @@ module.exports.default = new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const bot_application = await discord_client.application.fetch();
-        const bot_application_owner_id = bot_application.owner instanceof Discord.Team? bot_application.owner.owner.user.id: bot_application.owner.id;
+        const bot_application_owner_id = bot_application.owner instanceof Discord.Team ? bot_application.owner.owner!.user.id : bot_application.owner!.id;
 
         const bot_invite_url = discord_client.generateInvite({
             scopes: [ 'applications.commands', 'bot' ],
@@ -45,8 +46,8 @@ module.exports.default = new ClientInteraction({
 
         const bot_creation_unix_epoch = Math.floor(discord_client.user.createdTimestamp / 1000);
 
-        const distributed_bot_sharding_info = await discord_client.shard.broadcastEval((client) => [
-                `[ shard ${client.shard.ids.join(', ')} ]:`,
+        const distributed_bot_sharding_info = await discord_client.shard!.broadcastEval((client) => [
+                `[ shard ${client.shard!.ids.join(', ')} ]:`,
                 `> - ${client.users.cache.size} user(s)`,
                 `> - ${client.guilds.cache.size} guild(s)`,
                 `> - ${client.channels.cache.size} channel(s)`,

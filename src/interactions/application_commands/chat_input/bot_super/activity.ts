@@ -2,10 +2,11 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -38,7 +39,7 @@ const discord_activities = [
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'activity',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -69,13 +70,18 @@ module.exports.default = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const voice_channel = interaction.member?.voice.channel;
+        const member = await interaction.guild!.members.fetch(interaction.user.id);
+        if (!member) return; // this should never happen
+
+        const voice_channel = member.voice.channel;
         if (!voice_channel) {
             return await interaction.editReply({
-                embed: CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
-                    description: 'You must be in a voice channel to use this command.',
-                }),
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: 'You must be in a voice channel to use this command.',
+                    }),
+                ],
             });
         }
 

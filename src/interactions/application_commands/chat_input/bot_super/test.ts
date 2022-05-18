@@ -2,21 +2,19 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
+import { CustomEmbed } from '../../../../common/app/message';
 
-const { delay } = require('../../../../common/lib/utilities');
+import { delay } from '../../../../common/lib/utilities';
 
-const {
-    joinVoiceChannel,
-} = require('@discordjs/voice');
+import { joinVoiceChannel } from '@discordjs/voice';
 
-const { ClientInteraction, ClientInteractionManager, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'test',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -46,12 +44,15 @@ module.exports.default = new ClientInteraction({
             ],
         }).catch(() => {});
 
-        const voice_channel = interaction.member?.voice?.channel;
+        const member = await interaction.guild!.members.fetch(interaction.user.id);
+        if (!member) return; // this should never happen
+
+        const voice_channel = member.voice.channel;
         if (voice_channel) {
             joinVoiceChannel({
                 channelId: voice_channel.id,
                 guildId: voice_channel.guild.id,
-                adapterCreator: voice_channel.guild.voiceAdapterCreator,
+                adapterCreator: voice_channel.guild.voiceAdapterCreator as any, // to make it shut up
                 selfDeaf: false,
             });
         }
@@ -90,15 +91,12 @@ module.exports.default = new ClientInteraction({
             for (const client_interaction of ClientInteractionManager.interactions.values()) {
                 if (client_interaction.type !== Discord.Constants.InteractionTypes.APPLICATION_COMMAND) continue;
 
-                commands_to_register.push({
-                    name: client_interaction.identifier,
-                    ...client_interaction.data,
-                });
+                commands_to_register.push(client_interaction.data);
             }
 
             try {
                 console.info(`Guild: ${guild.id}; registering commands`);
-                await guild.commands.set(commands_to_register);
+                await guild.commands.set(commands_to_register as any); // to make it shut up, it works fine
             } catch (error) {
                 console.trace(error);
             }

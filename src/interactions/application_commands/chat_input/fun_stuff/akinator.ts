@@ -2,12 +2,33 @@
 
 //------------------------------------------------------------//
 
-const { Aki: Akinator } = require('aki-api');
+import Discord from 'discord.js';
 
-const Discord = require('discord.js');
+import { Aki as Akinator } from 'aki-api';
 
-const { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+//------------------------------------------------------------//
+
+type AkinatorAnswerId = 0 | 1 | 2 | 3 | 4;
+
+// some of the properties we're not interested in are excluded
+type AkinatorGuess = {
+    id: string;
+    name: string;
+    id_base: string;
+    absolute_picture_path: string;
+    award_id: string;
+    corrupt: string;
+    description: string;
+    picture_path: string;
+    pseudo: string;
+    ranking: string;
+    relative: string;
+    nsfw?: boolean;
+};
 
 //------------------------------------------------------------//
 
@@ -18,7 +39,7 @@ const akinator_credit_text = 'Powered by https://akinator.com/';
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(akinator) {
+async function generateMessagePayload(akinator: Akinator) {
     return {
         embeds: [
             CustomEmbed.from({
@@ -65,7 +86,7 @@ async function generateMessagePayload(akinator) {
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'akinator',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -87,10 +108,9 @@ module.exports.default = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel, interaction.user);
+        const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel!, interaction.user);
         if (!user_consents_to_potential_nsfw) return;
 
-        /** @type {Discord.Message?} */
         const bot_initial_message = await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
@@ -100,7 +120,7 @@ module.exports.default = new ClientInteraction({
                     },
                 }),
             ],
-        });
+        }) as Discord.Message;
 
         const akinator = new Akinator({
             region: 'en',
@@ -117,6 +137,8 @@ module.exports.default = new ClientInteraction({
 
         button_interaction_collector.on('collect', async (button_interaction) => {
             await button_interaction.deferUpdate();
+
+            if (!(button_interaction.message instanceof Discord.Message)) return;
 
             if (button_interaction.user.id !== interaction.user.id) {
                 await interaction.followUp({
@@ -156,7 +178,7 @@ module.exports.default = new ClientInteraction({
 
                     await disableMessageComponents(button_interaction.message);
 
-                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''));
+                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', '')) as AkinatorAnswerId;
 
                     await akinator.step(step_number);
 
@@ -164,7 +186,7 @@ module.exports.default = new ClientInteraction({
                     if (akinator_has_a_guess) {
                         await akinator.win();
 
-                        const akinator_guess = akinator.answers.at(0);
+                        const akinator_guess = akinator.answers.at(0) as AkinatorGuess;
 
                         await button_interaction.editReply({
                             embeds: [
@@ -216,6 +238,9 @@ module.exports.default = new ClientInteraction({
 
         button_interaction_collector.on('end', async (collected_interactions, reason) => {
             const most_recent_interaction = collected_interactions.last();
+
+            if (!(most_recent_interaction instanceof Discord.MessageComponentInteraction)) return;
+            if (!(most_recent_interaction.message instanceof Discord.Message)) return;
 
             await disableMessageComponents(most_recent_interaction.message);
         });

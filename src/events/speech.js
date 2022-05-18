@@ -4,7 +4,7 @@
 
 const { exec: ytdl } = require('youtube-dl-exec');
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Discord = require('discord.js');
 
 const {
@@ -43,7 +43,7 @@ module.exports.default = {
         if (!voice_command_activation_regex.test(msg.content)) return;
 
         console.log({
-            voice_command: {
+            voice_command_detected: {
                 content: msg.content,
                 author_id: msg.author?.id,
                 voice_channel_id: msg.channel?.id,
