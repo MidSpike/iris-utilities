@@ -70,7 +70,7 @@ addSpeechEvent(discord_client as any);
 
 //------------------------------------------------------------//
 
-async function registerDiscordClientEvents() {
+async function registerClientEvents(discord_client: DiscordClientWithSharding) {
     const path_to_event_files = path.join(process.cwd(), 'dist', 'events');
     const client_event_file_names = recursiveReadDirectory(path_to_event_files);
 
@@ -86,7 +86,8 @@ async function registerDiscordClientEvents() {
 
             discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
         } catch (error) {
-            console.trace('unable to load client event:', client_event_file_path, error);
+            console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client event: ${client_event_file_path}`, error);
+
             continue;
         }
     }
@@ -95,11 +96,11 @@ async function registerDiscordClientEvents() {
 //------------------------------------------------------------//
 
 async function main() {
-    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interactions...`);
-    ClientInteractionManager.loadClientInteractions();
-
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
-    await registerDiscordClientEvents();
+    await registerClientEvents(discord_client);
+
+    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering interactions...`);
+    await ClientInteractionManager.registerClientInteractions(discord_client);
 
     console.log('<DC> Logging in...');
     discord_client.login(process.env.DISCORD_BOT_API_TOKEN);

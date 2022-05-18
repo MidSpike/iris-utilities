@@ -39,6 +39,8 @@ export default {
         });
 
         /* update all guild configs */
-        updateAllGuildConfigs(discord_client);
+        setTimeout(() => {
+            updateAllGuildConfigs(discord_client);
+        }, 30_000); // 30 seconds
     },
 };
