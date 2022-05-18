@@ -2,16 +2,17 @@
 
 //------------------------------------------------------------//
 
-const { default: axios } = require('axios');
+import axios from 'axios';
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'minecraftinfo',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -55,6 +56,7 @@ module.exports.default = new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const bot_message = await interaction.followUp({
+            fetchReply: true,
             embeds: [
                 CustomEmbed.from({
                     description: 'Loading...',
@@ -62,8 +64,10 @@ module.exports.default = new ClientInteraction({
             ],
         });
 
-        const query_type = interaction.options.get('type')?.value;
-        const query_value = interaction.options.get('query')?.value;
+        if (!(bot_message instanceof Discord.Message)) return;
+
+        const query_type = interaction.options.get('type')?.value as string;
+        const query_value = interaction.options.get('query')?.value as string;
 
         switch (query_type) {
             case 'user': {
@@ -86,6 +90,14 @@ module.exports.default = new ClientInteraction({
                     ...(
                         await axios.get(`https://playerdb.co/api/player/minecraft/${encodeURIComponent(query_value)}`).catch(() => null)
                     )?.data?.data ?? {},
+                } as {
+                    player: {
+                        id: string,
+                        username: string,
+                        meta: {
+                            name_history: { name: string, changedToAt: number }[],
+                        },
+                    },
                 };
 
                 if (!mc_user_uuid) {
@@ -179,8 +191,25 @@ module.exports.default = new ClientInteraction({
                         max: null,
                     },
                     ...(
-                        await axios.get(`https://api.mcsrvstat.us/2/${encodeURIComponent(query_value)}`).catch(() => null)
+                        await axios.get(`https://api.mcsrvstat.us/2/${encodeURIComponent(query_value)}`).catch(() => undefined)
                     )?.data ?? {},
+                } as {
+                    debug: {
+                        ping: number,
+                    },
+                    ip: string,
+                    icon: string,
+                    hostname: string,
+                    software: string,
+                    version: string,
+                    online: boolean,
+                    motd: {
+                        clean: string[],
+                    },
+                    players: {
+                        online: number,
+                        max: number,
+                    },
                 };
 
                 if (!mc_server_info_found) {

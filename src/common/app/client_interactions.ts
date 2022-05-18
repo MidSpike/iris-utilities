@@ -303,23 +303,37 @@ export class ClientInteraction {
         return this._metadata ?? {};
     }
 
-    async handler(discord_client: Discord.Client, interaction: Discord.Interaction<'cached'>) {
+    async handler(
+        discord_client: Discord.Client<true>,
+        interaction: Discord.Interaction<'cached'>,
+    ) {
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
-            if (!is_allowed_execution_environment) return;
+            if (!is_allowed_execution_environment) {
+                console.warn(`[ClientInteraction: ${this.identifier}]; unable to execute while not in specified allowed environment: ${this.metadata.allowed_execution_environment};`);
+                return;
+            }
         }
 
         if (this.metadata.required_user_access_level) {
             const is_user_permitted = await ClientCommandHelper.checkUserAccessLevel(discord_client, interaction, this.metadata.required_user_access_level);
-            if (!is_user_permitted) return;
+            if (!is_user_permitted) {
+                console.warn(`[ClientInteraction: ${this.identifier}]; unable to execute while user: ${interaction.user.id}; is not permitted`);
+                return;
+            }
         }
 
         if (this.metadata.required_bot_permissions) {
             const is_bot_permitted = await ClientCommandHelper.checkBotPermissions(discord_client, interaction, this.metadata.required_bot_permissions);
-            if (!is_bot_permitted) return;
+            if (!is_bot_permitted) {
+                console.warn(`[ClientInteraction: ${this.identifier}]; unable to execute while missing required bot permissions: ${this.metadata.required_bot_permissions.join(', ')};`);
+                return;
+            }
         }
 
-        return await this._handler(discord_client, interaction);
+        console.log(`[ClientInteraction: ${this.identifier}]; executing handler...`);
+
+        await this._handler(discord_client, interaction).catch(console.trace);
     }
 }
 
@@ -328,33 +342,32 @@ export class ClientInteraction {
 export class ClientInteractionManager {
     static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction> = new Discord.Collection();
 
-    static async registerClientInteraction(
-        client_interaction: ClientInteraction
-    ) {
-        return ClientInteractionManager.interactions.set(client_interaction.identifier, client_interaction);
-    }
+    static async registerClientInteractions(discord_client: Discord.Client<true>) {
+        ClientInteractionManager.interactions.clear(); // remove all existing interactions so we can re-register them
 
-    static async loadClientInteractions() {
         const path_to_interaction_files = path.join(process.cwd(), 'dist', 'interactions');
-        const client_interaction_file_names = recursiveReadDirectory(path_to_interaction_files);
+        const client_interaction_file_names: string[] = recursiveReadDirectory(path_to_interaction_files);
 
         for (const client_interaction_file_name of client_interaction_file_names) {
             if (!client_interaction_file_name.endsWith('.js')) continue;
 
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
-            console.log('<DC> loading client interaction...', { client_interaction_file_path });
+            console.log(`<DC S#(${discord_client.shard!.ids.join(', ')})> loading client interaction... ${client_interaction_file_path}`);
 
-            try {
-                const { default: client_interaction } = require(client_interaction_file_path);
+            const { default: client_interaction } = require(client_interaction_file_path) as { default: unknown };
 
-                if (!client_interaction) throw new Error('failed to load client interaction file');
-
-                await ClientInteractionManager.registerClientInteraction(client_interaction);
-            } catch (error) {
-                console.trace('unable to register global command:', client_interaction_file_path, error);
+            if (!(client_interaction instanceof ClientInteraction)) {
+                console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path}`);
                 continue;
             }
+
+            if (ClientInteractionManager.interactions.has(client_interaction.identifier)) {
+                console.warn(`<DC S#(${discord_client.shard!.ids.join(', ')})> client interaction: ${client_interaction.identifier} is already registered; skipping...`);
+                continue;
+            }
+
+            ClientInteractionManager.interactions.set(client_interaction.identifier, client_interaction);
         }
     }
 
@@ -362,12 +375,9 @@ export class ClientInteractionManager {
         discord_client: Discord.Client,
         unknown_interaction: Discord.Interaction<'cached'>,
     ): Promise<unknown> {
-        console.log('ClientInteractionManager.handleUnknownInteraction():', {
-            unknown_interaction,
-        });
+        console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
-        /** @type {ClientInteraction?} */
-        const client_interaction = ClientInteractionManager.interactions.find(interaction => {
+        const client_interaction: ClientInteraction | undefined = ClientInteractionManager.interactions.find(interaction => {
             const unknown_interaction_identifier = unknown_interaction.isMessageComponent() ? (
                 unknown_interaction.customId
             ) : (
@@ -394,6 +404,7 @@ export class ClientInteractionManager {
 
         /* run the interaction handler */
         try {
+            console.log(`ClientInteractionManager.handleUnknownInteraction(): running handler for interaction: ${client_interaction.identifier}`, client_interaction);
             await client_interaction.handler(discord_client, unknown_interaction);
         } catch (error) {
             console.trace({

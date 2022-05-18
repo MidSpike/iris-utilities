@@ -6,11 +6,9 @@ import Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { delay } from '../../../../common/lib/utilities';
-
-import { joinVoiceChannel } from '@discordjs/voice';
-
 import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
+
+import { delay } from '../../../../common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -44,35 +42,22 @@ export default new ClientInteraction({
             ],
         }).catch(() => {});
 
-        const member = await interaction.guild!.members.fetch(interaction.user.id);
-        if (!member) return; // this should never happen
-
-        const voice_channel = member.voice.channel;
-        if (voice_channel) {
-            joinVoiceChannel({
-                channelId: voice_channel.id,
-                guildId: voice_channel.guild.id,
-                adapterCreator: voice_channel.guild.voiceAdapterCreator as any, // to make it shut up
-                selfDeaf: false,
-            });
-        }
-
-        // await interaction.followUp({
-        //     content: `${interaction.member}, did the test!`,
-        //     components: [
-        //         {
-        //             type: 1,
-        //             components: [
-        //                 {
-        //                     type: 2,
-        //                     style: 1,
-        //                     custom_id: 'test_button',
-        //                     label: 'Test Button',
-        //                 },
-        //             ],
-        //         },
-        //     ],
-        // }).catch(console.warn);
+        await interaction.followUp({
+            content: `${interaction.member}, did the test!`,
+            components: [
+                {
+                    type: 1,
+                    components: [
+                        {
+                            type: 2,
+                            style: 1,
+                            custom_id: 'test_button',
+                            label: 'Test Button',
+                        },
+                    ],
+                },
+            ],
+        }).catch(console.warn);
 
         for (const guild of discord_client.guilds.cache.values()) {
             /* remove non-existent commands */
