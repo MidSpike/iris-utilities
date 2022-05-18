@@ -2,48 +2,49 @@
 
 //------------------------------------------------------------//
 
-const path = require('node:path');
+import path from 'node:path';
+
+import Discord from 'discord.js';
+
+import { go_mongo_db } from '../lib/go_mongo_db';
+
+import { CustomEmbed } from './message';
+
+import { GuildConfigsManager } from './guild_configs';
+
 const recursiveReadDirectory = require('recursive-read-directory');
-const Discord = require('discord.js');
-
-const { go_mongo_db } = require('../lib/go_mongo_db');
-
-const { CustomEmbed } = require('./message');
-const { GuildConfigsManager } = require('./guild_configs');
 
 //------------------------------------------------------------//
 
-/**
- * @typedef {{
- *  id: string,
- *  name: string,
- *  description: string,
- *  required_access_level: number,
- * }} ClientCommandCategory
- */
+type ClientCommandCategory = {
+    id: string;
+    name: string;
+    description: string;
+    // required_access_level: number;
+};
+
+enum ClientCommandAccessLevels {
+    EVERYONE,
+    // DONATOR, // reserved for future usage
+    GUILD_STAFF,
+    GUILD_ADMIN,
+    GUILD_OWNER,
+    BOT_SUPER,
+}
+
 
 //------------------------------------------------------------//
 
-class ClientCommandHelper {
-    /** @type {Object.<string, number>} */
-    static access_levels = {
-        EVERYONE: 1,
-        // DONATOR: 2, // reserved for future usage
-        GUILD_STAFF: 3,
-        GUILD_ADMIN: 4,
-        GUILD_OWNER: 5,
-        BOT_SUPER: 6,
-    };
+export class ClientCommandHelper {
+    static access_levels = ClientCommandAccessLevels;
 
-    /** @type {Object.<string, string>} */
     static execution_environments = {
         GUILD_AND_DMS: 'GUILD_AND_DMS',
         GUILD_ONLY: 'GUILD_ONLY',
         DMS_ONLY: 'DMS_ONLY',
     };
 
-    /** @type {Discord.Collection<string, ClientCommandCategory>} */
-    static categories = new Discord.Collection([
+    static categories: Discord.Collection<string, ClientCommandCategory> = new Discord.Collection([
         {
             id: 'HELP_AND_INFORMATION',
             name: 'Help And Information',
@@ -79,12 +80,7 @@ class ClientCommandHelper {
         },
     ].map((command_category) => ([ command_category.id, command_category ])));
 
-    /**
-     * @param {Discord.Interaction} interaction
-     * @param {string} required_environment
-     * @returns {Promise<boolean>}
-     */
-    static async checkExecutionEnvironment(interaction, required_environment) {
+    static async checkExecutionEnvironment(interaction: Discord.Interaction<'cached'>, required_environment: string): Promise<boolean> {
         let is_valid_environment;
 
         switch (required_environment) {
@@ -108,7 +104,7 @@ class ClientCommandHelper {
             }
         }
 
-        if (!is_valid_environment) {
+        if (!is_valid_environment && interaction.isRepliable()) {
             interaction.reply({
                 ephemeral: true,
                 embeds: [
@@ -124,19 +120,17 @@ class ClientCommandHelper {
         return is_valid_environment;
     }
 
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {Discord.Interaction} interaction
-     * @param {number} required_access_level
-     * @returns {Promise<boolean}
-     */
-    static async checkUserAccessLevel(discord_client, interaction, required_access_level) {
+    static async checkUserAccessLevel(
+        discord_client: Discord.Client,
+        interaction: Discord.Interaction<'cached'>,
+        required_access_level: number,
+    ): Promise<boolean> {
         const access_levels_for_user = [ ClientCommandHelper.access_levels.EVERYONE ]; // default access level
 
         /* determine the user's access levels */
         if (interaction.guildId) {
             const guild = await discord_client.guilds.fetch(interaction.guildId);
-            const guild_owner_id = guild.ownerID;
+            const guild_owner_id = guild.ownerId;
 
             const guild_member = await guild.members.fetch(interaction.member.id);
             const guild_member_roles = guild_member.roles.cache;
@@ -163,7 +157,7 @@ class ClientCommandHelper {
         }
 
         /* check for bot super */
-        const bot_super_people = await go_mongo_db.find(process.env.MONGO_DATABASE_NAME, process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME);
+        const bot_super_people = await go_mongo_db.find(process.env.MONGO_DATABASE_NAME as string, process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME as string, {});
         const bot_super_people_ids = bot_super_people.map(bot_super_person => bot_super_person.discord_user_id);
         if (bot_super_people_ids.includes(interaction.user.id)) {
             access_levels_for_user.push(ClientCommandHelper.access_levels.BOT_SUPER);
@@ -172,27 +166,29 @@ class ClientCommandHelper {
         /* check the user's access levels */
         const highest_access_level_for_user = Math.max(...access_levels_for_user);
         if (highest_access_level_for_user < required_access_level) {
-            interaction.reply({
-                ephemeral: true,
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.VIOLET,
-                        title: 'Access Denied',
-                        description: 'You aren\'t allowed to do that!',
-                        fields: [
-                            {
-                                name: 'Required Access Level',
-                                value: `${required_access_level}`,
-                                inline: true,
-                            }, {
-                                name: 'Your Access Level',
-                                value: `${highest_access_level_for_user}`,
-                                inline: true,
-                            },
-                        ],
-                    }),
-                ],
-            }).catch(console.warn);
+            if (interaction.isRepliable()) {
+                interaction.reply({
+                    ephemeral: true,
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.colors.VIOLET,
+                            title: 'Access Denied',
+                            description: 'You aren\'t allowed to do that!',
+                            fields: [
+                                {
+                                    name: 'Required Access Level',
+                                    value: `${required_access_level}`,
+                                    inline: true,
+                                }, {
+                                    name: 'Your Access Level',
+                                    value: `${highest_access_level_for_user}`,
+                                    inline: true,
+                                },
+                            ],
+                        }),
+                    ],
+                }).catch(console.warn);
+            }
 
             return false; // the user is not allowed to use this command
         }
@@ -200,19 +196,19 @@ class ClientCommandHelper {
         return true;
     }
 
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {Discord.Interaction} interaction
-     * @param {Discord.PermissionResolvable[]} required_permissions
-     * @returns {Promise<boolean>}
-     */
-    static async checkBotPermissions(discord_client, interaction, required_permissions) {
-        /** @type {Discord.TextChannel | Discord.NewsChannel} */
-        const channel = await discord_client.channels.fetch(interaction.channelId);
-        if (!channel.isText()) return true; // the channel is not a text channel, so we can't check permissions
+    static async checkBotPermissions(
+        discord_client: Discord.Client,
+        interaction: Discord.Interaction<'cached'>,
+        required_permissions: Discord.PermissionResolvable[],
+    ): Promise<boolean> {
+        if (!interaction.inGuild()) return true; // if the interaction is not in a guild, then assume the bot has all permissions we might need
 
-        const bot_guild_permissions = channel.guild.me.permissions;
-        const bot_channel_permissions = channel.permissionsFor(discord_client.user.id);
+        const channel = await discord_client.channels.fetch(interaction.channelId as string) as Discord.GuildChannel;
+        if (!channel) return true; // the channel doesn't exist, so we can assume the bot has all permissions
+        if (!channel?.isText()) return true; // the channel is not a text channel, so we can't check permissions
+
+        const bot_guild_permissions = channel.guild.me!.permissions;
+        const bot_channel_permissions = channel.permissionsFor(discord_client.user!.id)!;
         const bot_permissions = new Discord.Permissions([ bot_guild_permissions, bot_channel_permissions ]);
 
         const missing_permissions = required_permissions.filter(required_permission => !bot_permissions.has(required_permission));
@@ -220,16 +216,18 @@ class ClientCommandHelper {
         if (missing_permissions.length > 0) {
             const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
 
-            interaction.reply({
-                ephemeral: true,
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.VIOLET,
-                        title: 'Missing Permissions',
-                        description: `In order to do that, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`,
-                    }),
-                ],
-            }).catch(console.warn);
+            if (interaction.isRepliable()) {
+                interaction.reply({
+                    ephemeral: true,
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.colors.VIOLET,
+                            title: 'Missing Permissions',
+                            description: `In order to do that, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`,
+                        }),
+                    ],
+                }).catch(console.warn);
+            }
 
             return false; // the bot does not have the required permissions
         }
@@ -240,49 +238,50 @@ class ClientCommandHelper {
 
 //------------------------------------------------------------//
 
-/**
- * @typedef {Discord.ApplicationCommandOptionData} DiscordInteractionOptionData
- *
- * @typedef {string} ClientInteractionIdentifier
- * @typedef {number} ClientInteractionType
- * @typedef {{
- *  description: string,
- *  type: number,
- *  options: DiscordInteractionOptionData[],
- * }} ClientInteractionApplicationCommandData
- * @typedef {ClientInteractionApplicationCommandData} ClientInteractionData
- * @typedef {(discord_client: Discord.Client, interaction: Discord.Interaction) => Promise<unknown>} ClientInteractionHandler
- *
- * @typedef {{
- *  identifier: ClientInteractionIdentifier,
- *  type: ClientInteractionType,
- *  data?: ClientInteractionData,
- *  metadata: {
- *      allowed_execution_environment?: string,
- *      command_category?: ClientCommandCategory,
- *      required_bot_permissions?: Discord.PermissionResolvable[],
- *      required_user_access_level?: number,
- *  },
- *  handler: ClientInteractionHandler,
- * }} ClientInteractionConstructorOptions
- */
+export type ClientInteractionIdentifier = string;
+export type ClientInteractionType = number;
+export type ClientInteractionData = {
+    type: ClientInteractionType,
+    description: string,
+    options: Discord.ApplicationCommandOptionData[],
+}
+export type ClientInteractionMetadata = {
+    [key: string]: any;
+    allowed_execution_environment?: string;
+    command_category?: ClientCommandCategory;
+    required_bot_permissions?: Discord.PermissionResolvable[];
+    required_user_access_level?: number;
+};
+export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.Interaction) => Promise<unknown>;
+
+export type ClientInteractionConstructorOptions = {
+    type: ClientInteractionType;
+    identifier: ClientInteractionIdentifier;
+    data?: ClientInteractionData;
+    metadata: {
+        allowed_execution_environment?: string;
+        command_category?: ClientCommandCategory;
+        required_bot_permissions?: Discord.PermissionResolvable[];
+        required_user_access_level?: number;
+    },
+    handler: ClientInteractionHandler;
+}
 
 //------------------------------------------------------------//
 
-class ClientInteraction {
-    /** @param {ClientInteractionConstructorOptions} opts */
-    constructor(opts) {
+export class ClientInteraction {
+    private _identifier: ClientInteractionIdentifier;
+    private _type: ClientInteractionType;
+    private _data: ClientInteractionData | undefined;
+    private _metadata: ClientInteractionMetadata | undefined;
+    private _handler: ClientInteractionHandler;
+
+    constructor(opts: ClientInteractionConstructorOptions) {
         this._identifier = opts.identifier;
         this._type = opts.type;
         this._data = opts.data;
         this._metadata = opts.metadata;
         this._handler = opts.handler;
-
-        if (typeof this._identifier !== 'string') throw new Error('ClientInteraction identifier must be a string');
-        if (typeof this._type !== 'number') throw new Error('ClientInteraction type must be a number');
-        if (this._data && typeof this._data !== 'object') throw new Error('ClientInteraction data must be an object');
-        if (this._metadata && typeof this._metadata !== 'object') throw new Error('ClientInteraction metadata must be an object');
-        if (typeof this._handler !== 'function') throw new Error('ClientInteraction handler must be a function');
     }
 
     get identifier() {
@@ -304,11 +303,7 @@ class ClientInteraction {
         return this._metadata ?? {};
     }
 
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {Discord.Interaction} interaction
-     */
-    async handler(discord_client, interaction) {
+    async handler(discord_client: Discord.Client, interaction: Discord.Interaction<'cached'>) {
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
             if (!is_allowed_execution_environment) return;
@@ -330,15 +325,12 @@ class ClientInteraction {
 
 //------------------------------------------------------------//
 
-class ClientInteractionManager {
-    /** @type {Discord.Collection<ClientInteractionIdentifier, ClientInteraction>} */
-    static interactions = new Discord.Collection();
+export class ClientInteractionManager {
+    static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction> = new Discord.Collection();
 
-    /**
-     * @param {ClientInteraction} client_interaction
-     * @returns {Promise<ClientInteractionManager.interactions>}
-     */
-    static async registerClientInteraction(client_interaction) {
+    static async registerClientInteraction(
+        client_interaction: ClientInteraction
+    ) {
         return ClientInteractionManager.interactions.set(client_interaction.identifier, client_interaction);
     }
 
@@ -366,31 +358,29 @@ class ClientInteractionManager {
         }
     }
 
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {Discord.Interaction} unknown_interaction
-     * @returns {Promise<unknown>}
-     */
-    static async handleUnknownInteraction(discord_client, unknown_interaction) {
+    static async handleUnknownInteraction(
+        discord_client: Discord.Client,
+        unknown_interaction: Discord.Interaction<'cached'>,
+    ): Promise<unknown> {
         console.log('ClientInteractionManager.handleUnknownInteraction():', {
             unknown_interaction,
         });
 
         /** @type {ClientInteraction?} */
         const client_interaction = ClientInteractionManager.interactions.find(interaction => {
-            const unknown_interaction_identifier = unknown_interaction.type === 'MESSAGE_COMPONENT' ? (
+            const unknown_interaction_identifier = unknown_interaction.isMessageComponent() ? (
                 unknown_interaction.customId
             ) : (
-                unknown_interaction.type === 'APPLICATION_COMMAND' ? (
-                    unknown_interaction.commandName
+                unknown_interaction.isModalSubmit() ? (
+                    unknown_interaction.customId
                 ) : (
-                    unknown_interaction.type === 'APPLICATION_COMMAND_AUTOCOMPLETE' ? (
+                    unknown_interaction.isApplicationCommand() ? (
                         unknown_interaction.commandName
                     ) : (
-                        unknown_interaction.type === 'PING' ? (
-                            unknown_interaction.id
+                        unknown_interaction.isAutocomplete() ? (
+                            unknown_interaction.commandName
                         ) : (
-                            null
+                            unknown_interaction.id
                         )
                     )
                 )
@@ -412,7 +402,7 @@ class ClientInteractionManager {
                 error_message: error,
             });
 
-            unknown_interaction.channel.send({
+            unknown_interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
@@ -430,11 +420,3 @@ class ClientInteractionManager {
         }
     }
 }
-
-//------------------------------------------------------------//
-
-module.exports = {
-    ClientCommandHelper,
-    ClientInteraction,
-    ClientInteractionManager,
-};

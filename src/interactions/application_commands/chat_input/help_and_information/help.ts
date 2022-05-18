@@ -2,27 +2,30 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteractionManager, ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-async function createHelpEmbed(command_category_id) {
+async function createHelpEmbed(command_category_id: string) {
     const command_category = ClientCommandHelper.categories.get(command_category_id);
     if (!command_category) throw new Error(`No command category with id ${command_category_id}`);
 
     const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.Constants.ApplicationCommandTypes.CHAT_INPUT);
 
-    const commands_in_specified_category = chat_input_commands.filter(client_interaction => client_interaction.metadata.command_category.id === command_category.id);
+    const commands_in_specified_category = chat_input_commands.filter(client_interaction => client_interaction.metadata.command_category!.id === command_category.id);
     const mapped_commands_in_specified_category = commands_in_specified_category.map(client_interaction => {
-        const command_usage = client_interaction.data.options.filter(option => ![
+        const filtered_client_interactions = client_interaction.data.options!.filter(option => ![
             Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
             Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-        ].includes(option.type)).map(({ required, name, type }) =>
-             `${required ? '<' : '['}${name}${required ? '>' : ']'}`
-            // return `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
+        ].includes(option.type as number)) as (Discord.ApplicationCommandOption & { required?: boolean })[];
+
+        const command_usage = filtered_client_interactions.map(({ required, name, type }) =>
+            `${required ? '<' : '['}${name}${required ? '>' : ']'}`
+            // `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
         ).join(' ');
         return `/${client_interaction.identifier} ${command_usage}`;
     });
@@ -83,9 +86,8 @@ module.exports.default = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        /** @type {Discord.Message} */
         const bot_message = await interaction.editReply({
-            content: `Hello there, I\'m ${discord_client.user.username}!`,
+            content: `Hello there, I\'m ${discord_client.user!.username}!`,
             embeds: [
                 await createHelpEmbed(interaction.options.getString('category') ?? 'HELP_AND_INFORMATION'),
             ],
@@ -110,6 +112,8 @@ module.exports.default = new ClientInteraction({
             ],
         });
 
+        if (!(bot_message instanceof Discord.Message)) return;
+
         const interaction_collector = await bot_message.createMessageComponentCollector({
             filter: (inter) => inter.user.id === interaction.user.id,
             time: 5 * 60_000,
@@ -118,9 +122,7 @@ module.exports.default = new ClientInteraction({
         interaction_collector.on('collect', async (interaction) => {
             await interaction.deferUpdate();
 
-            console.log({
-                interaction,
-            });
+            if (!interaction.isSelectMenu()) return;
 
             switch (interaction.customId) {
                 case 'help_menu': {

@@ -15,7 +15,7 @@ module.exports.default = new ClientInteraction({
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
         type: Discord.Constants.ApplicationCommandTypes.MESSAGE,
-        description: '', // required for the command to be registered
+        description: '', // required for the command to be registered, silly discord
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,

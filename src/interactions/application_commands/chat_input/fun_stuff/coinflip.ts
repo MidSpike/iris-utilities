@@ -2,16 +2,17 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { delay } = require('../../../../common/lib/utilities');
+import { delay } from '../../../../common/lib/utilities';
 
-const { CustomEmbed, disableMessageComponents } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed, disableMessageComponents } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(interaction_author) {
+async function generateMessagePayload(interaction_author: Discord.User) {
     const coin_facing = Math.random() > 0.5 ? 'heads' : 'tails';
 
     return {
@@ -41,7 +42,7 @@ async function generateMessagePayload(interaction_author) {
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'coinflip',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -63,8 +64,9 @@ module.exports.default = new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        /** @type {Discord.Message} */
         const bot_message = await interaction.editReply(await generateMessagePayload(interaction.user));
+
+        if (!(bot_message instanceof Discord.Message)) return;
 
         const button_interaction_collector = bot_message.createMessageComponentCollector({
             time: 1 * 60_000, // 1 minute
@@ -75,6 +77,8 @@ module.exports.default = new ClientInteraction({
 
             switch (button_interaction.customId) {
                 case 'flip_coin_button': {
+                    if (!(button_interaction.message instanceof Discord.Message)) return;
+
                     await disableMessageComponents(button_interaction.message);
 
                     await button_interaction.editReply({

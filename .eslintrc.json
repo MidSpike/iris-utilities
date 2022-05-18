@@ -124,7 +124,13 @@
             "windows"
         ],
         "lines-around-comment": "off",
-        "lines-between-class-members": "error",
+        "lines-between-class-members": [
+            "error",
+            "always",
+            {
+                "exceptAfterSingleLine": true
+            }
+        ],
         "max-classes-per-file": "off",
         "max-depth": "error",
         "max-len": "off",
@@ -241,7 +247,8 @@
         "no-unreachable-loop": "error",
         "no-unsafe-optional-chaining": "error",
         "no-unused-expressions": "error",
-        "no-unused-vars": [
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
             "error",
             {
                 "vars": "all",
