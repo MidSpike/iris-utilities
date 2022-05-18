@@ -2,37 +2,31 @@
 
 //------------------------------------------------------------//
 
-const { exec: ytdl } = require('youtube-dl-exec');
+import { exec as ytdl } from 'youtube-dl-exec';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const {
-    createAudioResource,
-    demuxProbe,
-    entersState,
-    joinVoiceChannel,
-    VoiceConnectionStatus,
-} = require('@discordjs/voice');
+import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-const { RemoteTrack, MusicSubscription, music_subscriptions, MusicReconnaissance } = require('../common/app/music/music');
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../common/app/music/music';
 
-const { CustomEmbed } = require('../common/app/message');
+import { CustomEmbed } from '../common/app/message';
 
 //------------------------------------------------------------//
 
-module.exports.default = {
+export default {
     name: 'speech',
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {{
-     *  content: string?,
-     *  channel: Discord.VoiceChannel?,
-     *  author: Discord.User?,
-     * }} msg
-     */
-    async handler(discord_client, msg) {
+    async handler(
+        discord_client: Discord.Client<true>,
+        msg: {
+            content?: string;
+            channel?: Discord.VoiceChannel;
+            author?: Discord.User;
+        },
+    ) {
         if (!msg?.content?.length) return;
+        if (!msg?.channel) return;
+        if (!msg?.author) return;
 
         console.log({
             voice_recognition: msg.content,
@@ -53,8 +47,7 @@ module.exports.default = {
         const author = msg.author;
         if (!author) return;
 
-        /** @type {Discord.VoiceChannel} */
-        const voice_channel = await discord_client.channels.fetch(msg.channel.id);
+        const voice_channel = await discord_client.channels.fetch(msg.channel.id) as Discord.VoiceChannel;
         if (!voice_channel) return;
 
         const guild = await voice_channel.guild.fetch();
@@ -66,7 +59,7 @@ module.exports.default = {
         const guild_member_voice_channel_id = guild_member.voice.channelId;
         if (!guild_member_voice_channel_id) return;
 
-        const bot_voice_channel_id = guild.me.voice.channelId;
+        const bot_voice_channel_id = guild.me!.voice.channelId;
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) return;
 
         /** @type {string} */
@@ -78,7 +71,7 @@ module.exports.default = {
 
         if (!voice_command_name.length) return;
 
-        const voice_command_text_channel = discord_client.channels.cache.get('909136093516029972');
+        const voice_command_text_channel = discord_client.channels.cache.get('909136093516029972') as Discord.TextBasedChannel;
 
         /** @type {MusicSubscription} */
         let music_subscription = music_subscriptions.get(guild.id);
@@ -90,7 +83,7 @@ module.exports.default = {
                 joinVoiceChannel({
                     channelId: voice_channel.id,
                     guildId: guild.id,
-                    adapterCreator: guild.voiceAdapterCreator,
+                    adapterCreator: guild.voiceAdapterCreator as any, // to make typescript happy
                     selfDeaf: false,
                 })
             );
@@ -129,6 +122,8 @@ module.exports.default = {
 
                 const search_result = search_results.at(0);
 
+                if (!search_result) return;
+
                 const track = new RemoteTrack({
                     title: search_result.title,
                     url: search_result.url,
@@ -137,12 +132,12 @@ module.exports.default = {
                         track,
                     });
 
-                    const process = ytdl(track.metadata.url, {
+                    const process = ytdl(track.metadata.url!, {
                         o: '-',
                         q: '',
                         f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
                         r: '100K',
-                    }, {
+                    } as any, {
                         stdio: [ 'ignore', 'pipe', 'ignore' ],
                     });
 
@@ -152,7 +147,7 @@ module.exports.default = {
                         return;
                     }
 
-                    const onError = (error) => {
+                    const onError = (error: unknown) => {
                         console.trace(error);
 
                         if (!process.killed) process.kill();
@@ -172,7 +167,7 @@ module.exports.default = {
                 }), {
                     onStart() {
                         // IMPORTANT: Initialize the volume interface
-                        music_subscription.queue.volume_manager.initialize();
+                        music_subscription!.queue.volume_manager.initialize();
 
                         voice_command_text_channel.send({
                             embeds: [

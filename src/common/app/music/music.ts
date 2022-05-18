@@ -11,14 +11,14 @@ import {
 } from 'discord-player';
 
 import {
-    createAudioPlayer,
-    entersState,
     AudioPlayer,
     AudioPlayerStatus,
     AudioResource,
     VoiceConnection,
     VoiceConnectionDisconnectReason,
     VoiceConnectionStatus,
+    createAudioPlayer,
+    entersState,
 } from '@discordjs/voice';
 
 import { Client as DiscordClient } from 'discord.js';
@@ -31,32 +31,17 @@ type GuildId = string;
 
 //------------------------------------------------------------//
 
-const music_subscriptions: Map<GuildId, MusicSubscription> = new Map();
-
-//------------------------------------------------------------//
-
-type BaseTrackMetadata = {
+export type BaseTrackMetadata = {
     [key: string]: any;
     title: string;
     url?: string;
 }
 
-type ResourceCreator<T> = (track: T) => Promise<AudioResource>;
-
-
-/**
- * {{
- *  [key: string]: any,
- *  title: string,
- *  url?: string,
- *  tts_text?: string,
- *  tts_lang?: string,
- * }} BaseTrackMetadata
- */
+export type ResourceCreator<T> = (track: T) => Promise<AudioResource>;
 
 //------------------------------------------------------------//
 
-class BaseTrack {
+export class BaseTrack {
     #resource: AudioResource | undefined;
 
     #metadata: BaseTrackMetadata;
@@ -91,10 +76,7 @@ class BaseTrack {
         return this.#metadata;
     }
 
-    /**
-     * @returns {Promise<AudioResource>}
-     */
-    async initializeResource() {
+    async initializeResource(): Promise<AudioResource> {
         this.#resource = await this.#resource_creator(this);
 
         this.#resource.volume!.setVolumeLogarithmic(0);
@@ -117,11 +99,11 @@ class BaseTrack {
 
 //------------------------------------------------------------//
 
-class RemoteTrack extends BaseTrack {}
+export class RemoteTrack extends BaseTrack {}
 
 //------------------------------------------------------------//
 
-class QueueVolumeManager {
+export class QueueVolumeManager {
     #volume_multiplier = 0.40;
 
     #human_volume_multiplier = 100;
@@ -136,8 +118,10 @@ class QueueVolumeManager {
 
     #raw_volume = this.#default_raw_volume;
 
+    // eslint-disable-next-line no-use-before-define
     #queue: Queue;
 
+    // eslint-disable-next-line no-use-before-define
     constructor(queue: Queue) {
         // eslint-disable-next-line no-use-before-define
         if (!(queue instanceof Queue)) throw new TypeError('queue must be an instance of Queue');
@@ -197,7 +181,7 @@ class QueueVolumeManager {
 
 //------------------------------------------------------------//
 
-class Queue {
+export class Queue {
     locked: boolean = false;
 
     #looping_mode: 'off' | 'track' | 'queue' | 'autoplay' = 'off';
@@ -242,8 +226,8 @@ class Queue {
     }
 
     /**
-     * @param {BaseTrack} track The track to add to the queue
-     * @param {number} position The position to add the track at (0-indexed)
+     * @param track The track to add to the queue
+     * @param position The position to add the track at (0-indexed)
      */
     addTrack(
         track: BaseTrack,
@@ -274,18 +258,14 @@ class Queue {
         this.#future_tracks.sort(() => Math.random() - 0.5); // weighted, but works well enough
     }
 
-    /**
-     * @returns {Promise<BaseTrack|void>} The next track in the queue if possible
-     */
-    async processNextTrack() {
+    async processNextTrack(): Promise<BaseTrack | void> {
         if (this.locked) return;
         this.locked = true;
 
         const previous_track = this.#current_track;
         if (previous_track) this.#previous_tracks.splice(0, 0, previous_track);
 
-        /** @type {BaseTrack} */
-        let next_track;
+        let next_track: BaseTrack | undefined;
         switch (this.#looping_mode) {
             case 'off': {
                 next_track = this.#future_tracks.shift();
@@ -345,16 +325,14 @@ class Queue {
  * A MusicSubscription exists for each active VoiceConnection. Each subscription has its own audio player and queue,
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
  */
-class MusicSubscription {
+export class MusicSubscription {
     readonly #voice_connection: VoiceConnection;
 
     readonly #audio_player: AudioPlayer;
 
-    /** @readonly */
-    queue = new Queue();
+    readonly queue = new Queue();
 
-    /** @private */
-    #locked = false;
+    private _locked = false;
 
     constructor(voice_connection: VoiceConnection) {
         this.#audio_player = createAudioPlayer();
@@ -397,7 +375,7 @@ class MusicSubscription {
                  */
                 await this.kill();
             } else if (
-                !this.#locked &&
+                !this._locked &&
                 (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)
             ) {
                 /**
@@ -405,14 +383,14 @@ class MusicSubscription {
                  * before destroying the voice connection. This stops the voice connection permanently existing in one of these
                  * states.
                  */
-                this.#locked = true;
+                this._locked = true;
 
                 try {
                     await entersState(this.#voice_connection, VoiceConnectionStatus.Ready, 20_000);
                 } catch {
                     if (this.#voice_connection.state.status !== VoiceConnectionStatus.Destroyed) this.#voice_connection.destroy();
                 } finally {
-                    this.#locked = false;
+                    this._locked = false;
                 }
             }
         });
@@ -486,12 +464,12 @@ class MusicSubscription {
  * }} MusicReconnaissanceSearchResult
  */
 
-type MusicReconnaissanceSearchResult = {
+export type MusicReconnaissanceSearchResult = {
     title: string;
     url: string;
 }
 
-class MusicReconnaissance {
+export class MusicReconnaissance {
     readonly #client: DiscordClient<true>;
     readonly #discord_player: DiscordPlayer;
 
@@ -518,10 +496,4 @@ class MusicReconnaissance {
 
 //------------------------------------------------------------//
 
-module.exports = {
-    BaseTrack,
-    RemoteTrack,
-    MusicSubscription,
-    music_subscriptions,
-    MusicReconnaissance,
-};
+export const music_subscriptions: Map<GuildId, MusicSubscription> = new Map();

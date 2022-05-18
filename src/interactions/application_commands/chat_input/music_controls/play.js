@@ -185,7 +185,7 @@ module.exports.default = new ClientInteraction({
                         track,
                     });
 
-                    const process = ytdl(track.metadata.url, {
+                    const ytdl_process = ytdl(track.metadata.url, {
                         o: '-',
                         q: '',
                         f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
@@ -194,7 +194,7 @@ module.exports.default = new ClientInteraction({
                         stdio: [ 'ignore', 'pipe', 'ignore' ],
                     });
 
-                    const stream = process?.stdout;
+                    const stream = ytdl_process?.stdout;
                     if (!stream) {
                         reject(new Error('No stdout'));
                         return;
@@ -203,12 +203,12 @@ module.exports.default = new ClientInteraction({
                     const onError = (error) => {
                         console.trace(error);
 
-                        if (!process.killed) process.kill();
+                        if (!ytdl_process.killed) ytdl_process.kill();
                         stream.resume();
                         reject(error);
                     };
 
-                    process.once('spawn', () => {
+                    ytdl_process.once('spawn', () => {
                         demuxProbe(stream).then((probe) => {
                             resolve(createAudioResource(probe.stream, {
                                 inputType: probe.type,
