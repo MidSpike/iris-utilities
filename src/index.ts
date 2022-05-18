@@ -29,7 +29,7 @@ process.on('uncaughtException', (error) => {
 
 //------------------------------------------------------------//
 
-const discord_bot_entry_file_path = path.join(process.cwd(), 'src', 'discord_bot.js');
+const discord_bot_entry_file_path = path.join(process.cwd(), 'dist', 'discord_bot.js');
 const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path, {
     execArgv: [
         '--trace-warnings',

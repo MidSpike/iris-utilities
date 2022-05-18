@@ -2,14 +2,15 @@
 
 //------------------------------------------------------------//
 
-const axios = require('axios');
+const { default: axios } = require('axios');
+
 const Discord = require('discord.js');
 
 const { ClientInteraction, ClientCommandHelper } = require('../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'test_button',
     type: Discord.Constants.InteractionTypes.MESSAGE_COMPONENT,
     metadata: {

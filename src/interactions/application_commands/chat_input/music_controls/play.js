@@ -25,7 +25,7 @@ const { ClientInteraction, ClientCommandHelper } = require('../../../../common/a
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'play',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

@@ -24,7 +24,7 @@ async function updateAllGuildConfigs(discord_client: DiscordClientWithSharding) 
 
 //------------------------------------------------------------//
 
-module.exports = {
+export default {
     name: 'ready',
     async handler(discord_client: DiscordClientWithSharding) {
         console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> client is ready.`);

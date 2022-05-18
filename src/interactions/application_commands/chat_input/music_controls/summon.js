@@ -13,7 +13,7 @@ const { MusicSubscription, music_subscriptions } = require('../../../../common/a
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'summon',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

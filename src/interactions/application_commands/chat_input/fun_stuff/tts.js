@@ -48,7 +48,7 @@ const voice_codes = [
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'tts',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

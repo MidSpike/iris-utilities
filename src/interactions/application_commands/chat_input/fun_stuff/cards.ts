@@ -2,20 +2,37 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import fs from 'node:fs';
+import path from 'node:path';
 
-const { delay, array_random } = require('../../../../common/lib/utilities');
+import Discord from 'discord.js';
 
-const { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { delay, array_random } from '../../../../common/lib/utilities';
 
-const cah_card_set = require('../../../../misc/cards_against_humanity.json');
+import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '../../../../common/app/message';
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+
+const cah_card_set: { 
+    id: number,
+    cardType: 'Q' | 'A',
+    text: string,
+    numAnswers: number,
+    expansion: string,
+}[] = JSON.parse(
+    fs.readFileSync(
+        path.join(process.cwd(), 'misc', 'cards_against_humanity.json'),
+        {
+            encoding: 'utf8',
+        }
+    )
+);
+
 const black_cards = cah_card_set.filter(card => card.cardType === 'Q');
 const white_cards = cah_card_set.filter(card => card.cardType === 'A');
 
 //------------------------------------------------------------//
 
-async function updateMessageWithNewContent(discord_client, message) {
+async function updateMessageWithNewContent(discord_client: Discord.Client<true>, message: Discord.Message) {
     const selected_black_card = array_random(black_cards.filter(card => card.numAnswers === 2));
     const selected_white_cards = Array.from({ length: selected_black_card.numAnswers }, () => array_random(white_cards));
 
@@ -47,7 +64,7 @@ async function updateMessageWithNewContent(discord_client, message) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'cards',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -66,14 +83,15 @@ module.exports = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.channel?.isText()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
         const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel, interaction.user);
         if (!user_consents_to_potential_nsfw) return;
 
-        /** @type {Discord.Message} */
         const bot_message = await interaction.followUp({
+            fetchReply: true,
             embeds: [
                 CustomEmbed.from({
                     title: 'Loading...',
@@ -94,10 +112,11 @@ module.exports = new ClientInteraction({
             ],
         });
 
+        if (!(bot_message instanceof Discord.Message)) return;
+
         await updateMessageWithNewContent(discord_client, bot_message);
 
         const button_interaction_collector = bot_message.createMessageComponentCollector({
-            filter: (button_interaction) => true,
             time: 2 * 60_000, // 2 minutes
         });
 

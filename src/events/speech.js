@@ -21,7 +21,7 @@ const { CustomEmbed } = require('../common/app/message');
 
 //------------------------------------------------------------//
 
-module.exports = {
+module.exports.default = {
     name: 'speech',
     /**
      * @param {Discord.Client} discord_client

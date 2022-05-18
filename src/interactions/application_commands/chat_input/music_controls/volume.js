@@ -17,7 +17,7 @@ function clampVolume(volume, min_volume=0, max_volume=200) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'volume',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

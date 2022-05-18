@@ -16,7 +16,7 @@ const { ClientInteraction, ClientInteractionManager, ClientCommandHelper } = req
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'test',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

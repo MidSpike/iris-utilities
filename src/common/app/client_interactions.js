@@ -249,7 +249,6 @@ class ClientCommandHelper {
  *  description: string,
  *  type: number,
  *  options: DiscordInteractionOptionData[],
- *  default_permission: boolean,
  * }} ClientInteractionApplicationCommandData
  * @typedef {ClientInteractionApplicationCommandData} ClientInteractionData
  * @typedef {(discord_client: Discord.Client, interaction: Discord.Interaction) => Promise<unknown>} ClientInteractionHandler
@@ -344,15 +343,20 @@ class ClientInteractionManager {
     }
 
     static async loadClientInteractions() {
-        const path_to_interaction_files = path.join(process.cwd(), 'src', 'interactions');
+        const path_to_interaction_files = path.join(process.cwd(), 'dist', 'interactions');
         const client_interaction_file_names = recursiveReadDirectory(path_to_interaction_files);
 
         for (const client_interaction_file_name of client_interaction_file_names) {
+            if (!client_interaction_file_name.endsWith('.js')) continue;
+
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
+            console.log('<DC> loading client interaction...', { client_interaction_file_path });
+
             try {
-                const client_interaction = require(client_interaction_file_path);
-                if (!(client_interaction instanceof ClientInteraction)) throw new Error('client_interaction is not an instance of ClientInteraction');
+                const { default: client_interaction } = require(client_interaction_file_path);
+
+                if (!client_interaction) throw new Error('failed to load client interaction file');
 
                 await ClientInteractionManager.registerClientInteraction(client_interaction);
             } catch (error) {
