@@ -3,16 +3,20 @@
 //------------------------------------------------------------//
 
 import fs from 'node:fs';
+
 import path from 'node:path';
 
 import Discord from 'discord.js';
 
-import { delay, array_random } from '../../../../common/lib/utilities';
+import { array_random, delay } from '../../../../common/lib/utilities';
 
 import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '../../../../common/app/message';
-import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
-const cah_card_set: { 
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+//------------------------------------------------------------//
+
+const cah_card_set: {
     id: number,
     cardType: 'Q' | 'A',
     text: string,
