@@ -2,25 +2,23 @@
 
 //------------------------------------------------------------//
 
-const { default: axios } = require('axios');
+import stream from 'node:stream';
 
-const Discord = require('discord.js');
+import axios from 'axios';
 
-const {
-    createAudioResource,
-    demuxProbe,
-    entersState,
-    joinVoiceChannel,
-    VoiceConnectionStatus,
-} = require('@discordjs/voice');
+import Discord from 'discord.js';
+
+import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { BaseTrack, MusicSubscription, music_subscriptions } from '../../../../common/app/music/music';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+import { array_chunks, delay, string_ellipses } from '../../../../common/lib/utilities';
 
 const { GoogleTranslateTTS } = require('google-translate-tts');
-
-const { delay, string_ellipses, array_chunks } = require('../../../../common/lib/utilities');
-
-const { CustomEmbed } = require('../../../../common/app/message');
-const { BaseTrack, MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
 
 //------------------------------------------------------------//
 
@@ -48,7 +46,7 @@ const voice_codes = [
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'tts',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -85,14 +83,18 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
         const text = interaction.options.getString('text', true);
         const provider_voice = interaction.options.getString('voice', false) ?? 'ibm:en-GB_KateV3Voice';
 
-        const guild_member_voice_channel_id = interaction.member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me.voice.channelId;
+        const member = await interaction.guild!.members.fetch(interaction.user.id);
+
+        const guild_member_voice_channel_id = member.voice.channelId;
+        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
@@ -126,7 +128,7 @@ module.exports.default = new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    adapterCreator: interaction.guild.voiceAdapterCreator as any, // to make typescript happy
                     selfDeaf: false,
                 })
             );
@@ -182,8 +184,7 @@ module.exports.default = new ClientInteraction({
                 tts_provider: provider,
                 tts_voice: voice,
             }, async (track) => await new Promise(async (resolve, reject) => {
-                /** @type {internal.Readable} */
-                let stream;
+                let stream: stream.Readable;
 
                 try {
                     switch (track.metadata.tts_provider) {
@@ -223,10 +224,9 @@ module.exports.default = new ClientInteraction({
                     return;
                 }
 
-                const onError = (error) => {
+                const onError = (error: unknown) => {
                     console.trace(error);
 
-                    if (!process.killed) process.kill();
                     stream.resume();
                     reject(error);
 
@@ -243,10 +243,10 @@ module.exports.default = new ClientInteraction({
             }), {
                 onStart() {
                     // IMPORTANT: Initialize the volume interface
-                    music_subscription.queue.volume_manager.initialize();
+                    music_subscription!.queue.volume_manager.initialize();
 
                     if (i > 1) {
-                        interaction.channel.send({
+                        interaction.channel!.send({
                             embeds: [
                                 CustomEmbed.from({
                                     description: [
@@ -260,7 +260,7 @@ module.exports.default = new ClientInteraction({
                 },
                 onFinish() {
                     if (i === tts_text_chunks.length - 1) {
-                        interaction.channel.send({
+                        interaction.channel!.send({
                             embeds: [
                                 CustomEmbed.from({
                                     description: `${interaction.user}, finished playing text-to-speech.`,
@@ -272,7 +272,7 @@ module.exports.default = new ClientInteraction({
                 onError(error) {
                     console.trace(error);
 
-                    interaction.channel.send({
+                    interaction.channel!.send({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.RED,
