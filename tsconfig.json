@@ -1,11 +1,13 @@
 {
     "defaultSeverity": "error",
     "compilerOptions": {
+        "baseUrl": ".",
         "allowJs": true,
         "checkJs": false,
         "target": "ESNext",
         "module": "CommonJS",
         "moduleResolution": "Node",
+        "resolveJsonModule": true,
         "esModuleInterop": true,
         "strictNullChecks": true,
         "forceConsistentCasingInFileNames": true,

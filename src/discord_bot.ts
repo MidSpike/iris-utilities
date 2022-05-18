@@ -71,16 +71,25 @@ addSpeechEvent(discord_client as any);
 //------------------------------------------------------------//
 
 async function registerDiscordClientEvents() {
-    const path_to_event_files = path.join(process.cwd(), 'src', 'events');
+    const path_to_event_files = path.join(process.cwd(), 'dist', 'events');
     const client_event_file_names = recursiveReadDirectory(path_to_event_files);
 
     for (const client_event_file_name of client_event_file_names) {
+        console.log('registerDiscordClientEvents()', {
+            client_event_file_name,
+        });
+
+        if (!client_event_file_name.endsWith('.js')) continue;
+
         const client_event_file_path = path.join(path_to_event_files, client_event_file_name);
 
         console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> loading client event...`, { client_event_file_path });
 
         try {
-            const client_event = require(client_event_file_path);
+            const { default: client_event } = require(client_event_file_path);
+
+            console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client event...`, { client_event });
+
             discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
         } catch (error) {
             console.trace('unable to load client event:', client_event_file_path, error);

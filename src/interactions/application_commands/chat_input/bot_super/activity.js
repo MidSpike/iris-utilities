@@ -38,7 +38,7 @@ const discord_activities = [
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'activity',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

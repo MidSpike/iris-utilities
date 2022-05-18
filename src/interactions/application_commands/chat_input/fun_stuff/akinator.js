@@ -65,7 +65,7 @@ async function generateMessagePayload(akinator) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'akinator',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

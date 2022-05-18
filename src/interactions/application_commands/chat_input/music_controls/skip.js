@@ -11,7 +11,7 @@ const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'skip',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

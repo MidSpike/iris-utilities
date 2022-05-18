@@ -21,7 +21,7 @@ const { ClientInteraction, ClientCommandHelper } = require('../../../../common/a
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'Add To Queue',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

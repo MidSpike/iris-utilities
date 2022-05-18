@@ -33,10 +33,12 @@ const settings = [];
 
 //------------------------------------------------------------//
 
-const path_to_settings_files = path.join(process.cwd(), 'src', 'misc', 'settings');
+const path_to_settings_files = path.join(process.cwd(), 'dist', 'misc', 'settings');
 const settings_file_names = recursiveReadDirectory(path_to_settings_files);
 
 for (const setting_file_name of settings_file_names) {
+    if (!setting_file_name.endsWith('.js')) continue;
+
     const setting_file_path = path.join(path_to_settings_files, setting_file_name);
 
     /** @type {Setting} */
@@ -53,7 +55,7 @@ for (const setting_file_name of settings_file_names) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'settings',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

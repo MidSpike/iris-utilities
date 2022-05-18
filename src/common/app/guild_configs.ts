@@ -2,30 +2,40 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { go_mongo_db } = require('../lib/go_mongo_db');
-
-//------------------------------------------------------------//
-
-/**
- * @typedef {String} GuildId
- * @typedef {Object.<string, any>} GuildConfig
- * @typedef {{
- *  guild_id: GuildId,
- *  config: GuildConfig,
- *  epoch: number,
- * }} GuildConfigCacheItem
- * @typedef {Discord.Collection<GuildId, GuildConfigCacheItem>} GuildConfigCacheItems
- */
+import { go_mongo_db } from '../lib/go_mongo_db';
 
 //------------------------------------------------------------//
 
-class GuildConfigsManager {
+const db_name = process.env.MONGO_DATABASE_NAME as string;
+if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
+
+const db_guild_configs_name = process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME as string;
+if (!db_guild_configs_name?.length) throw new TypeError('MONGO_GUILD_CONFIGS_COLLECTION_NAME is not defined');
+
+//------------------------------------------------------------//
+
+type GuildId = string;
+
+export type GuildConfig = {
+    [key: string]: any;
+}
+
+type GuildConfigCacheItem = {
+    guild_id: GuildId;
+    config: GuildConfig;
+    epoch: number;
+}
+
+type GuildConfigCacheItems = Discord.Collection<GuildId, GuildConfigCacheItem>;
+
+//------------------------------------------------------------//
+
+export class GuildConfigsManager {
     static cache_lifespan = 30_000; // 30 seconds
 
-    /** @type {GuildConfigCacheItems} */
-    static cache = new Discord.Collection();
+    static cache: GuildConfigCacheItems = new Discord.Collection();
 
     static get guild_config_template() {
         return {
@@ -35,12 +45,9 @@ class GuildConfigsManager {
         };
     }
 
-    /**
-     * @param {GuildId} guild_id
-     * @return {Promise<GuildConfig>}
-     * @private
-     */
-    static async _create(guild_id) {
+    private static async _create(
+        guild_id: GuildId,
+    ): Promise<GuildConfig> {
         if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
 
         const guild_config_template = GuildConfigsManager.guild_config_template;
@@ -51,7 +58,7 @@ class GuildConfigsManager {
         };
 
         try {
-            await go_mongo_db.add(process.env.MONGO_DATABASE_NAME, process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME, [
+            await go_mongo_db.add(db_name, db_guild_configs_name, [
                 new_guild_config,
             ]);
         } catch (error) {
@@ -59,17 +66,19 @@ class GuildConfigsManager {
             throw new Error(`GuildConfigsManager._create(): failed to create new guild_config for ${guild_id} in the database`);
         }
 
-        GuildConfigsManager.cache.set(guild_id, new_guild_config);
+        GuildConfigsManager.cache.set(guild_id, {
+            guild_id: guild_id,
+            epoch: Date.now(),
+            config: new_guild_config,
+        });
 
         return new_guild_config;
     }
 
-    /**
-     * @param {GuildId} guild_id
-     * @param {boolean} [bypass_cache=false]
-     * @return {Promise<GuildConfig>}
-     */
-    static async fetch(guild_id, bypass_cache=false) {
+    static async fetch(
+        guild_id: GuildId,
+        bypass_cache: boolean = false,
+    ): Promise<GuildConfig> {
         if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
         if (typeof bypass_cache !== 'boolean') throw new TypeError('bypass_cache must be a boolean');
 
@@ -81,7 +90,7 @@ class GuildConfigsManager {
         const cached_guild_config_has_expired = current_epoch >= (guild_config_cache_item?.epoch ?? current_epoch) + GuildConfigsManager.cache_lifespan;
 
         if (!guild_config || cached_guild_config_has_expired || bypass_cache) {
-            const [ db_guild_config ] = await go_mongo_db.find(process.env.MONGO_DATABASE_NAME, process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME, {
+            const [ db_guild_config ] = await go_mongo_db.find(db_name, db_guild_configs_name, {
                 'guild_id': guild_id,
             });
 
@@ -91,12 +100,10 @@ class GuildConfigsManager {
         return guild_config;
     }
 
-    /**
-     * @param {GuildId} guild_id
-     * @param {Object.<string, any>} partial_guild_config
-     * @return {Promise<GuildConfig>
-     */
-    static async update(guild_id, partial_guild_config={}) {
+    static async update(
+        guild_id: GuildId,
+        partial_guild_config: GuildConfig = {},
+    ): Promise<GuildConfig> {
         if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
         if (partial_guild_config && typeof partial_guild_config !== 'object') throw new TypeError('partial_guild_config must be an object when specified');
 
@@ -111,7 +118,7 @@ class GuildConfigsManager {
         };
 
         try {
-            await go_mongo_db.update(process.env.MONGO_DATABASE_NAME, process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME, {
+            await go_mongo_db.update(db_name, db_guild_configs_name, {
                 'guild_id': guild_id,
             }, {
                 $set: {
@@ -125,20 +132,22 @@ class GuildConfigsManager {
             throw new Error(`GuildConfigsManager.update(): failed to update guild_config for ${guild_id} in the database`);
         }
 
-        GuildConfigsManager.cache.set(guild_id, updated_guild_config);
+        GuildConfigsManager.cache.set(guild_id, {
+            guild_id: guild_id,
+            epoch: Date.now(),
+            config: updated_guild_config,
+        });
 
         return updated_guild_config;
     }
 
-    /**
-     * @param {GuildId} guild_id
-     * @return {Promise<void>}
-     */
-    static async remove(guild_id) {
+    static async remove(
+        guild_id: GuildId,
+    ): Promise<void> {
         if (typeof guild_id !== 'string') throw new TypeError('guild_id must be a string');
 
         try {
-            await go_mongo_db.remove(process.env.MONGO_DATABASE_NAME, process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME, {
+            await go_mongo_db.remove(db_name, db_guild_configs_name, {
                 'guild_id': guild_id,
             });
         } catch (error) {
@@ -149,9 +158,3 @@ class GuildConfigsManager {
         GuildConfigsManager.cache.delete(guild_id);
     }
 }
-
-//------------------------------------------------------------//
-
-module.exports = {
-    GuildConfigsManager,
-};

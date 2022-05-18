@@ -2,7 +2,8 @@
 
 //------------------------------------------------------------//
 
-const axios = require('axios');
+const { default: axios } = require('axios');
+
 const Discord = require('discord.js');
 
 const { CustomEmbed } = require('../../../../common/app/message');
@@ -32,7 +33,7 @@ const { ClientInteraction, ClientCommandHelper } = require('../../../../common/a
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'define',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

@@ -41,7 +41,7 @@ async function generateMessagePayload(interaction_author) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'coinflip',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

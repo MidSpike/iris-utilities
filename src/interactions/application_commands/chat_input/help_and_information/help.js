@@ -48,7 +48,7 @@ async function createHelpEmbed(command_category_id) {
 
 //------------------------------------------------------------//
 
-module.exports = new ClientInteraction({
+module.exports.default = new ClientInteraction({
     identifier: 'help',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

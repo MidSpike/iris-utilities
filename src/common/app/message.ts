@@ -57,7 +57,7 @@ export function enableMessageComponents(message: Discord.Message): Promise<Disco
 
 //------------------------------------------------------------//
 
-export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.Channel, user: Discord.User): Promise<boolean> {
+export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.TextBasedChannel, user: Discord.User): Promise<boolean> {
     if (!(channel instanceof Discord.Channel)) throw new TypeError('channel must be an instance of Discord.Channel');
     if (!channel.isText()) throw new TypeError('channel must be a text-based channel');
     if (!(user instanceof Discord.User)) throw new TypeError('user must be an instance of Discord.User');
