@@ -18,7 +18,7 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 import { array_chunks, delay, string_ellipses } from '../../../../common/lib/utilities';
 
-const { GoogleTranslateTTS } = require('google-translate-tts');
+import { GoogleTranslateTTS } from 'google-translate-tts';
 
 //------------------------------------------------------------//
 
@@ -118,8 +118,7 @@ export default new ClientInteraction({
             });
         }
 
-        /** @type {MusicSubscription} */
-        let music_subscription = music_subscriptions.get(interaction.guildId);
+        let music_subscription: MusicSubscription | undefined = music_subscriptions.get(interaction.guildId);
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
         // join that channel and create a subscription.
@@ -199,8 +198,7 @@ export default new ClientInteraction({
                             break;
                         }
 
-                        case 'ibm':
-                        default: {
+                        case 'ibm': {
                             const response = await axios({
                                 method: 'get',
                                 url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
@@ -211,6 +209,10 @@ export default new ClientInteraction({
                             stream = response.data;
 
                             break;
+                        }
+
+                        default: {
+                            throw new Error(`Unknown TTS provider: ${track.metadata.tts_provider};`);
                         }
                     }
                 } catch (error) {
