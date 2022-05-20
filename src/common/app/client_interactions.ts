@@ -80,7 +80,7 @@ export class ClientCommandHelper {
         },
     ].map((command_category) => ([ command_category.id, command_category ])));
 
-    static async checkExecutionEnvironment(interaction: Discord.Interaction<'cached'>, required_environment: string): Promise<boolean> {
+    static async checkExecutionEnvironment(interaction: Discord.Interaction, required_environment: string): Promise<boolean> {
         let is_valid_environment;
 
         switch (required_environment) {
@@ -122,7 +122,7 @@ export class ClientCommandHelper {
 
     static async checkUserAccessLevel(
         discord_client: Discord.Client,
-        interaction: Discord.Interaction<'cached'>,
+        interaction: Discord.Interaction,
         required_access_level: number,
     ): Promise<boolean> {
         const access_levels_for_user = [ ClientCommandHelper.access_levels.EVERYONE ]; // default access level
@@ -132,7 +132,7 @@ export class ClientCommandHelper {
             const guild = await discord_client.guilds.fetch(interaction.guildId);
             const guild_owner_id = guild.ownerId;
 
-            const guild_member = await guild.members.fetch(interaction.member.id);
+            const guild_member = await guild.members.fetch(interaction.user.id);
             const guild_member_roles = guild_member.roles.cache;
             const guild_member_is_administrator = guild_member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR);
 
@@ -198,7 +198,7 @@ export class ClientCommandHelper {
 
     static async checkBotPermissions(
         discord_client: Discord.Client,
-        interaction: Discord.Interaction<'cached'>,
+        interaction: Discord.Interaction,
         required_permissions: Discord.PermissionResolvable[],
     ): Promise<boolean> {
         if (!interaction.inGuild()) return true; // if the interaction is not in a guild, then assume the bot has all permissions we might need
@@ -305,7 +305,7 @@ export class ClientInteraction {
 
     async handler(
         discord_client: Discord.Client<true>,
-        interaction: Discord.Interaction<'cached'>,
+        interaction: Discord.Interaction,
     ) {
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
@@ -373,7 +373,7 @@ export class ClientInteractionManager {
 
     static async handleUnknownInteraction(
         discord_client: Discord.Client,
-        unknown_interaction: Discord.Interaction<'cached'>,
+        unknown_interaction: Discord.Interaction,
     ): Promise<unknown> {
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
