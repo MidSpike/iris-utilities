@@ -2,15 +2,23 @@
 
 //------------------------------------------------------------//
 
+import Typings from 'typings';
+
 import Discord from 'discord.js';
 
 import { CustomEmbed } from '../common/app/message';
 
 //------------------------------------------------------------//
 
+const event_name = Discord.Constants.Events.MESSAGE_CREATE;
 export default {
-    name: 'messageCreate',
-    async handler(discord_client: Discord.Client<true>, message: Discord.Message) {
+    name: event_name,
+    async handler(
+        discord_client,
+        message,
+    ) {
+        if (!discord_client.isReady()) return;
+
         if (message.author.bot) return; // don't respond to bots
         if (message.author.system) return; // don't respond to system messages
 
@@ -46,4 +54,4 @@ export default {
             return;
         }
     },
-};
+} as Typings.ClientEventExport<typeof event_name>;

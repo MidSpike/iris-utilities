@@ -2,19 +2,23 @@
 
 //------------------------------------------------------------//
 
+import Typings from 'typings';
+
 import Discord from 'discord.js';
 
 import { ClientInteractionManager } from '../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
+const event_name = Discord.Constants.Events.INTERACTION_CREATE;
 export default {
-    name: 'interactionCreate',
-    /**
-     * @param {Discord.Client} discord_client
-     * @param {Discord.Interaction} unknown_interaction
-     */
-    async handler(discord_client: Discord.Client, unknown_interaction: Discord.Interaction<'cached'>) {
+    name: event_name,
+    async handler(
+        discord_client,
+        unknown_interaction,
+    ) {
+        if (!discord_client.isReady()) return;
+
         await ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
     },
-};
+} as Typings.ClientEventExport<typeof event_name>;

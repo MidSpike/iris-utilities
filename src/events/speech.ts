@@ -14,16 +14,22 @@ import { CustomEmbed } from '../common/app/message';
 
 //------------------------------------------------------------//
 
+type VoiceMessage = {
+    author: Discord.User;
+    channel: Discord.VoiceChannel;
+    content: string;
+}
+
+//------------------------------------------------------------//
+
 export default {
     name: 'speech',
     async handler(
-        discord_client: Discord.Client<true>,
-        msg: {
-            content?: string;
-            channel?: Discord.VoiceChannel;
-            author?: Discord.User;
-        },
+        discord_client: Discord.Client,
+        msg: VoiceMessage,
     ) {
+        if (!discord_client.isReady()) return;
+
         if (!msg?.content?.length) return;
         if (!msg?.channel) return;
         if (!msg?.author) return;
@@ -109,8 +115,8 @@ export default {
         }).catch(console.warn);
 
         switch (voice_command_name) {
-            case 'by': // this is needed b/c google sometimes picks up 'by' instead of 'play'
-            case 'hey': // this is needed b/c google sometimes picks up 'hey' instead of 'play'
+            case 'by': // fallback for improper recognition
+            case 'hey': // fallback for improper recognition
             case 'play': {
                 const search_query = voice_command_args.join(' ');
 
@@ -209,7 +215,7 @@ export default {
                 break;
             }
 
-            case 'vol': // this is needed b/c google sometimes picks up 'vol' instead of 'volume'
+            case 'vol': // fallback for improper recognition
             case 'volume': {
                 const volume_input = Number.parseInt(voice_command_args[0]);
 
@@ -225,15 +231,15 @@ export default {
                 break;
             }
 
-            case 'skit': // this is needed b/c google sometimes picks up 'skit' instead of 'skip'
-            case 'skin': // this is needed b/c google sometimes picks up 'skin' instead of 'skip'
+            case 'skit': // fallback for improper recognition
+            case 'skin': // fallback for improper recognition
             case 'skip': {
                 music_subscription.processQueue(true);
 
                 break;
             }
 
-            case 'star': // this is needed b/c google sometimes picks up 'star' instead of 'stop'
+            case 'star': // fallback for improper recognition
             case 'stop': {
                 await music_subscription.kill();
 
