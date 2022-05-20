@@ -21,7 +21,7 @@
     "ffmpeg": "0.0.4",
     "ffmpeg-static": "4.4.0",
     "google-it": "1.6.2",
-    "google-translate-tts": "github:MidSpike/google-translate-tts#v1.0.0",
+    "google-translate-tts": "github:MidSpike/google-translate-tts#v2.1.0",
     "html-entities": "2.3.3",
     "json-stringify-safe": "5.0.1",
     "languagedetect": "2.0.0",
