@@ -23,9 +23,11 @@ import { GoogleTranslateTTS } from 'google-translate-tts';
 //------------------------------------------------------------//
 
 const voice_codes = [
-    { provider: 'google', name: 'Google British - English (United Kingdom)', code: 'en-GB' },
-    { provider: 'google', name: 'Google American - English (United States)', code: 'en-US' },
-    { provider: 'google', name: 'Google Australian - English (Australia)', code: 'en-AU' },
+    { provider: 'google', name: 'Google - English (United Kingdom)', code: 'en-GB' },
+    { provider: 'google', name: 'Google - English (United States)', code: 'en-US' },
+    { provider: 'google', name: 'Google - English (Australia)', code: 'en-AU' },
+    { provider: 'google', name: 'Google - Deutsch (Deutschland)', code: 'de' },
+    { provider: 'google', name: 'Google - Nederlands (Nederland)', code: 'nl' },
     { provider: 'ibm', name: 'IBM Kate - English (United Kingdom)', code: 'en-GB_KateV3Voice' },
     { provider: 'ibm', name: 'IBM James - English (United Kingdom)', code: 'en-GB_JamesV3Voice' },
     { provider: 'ibm', name: 'IBM Charlotte - English (United Kingdom)', code: 'en-GB_CharlotteV3Voice' },
@@ -39,9 +41,6 @@ const voice_codes = [
     { provider: 'ibm', name: 'IBM Birgit - Deutsch (Deutschland)', code: 'de-DE_BirgitV3Voice' },
     { provider: 'ibm', name: 'IBM Dieter - Deutsch (Deutschland)', code: 'de-DE_DieterV3Voice' },
     { provider: 'ibm', name: 'IBM Erika - Deutsch (Deutschland)', code: 'de-DE_ErikaV3Voice' },
-    // { provider: 'ibm',    name: 'IBM Craig - English (Australia)',           code: 'en-AU_CraigVoice' }, // deprecated
-    // { provider: 'ibm',    name: 'IBM Madison - English (Australia)',         code: 'en-AU_MadisonVoice' }, // deprecated
-    // { provider: 'ibm',    name: 'IBM Steve - English (Australia)',           code: 'en-AU_SteveVoice' }, // deprecated
 ];
 
 //------------------------------------------------------------//
@@ -189,7 +188,7 @@ export default new ClientInteraction({
                     switch (track.metadata.tts_provider) {
                         case 'google': {
                             const gt_tts = new GoogleTranslateTTS({
-                                language: 'en-us',
+                                language: track.metadata.tts_voice,
                                 text: track.metadata.tts_text,
                             });
 

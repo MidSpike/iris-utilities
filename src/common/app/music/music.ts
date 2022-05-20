@@ -42,9 +42,9 @@ export type ResourceCreator<T> = (track: T) => Promise<AudioResource>;
 //------------------------------------------------------------//
 
 export class BaseTrack {
-    #resource: AudioResource | undefined;
-
     #metadata: BaseTrackMetadata;
+
+    #resource: AudioResource | undefined;
 
     #resource_creator: ResourceCreator<this>;
 
@@ -68,12 +68,12 @@ export class BaseTrack {
         this.#events = { onStart, onFinish, onError };
     }
 
-    get resource() {
-        return this.#resource as AudioResource;
-    }
-
     get metadata(): BaseTrackMetadata {
         return this.#metadata;
+    }
+
+    get resource(): AudioResource | undefined {
+        return this.#resource;
     }
 
     async initializeResource(): Promise<AudioResource> {
@@ -82,6 +82,14 @@ export class BaseTrack {
         this.#resource.volume!.setVolumeLogarithmic(0);
 
         return this.#resource;
+    }
+
+    async fetchResource(): Promise<AudioResource> {
+        if (this.#resource) {
+            return this.#resource;
+        }
+
+        return await this.initializeResource();
     }
 
     onStart() {
@@ -298,13 +306,13 @@ export class Queue {
             return;
         }
 
-        try {
-            await next_track.initializeResource();
-        } catch (error) {
-            next_track.onError(error);
-            this.locked = false;
-            return;
-        }
+        // try {
+        //     await next_track.initializeResource();
+        // } catch (error) {
+        //     next_track.onError(error);
+        //     this.locked = false;
+        //     return;
+        // }
 
         this.#current_track = next_track;
 
@@ -432,26 +440,26 @@ export class MusicSubscription {
 
     /**
      * Attempts to play a track from the queue.
-     * @param {boolean} [force=false] Whether to force the queue to be processed, even if not idling.
+     * @param force Whether to force the queue to be processed, even if not idling.
      */
-    async processQueue(force=false) {
-        if (!force && this.#audio_player.state.status !== AudioPlayerStatus.Idle) {
-            return;
-        }
+    async processQueue(
+        force: boolean = false,
+    ) {
+        if (!force && this.#audio_player.state.status !== AudioPlayerStatus.Idle) return;
+
+        // Pause the audio player if we are forcing the queue to be processed
+        if (force) this.#audio_player.pause(true);
 
         const next_track = await this.queue.processNextTrack();
-        if (!next_track) {
-            return;
-        }
+        if (!next_track) return;
 
         // Check if the queue is locked, and if so, allow the track to automatically be played.
-        if (this.queue.locked) {
-            console.warn(`Queue locked, playing ${next_track.metadata.title}`);
-            return;
-        }
+        if (this.queue.locked) return;
+
+        const next_track_resource = await next_track.fetchResource();
 
         // Play the next track
-        this.#audio_player.play(next_track.resource);
+        this.#audio_player.play(next_track_resource);
     }
 }
 
