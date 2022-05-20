@@ -16,6 +16,8 @@ const { ClientInteraction, ClientCommandHelper } = require('../../../../common/a
 const { music_subscriptions } = require('../../../../common/app/music/music');
 
 //------------------------------------------------------------//
+// /replay <next: boolean>
+//------------------------------------------------------------//
 
 module.exports.default = new ClientInteraction({
     identifier: 'replay',
@@ -23,7 +25,14 @@ module.exports.default = new ClientInteraction({
     data: {
         type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
         description: 'n/a',
-        options: [],
+        options: [
+            {
+                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                name: 'playnext',
+                description: 'replay after the current track or at the end of the queue',
+                required: false,
+            },
+        ],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
@@ -40,6 +49,8 @@ module.exports.default = new ClientInteraction({
         if (!interaction.isCommand()) return;
 
         await interaction.deferReply({ ephemeral: false });
+
+        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
 
         const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
         const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
@@ -92,7 +103,7 @@ module.exports.default = new ClientInteraction({
         });
 
         try {
-            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3);
+            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3); // 10 seconds
         } catch (error) {
             console.warn(error);
 
@@ -122,12 +133,16 @@ module.exports.default = new ClientInteraction({
             return;
         }
 
-        music_subscription.queue.addTrack(most_recent_track, 0);
+        const insert_index = playnext ? 0 : music_subscription.queue.future_tracks.length;
+        music_subscription.queue.addTrack(most_recent_track, insert_index);
+
+        // Process the music subscription's queue
+        await music_subscription.processQueue(false);
 
         await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, replaying **${most_recent_track.metadata.title}** next!`,
+                    description: `${interaction.user}, replaying **${most_recent_track.metadata.title}** ${playnext ? 'next' : 'at the end of the queue'}!`,
                 }),
             ],
         }).catch(() => {});
