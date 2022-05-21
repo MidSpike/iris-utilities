@@ -2,30 +2,32 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../common/app/message');
-const { GuildConfigsManager } = require('../../common/app/guild_configs');
-
-//------------------------------------------------------------//
-
-/**
- * @typedef {{
- *  name: string,
- *  description: string,
- *  options: Discord.ApplicationCommandOptionData[],
- *  handler(setting: Setting, command_interaction: Discord.CommandInteraction) => Promise<unknown>,
- * }} SettingAction
- *
- * @typedef {{
- *  name: string,
- *  actions: SettingAction[],
- * }} Setting
- */
+import { CustomEmbed } from '../../common/app/message';
+import { GuildConfigsManager } from '../../common/app/guild_configs';
 
 //------------------------------------------------------------//
 
-module.exports = {
+type GuildConfig = {
+    [key: string]: any;
+}
+
+type SettingAction<Setting> = {
+    name: string,
+    description: string,
+    options: Discord.ApplicationCommandOptionData[],
+    handler: (setting: Setting, guild_config: GuildConfig, command_interaction: Discord.CommandInteraction<'cached'>) => Promise<unknown>,
+}
+
+type Setting = {
+    name: string;
+    actions: SettingAction<Setting>[];
+}
+
+//------------------------------------------------------------//
+
+export default {
     name: 'guild_admin_roles',
     actions: [
         {
@@ -33,7 +35,7 @@ module.exports = {
             description: 'lists all guild admin roles',
             options: [],
             async handler(setting, guild_config, command_interaction) {
-                const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
+                const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
                 command_interaction.followUp({
                     embeds: [
@@ -56,9 +58,9 @@ module.exports = {
                 },
             ],
             async handler(setting, guild_config, command_interaction) {
-                const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
+                const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.get('value')?.value;
+                const role_id = command_interaction.options.get('value')?.value as string;
 
                 if (guild_admin_role_ids.includes(role_id)) {
                     return command_interaction.followUp({
@@ -149,10 +151,10 @@ module.exports = {
             description: 'removes any deleted roles',
             options: [],
             async handler(setting, guild_config, command_interaction) {
-                const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
+                const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
                 const guild = await command_interaction.client.guilds.fetch(command_interaction.guildId);
-                const guild_role_ids = guild.roles.cache.keys();
+                const guild_role_ids = Array.from(guild.roles.cache.keys());
 
                 const existing_role_ids = guild_admin_role_ids.filter(role_id => guild_role_ids.includes(role_id));
 
@@ -170,4 +172,4 @@ module.exports = {
             },
         },
     ],
-};
+} as Setting;
