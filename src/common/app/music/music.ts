@@ -478,22 +478,35 @@ export type MusicReconnaissanceSearchResult = {
 }
 
 export class MusicReconnaissance {
-    readonly #client: DiscordClient<true>;
-    readonly #discord_player: DiscordPlayer;
+    private static _initialized = false;
 
-    constructor(discord_client: DiscordClient<true>) {
-        this.#client = discord_client;
+    private static _client: DiscordClient<true>;
+    private static _discord_player: DiscordPlayer;
 
-        this.#discord_player = new DiscordPlayer(discord_client);
+    static initialize(
+        discord_client: DiscordClient<true>,
+    ): void {
+        if (MusicReconnaissance._initialized) return;
+
+        MusicReconnaissance._client = discord_client;
+        MusicReconnaissance._discord_player = new DiscordPlayer(discord_client);
+
+        MusicReconnaissance._initialized = true;
     }
 
-    async search(query: string): Promise<MusicReconnaissanceSearchResult[]> {
-        const search_result = await this.#discord_player.search(query, {
-            requestedBy: this.#client.user.id,
+    static async search(
+        query: string,
+    ): Promise<MusicReconnaissanceSearchResult[]> {
+        if (!MusicReconnaissance._initialized) throw new Error('MusicReconnaissance must be initialized before use.');
+
+        const search_result = await MusicReconnaissance._discord_player.search(query, {
+            requestedBy: MusicReconnaissance._client.user.id,
             searchEngine: DiscordPlayerQueryType.AUTO,
         });
 
-        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(track => track instanceof DiscordPlayerTrack) as DiscordPlayerTrack[];
+        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(
+            track => track instanceof DiscordPlayerTrack
+        ) as DiscordPlayerTrack[];
 
         return tracks.map(track => ({
             title: track.title,

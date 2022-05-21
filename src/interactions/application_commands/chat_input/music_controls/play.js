@@ -132,9 +132,7 @@ module.exports.default = new ClientInteraction({
             return;
         }
 
-        const music_reconnaissance = new MusicReconnaissance(discord_client);
-
-        const search_results = await music_reconnaissance.search(query);
+        const search_results = await MusicReconnaissance.search(query);
 
         if (search_results.length === 0) {
             await interaction.followUp({
