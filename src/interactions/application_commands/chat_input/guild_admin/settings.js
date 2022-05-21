@@ -44,7 +44,7 @@ for (const setting_file_name of settings_file_names) {
     /** @type {Setting} */
     let setting;
     try {
-        setting = require(setting_file_path);
+        setting = require(setting_file_path)?.default;
     } catch (error) {
         console.trace('unable to load setting:', setting_file_path, error);
         continue;

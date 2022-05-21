@@ -8,6 +8,8 @@ import Discord from 'discord.js';
 
 import { GuildConfigsManager } from '../common/app/guild_configs';
 
+import { MusicReconnaissance } from '../common/app/music/music';
+
 //------------------------------------------------------------//
 
 type DiscordClientWithSharding = Discord.Client<true> & {
@@ -44,6 +46,9 @@ export default {
                 },
             ],
         });
+
+        // Initialize the MusicReconnaissance service with the client
+        MusicReconnaissance.initialize(discord_client);
 
         /* update all guild configs */
         setTimeout(() => {

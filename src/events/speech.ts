@@ -120,9 +120,7 @@ export default {
             case 'play': {
                 const search_query = voice_command_args.join(' ');
 
-                const music_reconnaissance = new MusicReconnaissance(discord_client);
-
-                const search_results = await music_reconnaissance.search(search_query);
+                const search_results = await MusicReconnaissance.search(search_query);
 
                 if (search_results.length === 0) return;
 
