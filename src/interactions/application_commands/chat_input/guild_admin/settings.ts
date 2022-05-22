@@ -2,34 +2,23 @@
 
 //------------------------------------------------------------//
 
-const path = require('node:path');
+import { Setting } from 'typings';
+
+import path from 'node:path';
+
+import Discord from 'discord.js';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+
+import { GuildConfigsManager } from '../../../../common/app/guild_configs';
+
 const recursiveReadDirectory = require('recursive-read-directory');
-const Discord = require('discord.js');
-
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
-const { GuildConfigsManager } = require('../../../../common/app/guild_configs');
 
 //------------------------------------------------------------//
 
-/**
- * @typedef {{
- *  name: string,
- *  description: string,
- *  options: Discord.ApplicationCommandOptionData[],
- *  handler(setting: Setting, command_interaction: Discord.CommandInteraction) => Promise<unknown>,
- * }} SettingAction
- *
- * @typedef {{
- *  name: string,
- *  actions: SettingAction[],
- * }} Setting
- */
-
-//------------------------------------------------------------//
-
-/** @type {Setting[]} */
-const settings = [];
+const settings: Setting[] = [];
 
 //------------------------------------------------------------//
 
@@ -41,8 +30,7 @@ for (const setting_file_name of settings_file_names) {
 
     const setting_file_path = path.join(path_to_settings_files, setting_file_name);
 
-    /** @type {Setting} */
-    let setting;
+    let setting: Setting;
     try {
         setting = require(setting_file_path)?.default;
     } catch (error) {
@@ -55,7 +43,7 @@ for (const setting_file_name of settings_file_names) {
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'settings',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -71,7 +59,7 @@ module.exports.default = new ClientInteraction({
                 description: action.description,
                 options: action.options,
             })),
-        })),
+        })) as any, // to make typescript shut up
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
@@ -84,6 +72,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
