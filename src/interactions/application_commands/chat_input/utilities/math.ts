@@ -2,15 +2,17 @@
 
 //------------------------------------------------------------//
 
-const MathJS = require('mathjs');
-const Discord = require('discord.js');
+import * as MathJs from 'mathjs';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import Discord from 'discord.js';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'math',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -41,35 +43,40 @@ module.exports.default = new ClientInteraction({
 
         const math_expression = interaction.options.getString('expression', true);
 
+        let evaluated_math;
         try {
-            const evaluated_math = MathJS.evaluate(math_expression);
+            evaluated_math = MathJs.evaluate(math_expression);
+        } catch (error) {
+            console.trace(error);
 
-            interaction.followUp({
-                embeds: [
-                    CustomEmbed.from({
-                        title: 'Math Expression Output',
-                        description: 'I crunched the numbers, this is what I found!',
-                        fields: [
-                            {
-                                name: 'Expression',
-                                value: `\`\`\`\n${math_expression}\n\`\`\``,
-                            }, {
-                                name: 'Result',
-                                value: `\`\`\`\n${evaluated_math}\n\`\`\``,
-                            },
-                        ],
-                    }),
-                ],
-            }).catch(console.warn);
-        } catch {
-            interaction.followUp({
+            await interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         title: 'Math Expression Output',
                         description: 'Something went wrong, I couldn\'t evaluate that math expression!',
                     }),
                 ],
-            }).catch(console.warn);
+            });
+
+            return;
         }
+
+        await interaction.followUp({
+            embeds: [
+                CustomEmbed.from({
+                    title: 'Math Expression Output',
+                    description: 'I crunched the numbers, this is what I found!',
+                    fields: [
+                        {
+                            name: 'Expression',
+                            value: `\`\`\`\n${math_expression}\n\`\`\``,
+                        }, {
+                            name: 'Result',
+                            value: `\`\`\`\n${evaluated_math}\n\`\`\``,
+                        },
+                    ],
+                }),
+            ],
+        });
     },
 });

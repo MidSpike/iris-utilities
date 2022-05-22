@@ -2,15 +2,17 @@
 
 //------------------------------------------------------------//
 
-const moment = require('moment-timezone');
-const Discord = require('discord.js');
+import moment from 'moment-timezone';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import Discord from 'discord.js';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'roleinfo',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -36,6 +38,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -49,8 +52,21 @@ module.exports.default = new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const role_id = interaction.options.get('role').value;
+        const role_id = interaction.options.get('role', true).value as string;
         const role = await interaction.guild.roles.fetch(role_id);
+
+        if (!role) {
+            await bot_message.edit({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: 'Role not found',
+                    }),
+                ],
+            });
+
+            return;
+        }
 
         const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
         const role_permissions = role.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));

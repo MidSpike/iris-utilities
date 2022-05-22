@@ -2,16 +2,17 @@
 
 //------------------------------------------------------------//
 
-const { default: axios } = require('axios');
+import axios from 'axios';
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-const result_key_overrides = {
+const ip_api_com_response_key_overrides: { [key: string]: string; } = {
     'continent': 'continent name',
     'continentCode': 'continent code',
     'country': 'country name',
@@ -37,7 +38,7 @@ const result_key_overrides = {
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'ipinfo',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -69,14 +70,16 @@ module.exports.default = new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
 
-        const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
+        const ephemeral = interaction.options.getBoolean('ephemeral', false) ?? false;
 
         await interaction.deferReply({ ephemeral: ephemeral });
 
-        const query = interaction.options.getString('query');
+        const query = interaction.options.getString('query', true);
 
         /* documentation: https://ip-api.com/docs/api:json */
-        const { data: response_data } = await axios.get(`http://ip-api.com/json/${query}?fields=66846719`);
+        const { data: response_data }: {
+            [key: string]: string;
+        } = await axios.get(`http://ip-api.com/json/${query}?fields=66846719`);
 
         await interaction.editReply({
             embeds: [
@@ -84,7 +87,7 @@ module.exports.default = new ClientInteraction({
                     title: 'IP Info',
                     description: `Here are the results for \`${query}\`!`,
                     fields: Object.entries(response_data).map(([ key, value ]) => ({
-                        name: result_key_overrides[key] ?? key,
+                        name: ip_api_com_response_key_overrides[key] ?? key,
                         value: `\`${value || 'n/a'}\``,
                         inline: true,
                     })),

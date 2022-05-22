@@ -2,15 +2,17 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { array_chunks } = require('../../../../common/lib/utilities');
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { array_chunks } from '../../../../common/lib/utilities';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'memberinfo',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -36,6 +38,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -61,10 +64,7 @@ module.exports.default = new ClientInteraction({
 
         const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
 
-        /**
-         * @param {'default'|'flags'|'media'|'permissions'|'roles'} mode
-         */
-        async function updateBotMessage(mode) {
+        async function updateBotMessage(mode: 'default'|'flags'|'media'|'permissions'|'roles') {
             switch (mode) {
                 case 'flags': {
                     await bot_message.edit({
@@ -236,13 +236,13 @@ module.exports.default = new ClientInteraction({
                                         inline: false,
                                     },
 
-                                    (member.premiumSinceTimestamp ? [
+                                    ...(member.premiumSinceTimestamp ? [
                                         {
                                             name: 'Boosting Since Date',
                                             value: `<t:${member_premium_since_timestamp_epoch}:F> (<t:${member_premium_since_timestamp_epoch}:R>)`,
                                             inline: false,
                                         },
-                                    ]: []),
+                                    ] : []),
 
                                     {
                                         name: 'Bot',
@@ -328,7 +328,7 @@ module.exports.default = new ClientInteraction({
 
             if (message_button_collector.ended) return;
 
-            await updateBotMessage(button_interaction.customId);
+            await updateBotMessage(button_interaction.customId as any);
         });
 
         message_button_collector.on('end', async () => {

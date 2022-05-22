@@ -2,34 +2,32 @@
 
 //------------------------------------------------------------//
 
-const { default: axios } = require('axios');
+import axios from 'axios';
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-/**
- * @typedef {{
- *  word: string,
- *  phonetics?: {
- *      text?: string,
- *      audio?: string,
- *  }[],
- *  meanings: {
- *      partOfSpeech?: string,
- *      definitions?: {
- *          definition?: string,
- *          example?: string,
- *          synonyms?: string[],
- *          antonyms?: string[],
- *      }[],
- *  }[],
- * }} DefinitionApiResult
- * @typedef {DefinitionApiResult[]} DefinitionApiResults
- */
+type DefinitionApiResult = {
+    word: string;
+    phonetics?: {
+        text: string;
+        audio: string;
+    }[];
+    meanings: {
+        partOfSpeech: string;
+        definitions: {
+            definition: string;
+            example: string;
+            synonyms: string[];
+            antonyms: string[];
+        }[];
+    }[];
+};
 
 //------------------------------------------------------------//
 
@@ -78,7 +76,7 @@ module.exports.default = new ClientInteraction({
                 api_response,
             });
 
-            return interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -87,21 +85,36 @@ module.exports.default = new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
-        /** @type {DefinitionApiResults} */
-        const api_response_data = api_response.data;
+        const dictionary_api_results: DefinitionApiResult[] = api_response.data;
+
+        if (dictionary_api_results.length < 1) {
+            await interaction.followUp({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'Something went wrong!',
+                        description: 'Perhaps that was an unknown English word, or maybe a server issue occurred!',
+                    }),
+                ],
+            });
+
+            return;
+        }
 
         const {
             word: word,
             phonetics: word_phonetics,
             meanings: word_meanings,
-        } = api_response_data[0] ?? {};
+        } = dictionary_api_results.at(0) as DefinitionApiResult;
 
         const {
             text: word_pronunciation_text,
             audio: word_pronunciation_audio_url,
-        } = word_phonetics[0] ?? {};
+        } = word_phonetics?.at(0) ?? {};
 
         const {
             partOfSpeech: word_part_of_speech,
@@ -116,7 +129,7 @@ module.exports.default = new ClientInteraction({
             word_definitions_and_examples,
         });
 
-        interaction.followUp({
+        await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
                     title: `Definitions for: ${word}`,
@@ -148,6 +161,6 @@ module.exports.default = new ClientInteraction({
                     ).slice(0, 9)
                 ) : []),
             ],
-        }).catch(console.warn);
+        });
     },
 });
