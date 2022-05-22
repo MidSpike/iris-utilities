@@ -2,6 +2,8 @@
 
 //------------------------------------------------------------//
 
+import { GuildId, GuildConfig } from 'typings';
+
 import Discord from 'discord.js';
 
 import { go_mongo_db } from '../lib/go_mongo_db';
@@ -15,12 +17,6 @@ const db_guild_configs_name = process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME as
 if (!db_guild_configs_name?.length) throw new TypeError('MONGO_GUILD_CONFIGS_COLLECTION_NAME is not defined');
 
 //------------------------------------------------------------//
-
-type GuildId = string;
-
-export type GuildConfig = {
-    [key: string]: any;
-}
 
 type GuildConfigCacheItem = {
     guild_id: GuildId;

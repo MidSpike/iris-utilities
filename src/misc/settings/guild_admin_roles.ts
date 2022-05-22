@@ -2,28 +2,12 @@
 
 //------------------------------------------------------------//
 
+import { Setting } from 'typings';
+
 import Discord from 'discord.js';
 
 import { CustomEmbed } from '../../common/app/message';
 import { GuildConfigsManager } from '../../common/app/guild_configs';
-
-//------------------------------------------------------------//
-
-type GuildConfig = {
-    [key: string]: any;
-}
-
-type SettingAction<Setting> = {
-    name: string,
-    description: string,
-    options: Discord.ApplicationCommandOptionData[],
-    handler: (setting: Setting, guild_config: GuildConfig, command_interaction: Discord.CommandInteraction<'cached'>) => Promise<unknown>,
-}
-
-type Setting = {
-    name: string;
-    actions: SettingAction<Setting>[];
-}
 
 //------------------------------------------------------------//
 
