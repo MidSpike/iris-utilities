@@ -243,7 +243,7 @@ export type ClientInteractionType = number;
 export type ClientInteractionData = {
     type: ClientInteractionType,
     description: string,
-    options: Discord.ApplicationCommandOptionData[],
+    options?: Discord.ApplicationCommandOptionData[],
 }
 export type ClientInteractionMetadata = {
     [key: string]: any;
