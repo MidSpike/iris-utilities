@@ -2,15 +2,16 @@
 
 //------------------------------------------------------------//
 
-const translateUsingGoogle = require('translate-google');
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+
+const translateUsingGoogle = require('translate-google');
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'Translate To English',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -27,11 +28,11 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isContextMenu()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
-        /** @type {Discord.Message} */
-        const message = interaction.options.resolved.messages.first();
+        const message = interaction.options.resolved.messages!.first()!;
 
         const query = message.cleanContent;
 
@@ -45,8 +46,7 @@ module.exports.default = new ClientInteraction({
             });
         }
 
-        /** @type {string} */
-        const translated_query = await translateUsingGoogle(query, { to: 'en' });
+        const translated_query: string = await translateUsingGoogle(query, { to: 'en' });
 
         await interaction.followUp({
             embeds: [

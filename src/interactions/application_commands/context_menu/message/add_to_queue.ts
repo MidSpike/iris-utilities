@@ -2,26 +2,21 @@
 
 //------------------------------------------------------------//
 
-const { exec: ytdl } = require('youtube-dl-exec');
+import Discord from 'discord.js';
 
-const Discord = require('discord.js');
+import { exec as ytdl } from 'youtube-dl-exec';
 
-const {
-    createAudioResource,
-    demuxProbe,
-    entersState,
-    joinVoiceChannel,
-    VoiceConnectionStatus,
-} = require('@discordjs/voice');
+import { createAudioResource, demuxProbe, entersState, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
 
-const { RemoteTrack, MusicSubscription, music_subscriptions, MusicReconnaissance } = require('../../../../common/app/music/music');
+import { RemoteTrack, MusicSubscription, music_subscriptions, MusicReconnaissance } from '../../../../common/app/music/music';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'Add To Queue',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -40,11 +35,14 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isContextMenu()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
-        const guild_member_voice_channel_id = interaction.member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me.voice.channelId;
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+
+        const guild_member_voice_channel_id = member.voice.channelId;
+        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
@@ -68,10 +66,9 @@ module.exports.default = new ClientInteraction({
             });
         }
 
-        const message_id = interaction.options.resolved.messages.first().id;
+        const message_id = interaction.options.resolved.messages!.first()!.id;
 
-        /** @type {Discord.Message} */
-        const message = await interaction.channel.messages.fetch(message_id).catch(() => undefined);
+        const message = await interaction.channel!.messages.fetch(message_id).catch(() => undefined);
         if (!message) {
             return interaction.editReply({
                 embeds: [
@@ -115,7 +112,7 @@ module.exports.default = new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    adapterCreator: interaction.guild.voiceAdapterCreator as any, // to make typescript happy
                     selfDeaf: false,
                 })
             );
@@ -154,17 +151,19 @@ module.exports.default = new ClientInteraction({
             return;
         }
 
-        if (search_results.length > 1) {
+        if (search_results.length === 0) {
             await interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
-                        description: `${interaction.user}, added ${search_results.length} track(s) to the queue...`,
+                        description: `${interaction.user}, I couldn't find anything for **${query}**.`,
                     }),
                 ],
             });
+
+            return;
         }
 
-        const search_result = search_results.at(0);
+        const search_result = search_results.at(0)!;
 
         const track = new RemoteTrack({
             title: search_result.title,
@@ -174,12 +173,12 @@ module.exports.default = new ClientInteraction({
                 track,
             });
 
-            const process = ytdl(track.metadata.url, {
+            const process = ytdl(track.metadata.url!, {
                 o: '-',
                 q: '',
                 f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
                 r: '100K',
-            }, {
+            } as any, {
                 stdio: [ 'ignore', 'pipe', 'ignore' ],
             });
 
@@ -189,7 +188,7 @@ module.exports.default = new ClientInteraction({
                 return;
             }
 
-            const onError = (error) => {
+            const onError = (error: unknown) => {
                 console.trace(error);
 
                 if (!process.killed) process.kill();
@@ -209,7 +208,7 @@ module.exports.default = new ClientInteraction({
         }), {
             onStart() {
                 // IMPORTANT: Initialize the volume interface
-                music_subscription.queue.volume_manager.initialize();
+                music_subscription!.queue.volume_manager.initialize();
 
                 interaction.followUp({
                     embeds: [

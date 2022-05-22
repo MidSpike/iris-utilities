@@ -2,30 +2,26 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const {
-    createAudioResource,
-    demuxProbe,
-    entersState,
-    joinVoiceChannel,
-    VoiceConnectionStatus,
-} = require('@discordjs/voice');
+import { createAudioResource, demuxProbe, entersState, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
 
-const { getInfo: getYouTubeInfo } = require('ytdl-core');
+import { getInfo as getYouTubeInfo } from 'ytdl-core';
 
-const { exec: ytdl } = require('youtube-dl-exec');
+import { exec as ytdl } from 'youtube-dl-exec';
 
-const { delay } = require('../../../../common/lib/utilities');
+import { delay } from '../../../../common/lib/utilities';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { RemoteTrack, MusicSubscription, music_subscriptions, MusicReconnaissance } = require('../../../../common/app/music/music');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { RemoteTrack, MusicSubscription, music_subscriptions, MusicReconnaissance } from '../../../../common/app/music/music';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'play',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -58,14 +54,17 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
         const query = interaction.options.getString('query', true);
         const playnext = interaction.options.getBoolean('playnext', false) ?? false;
 
-        const guild_member_voice_channel_id = interaction.member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me.voice.channelId;
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+
+        const guild_member_voice_channel_id = member.voice.channelId;
+        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
@@ -107,7 +106,7 @@ module.exports.default = new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    adapterCreator: interaction.guild.voiceAdapterCreator as any, // to make typescript happy
                     selfDeaf: false,
                 })
             );
@@ -183,12 +182,12 @@ module.exports.default = new ClientInteraction({
                         track,
                     });
 
-                    const ytdl_process = ytdl(track.metadata.url, {
+                    const ytdl_process = ytdl(track.metadata.url!, {
                         o: '-',
                         q: '',
                         f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
                         r: '100K',
-                    }, {
+                    } as any, {
                         stdio: [ 'ignore', 'pipe', 'ignore' ],
                     });
 
@@ -198,7 +197,7 @@ module.exports.default = new ClientInteraction({
                         return;
                     }
 
-                    const onError = (error) => {
+                    const onError = (error: unknown) => {
                         console.trace(error);
 
                         if (!ytdl_process.killed) ytdl_process.kill();
@@ -218,7 +217,7 @@ module.exports.default = new ClientInteraction({
                 }), {
                     onStart() {
                         // IMPORTANT: Initialize the volume interface
-                        music_subscription.queue.volume_manager.initialize();
+                        music_subscription!.queue.volume_manager.initialize();
 
                         interaction.followUp({
                             embeds: [
