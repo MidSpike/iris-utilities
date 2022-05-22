@@ -2,16 +2,19 @@
 
 //------------------------------------------------------------//
 
-const moment = require('moment-timezone');
-const Discord = require('discord.js');
+import moment from 'moment-timezone';
 
-const { array_chunks } = require('../../../../common/lib/utilities');
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import Discord from 'discord.js';
+
+import { array_chunks } from '../../../../common/lib/utilities';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'guildinfo',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -30,6 +33,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -48,13 +52,10 @@ module.exports.default = new ClientInteraction({
         const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
         const guild_role_chunks = array_chunks(guild_roles, 25);
 
-        const guild_emojis = guild.emojis.cache.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
+        const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
         const guild_emoji_chunks = array_chunks(guild_emojis, 25);
 
-        /**
-         * @param {'default'|'roles'|'emojis'|'features'|'channels'|'media'} mode
-         */
-        async function updateBotMessage(mode) {
+        async function updateBotMessage(mode: 'default'|'roles'|'emojis'|'features'|'channels'|'media') {
             switch (mode) {
                 case 'roles': {
                     await bot_message.edit({
@@ -156,33 +157,36 @@ module.exports.default = new ClientInteraction({
                                         inline: false,
                                     },
 
-                                    ...[
-                                        (guild.afkChannel ? {
+                                    ...(guild.afkChannel ? [
+                                        {
                                             name: 'AFK Channel',
                                             value: `${guild.afkChannel}`,
-                                            inline: false,
-                                        } : undefined),
-                                        (guild.rulesChannel ? {
+                                        },
+                                    ] : []),
+                                    ...(guild.rulesChannel ? [
+                                        {
                                             name: 'Rules Channel',
                                             value: `${guild.rulesChannel}`,
-                                            inline: false,
-                                        } : undefined),
-                                        (guild.systemChannel ? {
+                                        },
+                                    ] : []),
+                                    ...(guild.systemChannel ? [
+                                        {
                                             name: 'System Channel',
                                             value: `${guild.systemChannel}`,
-                                            inline: false,
-                                        } : undefined),
-                                        (guild.publicUpdatesChannel ? {
+                                        },
+                                    ] : []),
+                                    ...(guild.publicUpdatesChannel ? [
+                                        {
                                             name: 'Public Updates Channel',
                                             value: `${guild.publicUpdatesChannel}`,
-                                            inline: false,
-                                        } : undefined),
-                                        (guild.widgetChannel ? {
+                                        },
+                                    ] : []),
+                                    ...(guild.widgetChannel ? [
+                                        {
                                             name: 'Widget Channel',
                                             value: `${guild.widgetChannel}`,
-                                            inline: false,
-                                        } : undefined),
-                                    ].filter(item => Boolean(item)),
+                                        },
+                                    ] : []),
                                 ],
                             }),
                         ],
@@ -194,7 +198,7 @@ module.exports.default = new ClientInteraction({
                 case 'media': {
                     const guild_icon_url = guild.iconURL({ format: 'png', size: 4096, dynamic: true });
 
-                    const guild_banner_url = guild.bannerURL({ format: 'png', size: 4096, dynamic: true });
+                    const guild_banner_url = guild.bannerURL({ format: 'png', size: 4096 });
 
                     await bot_message.edit({
                         embeds: [
@@ -389,7 +393,7 @@ module.exports.default = new ClientInteraction({
 
             if (message_button_collector.ended) return;
 
-            await updateBotMessage(button_interaction.customId);
+            await updateBotMessage(button_interaction.customId as any);
         });
 
         message_button_collector.on('end', async () => {

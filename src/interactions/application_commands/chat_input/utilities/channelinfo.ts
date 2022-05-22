@@ -2,11 +2,13 @@
 
 //------------------------------------------------------------//
 
-const moment = require('moment-timezone');
-const Discord = require('discord.js');
+import moment from 'moment-timezone';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import Discord from 'discord.js';
+
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -36,6 +38,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -49,10 +52,23 @@ module.exports.default = new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const channel_id = interaction.options.get('channel').value;
+        const channel_id = interaction.options.get('channel')?.value as string;
         const channel = await interaction.guild.channels.fetch(channel_id);
 
-        const everyone_permissions = channel.permissionsFor(interaction.guild.roles.everyone.id).toArray();
+        if (!channel) {
+            await bot_message.edit({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        description: `Unable to find channel with Id of \`${channel_id}\`.`,
+                    }),
+                ],
+            });
+
+            return;
+        }
+
+        const everyone_permissions = channel.permissionsFor(interaction.guild.roles.everyone.id)?.toArray() ?? [];
 
         await bot_message.edit({
             embeds: [
@@ -139,7 +155,7 @@ module.exports.default = new ClientInteraction({
                                 inline: true,
                             }, {
                                 name: 'Speakable',
-                                value: `\`${channel.speakable ?? 'n/a'}\``,
+                                value: `\`${(channel as Discord.BaseGuildVoiceChannel & { speakable?: boolean }).speakable ?? 'n/a'}\``,
                                 inline: true,
                             }, {
                                 name: '\u200b',
