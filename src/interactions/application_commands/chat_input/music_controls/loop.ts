@@ -8,7 +8,7 @@ import { CustomEmbed } from '../../../../common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
-import { music_subscriptions } from '../../../../common/app/music/music';
+import { QueueLoopingMode, music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
@@ -108,7 +108,7 @@ export default new ClientInteraction({
         const looping_mode_option = interaction.options.get('type', true);
 
         try {
-            music_subscription.queue.looping_mode = looping_mode_option.name as any;
+            music_subscription.queue.looping_mode = looping_mode_option.name as QueueLoopingMode;
         } catch (error) {
             console.trace(error, { looping_mode_option });
 

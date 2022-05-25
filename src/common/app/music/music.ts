@@ -206,10 +206,13 @@ export class QueueVolumeManager {
 
 //------------------------------------------------------------//
 
+/** @todo export type QueueLoopingMode = 'off' | 'track' | 'queue' | 'autoplay'; */
+export type QueueLoopingMode = 'off' | 'track' | 'queue';
+
 export class Queue<Track extends BaseTrack = BaseTrack> {
     locked: boolean = false;
 
-    #looping_mode: 'off' | 'track' | 'queue' | 'autoplay' = 'off';
+    #looping_mode: QueueLoopingMode = 'off';
 
     #previous_tracks: Track[] = [];
 
@@ -234,15 +237,11 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
         return this.#future_tracks;
     }
 
-    get looping_mode() {
+    get looping_mode(): QueueLoopingMode {
         return this.#looping_mode;
     }
 
-    set looping_mode(mode) {
-        if (!['off', 'track', 'queue', 'autoplay'].includes(mode)) {
-            throw new TypeError(`Invalid looping mode: ${mode}`);
-        }
-
+    set looping_mode(mode: QueueLoopingMode) {
         this.#looping_mode = mode;
     }
 
@@ -308,10 +307,10 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
                 break;
             }
 
-            case 'autoplay': {
-                /** @todo */
-                throw new Error('Autoplay mode not implemented!');
-            }
+            /** @todo */
+            // case 'autoplay': {
+            //     throw new Error('Autoplay mode not implemented!');
+            // }
 
             default: {
                 throw new Error(`Unknown looping mode: ${this.#looping_mode}`);
