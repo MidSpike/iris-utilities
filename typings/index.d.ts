@@ -17,7 +17,9 @@ export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
 export type GuildId = string;
 
 export type GuildConfig = {
-    [key: string]: any;
+    [key: string]: unknown;
+    staff_role_ids?: string[];
+    admin_role_ids?: string[];
 }
 
 //------------------------------------------------------------//

@@ -2,8 +2,6 @@
 
 //------------------------------------------------------------//
 
-import { exec as ytdl } from 'youtube-dl-exec';
-
 import Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
@@ -11,6 +9,8 @@ import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, jo
 import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../common/app/music/music';
 
 import { CustomEmbed } from '../common/app/message';
+
+const { exec: ytdl } = require('youtube-dl-exec');
 
 //------------------------------------------------------------//
 
@@ -87,7 +87,8 @@ export default {
                 joinVoiceChannel({
                     channelId: voice_channel.id,
                     guildId: guild.id,
-                    adapterCreator: guild.voiceAdapterCreator as any, // to make typescript happy
+                    // @ts-ignore This works, even though it's not a valid type.
+                    adapterCreator: guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
             );
@@ -139,7 +140,7 @@ export default {
                         q: '',
                         f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
                         r: '100K',
-                    } as any, {
+                    }, {
                         stdio: [ 'ignore', 'pipe', 'ignore' ],
                     });
 

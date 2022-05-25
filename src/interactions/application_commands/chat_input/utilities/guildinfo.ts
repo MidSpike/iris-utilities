@@ -10,7 +10,7 @@ import { array_chunks } from '../../../../common/lib/utilities';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -55,7 +55,9 @@ export default new ClientInteraction({
         const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
         const guild_emoji_chunks = array_chunks(guild_emojis, 25);
 
-        async function updateBotMessage(mode: 'default'|'roles'|'emojis'|'features'|'channels'|'media') {
+        type GuildInfoSectionName = 'default' | 'roles' | 'emojis' | 'features' | 'channels' | 'media';
+
+        async function updateBotMessage(mode: GuildInfoSectionName) {
             switch (mode) {
                 case 'roles': {
                     await bot_message.edit({
@@ -393,7 +395,7 @@ export default new ClientInteraction({
 
             if (message_button_collector.ended) return;
 
-            await updateBotMessage(button_interaction.customId as any);
+            await updateBotMessage(button_interaction.customId as GuildInfoSectionName);
         });
 
         message_button_collector.on('end', async () => {

@@ -34,10 +34,10 @@ export function string_ellipses(
 /**
  * Splits an array into a new chunked array containing arrays of a specified size (or less for the last chunk)
  */
-export function array_chunks(
-    array_of_things: any[],
+export function array_chunks<T=unknown>(
+    array_of_things: T[],
     chunk_size: number,
-): any[][] {
+): T[][] {
     if (!Number.isInteger(chunk_size)) throw new Error('chunk_size must be an integer');
 
     const array_of_things_clone = [ ...array_of_things ]; // prevent mutation of the original array
@@ -53,7 +53,7 @@ export function array_chunks(
 /**
  * Fetches a random item from the specified array
  */
-export function array_random<T=any>(
+export function array_random<T=unknown>(
     array_of_things: T[],
 ): T {
     return array_of_things[random_range_inclusive(0, array_of_things.length - 1)];

@@ -6,7 +6,7 @@ import Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 import { music_subscriptions } from '../../../../common/app/music/music';
 
