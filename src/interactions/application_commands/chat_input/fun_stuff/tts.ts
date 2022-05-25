@@ -12,7 +12,7 @@ import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, jo
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { BaseTrack, MusicSubscription, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '../../../../common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
@@ -176,12 +176,12 @@ export default new ClientInteraction({
 
             const [ provider, voice ] = provider_voice.split(':');
 
-            const track = new BaseTrack({
+            const track = new TextToSpeechTrack({
                 title: `${interaction.user}'s TTS Message`,
                 tts_text: tts_text,
                 tts_provider: provider,
                 tts_voice: voice,
-            }, async (track) => await new Promise(async (resolve, reject) => {
+            }, () => new Promise(async (resolve, reject) => {
                 let stream: stream.Readable;
 
                 try {

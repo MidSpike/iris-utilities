@@ -88,7 +88,7 @@ export default new ClientInteraction({
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, now playing **${current_track.metadata.title}**!`,
+                    description: `${interaction.user}, **${current_track.metadata.title}** is currently playing!`,
                 }),
             ],
         }).catch(() => {});

@@ -6,13 +6,13 @@ import Discord from 'discord.js';
 
 import { exec as ytdl } from 'youtube-dl-exec';
 
-import { createAudioResource, demuxProbe, entersState, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
+import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { RemoteTrack, MusicSubscription, music_subscriptions, MusicReconnaissance } from '../../../../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -168,7 +168,7 @@ export default new ClientInteraction({
         const track = new RemoteTrack({
             title: search_result.title,
             url: search_result.url,
-        }, async (track) => await new Promise((resolve, reject) => {
+        }, () => new Promise((resolve, reject) => {
             console.warn({
                 track,
             });

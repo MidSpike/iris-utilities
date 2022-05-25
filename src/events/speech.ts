@@ -131,7 +131,7 @@ export default {
                 const track = new RemoteTrack({
                     title: search_result.title,
                     url: search_result.url,
-                }, async (track) => await new Promise((resolve, reject) => {
+                }, () => new Promise((resolve, reject) => {
                     console.warn({
                         track,
                     });
