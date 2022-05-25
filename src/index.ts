@@ -31,11 +31,16 @@ process.on('uncaughtException', (error) => {
 
 const discord_bot_entry_file_path = path.join(process.cwd(), 'dist', 'discord_bot.js');
 const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path, {
+    mode: 'process',
+    token: process.env.DISCORD_BOT_API_TOKEN,
     execArgv: [
         '--trace-warnings',
     ],
-    token: process.env.DISCORD_BOT_API_TOKEN,
+    shardArgs: [
+        '--trace-warnings',
+    ],
     totalShards: 'auto',
+    respawn: true,
 });
 
 //------------------------------------------------------------//
@@ -51,4 +56,7 @@ sharding_manager.on('shardCreate', (shard) => {
 //------------------------------------------------------------//
 
 console.log('<SM> spawning shards...');
-sharding_manager.spawn();
+sharding_manager.spawn({
+    timeout: 1 * 60_000,
+    delay: 10_000,
+});

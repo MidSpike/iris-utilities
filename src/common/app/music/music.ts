@@ -31,83 +31,100 @@ type GuildId = string;
 
 //------------------------------------------------------------//
 
-export type BaseTrackMetadata = {
+export interface BaseTrackMetadata {
     [key: string]: any;
     title: string;
-    url?: string;
 }
 
-export type ResourceCreator<T> = (track: T) => Promise<AudioResource>;
+// eslint-disable-next-line no-use-before-define
+export type BaseResourceCreator = () => Promise<AudioResource>;
 
 //------------------------------------------------------------//
 
-export class BaseTrack {
-    #metadata: BaseTrackMetadata;
+export class BaseTrack<
+    MetaData extends BaseTrackMetadata = BaseTrackMetadata,
+    ResourceCreator extends BaseResourceCreator = BaseResourceCreator,
+> {
+    private _metadata: MetaData;
 
-    #resource: AudioResource | undefined;
+    private _resource: AudioResource | undefined;
 
-    #resource_creator: ResourceCreator<this>;
+    private _resource_creator: ResourceCreator;
 
-    #events: {
+    private _events: {
         onStart: () => void;
         onFinish: () => void;
         onError: (error: unknown) => void;
     };
 
     constructor(
-        metadata: BaseTrackMetadata,
-        resource_creator: ResourceCreator<BaseTrack>,
+        metadata: MetaData,
+        resource_creator: ResourceCreator,
         { onStart, onFinish, onError }: {
             onStart: () => void;
             onFinish: () => void;
             onError: (error: unknown) => void;
         }
     ) {
-        this.#metadata = metadata;
-        this.#resource_creator = resource_creator;
-        this.#events = { onStart, onFinish, onError };
+        this._metadata = metadata;
+        this._resource_creator = resource_creator;
+        this._events = { onStart, onFinish, onError };
     }
 
-    get metadata(): BaseTrackMetadata {
-        return this.#metadata;
+    get metadata(): MetaData {
+        return this._metadata;
     }
 
     get resource(): AudioResource | undefined {
-        return this.#resource;
+        return this._resource;
     }
 
     async initializeResource(): Promise<AudioResource> {
-        this.#resource = await this.#resource_creator(this);
+        this._resource = await this._resource_creator();
 
-        this.#resource.volume!.setVolumeLogarithmic(0);
+        this._resource.volume!.setVolumeLogarithmic(0);
 
-        return this.#resource;
+        return this._resource;
     }
 
     async fetchResource(): Promise<AudioResource> {
-        if (this.#resource) {
-            return this.#resource;
+        if (this._resource) {
+            return this._resource;
         }
 
         return await this.initializeResource();
     }
 
     onStart() {
-        this.#events.onStart();
+        this._events.onStart();
     }
 
     onFinish() {
-        this.#events.onFinish();
+        this._events.onFinish();
     }
 
     onError(error: unknown) {
-        this.#events.onError(error);
+        this._events.onError(error);
     }
 }
 
 //------------------------------------------------------------//
 
-export class RemoteTrack extends BaseTrack {}
+export interface RemoteTrackMetadata extends BaseTrackMetadata {
+    url: string;
+}
+
+export class RemoteTrack extends BaseTrack<RemoteTrackMetadata> {}
+
+//------------------------------------------------------------//
+
+export interface TextToSpeechTrackMetadata extends BaseTrackMetadata {
+    tts_text: string,
+    tts_provider: string,
+    tts_voice: string,
+}
+
+export class TextToSpeechTrack extends BaseTrack<TextToSpeechTrackMetadata> {}
 
 //------------------------------------------------------------//
 
@@ -189,16 +206,16 @@ export class QueueVolumeManager {
 
 //------------------------------------------------------------//
 
-export class Queue {
+export class Queue<Track extends BaseTrack = BaseTrack> {
     locked: boolean = false;
 
     #looping_mode: 'off' | 'track' | 'queue' | 'autoplay' = 'off';
 
-    #previous_tracks: BaseTrack[] = [];
+    #previous_tracks: Track[] = [];
 
-    #current_track: BaseTrack | undefined = undefined;
+    #current_track: Track | undefined = undefined;
 
-    #future_tracks: BaseTrack[] = [];
+    #future_tracks: Track[] = [];
 
     readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
 
@@ -229,7 +246,7 @@ export class Queue {
         this.#looping_mode = mode;
     }
 
-    getTrack(position: number): BaseTrack | undefined {
+    getTrack(position: number): Track | undefined {
         return this.#future_tracks[position];
     }
 
@@ -238,13 +255,13 @@ export class Queue {
      * @param position The position to add the track at (0-indexed)
      */
     addTrack(
-        track: BaseTrack,
+        track: Track,
         position: number = this.#future_tracks.length,
     ) {
         this.#future_tracks.splice(position, 0, track);
     }
 
-    removeTrack(position: number): BaseTrack | undefined {
+    removeTrack(position: number): Track | undefined {
         return this.#future_tracks.splice(position, 1).at(0);
     }
 
@@ -266,14 +283,14 @@ export class Queue {
         this.#future_tracks.sort(() => Math.random() - 0.5); // weighted, but works well enough
     }
 
-    async processNextTrack(): Promise<BaseTrack | void> {
+    async processNextTrack(): Promise<Track | void> {
         if (this.locked) return;
         this.locked = true;
 
         const previous_track = this.#current_track;
         if (previous_track) this.#previous_tracks.splice(0, 0, previous_track);
 
-        let next_track: BaseTrack | undefined;
+        let next_track: Track | undefined;
         switch (this.#looping_mode) {
             case 'off': {
                 next_track = this.#future_tracks.shift();
