@@ -108,7 +108,7 @@ export default new ClientInteraction({
         const looping_mode_option = interaction.options.get('type', true);
 
         try {
-            music_subscription.queue.looping_mode = looping_mode_option.name as QueueLoopingMode;
+            music_subscription.queue.looping_mode = looping_mode_option.value as QueueLoopingMode;
         } catch (error) {
             console.trace(error, { looping_mode_option });
 

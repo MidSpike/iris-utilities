@@ -80,6 +80,8 @@ export class BaseTrack<
     }
 
     async initializeResource(): Promise<AudioResource> {
+        this.destroyResource(); // destroy any existing resource (useful for when the track is being re-used)
+
         this._resource = await this._resource_creator();
 
         this._resource.volume!.setVolumeLogarithmic(0);
@@ -95,15 +97,23 @@ export class BaseTrack<
         return await this.initializeResource();
     }
 
-    onStart() {
+    async destroyResource(): Promise<void> {
+        this._resource = undefined;
+    }
+
+    async onStart() {
         this._events.onStart();
     }
 
-    onFinish() {
+    async onFinish() {
+        await this.destroyResource();
+
         this._events.onFinish();
     }
 
-    onError(error: unknown) {
+    async onError(error: unknown) {
+        await this.destroyResource();
+
         this._events.onError(error);
     }
 }
@@ -210,42 +220,45 @@ export class QueueVolumeManager {
 export type QueueLoopingMode = 'off' | 'track' | 'queue';
 
 export class Queue<Track extends BaseTrack = BaseTrack> {
-    locked: boolean = false;
+    private _looping_mode: QueueLoopingMode = 'off';
 
-    #looping_mode: QueueLoopingMode = 'off';
+    private _previous_tracks: Track[] = [];
 
-    #previous_tracks: Track[] = [];
+    private _current_track: Track | undefined = undefined;
 
-    #current_track: Track | undefined = undefined;
+    private _future_tracks: Track[] = [];
 
-    #future_tracks: Track[] = [];
+    public readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
 
-    readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
+    public locked: boolean = false;
 
     constructor() {}
 
     get previous_tracks() {
-        return this.#previous_tracks;
+        return this._previous_tracks;
     }
 
     get current_track() {
-        return this.#current_track;
+        return this._current_track;
     }
 
     get future_tracks() {
-        return this.#future_tracks;
+        return this._future_tracks;
     }
 
     get looping_mode(): QueueLoopingMode {
-        return this.#looping_mode;
+        return this._looping_mode;
     }
 
     set looping_mode(mode: QueueLoopingMode) {
-        this.#looping_mode = mode;
+        this._looping_mode = mode;
     }
 
+    /**
+     * @param position The position of the track in the queue (0-indexed)
+     */
     getTrack(position: number): Track | undefined {
-        return this.#future_tracks[position];
+        return this._future_tracks[position];
     }
 
     /**
@@ -254,55 +267,70 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
      */
     addTrack(
         track: Track,
-        position: number = this.#future_tracks.length,
+        position: number = this._future_tracks.length,
     ) {
-        this.#future_tracks.splice(position, 0, track);
+        this._future_tracks.splice(position, 0, track);
     }
 
+    /**
+     * @param position The position of the track to remove from the queue (0-indexed)
+     */
     removeTrack(position: number): Track | undefined {
-        return this.#future_tracks.splice(position, 1).at(0);
+        return this._future_tracks.splice(position, 1).at(0);
     }
 
     clearPreviousTracks() {
-        this.#previous_tracks.splice(0, this.#previous_tracks.length);
+        this._previous_tracks.splice(0, this._previous_tracks.length);
     }
 
     clearFutureTracks() {
-        this.#future_tracks.splice(0, this.#future_tracks.length);
+        this._future_tracks.splice(0, this._future_tracks.length);
     }
 
     clearAllTracks() {
-        this.#future_tracks.splice(0, this.#future_tracks.length);
-        this.#current_track = undefined;
-        this.#previous_tracks.splice(0, this.#previous_tracks.length);
+        this._future_tracks.splice(0, this._future_tracks.length);
+        this._current_track = undefined;
+        this._previous_tracks.splice(0, this._previous_tracks.length);
     }
 
     shuffleTracks() {
-        this.#future_tracks.sort(() => Math.random() - 0.5); // weighted, but works well enough
+        this._future_tracks.sort(() => Math.random() - 0.5); // weighted, but works well enough
     }
 
     async processNextTrack(): Promise<Track | void> {
         if (this.locked) return;
         this.locked = true;
 
-        const previous_track = this.#current_track;
-        if (previous_track) this.#previous_tracks.splice(0, 0, previous_track);
+        const previous_track = this._current_track;
+        if (previous_track) this._previous_tracks.splice(0, 0, previous_track);
 
         let next_track: Track | undefined;
-        switch (this.#looping_mode) {
+        switch (this._looping_mode) {
             case 'off': {
-                next_track = this.#future_tracks.shift();
+                next_track = this._future_tracks.shift();
                 break;
             }
 
             case 'track': {
                 if (previous_track) next_track = previous_track;
+
+                console.log({
+                    previous_track,
+                    next_track,
+                });
+
                 break;
             }
 
             case 'queue': {
-                if (previous_track) this.#future_tracks.push(previous_track);
-                next_track = this.#future_tracks.shift();
+                if (previous_track) this._future_tracks.push(previous_track);
+                next_track = this._future_tracks.shift();
+
+                console.log({
+                    previous_track,
+                    next_track,
+                });
+
                 break;
             }
 
@@ -312,7 +340,7 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
             // }
 
             default: {
-                throw new Error(`Unknown looping mode: ${this.#looping_mode}`);
+                throw new Error(`Unknown looping mode: ${this._looping_mode}`);
             }
         }
 
@@ -329,7 +357,7 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
         //     return;
         // }
 
-        this.#current_track = next_track;
+        this._current_track = next_track;
 
         this.locked = false;
 
@@ -338,7 +366,7 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
 
     resetState() {
         this.clearAllTracks();
-        this.#looping_mode = 'off';
+        this._looping_mode = 'off';
     }
 }
 
@@ -471,7 +499,7 @@ export class MusicSubscription {
         // Check if the queue is locked, and if so, allow the track to automatically be played.
         if (this.queue.locked) return;
 
-        const next_track_resource = await next_track.fetchResource();
+        const next_track_resource = await next_track.initializeResource();
 
         // Play the next track
         this.#audio_player.play(next_track_resource);
