@@ -8,7 +8,7 @@ import { array_chunks } from '../../../../common/lib/utilities';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -64,7 +64,9 @@ export default new ClientInteraction({
 
         const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
 
-        async function updateBotMessage(mode: 'default'|'flags'|'media'|'permissions'|'roles') {
+        type MemberInfoSectionName = 'default' | 'flags' | 'media' | 'permissions' | 'roles';
+
+        async function updateBotMessage(mode: MemberInfoSectionName) {
             switch (mode) {
                 case 'flags': {
                     await bot_message.edit({
@@ -328,7 +330,7 @@ export default new ClientInteraction({
 
             if (message_button_collector.ended) return;
 
-            await updateBotMessage(button_interaction.customId as any);
+            await updateBotMessage(button_interaction.customId as MemberInfoSectionName);
         });
 
         message_button_collector.on('end', async () => {

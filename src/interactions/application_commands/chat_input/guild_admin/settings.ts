@@ -10,7 +10,7 @@ import Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { ClientInteraction, ClientCommandHelper } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 import { GuildConfigsManager } from '../../../../common/app/guild_configs';
 
@@ -59,7 +59,7 @@ export default new ClientInteraction({
                 description: action.description,
                 options: action.options,
             })),
-        })) as any, // to make typescript shut up
+        })) as Discord.ApplicationCommandOptionData[],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,

@@ -246,7 +246,7 @@ export type ClientInteractionData = {
     options?: Discord.ApplicationCommandOptionData[],
 }
 export type ClientInteractionMetadata = {
-    [key: string]: any;
+    [key: string]: unknown;
     allowed_execution_environment?: string;
     command_category?: ClientCommandCategory;
     required_bot_permissions?: Discord.PermissionResolvable[];

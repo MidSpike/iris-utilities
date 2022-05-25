@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------//
 
-import { GuildId, GuildConfig } from 'typings';
+import { GuildConfig, GuildId } from 'typings';
 
 import Discord from 'discord.js';
 

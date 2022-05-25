@@ -5,15 +5,17 @@
         "commonjs": true,
         "es2021": true
     },
-    "extends": [
-        "eslint:recommended"
-    ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest"
     },
     "plugins": [
         "@typescript-eslint"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
     "ignorePatterns": [
         "node_modules/",
@@ -169,14 +171,7 @@
                 "allowEmptyCatch": true
             }
         ],
-        "no-empty-function": [
-            "warn",
-            {
-                "allow": [
-                    "arrowFunctions"
-                ]
-            }
-        ],
+        "no-empty-function": "off",
         "no-eq-null": "error",
         "no-eval": "error",
         "no-extend-native": "error",
@@ -248,20 +243,12 @@
         "no-unsafe-optional-chaining": "error",
         "no-unused-expressions": "error",
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": [
-            "error",
-            {
-                "vars": "all",
-                "args": "none",
-                "ignoreRestSiblings": true
-            }
-        ],
         "no-use-before-define": "error",
         "no-useless-backreference": "error",
         "no-useless-call": "error",
         "no-useless-computed-key": "off",
         "no-useless-concat": "error",
-        "no-useless-constructor": "error",
+        "no-useless-constructor": "off",
         "no-useless-escape": "off",
         "no-useless-return": "off",
         "no-var": "error",
@@ -377,6 +364,19 @@
         "yoda": [
             "error",
             "never"
-        ]
+        ],
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+                "vars": "all",
+                "args": "none",
+                "ignoreRestSiblings": true
+            }
+        ],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
     }
 }

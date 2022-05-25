@@ -4,8 +4,6 @@
 
 import Discord from 'discord.js';
 
-import { exec as ytdl } from 'youtube-dl-exec';
-
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
 import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
@@ -13,6 +11,8 @@ import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscription
 import { CustomEmbed } from '../../../../common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+const { exec: ytdl } = require('youtube-dl-exec');
 
 //------------------------------------------------------------//
 
@@ -111,7 +111,8 @@ export default new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator as any, // to make typescript happy
+                    // @ts-ignore This works, even though it's not a valid type.
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
             );
@@ -177,7 +178,7 @@ export default new ClientInteraction({
                 q: '',
                 f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
                 r: '100K',
-            } as any, {
+            }, {
                 stdio: [ 'ignore', 'pipe', 'ignore' ],
             });
 

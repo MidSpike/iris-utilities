@@ -72,16 +72,16 @@ export default new ClientInteraction({
                 await delay(100); // prevent api abuse
             }
 
-            const commands_to_register = [];
+            const commands_to_register: Discord.ApplicationCommandDataResolvable[] = [];
             for (const client_interaction of ClientInteractionManager.interactions.values()) {
                 if (client_interaction.type !== Discord.Constants.InteractionTypes.APPLICATION_COMMAND) continue;
 
-                commands_to_register.push(client_interaction.data);
+                commands_to_register.push(client_interaction.data as Discord.ApplicationCommandDataResolvable);
             }
 
             try {
                 console.info(`Guild: ${guild.id}; registering commands`);
-                await guild.commands.set(commands_to_register as any); // to make it shut up, it works fine
+                await guild.commands.set(commands_to_register);
             } catch (error) {
                 console.trace(error);
             }

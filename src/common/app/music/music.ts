@@ -32,7 +32,7 @@ type GuildId = string;
 //------------------------------------------------------------//
 
 export interface BaseTrackMetadata {
-    [key: string]: any;
+    [key: string]: unknown;
     title: string;
 }
 
@@ -222,7 +222,6 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
 
     readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
 
-    // eslint-disable-next-line no-useless-constructor, no-empty-function
     constructor() {}
 
     get previous_tracks() {

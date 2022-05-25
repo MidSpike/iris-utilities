@@ -66,7 +66,7 @@ const discord_client = new Discord.Client({
 }) as DiscordClientWithSharding;
 
 /* adds speech recognition to discord client */
-addSpeechEvent(discord_client as any);
+addSpeechEvent(discord_client as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
 //------------------------------------------------------------//
 

@@ -124,7 +124,7 @@ export default new ClientInteraction({
             return;
         }
 
-        const command_looping_mode_option = this.data!.options!.find(option => option.name === looping_mode_option.name)! as any as Discord.ApplicationCommandChoicesData;
+        const command_looping_mode_option = this.data!.options!.find(option => option.name === looping_mode_option.name)! as Discord.ApplicationCommandChoicesData;
 
         const command_looping_mode_choices = command_looping_mode_option!.choices!;
 
