@@ -482,13 +482,6 @@ export class MusicSubscription {
 
 //------------------------------------------------------------//
 
-/**
- * @typedef {{
- *   title: string,
- *   url: string,
- * }} MusicReconnaissanceSearchResult
- */
-
 export type MusicReconnaissanceSearchResult = {
     title: string;
     url: string;

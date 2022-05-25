@@ -2,44 +2,30 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-const { music_subscriptions } = require('../../../../common/app/music/music');
+import { CustomEmbed } from '../../../../common/app/message';
+
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+import { music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
-    identifier: 'loop',
+export default new ClientInteraction({
+    identifier: 'replay',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
         type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
         description: 'n/a',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
-                name: 'type',
-                description: 'the type of looping method',
-                choices: [
-                    {
-                        name: 'off',
-                        value: 'off',
-                    }, {
-                        name: 'current track',
-                        value: 'track',
-                    }, {
-                        name: 'all tracks',
-                        value: 'queue',
-                    },
-                    /** @todo */
-                    // {
-                    //     name: 'autoplay',
-                    //     value: 'autoplay',
-                    // },
-                ],
-                required: true,
+                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                name: 'playnext',
+                description: 'replay after the current track or at the end of the queue',
+                required: false,
             },
         ],
     },
@@ -56,11 +42,16 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
-        const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
-        const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
+        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
+
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+
+        const guild_member_voice_channel_id = member.voice.channel?.id;
+        const bot_voice_channel_id = interaction.guild.me!.voice.channel?.id;
 
         if (!bot_voice_channel_id) {
             await interaction.editReply({
@@ -98,21 +89,41 @@ module.exports.default = new ClientInteraction({
                     }),
                 ],
             }).catch(() => {});
+
             return;
         }
 
-        const looping_mode_option = interaction.options.get('type');
+        joinVoiceChannel({
+            channelId: guild_member_voice_channel_id,
+            guildId: interaction.guildId,
+            adapterCreator: interaction.guild.voiceAdapterCreator as any, // to make typescript happy
+            selfDeaf: false,
+        });
 
         try {
-            music_subscription.queue.looping_mode = looping_mode_option.value;
+            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3); // 10 seconds
         } catch (error) {
-            console.trace(error, { looping_mode_option });
+            console.warn(error);
 
-            await interaction.editReply({
+            await interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, an error occurred while trying to set the looping mode!`,
+                        description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                    }),
+                ],
+            });
+
+            return;
+        }
+
+        const most_recent_track = music_subscription.queue.previous_tracks.at(0);
+        if (!most_recent_track) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        title: 'There is no track to replay!',
                     }),
                 ],
             }).catch(() => {});
@@ -120,18 +131,16 @@ module.exports.default = new ClientInteraction({
             return;
         }
 
-        const command_looping_mode_option = this.data.options.find(option => option.name === looping_mode_option.name);
+        const insert_index = playnext ? 0 : music_subscription.queue.future_tracks.length;
+        music_subscription.queue.addTrack(most_recent_track, insert_index);
 
-        /** @type {import('discord.js').ApplicationCommandOptionChoice[]} */
-        const command_looping_mode_choices = command_looping_mode_option.choices;
+        // Process the music subscription's queue
+        await music_subscription.processQueue(false);
 
-        /** @type {import('discord.js').ApplicationCommandOptionChoice} */
-        const command_looping_mode_choice = command_looping_mode_choices.find(choice => choice.value === looping_mode_option.value);
-
-        await interaction.editReply({
+        await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, set queue looping to **${command_looping_mode_choice.name}**.`,
+                    description: `${interaction.user}, replaying **${most_recent_track.metadata.title}** ${playnext ? 'next' : 'at the end of the queue'}!`,
                 }),
             ],
         }).catch(() => {});
