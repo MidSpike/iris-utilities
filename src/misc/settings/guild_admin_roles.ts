@@ -85,7 +85,7 @@ export default {
             async handler(setting, guild_config, command_interaction) {
                 const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.get('value')?.value;
+                const role_id = command_interaction.options.get('value')?.value as string;
 
                 if (guild_admin_role_ids.includes(role_id)) {
                     return command_interaction.followUp({
