@@ -68,7 +68,6 @@ export default {
         const bot_voice_channel_id = guild.me!.voice.channelId;
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) return;
 
-        /** @type {string} */
         const user_input = msg.content.replace(voice_command_activation_regex, '').toLowerCase().trim();
         const user_input_args = user_input.split(/\s+/gi);
 
@@ -79,7 +78,6 @@ export default {
 
         const voice_command_text_channel = discord_client.channels.cache.get('909136093516029972') as Discord.TextBasedChannel;
 
-        /** @type {MusicSubscription} */
         let music_subscription = music_subscriptions.get(guild.id);
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,

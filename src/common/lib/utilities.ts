@@ -1,14 +1,19 @@
 /**
  * Asynchronous setTimeout
  */
-export function delay(time_in_milliseconds: number): Promise<void> {
+export function delay(
+    time_in_milliseconds: number,
+): Promise<void> {
     return new Promise(resolve => setTimeout(() => resolve(), time_in_milliseconds));
 }
 
 /**
  * Generates a random integer in an inclusive range: min <= return_value <= max
  */
-export function random_range_inclusive(min: number, max: number): number {
+export function random_range_inclusive(
+    min: number,
+    max: number,
+): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -27,12 +32,12 @@ export function string_ellipses(
 }
 
 /**
- * Splits an array into a new chunked array
- * @param {Array<*>} array_of_things
- * @param {Number} chunk_size
- * @returns {any[][]}
+ * Splits an array into a new chunked array containing arrays of a specified size (or less for the last chunk)
  */
-export function array_chunks(array_of_things: any[], chunk_size: number): any[][] {
+export function array_chunks(
+    array_of_things: any[],
+    chunk_size: number,
+): any[][] {
     if (!Number.isInteger(chunk_size)) throw new Error('chunk_size must be an integer');
 
     const array_of_things_clone = [ ...array_of_things ]; // prevent mutation of the original array
@@ -48,6 +53,8 @@ export function array_chunks(array_of_things: any[], chunk_size: number): any[][
 /**
  * Fetches a random item from the specified array
  */
-export function array_random(array_of_things: any[]): any {
+export function array_random<T=any>(
+    array_of_things: T[],
+): T {
     return array_of_things[random_range_inclusive(0, array_of_things.length - 1)];
 }

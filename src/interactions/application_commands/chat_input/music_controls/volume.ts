@@ -2,22 +2,23 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed, disableMessageComponents } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed, disableMessageComponents } from '../../../../common/app/message';
 
-const { music_subscriptions } = require('../../../../common/app/music/music');
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+import { music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
-function clampVolume(volume, min_volume=0, max_volume=200) {
+function clampVolume(volume: number, min_volume=0, max_volume=200) {
     return Math.max(min_volume, Math.min(max_volume, volume));
 }
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'volume',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -45,6 +46,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -61,16 +63,13 @@ module.exports.default = new ClientInteraction({
             return;
         }
 
-        /** @type {number?} */
         const raw_volume_input = interaction.options.getInteger('level');
         const volume_input = typeof raw_volume_input === 'number' ? clampVolume(raw_volume_input) : null;
         if (typeof volume_input === 'number') {
             music_subscription.queue.volume_manager.volume = volume_input;
         }
 
-        /** @type {Discord.Message} */
         const bot_message = await interaction.editReply({
-            fetchReply: true,
             embeds: [
                 CustomEmbed.from({
                     ...(volume_input ? {

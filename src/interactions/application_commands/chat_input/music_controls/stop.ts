@@ -2,16 +2,17 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
 
-const { music_subscriptions } = require('../../../../common/app/music/music');
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+import { music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'stop',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -32,11 +33,14 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
-        const guild_member_voice_channel_id = interaction.member?.voice?.channel?.id;
-        const bot_voice_channel_id = interaction.guild.me.voice.channel?.id;
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+
+        const guild_member_voice_channel_id = member.voice.channel?.id;
+        const bot_voice_channel_id = interaction.guild.me!.voice.channel?.id;
 
         if (!bot_voice_channel_id) {
             await interaction.editReply({

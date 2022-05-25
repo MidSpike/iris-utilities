@@ -2,18 +2,19 @@
 
 //------------------------------------------------------------//
 
-const Discord = require('discord.js');
+import Discord from 'discord.js';
 
-const { joinVoiceChannel } = require('@discordjs/voice');
+import { joinVoiceChannel } from '@discordjs/voice';
 
-const { CustomEmbed } = require('../../../../common/app/message');
-const { ClientInteraction, ClientCommandHelper } = require('../../../../common/app/client_interactions');
+import { CustomEmbed } from '../../../../common/app/message';
 
-const { MusicSubscription, music_subscriptions } = require('../../../../common/app/music/music');
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+
+import { MusicSubscription, music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'summon',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {
@@ -34,6 +35,7 @@ module.exports.default = new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;
+        if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -52,7 +54,6 @@ module.exports.default = new ClientInteraction({
             });
         }
 
-        /** @type {MusicSubscription} */
         let music_subscription = music_subscriptions.get(interaction.guildId);
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
@@ -62,7 +63,7 @@ module.exports.default = new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    adapterCreator: interaction.guild.voiceAdapterCreator as any, // to make typescript happy
                     selfDeaf: false,
                 })
             );

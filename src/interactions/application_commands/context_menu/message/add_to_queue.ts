@@ -102,7 +102,6 @@ export default new ClientInteraction({
             });
         }
 
-        /** @type {MusicSubscription} */
         let music_subscription = music_subscriptions.get(interaction.guildId);
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
