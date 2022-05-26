@@ -124,7 +124,7 @@ export default new ClientInteraction({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        title: 'There is no track to replay!',
+                        title: 'There is nothing to replay!',
                     }),
                 ],
             }).catch(() => {});

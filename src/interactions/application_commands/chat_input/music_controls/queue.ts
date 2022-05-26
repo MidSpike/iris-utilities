@@ -12,6 +12,84 @@ import { music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
+type QueuePageName = 'future_tracks' | 'previous_tracks';
+
+async function editInteractionReplyForQueueItems(
+    interaction: Discord.MessageComponentInteraction | Discord.CommandInteraction,
+    display_mode: QueuePageName = 'future_tracks',
+) {
+    if (!interaction.inCachedGuild()) throw new Error('interaction is not in a cached guild');
+
+    const music_subscription = music_subscriptions.get(interaction.guildId);
+
+    if (!music_subscription) {
+        return await interaction.editReply({
+            embeds: [
+                CustomEmbed.from({
+                    color: CustomEmbed.colors.YELLOW,
+                    description: `${interaction.user}, nothing is playing right now!`,
+                }),
+            ],
+        });
+    }
+
+    const payload: Discord.WebhookEditMessageOptions = {
+        embeds: [
+            display_mode === 'future_tracks' ? (
+                CustomEmbed.from({
+                    description: [
+                        '**Current Playing:**',
+                        `- ${music_subscription.queue.current_track?.metadata?.title}`,
+                        '',
+                        ...(music_subscription.queue.future_tracks.length > 0 ? [
+                            '**Displaying (up to 25) Future Tracks:**',
+                            ...music_subscription.queue.future_tracks.slice(0, 25).map((track, index) => `- ${track.metadata.title}`),
+                        ] : [
+                            '**No future tracks!**',
+                        ]),
+                    ].join('\n'),
+                })
+            ) : (
+                CustomEmbed.from({
+                    description: [
+                        ...(music_subscription.queue.previous_tracks.length > 0 ? [
+                            '**Displaying (up to 25) Previous Tracks:**',
+                            ...music_subscription.queue.previous_tracks.slice(0, 25).reverse().map((track, index) => `- ${track.metadata.title}`),
+                        ] : [
+                            '**No previous tracks!**',
+                        ]),
+                        '',
+                        '**Current Playing:**',
+                        `- ${music_subscription.queue.current_track?.metadata?.title}`,
+                    ].join('\n'),
+                })
+            ),
+        ],
+        components: [
+            {
+                type: 1,
+                components: [
+                    {
+                        type: 2,
+                        style: 2,
+                        customId: 'queue_items_display_mode_previous_tracks',
+                        label: 'Previous Tracks',
+                    }, {
+                        type: 2,
+                        style: 2,
+                        customId: 'queue_items_display_mode_future_tracks',
+                        label: 'Future Tracks',
+                    },
+                ],
+            },
+        ],
+    };
+
+    return await interaction.editReply(payload);
+}
+
+//------------------------------------------------------------//
+
 export default new ClientInteraction({
     identifier: 'queue',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
@@ -107,50 +185,45 @@ export default new ClientInteraction({
             return;
         }
 
-        const queue = music_subscription.queue;
-
         const sub_command_name = interaction.options.getSubcommand(true);
         switch (sub_command_name) {
             case 'items': {
-                if (!queue.current_track) {
-                    await interaction.editReply({
-                        embeds: [
-                            CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
-                                title: 'Nothing is playing right now!',
-                            }),
-                        ],
-                    }).catch(() => {});
+                const message = await editInteractionReplyForQueueItems(interaction, 'future_tracks');
 
-                    return;
-                }
+                const message_component_collector = interaction.channel!.createMessageComponentCollector({
+                    componentType: 'BUTTON',
+                    filter: (message_component_interaction) => message_component_interaction.message.id === message.id,
+                });
 
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            description: [
-                                ...(queue.previous_tracks.length > 0 ? [
-                                    '**Previous Tracks (up to 5):**',
-                                    ...queue.previous_tracks.slice(0, 5).reverse().map((track, index) => `- [${track.metadata.title}](${track.metadata.url})`),
-                                    '',
-                                ] : []),
-                                '**Current Playing:**',
-                                `- [${queue.current_track.metadata.title}](${queue.current_track.metadata.url})`,
-                                ...(queue.future_tracks.length > 0 ? [
-                                    '',
-                                    '**Next Tracks (up to 10):**',
-                                    ...queue.future_tracks.slice(0, 10).map((track, index) => `- [${track.metadata.title}](${track.metadata.url})`),
-                                ] : []),
-                            ].join('\n'),
-                        }),
-                    ],
-                }).catch(() => {});
+                message_component_collector.on('collect', async (message_component_interaction: Discord.MessageComponentInteraction) => {
+                    await message_component_interaction.deferUpdate();
+
+                    message_component_collector.resetTimer();
+
+                    switch (message_component_interaction.customId) {
+                        case 'queue_items_display_mode_previous_tracks': {
+                            await editInteractionReplyForQueueItems(message_component_interaction, 'previous_tracks');
+
+                            break;
+                        }
+
+                        case 'queue_items_display_mode_future_tracks': {
+                            await editInteractionReplyForQueueItems(message_component_interaction, 'future_tracks');
+
+                            break;
+                        }
+
+                        default: {
+                            throw new Error(`Unknown customId: ${message_component_interaction.customId};`);
+                        }
+                    }
+                });
 
                 break;
             }
 
             case 'shuffle': {
-                queue.shuffleTracks();
+                music_subscription.queue.shuffleTracks();
 
                 await interaction.editReply({
                     embeds: [
@@ -166,12 +239,12 @@ export default new ClientInteraction({
             case 'remove': {
                 const position = interaction.options.getInteger('position', true) - 1; // -1 because the queue is 0-indexed
 
-                if (position < 0 || position > queue.future_tracks.length) {
+                if (position < 0 || position > music_subscription.queue.future_tracks.length) {
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
-                                description: `${interaction.user}, the position must be between 1 and ${queue.future_tracks.length}!`,
+                                description: `${interaction.user}, the position must be between 1 and ${music_subscription.queue.future_tracks.length}!`,
                             }),
                         ],
                     }).catch(() => {});
@@ -179,7 +252,7 @@ export default new ClientInteraction({
                     return;
                 }
 
-                const removed_track = queue.removeTrack(position);
+                const removed_track = music_subscription.queue.removeTrack(position);
                 if (!removed_track) {
                     await interaction.editReply({
                         embeds: [
@@ -205,7 +278,7 @@ export default new ClientInteraction({
             }
 
             case 'clear': {
-                queue.clearAllTracks();
+                music_subscription.queue.clearAllTracks();
 
                 await interaction.editReply({
                     embeds: [
