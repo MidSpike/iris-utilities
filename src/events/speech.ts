@@ -131,10 +131,6 @@ export default {
                     title: search_result.title,
                     url: search_result.url,
                 }, () => new Promise((resolve, reject) => {
-                    console.warn({
-                        track,
-                    });
-
                     const process = ytdl(track.metadata.url!, {
                         o: '-',
                         q: '',

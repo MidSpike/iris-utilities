@@ -30,11 +30,6 @@ async function createHelpEmbed(command_category_id: string) {
         return `/${client_interaction.identifier} ${command_usage}`;
     });
 
-    console.log({
-        chat_input_commands,
-        commands_in_specified_category,
-    });
-
     return CustomEmbed.from({
         title: `${command_category.name}`,
         description: [

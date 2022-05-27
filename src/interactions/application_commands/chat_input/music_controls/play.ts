@@ -177,10 +177,6 @@ export default new ClientInteraction({
                     title: track_title,
                     url: track_url,
                 }, () => new Promise((resolve, reject) => {
-                    console.warn({
-                        track,
-                    });
-
                     const ytdl_process = ytdl(track.metadata.url!, {
                         o: '-',
                         q: '',
