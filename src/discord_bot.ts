@@ -82,7 +82,7 @@ async function registerClientEvents(discord_client: DiscordClientWithSharding) {
         console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> loading client event... ${client_event_file_path}`);
 
         try {
-            const { default: client_event } = require(client_event_file_path);
+            const { default: client_event } = await import(client_event_file_path);
 
             discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
         } catch (error) {

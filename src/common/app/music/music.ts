@@ -23,6 +23,8 @@ import {
 
 import { Client as DiscordClient } from 'discord.js';
 
+//------------------------------------------------------------//
+
 const delay = promisify(setTimeout);
 
 //------------------------------------------------------------//
@@ -36,10 +38,7 @@ export interface BaseTrackMetadata {
     title: string;
 }
 
-// eslint-disable-next-line no-use-before-define
 export type BaseResourceCreator = () => Promise<AudioResource>;
-
-//------------------------------------------------------------//
 
 export class BaseTrack<
     MetaData extends BaseTrackMetadata = BaseTrackMetadata,
@@ -80,7 +79,7 @@ export class BaseTrack<
     }
 
     async initializeResource(): Promise<AudioResource> {
-        this.destroyResource(); // destroy any existing resource (useful for when the track is being re-used)
+        await this.destroyResource(); // destroy any existing resource (useful for when the track is being re-used)
 
         this._resource = await this._resource_creator();
 
@@ -314,22 +313,12 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
             case 'track': {
                 if (previous_track) next_track = previous_track;
 
-                console.log({
-                    previous_track,
-                    next_track,
-                });
-
                 break;
             }
 
             case 'queue': {
                 if (previous_track) this._future_tracks.push(previous_track);
                 next_track = this._future_tracks.shift();
-
-                console.log({
-                    previous_track,
-                    next_track,
-                });
 
                 break;
             }
@@ -345,17 +334,12 @@ export class Queue<Track extends BaseTrack = BaseTrack> {
         }
 
         if (!next_track) {
+            this._current_track = undefined;
+
             this.locked = false;
+
             return;
         }
-
-        // try {
-        //     await next_track.initializeResource();
-        // } catch (error) {
-        //     next_track.onError(error);
-        //     this.locked = false;
-        //     return;
-        // }
 
         this._current_track = next_track;
 
