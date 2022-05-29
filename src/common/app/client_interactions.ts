@@ -355,7 +355,7 @@ export class ClientInteractionManager {
 
             console.log(`<DC S#(${discord_client.shard!.ids.join(', ')})> loading client interaction... ${client_interaction_file_path}`);
 
-            const { default: client_interaction } = require(client_interaction_file_path) as { default: unknown };
+            const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
                 console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path}`);
