@@ -6,7 +6,7 @@ import stream from 'node:stream';
 
 import axios from 'axios';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 

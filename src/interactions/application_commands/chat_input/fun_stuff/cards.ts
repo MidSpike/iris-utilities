@@ -2,11 +2,11 @@
 
 //------------------------------------------------------------//
 
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 
-import path from 'node:path';
+import * as path from 'node:path';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { array_random, delay } from '../../../../common/lib/utilities';
 

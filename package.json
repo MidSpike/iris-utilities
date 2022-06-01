@@ -6,7 +6,10 @@
   "scripts": {
     "husky": "is-ci || husky install",
     "lint": "npx eslint . --fix",
-    "build": "npx tsc --build",
+    "clean": "run-script-os",
+    "clean:windows": "if exist ./dist rmdir /s /q ./dist",
+    "clean:linux": "rm -rf ./dist",
+    "build": "npm run clean && tsc --build",
     "prepare": "npm run husky && npm run lint && npm run build",
     "test": "npm run prepare",
     "title": "run-script-os",

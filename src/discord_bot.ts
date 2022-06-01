@@ -7,9 +7,9 @@ require('manakin').global;
 
 //------------------------------------------------------------//
 
-import path from 'node:path';
+import * as path from 'node:path';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { addSpeechEvent } from 'discord-speech-recognition';
 
@@ -79,14 +79,14 @@ async function registerClientEvents(discord_client: DiscordClientWithSharding) {
 
         const client_event_file_path = path.join(path_to_event_files, client_event_file_name);
 
-        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> loading client event... ${client_event_file_path}`);
+        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client event... ${client_event_file_path}`);
 
         try {
             const { default: client_event } = await import(client_event_file_path);
 
             discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
         } catch (error) {
-            console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client event: ${client_event_file_path}`, error);
+            console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client event: ${client_event_file_path}`, error);
 
             continue;
         }

@@ -4,7 +4,7 @@
 
 import { Setting } from 'typings';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../common/app/message';
 import { GuildConfigsManager } from '../../common/app/guild_configs';

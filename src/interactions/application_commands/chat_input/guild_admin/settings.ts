@@ -4,9 +4,9 @@
 
 import { Setting } from 'typings';
 
-import path from 'node:path';
+import * as path from 'node:path';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 

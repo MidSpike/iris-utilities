@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------//
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { delay } from '../../../../common/lib/utilities';
 

@@ -4,7 +4,7 @@
 
 import Typings from 'typings';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { ClientInteractionManager } from '../common/app/client_interactions';
 

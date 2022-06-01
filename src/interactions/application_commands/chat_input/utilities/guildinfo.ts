@@ -4,7 +4,7 @@
 
 import moment from 'moment-timezone';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { array_chunks } from '../../../../common/lib/utilities';
 

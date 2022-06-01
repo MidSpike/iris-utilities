@@ -2,13 +2,11 @@
 
 //------------------------------------------------------------//
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
-
-import { delay } from '../../../../common/lib/utilities';
+import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -59,38 +57,10 @@ export default new ClientInteraction({
             ],
         }).catch(console.warn);
 
-        for (const guild of discord_client.guilds.cache.values()) {
-            /* remove non-existent commands */
-            for (const [ guild_command_id, guild_command ] of await guild.commands.fetch()) {
-                const command_exists = ClientInteractionManager.interactions.find(interaction => interaction.identifier === guild_command.name);
-
-                if (!command_exists) {
-                    console.info(`Guild: ${guild.id}; removing command: ${guild_command.name};`);
-                    await guild.commands.delete(guild_command_id);
-                }
-
-                await delay(100); // prevent api abuse
-            }
-
-            const commands_to_register: Discord.ApplicationCommandDataResolvable[] = [];
-            for (const client_interaction of ClientInteractionManager.interactions.values()) {
-                if (client_interaction.type !== Discord.Constants.InteractionTypes.APPLICATION_COMMAND) continue;
-
-                commands_to_register.push(client_interaction.data as Discord.ApplicationCommandDataResolvable);
-            }
-
-            try {
-                console.info(`Guild: ${guild.id}; registering commands`);
-                await guild.commands.set(commands_to_register);
-            } catch (error) {
-                console.trace(error);
-            }
-        }
-
         await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, test complete!`,
+                    description: `${interaction.user}, completed the programmed test!`,
                 }),
             ],
         }).catch(() => {});

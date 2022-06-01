@@ -4,7 +4,7 @@
 
 import { GuildConfig, GuildId } from 'typings';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { go_mongo_db } from '../lib/go_mongo_db';
 
