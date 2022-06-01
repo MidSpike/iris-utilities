@@ -7,9 +7,9 @@ require('manakin').global;
 
 //------------------------------------------------------------//
 
-import path from 'node:path';
+import * as path from 'node:path';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 //------------------------------------------------------------//
 

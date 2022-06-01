@@ -4,7 +4,7 @@
 
 import moment from 'moment-timezone';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
@@ -12,7 +12,7 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'channelinfo',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

@@ -2,9 +2,9 @@
 
 //------------------------------------------------------------//
 
-import path from 'node:path';
+import * as path from 'node:path';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { go_mongo_db } from '../lib/go_mongo_db';
 
@@ -353,7 +353,7 @@ export class ClientInteractionManager {
 
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
-            console.log(`<DC S#(${discord_client.shard!.ids.join(', ')})> loading client interaction... ${client_interaction_file_path}`);
+            console.log(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
 
             const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
@@ -427,7 +427,7 @@ export class ClientInteractionManager {
                         ],
                     }),
                 ],
-            }).catch(console.warn);
+            })?.catch(console.warn);
         }
     }
 }

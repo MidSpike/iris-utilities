@@ -4,7 +4,7 @@
 
 import axios from 'axios';
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
@@ -31,7 +31,7 @@ type DefinitionApiResult = {
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction({
     identifier: 'define',
     type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
     data: {

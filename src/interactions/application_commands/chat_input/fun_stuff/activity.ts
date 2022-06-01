@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------//
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
@@ -63,7 +63,7 @@ export default new ClientInteraction({
             Discord.Permissions.FLAGS.CONNECT,
             Discord.Permissions.FLAGS.SPEAK,
         ],
-        command_category: ClientCommandHelper.categories.get('BOT_SUPER'),
+        command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
     },
     async handler(discord_client, interaction) {
         if (!interaction.isCommand()) return;

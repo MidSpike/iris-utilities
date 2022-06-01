@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------//
 
-import Discord from 'discord.js';
+import * as Discord from 'discord.js';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../common/app/client_interactions';
 
