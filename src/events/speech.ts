@@ -65,7 +65,9 @@ export default {
         const guild_member_voice_channel_id = guild_member.voice.channelId;
         if (!guild_member_voice_channel_id) return;
 
-        const bot_voice_channel_id = guild.me!.voice.channelId;
+        const bot_member = await guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) return;
 
         const user_input = msg.content.replace(voice_command_activation_regex, '').toLowerCase().trim();

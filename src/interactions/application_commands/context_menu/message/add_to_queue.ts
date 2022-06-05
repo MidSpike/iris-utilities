@@ -18,23 +18,23 @@ const { exec: ytdl } = require('youtube-dl-exec');
 
 export default new ClientInteraction({
     identifier: 'Add To Queue',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.MESSAGE,
+        type: Discord.ApplicationCommandType.Message,
         description: '', // required for the command to be registered
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isContextMenu()) return;
+        if (!interaction.isContextMenuCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -42,7 +42,10 @@ export default new ClientInteraction({
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
+
+        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({

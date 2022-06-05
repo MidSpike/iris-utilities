@@ -16,9 +16,9 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 export default new ClientInteraction({
     identifier: 'guildinfo',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays information about this guild',
         options: [],
     },
@@ -26,13 +26,13 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -198,9 +198,9 @@ export default new ClientInteraction({
                 }
 
                 case 'media': {
-                    const guild_icon_url = guild.iconURL({ format: 'png', size: 4096, dynamic: true });
+                    const guild_icon_url = guild.iconURL({ extension: 'gif', size: 4096 });
 
-                    const guild_banner_url = guild.bannerURL({ format: 'png', size: 4096 });
+                    const guild_banner_url = guild.bannerURL({ extension: 'gif', size: 4096 });
 
                     await bot_message.edit({
                         embeds: [

@@ -20,18 +20,18 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 export default new ClientInteraction({
     identifier: 'play',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'allows for playing audio resources',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'query',
                 description: 'the query to search',
                 required: true,
             }, {
-                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                type: Discord.ApplicationCommandOptionType.Boolean,
                 name: 'playnext',
                 description: 'whether to play next',
                 required: false,
@@ -42,15 +42,15 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
         command_category: ClientCommandHelper.categories.get('MUSIC_CONTROLS'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -61,7 +61,10 @@ export default new ClientInteraction({
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
+
+        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({

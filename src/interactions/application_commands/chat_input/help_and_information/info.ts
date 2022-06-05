@@ -12,9 +12,9 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 export default new ClientInteraction({
     identifier: 'info',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays various information about the bot',
         options: [],
     },
@@ -22,15 +22,15 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
         command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -38,9 +38,12 @@ export default new ClientInteraction({
         const bot_application_owner_id = bot_application.owner instanceof Discord.Team ? bot_application.owner.owner!.user.id : bot_application.owner!.id;
 
         const bot_invite_url = discord_client.generateInvite({
-            scopes: [ 'applications.commands', 'bot' ],
+            scopes: [
+                Discord.OAuth2Scopes.Bot,
+                Discord.OAuth2Scopes.ApplicationsCommands,
+            ],
             permissions: [
-                Discord.Permissions.FLAGS.ADMINISTRATOR,
+                Discord.PermissionFlagsBits.Administrator,
             ],
         });
 

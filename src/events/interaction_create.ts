@@ -10,7 +10,7 @@ import { ClientInteractionManager } from '../common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-const event_name = Discord.Constants.Events.INTERACTION_CREATE;
+const event_name = Discord.Events.InteractionCreate;
 export default {
     name: event_name,
     async handler(

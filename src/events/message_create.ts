@@ -10,7 +10,7 @@ import { CustomEmbed } from '../common/app/message';
 
 //------------------------------------------------------------//
 
-const event_name = Discord.Constants.Events.MESSAGE_CREATE;
+const event_name = Discord.Events.MessageCreate;
 export default {
     name: event_name,
     async handler(
