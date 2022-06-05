@@ -14,13 +14,13 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 export default new ClientInteraction({
     identifier: 'memberinfo',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays information about a guild member',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.USER,
+                type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
                 description: 'the guild member to lookup',
                 required: false,
@@ -31,13 +31,13 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -98,9 +98,9 @@ export default new ClientInteraction({
                 }
 
                 case 'media': {
-                    const guild_member_icon_url = member.avatarURL({ format: 'png', size: 4096, dynamic: true });
-                    const global_user_icon_url = member.user.displayAvatarURL({ format: 'png', size: 4096, dynamic: true });
-                    const global_user_banner_url = member.user.bannerURL({ format: 'png', size: 4096, dynamic: true });
+                    const guild_member_icon_url = member.avatarURL({ extension: 'gif', size: 4096 });
+                    const global_user_icon_url = member.user.displayAvatarURL({ extension: 'gif', size: 4096 });
+                    const global_user_banner_url = member.user.bannerURL({ extension: 'gif', size: 4096 });
 
                     await bot_message.edit({
                         embeds: [
@@ -156,11 +156,11 @@ export default new ClientInteraction({
 
                                     {
                                         name: 'Enhanced Permissions',
-                                        value: `${'```'}\n${member_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                                        value: `${'```'}\n${member_permissions.includes('Administrator') ? 'ADMINISTRATOR' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Inherited Permissions',
-                                        value: `${'```'}\n${everyone_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                                        value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     },
                                 ],

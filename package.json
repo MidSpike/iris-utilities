@@ -30,7 +30,7 @@
     "discord-api-types": "0.33.3",
     "discord-player": "5.2.2",
     "discord-speech-recognition": "github:MidSpike/discord-speech-recognition#2.1.1-fork-0.0.4",
-    "discord.js": "13.8.0",
+    "discord.js": "^14.0.0-dev.1654430643-7a1095b",
     "dotenv": "16.0.1",
     "ffmpeg-static": "4.4.1",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v1.2.0-stable",

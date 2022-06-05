@@ -18,10 +18,10 @@ export class CustomEmbed {
         VIOLET: 0xAA00FF,
     };
 
-    static from(options: Discord.MessageEmbedOptions): Discord.MessageEmbed {
+    static from(options: Discord.APIEmbed): Discord.EmbedBuilder {
         options.color ??= this.colors.BRAND;
 
-        return new Discord.MessageEmbed(options);
+        return Discord.EmbedBuilder.from(options);
     }
 }
 

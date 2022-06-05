@@ -508,6 +508,17 @@ export class MusicReconnaissance {
     ): void {
         if (MusicReconnaissance._initialized) return;
 
+        const discord_client_proxy = new Proxy(discord_client, {});
+
+        discord_client_proxy.options = new Proxy(discord_client_proxy.options, {
+            get(target, key) {
+                if (key === 'intents') return undefined;
+
+                // @ts-ignore
+                return target[key];
+            },
+        });
+
         MusicReconnaissance._client = discord_client;
         MusicReconnaissance._discord_player = new DiscordPlayer(discord_client, {
             ytdlOptions: {

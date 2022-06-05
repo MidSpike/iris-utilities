@@ -14,13 +14,13 @@ import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/c
 
 export default new ClientInteraction({
     identifier: 'channelinfo',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays information about a guild channel',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.CHANNEL,
+                type: Discord.ApplicationCommandOptionType.Channel,
                 name: 'channel',
                 description: 'the guild channel to lookup',
                 required: true,
@@ -31,13 +31,13 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -52,15 +52,15 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const channel_id = interaction.options.get('channel')?.value as string;
-        const channel = await interaction.guild.channels.fetch(channel_id);
+        const channel_resolvable = interaction.options.getChannel('channel', true);
+        const channel = await interaction.guild.channels.fetch(channel_resolvable.toString());
 
         if (!channel) {
             await bot_message.edit({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `Unable to find channel with Id of \`${channel_id}\`.`,
+                        description: `Unable to find channel \`${channel_resolvable}\`.`,
                     }),
                 ],
             });

@@ -134,7 +134,7 @@ export class ClientCommandHelper {
 
             const guild_member = await guild.members.fetch(interaction.user.id);
             const guild_member_roles = guild_member.roles.cache;
-            const guild_member_is_administrator = guild_member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR);
+            const guild_member_is_administrator = guild_member.permissions.has(Discord.PermissionFlagsBits.Administrator);
 
             const guild_config = await GuildConfigsManager.fetch(guild.id);
             const guild_staff_role_ids = guild_config.staff_role_ids ?? [];
@@ -207,14 +207,16 @@ export class ClientCommandHelper {
         if (!channel) return true; // the channel doesn't exist, so we can assume the bot has all permissions
         if (!channel?.isText()) return true; // the channel is not a text channel, so we can't check permissions
 
-        const bot_guild_permissions = channel.guild.me!.permissions;
+        const bot_member = await channel.guild.members.fetch(discord_client.user!.id);
+
+        const bot_guild_permissions = bot_member.permissions;
         const bot_channel_permissions = channel.permissionsFor(discord_client.user!.id)!;
-        const bot_permissions = new Discord.Permissions([ bot_guild_permissions, bot_channel_permissions ]);
+        const bot_permissions = new Discord.PermissionsBitField([ bot_guild_permissions, bot_channel_permissions ]);
 
         const missing_permissions = required_permissions.filter(required_permission => !bot_permissions.has(required_permission));
 
         if (missing_permissions.length > 0) {
-            const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
+            const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.PermissionFlagsBits).find(([ _, perm ]) => perm === permission)?.[0]);
 
             if (interaction.isRepliable()) {
                 interaction.reply({
@@ -384,7 +386,7 @@ export class ClientInteractionManager {
                 unknown_interaction.isModalSubmit() ? (
                     unknown_interaction.customId
                 ) : (
-                    unknown_interaction.isApplicationCommand() ? (
+                    unknown_interaction.isChatInputCommand() ? (
                         unknown_interaction.commandName
                     ) : (
                         unknown_interaction.isAutocomplete() ? (

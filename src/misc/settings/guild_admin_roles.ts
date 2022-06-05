@@ -36,15 +36,18 @@ export default {
             options: [
                 {
                     required: true,
-                    type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                    type: Discord.ApplicationCommandOptionType.Role,
                     name: 'value',
                     description: 'the role to add to the admins list',
                 },
             ],
             async handler(setting, guild_config, command_interaction) {
+                if (!command_interaction.isChatInputCommand()) return;
+                if (!command_interaction.inCachedGuild()) return;
+
                 const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.get('value')?.value as string;
+                const role_id = command_interaction.options.getString('value', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
                     return command_interaction.followUp({
@@ -77,15 +80,18 @@ export default {
             options: [
                 {
                     required: true,
-                    type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                    type: Discord.ApplicationCommandOptionType.Role,
                     name: 'value',
                     description: 'the role to remove from the admins list',
                 },
             ],
             async handler(setting, guild_config, command_interaction) {
+                if (!command_interaction.isChatInputCommand()) return;
+                if (!command_interaction.inCachedGuild()) return;
+
                 const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.get('value')?.value as string;
+                const role_id = command_interaction.options.getString('value', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
                     return command_interaction.followUp({

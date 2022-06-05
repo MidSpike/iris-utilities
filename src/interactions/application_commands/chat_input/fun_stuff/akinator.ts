@@ -88,23 +88,23 @@ async function generateMessagePayload(akinator: Akinator) {
 
 export default new ClientInteraction({
     identifier: 'akinator',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
         description: 'n/a',
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -141,7 +141,7 @@ export default new ClientInteraction({
             if (!(button_interaction.message instanceof Discord.Message)) return;
 
             if (button_interaction.user.id !== interaction.user.id) {
-                await interaction.followUp({
+                await button_interaction.followUp({
                     ephemeral: true,
                     embeds: [
                         CustomEmbed.from({

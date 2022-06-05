@@ -30,7 +30,7 @@ async function updateAllGuildConfigs(discord_client: DiscordClientWithSharding) 
 
 //------------------------------------------------------------//
 
-const event_name = Discord.Constants.Events.CLIENT_READY;
+const event_name = Discord.Events.ClientReady;
 export default {
     name: event_name,
     async handler(
