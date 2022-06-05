@@ -6,7 +6,7 @@ import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { getInfo as getYouTubeInfo } from 'ytdl-core';
+import ytdl, { getInfo as getYouTubeInfo } from 'ytdl-core';
 
 import { delay } from '../../../../common/lib/utilities';
 
@@ -15,8 +15,6 @@ import { CustomEmbed } from '../../../../common/app/message';
 import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
-
-const { exec: ytdl } = require('youtube-dl-exec');
 
 //------------------------------------------------------------//
 
@@ -165,7 +163,16 @@ export default new ClientInteraction({
 
                 const urlObj = new URL(search_result.url);
                 if ((/(youtu\.be|youtube\.com)$/gi).test(urlObj.hostname)) {
-                    const info = await getYouTubeInfo(`${urlObj}`);
+                    const info = await getYouTubeInfo(`${urlObj}`, {
+                        requestOptions: {
+                            headers: {
+                                'Accept-Language': 'en-US,en;q=0.5',
+                                'User-Agent': process.env.YTDL_USER_AGENT,
+                                'Cookie': process.env.YTDL_COOKIE,
+                                'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
+                            },
+                        },
+                    });
 
                     track_title = info.videoDetails.title;
                     track_url = info.videoDetails.video_url;
@@ -177,38 +184,38 @@ export default new ClientInteraction({
                     title: track_title,
                     url: track_url,
                 }, () => new Promise((resolve, reject) => {
-                    const ytdl_process = ytdl(track.metadata.url!, {
-                        o: '-',
-                        q: '',
-                        f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-                        r: '100K',
-                    }, {
-                        stdio: [ 'ignore', 'pipe', 'ignore' ],
+                    const stream = ytdl(track.metadata.url, {
+                        lang: 'en',
+                        filter: 'audioonly',
+                        quality: 'highestaudio',
+                        // eslint-disable-next-line no-bitwise
+                        highWaterMark: 1<<25, // 32 MB
+                        requestOptions: {
+                            headers: {
+                                'Accept-Language': 'en-US,en;q=0.5',
+                                'User-Agent': process.env.YTDL_USER_AGENT,
+                                'Cookie': process.env.YTDL_COOKIE,
+                                'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
+                            },
+                        },
                     });
 
-                    const stream = ytdl_process?.stdout;
                     if (!stream) {
                         reject(new Error('No stdout'));
                         return;
                     }
 
-                    const onError = (error: unknown) => {
+                    demuxProbe(stream).then((probe) => {
+                        resolve(createAudioResource(probe.stream, {
+                            inputType: probe.type,
+                            inlineVolume: true, // allows volume to be adjusted while playing
+                            metadata: track, // the track
+                        }));
+                    }).catch((error: unknown) => {
                         console.trace(error);
 
-                        if (!ytdl_process.killed) ytdl_process.kill();
-                        stream.resume();
                         reject(error);
-                    };
-
-                    ytdl_process.once('spawn', () => {
-                        demuxProbe(stream).then((probe) => {
-                            resolve(createAudioResource(probe.stream, {
-                                inputType: probe.type,
-                                inlineVolume: true, // allows volume to be adjusted while playing
-                                metadata: track, // the track
-                            }));
-                        }).catch(onError);
-                    }).catch(onError);
+                    });
                 }), {
                     onStart() {
                         // IMPORTANT: Initialize the volume interface
