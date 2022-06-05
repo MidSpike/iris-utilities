@@ -509,7 +509,18 @@ export class MusicReconnaissance {
         if (MusicReconnaissance._initialized) return;
 
         MusicReconnaissance._client = discord_client;
-        MusicReconnaissance._discord_player = new DiscordPlayer(discord_client);
+        MusicReconnaissance._discord_player = new DiscordPlayer(discord_client, {
+            ytdlOptions: {
+                requestOptions: {
+                    headers: {
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'User-Agent': process.env.YTDL_USER_AGENT,
+                        'Cookie': process.env.YTDL_COOKIE,
+                        'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
+                    },
+                },
+            },
+        });
 
         MusicReconnaissance._initialized = true;
     }

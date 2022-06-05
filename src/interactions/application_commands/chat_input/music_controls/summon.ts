@@ -58,16 +58,17 @@ export default new ClientInteraction({
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
         // join that channel and create a subscription.
+
+        const voice_connection = joinVoiceChannel({
+            channelId: guild_member_voice_channel_id,
+            guildId: interaction.guildId,
+            // @ts-ignore This works, even though it's not a valid type.
+            adapterCreator: interaction.guild.voiceAdapterCreator,
+            selfDeaf: false,
+        });
+
         if (!music_subscription) {
-            music_subscription = new MusicSubscription(
-                joinVoiceChannel({
-                    channelId: guild_member_voice_channel_id,
-                    guildId: interaction.guildId,
-                    // @ts-ignore This works, even though it's not a valid type.
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
-                    selfDeaf: false,
-                })
-            );
+            music_subscription = new MusicSubscription(voice_connection);
             music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
