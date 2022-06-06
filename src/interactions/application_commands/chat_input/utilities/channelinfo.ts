@@ -39,6 +39,7 @@ export default new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -136,7 +137,7 @@ export default new ClientInteraction({
                         },
 
                         // eslint-disable-next-line no-negated-condition
-                        ...(!channel.isVoice() ? [
+                        ...(!channel.isVoiceBased() ? [
                             {
                                 name: '\u200b',
                                 value: '\u200b',
@@ -144,7 +145,7 @@ export default new ClientInteraction({
                             },
                         ] : []),
 
-                        ...(channel.isVoice() ? [
+                        ...(channel.isVoiceBased() ? [
                             {
                                 name: 'Region',
                                 value: `\`${channel.rtcRegion ?? 'Automatic'}\``,

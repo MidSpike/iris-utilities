@@ -6,13 +6,11 @@ import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, YouTubeStreamer, music_subscriptions } from '../../../../common/app/music/music';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
-
-const { exec: ytdl } = require('youtube-dl-exec');
 
 //------------------------------------------------------------//
 
@@ -171,39 +169,25 @@ export default new ClientInteraction({
         const track = new RemoteTrack({
             title: search_result.title,
             url: search_result.url,
-        }, () => new Promise((resolve, reject) => {
-            const process = ytdl(track.metadata.url!, {
-                o: '-',
-                q: '',
-                f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-                r: '100K',
-            }, {
-                stdio: [ 'ignore', 'pipe', 'ignore' ],
-            });
+        }, () => new Promise(async (resolve, reject) => {
+            const stream = await YouTubeStreamer.stream(track.metadata.url);
 
-            const stream = process?.stdout;
             if (!stream) {
                 reject(new Error('No stdout'));
                 return;
             }
 
-            const onError = (error: unknown) => {
+            demuxProbe(stream).then((probe) => {
+                resolve(createAudioResource(probe.stream, {
+                    inputType: probe.type,
+                    inlineVolume: true, // allows volume to be adjusted while playing
+                    metadata: track, // the track
+                }));
+            }).catch((error: unknown) => {
                 console.trace(error);
 
-                if (!process.killed) process.kill();
-                stream.resume();
                 reject(error);
-            };
-
-            process.once('spawn', () => {
-                demuxProbe(stream).then((probe) => {
-                    resolve(createAudioResource(probe.stream, {
-                        inputType: probe.type,
-                        inlineVolume: true, // allows volume to be adjusted while playing
-                        metadata: track, // the track
-                    }));
-                }).catch(onError);
-            }).catch(onError);
+            });
         }), {
             onStart() {
                 // IMPORTANT: Initialize the volume interface

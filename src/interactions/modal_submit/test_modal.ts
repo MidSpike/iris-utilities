@@ -32,7 +32,10 @@ export default new ClientInteraction({
             embeds: [
                 CustomEmbed.from({
                     title: 'Woah modals are cool!',
-                    description: `You typed: \`${text_input}\``,
+                    description: [
+                        'You typed:',
+                        `\`\`\`${text_input}\`\`\``,
+                    ].join('\n'),
                 }),
             ],
         });

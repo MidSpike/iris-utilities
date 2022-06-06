@@ -39,6 +39,7 @@ export default new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 

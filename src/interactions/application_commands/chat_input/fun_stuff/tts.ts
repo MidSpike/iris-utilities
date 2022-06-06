@@ -129,7 +129,6 @@ export default new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-ignore This works, even though it's not a valid type.
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })

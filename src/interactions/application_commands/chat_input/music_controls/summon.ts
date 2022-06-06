@@ -36,6 +36,7 @@ export default new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -62,7 +63,6 @@ export default new ClientInteraction({
         const voice_connection = joinVoiceChannel({
             channelId: guild_member_voice_channel_id,
             guildId: interaction.guildId,
-            // @ts-ignore This works, even though it's not a valid type.
             adapterCreator: interaction.guild.voiceAdapterCreator,
             selfDeaf: false,
         });

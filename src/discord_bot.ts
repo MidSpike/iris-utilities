@@ -97,13 +97,31 @@ async function registerClientEvents(discord_client: DiscordClientWithSharding) {
 
 async function main() {
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
-    await registerClientEvents(discord_client);
+    try {
+        await registerClientEvents(discord_client);
+    } catch (error) {
+        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client events`, error);
+
+        process.exit(1);
+    }
 
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering interactions...`);
-    await ClientInteractionManager.registerClientInteractions(discord_client);
+    try {
+        await ClientInteractionManager.registerClientInteractions(discord_client);
+    } catch (error) {
+        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client interactions`, error);
+
+        process.exit(1);
+    }
 
     console.log('<DC> Logging in...');
-    discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
+    try {
+        discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
+    } catch (error) {
+        console.trace('<DC> failed to login', error);
+
+        process.exit(1);
+    }
 
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
 }

@@ -12,11 +12,11 @@ import { music_subscriptions } from '../../../../common/app/music/music';
 
 //------------------------------------------------------------//
 
-type QueuePageName = 'future_tracks' | 'previous_tracks';
+type QueuePageName = 'previous_tracks' | 'current_track' | 'future_tracks';
 
 async function editInteractionReplyForQueueItems(
     interaction: Discord.MessageComponentInteraction | Discord.CommandInteraction,
-    display_mode: QueuePageName = 'future_tracks',
+    display_mode: QueuePageName = 'current_track',
 ) {
     if (!interaction.inCachedGuild()) throw new Error('interaction is not in a cached guild');
 
@@ -35,32 +35,37 @@ async function editInteractionReplyForQueueItems(
 
     const payload: Discord.WebhookEditMessageOptions = {
         embeds: [
-            display_mode === 'future_tracks' ? (
+            display_mode === 'previous_tracks' ? (
                 CustomEmbed.from({
                     description: [
-                        '**Current Playing:**',
-                        `- ${music_subscription.queue.current_track?.metadata?.title}`,
-                        '',
-                        ...(music_subscription.queue.future_tracks.length > 0 ? [
-                            '**Displaying (up to 25) Future Tracks:**',
-                            ...music_subscription.queue.future_tracks.slice(0, 25).map((track, index) => `- ${track.metadata.title}`),
+                        ...(music_subscription.queue.previous_tracks.length > 0 ? [
+                            '**Displaying (up to 25) Previous Tracks:**',
+                            ...music_subscription.queue.previous_tracks.slice(0, 25).map((track, index) => `\`[ ${-1 * (index + 1)} ]\` - ${track.metadata.title}`).reverse(),
                         ] : [
-                            '**No future tracks!**',
+                            '**No previous tracks!**',
+                        ]),
+                    ].join('\n'),
+                })
+            ) : display_mode === 'current_track' ? (
+                CustomEmbed.from({
+                    description: [
+                        ...(music_subscription.queue.current_track ? [
+                            '**Current Playing:**',
+                            `${music_subscription.queue.current_track.metadata.title}`,
+                        ] : [
+                            '**Nothing is playing right now!**',
                         ]),
                     ].join('\n'),
                 })
             ) : (
                 CustomEmbed.from({
                     description: [
-                        ...(music_subscription.queue.previous_tracks.length > 0 ? [
-                            '**Displaying (up to 25) Previous Tracks:**',
-                            ...music_subscription.queue.previous_tracks.slice(0, 25).reverse().map((track, index) => `- ${track.metadata.title}`),
+                        ...(music_subscription.queue.future_tracks.length > 0 ? [
+                            '**Displaying (up to 25) Upcoming Tracks:**',
+                            ...music_subscription.queue.future_tracks.slice(0, 25).map((track, index) => `\`[ ${index + 1} ]\` - ${track.metadata.title}`),
                         ] : [
-                            '**No previous tracks!**',
+                            '**No upcoming tracks!**',
                         ]),
-                        '',
-                        '**Current Playing:**',
-                        `- ${music_subscription.queue.current_track?.metadata?.title}`,
                     ].join('\n'),
                 })
             ),
@@ -77,8 +82,13 @@ async function editInteractionReplyForQueueItems(
                     }, {
                         type: 2,
                         style: 2,
+                        customId: 'queue_items_display_mode_current_track',
+                        label: 'Current Track',
+                    }, {
+                        type: 2,
+                        style: 2,
                         customId: 'queue_items_display_mode_future_tracks',
-                        label: 'Future Tracks',
+                        label: 'Upcoming Tracks',
                     },
                 ],
             },
@@ -137,6 +147,7 @@ export default new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -191,7 +202,7 @@ export default new ClientInteraction({
         const sub_command_name = interaction.options.getSubcommand(true);
         switch (sub_command_name) {
             case 'items': {
-                const message = await editInteractionReplyForQueueItems(interaction, 'future_tracks');
+                const message = await editInteractionReplyForQueueItems(interaction);
 
                 const message_component_collector = interaction.channel!.createMessageComponentCollector({
                     componentType: Discord.ComponentType.Button,
@@ -206,6 +217,12 @@ export default new ClientInteraction({
                     switch (message_component_interaction.customId) {
                         case 'queue_items_display_mode_previous_tracks': {
                             await editInteractionReplyForQueueItems(message_component_interaction, 'previous_tracks');
+
+                            break;
+                        }
+
+                        case 'queue_items_display_mode_current_track': {
+                            await editInteractionReplyForQueueItems(message_component_interaction, 'current_track');
 
                             break;
                         }

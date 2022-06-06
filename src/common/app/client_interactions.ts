@@ -205,7 +205,7 @@ export class ClientCommandHelper {
 
         const channel = await discord_client.channels.fetch(interaction.channelId as string) as Discord.GuildChannel;
         if (!channel) return true; // the channel doesn't exist, so we can assume the bot has all permissions
-        if (!channel?.isText()) return true; // the channel is not a text channel, so we can't check permissions
+        if (!channel?.isTextBased()) return true; // the channel is not a text channel, so we can't check permissions
 
         const bot_member = await channel.guild.members.fetch(discord_client.user!.id);
 
@@ -345,7 +345,7 @@ export class ClientInteractionManager {
     static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction> = new Discord.Collection();
 
     static async registerClientInteractions(discord_client: Discord.Client<true>) {
-        ClientInteractionManager.interactions.clear(); // remove all existing interactions so we can re-register them
+        ClientInteractionManager.interactions.clear(); // remove all existing interactions
 
         const path_to_interaction_files = path.join(process.cwd(), 'dist', 'interactions');
         const client_interaction_file_names: string[] = recursiveReadDirectory(path_to_interaction_files);
@@ -355,17 +355,12 @@ export class ClientInteractionManager {
 
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
-            console.log(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+            console.info(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
 
             const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
                 console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path}`);
-                continue;
-            }
-
-            if (ClientInteractionManager.interactions.has(client_interaction.identifier)) {
-                console.warn(`<DC S#(${discord_client.shard!.ids.join(', ')})> client interaction: ${client_interaction.identifier} is already registered; skipping...`);
                 continue;
             }
 
@@ -379,29 +374,27 @@ export class ClientInteractionManager {
     ): Promise<unknown> {
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
-        const client_interaction: ClientInteraction | undefined = ClientInteractionManager.interactions.find(interaction => {
-            const unknown_interaction_identifier = unknown_interaction.isMessageComponent() ? (
+        const unknown_interaction_identifier = unknown_interaction.isMessageComponent() ? (
+            unknown_interaction.customId
+        ) : (
+            unknown_interaction.isModalSubmit() ? (
                 unknown_interaction.customId
             ) : (
-                unknown_interaction.isModalSubmit() ? (
-                    unknown_interaction.customId
+                unknown_interaction.isChatInputCommand() ? (
+                    unknown_interaction.commandName
                 ) : (
-                    unknown_interaction.isChatInputCommand() ? (
+                    unknown_interaction.isAutocomplete() ? (
                         unknown_interaction.commandName
                     ) : (
-                        unknown_interaction.isAutocomplete() ? (
-                            unknown_interaction.commandName
-                        ) : (
-                            unknown_interaction.id
-                        )
+                        unknown_interaction.id
                     )
                 )
-            );
+            )
+        );
 
-            return interaction.identifier === unknown_interaction_identifier;
-        });
+        const client_interaction = ClientInteractionManager.interactions.get(unknown_interaction_identifier);
 
-        /* ensure the interaction exists */
+        /* ensure the client interaction exists before handling it, unknown interactions are expected */
         if (!client_interaction) return;
 
         /* run the interaction handler */
@@ -420,7 +413,7 @@ export class ClientInteractionManager {
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
                         title: 'Interaction Error',
-                        description: `An error occurred while handling: \`${client_interaction.identifier}\``,
+                        description: `An error occurred while handling: \`${unknown_interaction_identifier}\``,
                         fields: [
                             {
                                 name: 'Error Message',

@@ -18,7 +18,10 @@ async function generateMessagePayload(interaction_author: Discord.User) {
     return {
         embeds: [
             CustomEmbed.from({
-                description: `${interaction_author}, flipped a coin and it landed on **${coin_facing}**!`,
+                description: [
+                    `${interaction_author}, flipped a coin;`,
+                    `and it landed on **${coin_facing}**!`,
+                ].join('\n'),
                 thumbnail: {
                     url: `https://cdn.midspike.com/projects/iris/Coin-${coin_facing === 'heads' ? 'H' : 'T'}_2020-09-18_b0.png`,
                 },
@@ -61,6 +64,8 @@ export default new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -89,7 +94,7 @@ export default new ClientInteraction({
                         ],
                     });
 
-                    await delay(1500);
+                    await delay(1000);
 
                     await button_interaction.editReply(await generateMessagePayload(button_interaction.user));
 
