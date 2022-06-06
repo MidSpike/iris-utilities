@@ -52,6 +52,8 @@ export default new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -226,7 +228,7 @@ export default new ClientInteraction({
                 const mc_server_info_icon_base64 = (mc_server_info_raw_icon ?? '').split(',')[1] || null;
                 const mc_server_info_icon_buffer = mc_server_info_icon_base64 ? Buffer.from(mc_server_info_icon_base64, 'base64') : null;
                 const mc_server_info_icon_attachment_name = 'mc-server-icon.png';
-                const mc_server_info_icon_attachment = mc_server_info_icon_buffer ? new Discord.AttachmentBuilder(mc_server_info_icon_buffer, mc_server_info_icon_attachment_name) : null;
+                const mc_server_info_icon_attachment = mc_server_info_icon_buffer ? new Discord.AttachmentBuilder(mc_server_info_icon_buffer, { name: mc_server_info_icon_attachment_name }) : null;
 
                 await bot_message.edit({
                     embeds: [

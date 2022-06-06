@@ -30,7 +30,6 @@ export class CustomEmbed {
 export function disableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
     return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
-        // @ts-ignore-next-line
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
             components: component_row.components.map(component => ({
@@ -44,7 +43,6 @@ export function disableMessageComponents(message: Discord.Message): Promise<Disc
 export function enableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
     return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
-        // @ts-ignore-next-line
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
             components: component_row.components.map(component => ({
@@ -59,12 +57,12 @@ export function enableMessageComponents(message: Discord.Message): Promise<Disco
 
 export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.TextBasedChannel, user: Discord.User): Promise<boolean> {
     if (!(channel instanceof Discord.Channel)) throw new TypeError('channel must be an instance of Discord.Channel');
-    if (!channel.isText()) throw new TypeError('channel must be a text-based channel');
+    if (!channel.isTextBased()) throw new TypeError('channel must be a text-based channel');
     if (!(user instanceof Discord.User)) throw new TypeError('user must be an instance of Discord.User');
 
     try {
         await channel.send({
-            content: `<@!${user.id}>`,
+            content: `<@${user.id}>`,
             embeds: [
                 CustomEmbed.from({
                     title: 'Warning, this might contain potential NSFW content!',

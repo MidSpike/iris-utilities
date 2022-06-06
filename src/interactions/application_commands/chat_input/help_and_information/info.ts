@@ -31,6 +31,8 @@ export default new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -62,7 +64,7 @@ export default new ClientInteraction({
                 CustomEmbed.from({
                     title: `Hello world, I\'m ${discord_client.user.username}`,
                     description: [
-                        `I was created by <@!${bot_application_owner_id}> <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
+                        `I was created by <@${bot_application_owner_id}> <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
                     ].join('\n'),
                     fields: [
                         {

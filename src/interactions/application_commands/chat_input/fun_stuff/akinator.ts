@@ -32,8 +32,7 @@ type AkinatorGuess = {
 
 //------------------------------------------------------------//
 
-// const akinator_image_url = 'https://cdn.midspike.com/projects/iris/akinator_idle.png';
-const akinator_image_url = 'https://en.akinator.com/bundles/elokencesite/images/akinator.png?v94';
+const akinator_image_url = 'https://cdn.midspike.com/projects/iris/akinator-idle_2022-06-06_0.png';
 
 const akinator_credit_text = 'Powered by https://akinator.com/';
 
@@ -105,6 +104,8 @@ export default new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -120,7 +121,7 @@ export default new ClientInteraction({
                     },
                 }),
             ],
-        }) as Discord.Message;
+        });
 
         const akinator = new Akinator({
             region: 'en',

@@ -4,6 +4,10 @@
 
 import { promisify } from 'node:util';
 
+import { Readable } from 'node:stream';
+
+import ytdl from 'ytdl-core';
+
 import {
     Player as DiscordPlayer,
     QueryType as DiscordPlayerQueryType,
@@ -554,6 +558,30 @@ export class MusicReconnaissance {
             title: track.title,
             url: track.url,
         }));
+    }
+}
+
+//------------------------------------------------------------//
+
+export class YouTubeStreamer {
+    static async stream(
+        youtube_url: string,
+    ): Promise<Readable> {
+        return ytdl(youtube_url, {
+            lang: 'en',
+            filter: 'audioonly',
+            quality: 'highestaudio',
+            // eslint-disable-next-line no-bitwise
+            highWaterMark: 1<<25, // 32 MB
+            requestOptions: {
+                headers: {
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'User-Agent': process.env.YTDL_USER_AGENT,
+                    'Cookie': process.env.YTDL_COOKIE,
+                    'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
+                },
+            },
+        });
     }
 }
 

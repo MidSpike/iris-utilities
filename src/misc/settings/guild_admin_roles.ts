@@ -41,16 +41,17 @@ export default {
                     description: 'the role to add to the admins list',
                 },
             ],
-            async handler(setting, guild_config, command_interaction) {
-                if (!command_interaction.isChatInputCommand()) return;
-                if (!command_interaction.inCachedGuild()) return;
+            async handler(setting, guild_config, interaction) {
+                if (!interaction.isChatInputCommand()) return;
+                if (!interaction.inCachedGuild()) return;
+                if (!interaction.channel) return;
 
                 const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.getString('value', true);
+                const role_id = interaction.options.getString('value', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
-                    return command_interaction.followUp({
+                    return interaction.followUp({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
@@ -61,11 +62,11 @@ export default {
                     }).catch(console.warn);
                 }
 
-                await GuildConfigsManager.update(command_interaction.guildId, {
+                await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: [...guild_admin_role_ids, role_id],
                 });
 
-                await command_interaction.followUp({
+                await interaction.followUp({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Added guild admin role',
@@ -85,16 +86,17 @@ export default {
                     description: 'the role to remove from the admins list',
                 },
             ],
-            async handler(setting, guild_config, command_interaction) {
-                if (!command_interaction.isChatInputCommand()) return;
-                if (!command_interaction.inCachedGuild()) return;
+            async handler(setting, guild_config, interaction) {
+                if (!interaction.isChatInputCommand()) return;
+                if (!interaction.inCachedGuild()) return;
+                if (!interaction.channel) return;
 
                 const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.getString('value', true);
+                const role_id = interaction.options.getString('value', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
-                    return command_interaction.followUp({
+                    return interaction.followUp({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
@@ -105,11 +107,11 @@ export default {
                     }).catch(console.warn);
                 }
 
-                await GuildConfigsManager.update(command_interaction.guildId, {
+                await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: [...guild_admin_role_ids, role_id],
                 });
 
-                await command_interaction.followUp({
+                await interaction.followUp({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Added guild admin role',

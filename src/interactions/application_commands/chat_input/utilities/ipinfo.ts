@@ -69,6 +69,8 @@ export default new ClientInteraction({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         const ephemeral = interaction.options.getBoolean('ephemeral', false) ?? false;
 

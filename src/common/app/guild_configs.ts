@@ -10,10 +10,10 @@ import { go_mongo_db } from '../lib/go_mongo_db';
 
 //------------------------------------------------------------//
 
-const db_name = process.env.MONGO_DATABASE_NAME as string;
+const db_name = process.env.MONGO_DATABASE_NAME as string; // coerced to string to prevent async type assertion error
 if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
 
-const db_guild_configs_name = process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME as string;
+const db_guild_configs_name = process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME as string; // coerced to string to prevent async type assertion error
 if (!db_guild_configs_name?.length) throw new TypeError('MONGO_GUILD_CONFIGS_COLLECTION_NAME is not defined');
 
 //------------------------------------------------------------//

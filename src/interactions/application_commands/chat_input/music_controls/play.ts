@@ -6,13 +6,11 @@ import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import ytdl, { getInfo as getYouTubeInfo } from 'ytdl-core';
-
 import { delay } from '../../../../common/lib/utilities';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, YouTubeStreamer, music_subscriptions } from '../../../../common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
@@ -52,6 +50,7 @@ export default new ClientInteraction({
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -105,7 +104,6 @@ export default new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-ignore This works, even though it's not a valid type.
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -161,47 +159,33 @@ export default new ClientInteraction({
             const search_result = search_results[i];
 
             try {
-                let track_title = 'Unknown Track';
-                let track_url = 'https://google.com/';
+                const track_title = search_result.title;
+                const track_url = search_result.url;
 
-                const urlObj = new URL(search_result.url);
-                if ((/(youtu\.be|youtube\.com)$/gi).test(urlObj.hostname)) {
-                    const info = await getYouTubeInfo(`${urlObj}`, {
-                        requestOptions: {
-                            headers: {
-                                'Accept-Language': 'en-US,en;q=0.5',
-                                'User-Agent': process.env.YTDL_USER_AGENT,
-                                'Cookie': process.env.YTDL_COOKIE,
-                                'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
-                            },
-                        },
-                    });
+                // const urlObj = new URL(search_result.url);
+                // if ((/(youtu\.be|youtube\.com)$/gi).test(urlObj.hostname)) {
+                //     const info = await getYouTubeInfo(`${urlObj}`, {
+                //         requestOptions: {
+                //             headers: {
+                //                 'Accept-Language': 'en-US,en;q=0.5',
+                //                 'User-Agent': process.env.YTDL_USER_AGENT,
+                //                 'Cookie': process.env.YTDL_COOKIE,
+                //                 'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
+                //             },
+                //         },
+                //     });
 
-                    track_title = info.videoDetails.title;
-                    track_url = info.videoDetails.video_url;
-                } else {
-                    track_title = `Audio stream from ${urlObj.hostname}`;
-                }
+                //     track_title = info.videoDetails.title;
+                //     track_url = info.videoDetails.video_url;
+                // } else {
+                //     track_title = `Audio stream from ${urlObj.hostname}`;
+                // }
 
                 const track = new RemoteTrack({
                     title: track_title,
                     url: track_url,
-                }, () => new Promise((resolve, reject) => {
-                    const stream = ytdl(track.metadata.url, {
-                        lang: 'en',
-                        filter: 'audioonly',
-                        quality: 'highestaudio',
-                        // eslint-disable-next-line no-bitwise
-                        highWaterMark: 1<<25, // 32 MB
-                        requestOptions: {
-                            headers: {
-                                'Accept-Language': 'en-US,en;q=0.5',
-                                'User-Agent': process.env.YTDL_USER_AGENT,
-                                'Cookie': process.env.YTDL_COOKIE,
-                                'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
-                            },
-                        },
-                    });
+                }, () => new Promise(async (resolve, reject) => {
+                    const stream = await YouTubeStreamer.stream(track.metadata.url);
 
                     if (!stream) {
                         reject(new Error('No stdout'));
