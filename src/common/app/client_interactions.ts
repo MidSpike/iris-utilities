@@ -357,6 +357,8 @@ export class ClientInteractionManager {
 
             console.info(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
 
+            delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
+
             const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {

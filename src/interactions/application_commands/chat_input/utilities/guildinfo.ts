@@ -2,11 +2,9 @@
 
 //------------------------------------------------------------//
 
-import moment from 'moment-timezone';
-
 import * as Discord from 'discord.js';
 
-import { array_chunks } from '../../../../common/lib/utilities';
+import { arrayChunks } from '../../../../common/lib/utilities';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
@@ -51,10 +49,10 @@ export default new ClientInteraction({
         const guild_members = await guild.members.fetch(); // cache all members
 
         const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
-        const guild_role_chunks = array_chunks(guild_roles, 25);
+        const guild_role_chunks = arrayChunks(guild_roles, 25);
 
         const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
-        const guild_emoji_chunks = array_chunks(guild_emojis, 25);
+        const guild_emoji_chunks = arrayChunks(guild_emojis, 25);
 
         type GuildInfoSectionName = 'default' | 'roles' | 'emojis' | 'features' | 'channels' | 'media';
 
@@ -106,7 +104,7 @@ export default new ClientInteraction({
 
                                     ...guild_emoji_chunks.map((guild_emoji_chunk, chunk_index, guild_emoji_chunks) => ({
                                         name: `Roles ${chunk_index + 1}/${guild_emoji_chunks.length}`,
-                                        value: array_chunks(guild_emoji_chunk, 5).map((guild_emoji_mini_chunk) => guild_emoji_mini_chunk.join('')).join('\n'),
+                                        value: arrayChunks(guild_emoji_chunk, 5).map((guild_emoji_mini_chunk) => guild_emoji_mini_chunk.join('')).join('\n'),
                                     })),
                                 ],
                             }),
@@ -236,6 +234,8 @@ export default new ClientInteraction({
                 }
 
                 default: {
+                    const guild_created_timestamp_epoch = `${guild.createdTimestamp}`.slice(0, -3);
+
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -250,8 +250,8 @@ export default new ClientInteraction({
                                         value: `${'```'}\n${guild.id}\n${'```'}`,
                                         inline: false,
                                     }, {
-                                        name: 'Creation Date',
-                                        value: `${'```'}\n${moment(guild.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                                        name: 'Created On',
+                                        value: `<t:${guild_created_timestamp_epoch}:F> (<t:${guild_created_timestamp_epoch}:R>)`,
                                         inline: false,
                                     }, {
                                         name: 'Description',

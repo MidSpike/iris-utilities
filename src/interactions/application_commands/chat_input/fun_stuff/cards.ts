@@ -8,7 +8,7 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { array_random, delay } from '../../../../common/lib/utilities';
+import { randomItemFromArray, delay } from '../../../../common/lib/utilities';
 
 import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '../../../../common/app/message';
 
@@ -37,8 +37,8 @@ const white_cards = cah_card_set.filter(card => card.cardType === 'A');
 //------------------------------------------------------------//
 
 async function updateMessageWithNewContent(discord_client: Discord.Client<true>, message: Discord.Message) {
-    const selected_black_card = array_random(black_cards.filter(card => card.numAnswers === 2));
-    const selected_white_cards = Array.from({ length: selected_black_card.numAnswers }, () => array_random(white_cards));
+    const selected_black_card = randomItemFromArray(black_cards.filter(card => card.numAnswers === 2));
+    const selected_white_cards = Array.from({ length: selected_black_card.numAnswers }, () => randomItemFromArray(white_cards));
 
     await delay(250); // prevent api abuse
 

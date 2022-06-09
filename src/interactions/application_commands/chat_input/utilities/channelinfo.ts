@@ -2,8 +2,6 @@
 
 //------------------------------------------------------------//
 
-import moment from 'moment-timezone';
-
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
@@ -23,7 +21,7 @@ export default new ClientInteraction({
                 type: Discord.ApplicationCommandOptionType.Channel,
                 name: 'channel',
                 description: 'the guild channel to lookup',
-                required: true,
+                required: false,
             },
         ],
     },
@@ -53,8 +51,8 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const channel_resolvable = interaction.options.getChannel('channel', true);
-        const channel = await interaction.guild.channels.fetch(channel_resolvable.toString());
+        const channel_resolvable = interaction.options.getChannel('channel', false)?.id ?? interaction.channelId;
+        const channel = await interaction.guild.channels.fetch(channel_resolvable);
 
         if (!channel) {
             await bot_message.edit({
@@ -71,6 +69,8 @@ export default new ClientInteraction({
 
         const everyone_permissions = channel.permissionsFor(interaction.guild.roles.everyone.id)?.toArray() ?? [];
 
+        const channel_created_timestamp_epoch = `${channel.createdTimestamp}`.slice(0, -3);
+
         await bot_message.edit({
             embeds: [
                 CustomEmbed.from({
@@ -86,7 +86,7 @@ export default new ClientInteraction({
                             inline: false,
                         }, {
                             name: 'Creation Date',
-                            value: `${'```'}\n${moment(channel.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                            value: `<t:${channel_created_timestamp_epoch}:F> (<t:${channel_created_timestamp_epoch}:R>)`,
                             inline: false,
                         },
 
