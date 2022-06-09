@@ -2,8 +2,6 @@
 
 //------------------------------------------------------------//
 
-import moment from 'moment-timezone';
-
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
@@ -53,8 +51,8 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const role_resolvable = interaction.options.getRole('role', true);
-        const role = await interaction.guild.roles.fetch(role_resolvable.toString());
+        const role_resolvable = interaction.options.getRole('role', true).id;
+        const role = await interaction.guild.roles.fetch(role_resolvable);
 
         if (!role) {
             await bot_message.edit({
@@ -72,6 +70,8 @@ export default new ClientInteraction({
         const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
         const role_permissions = role.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
 
+        const role_created_timestamp_epoch = `${role.createdTimestamp}`.slice(0, -3);
+
         await bot_message.edit({
             embeds: [
                 CustomEmbed.from({
@@ -87,7 +87,7 @@ export default new ClientInteraction({
                             inline: false,
                         }, {
                             name: 'Creation Date',
-                            value: `${'```'}\n${moment(role.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                            value: `<t:${role_created_timestamp_epoch}:F> (<t:${role_created_timestamp_epoch}:R>)`,
                             inline: false,
                         }, {
                             name: 'Enhanced Permissions',

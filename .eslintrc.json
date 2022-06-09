@@ -102,7 +102,13 @@
             "consistent"
         ],
         "function-paren-newline": "off",
-        "generator-star-spacing": "error",
+        "generator-star-spacing": [
+            "error",
+            {
+                "after": true,
+                "before": false
+            }
+        ],
         "grouped-accessor-pairs": "error",
         "guard-for-in": "error",
         "id-denylist": "error",

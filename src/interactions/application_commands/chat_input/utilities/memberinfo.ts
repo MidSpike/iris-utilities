@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { array_chunks } from '../../../../common/lib/utilities';
+import { arrayChunks } from '../../../../common/lib/utilities';
 
 import { CustomEmbed } from '../../../../common/app/message';
 
@@ -53,7 +53,7 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const member_id = interaction.options.getUser('member') ?? interaction.member.id;
+        const member_id = interaction.options.getUser('member', false)?.id ?? interaction.member.id;
         const member = await interaction.guild.members.fetch(member_id);
 
         await member.user.fetch(true); // force fetch the user
@@ -188,7 +188,7 @@ export default new ClientInteraction({
                                         inline: false,
                                     },
 
-                                    ...array_chunks(member_roles, 32).map((member_roles_chunk, chunk_index, member_roles_chunks) => ({
+                                    ...arrayChunks(member_roles, 32).map((member_roles_chunk, chunk_index, member_roles_chunks) => ({
                                         name: `Roles ${chunk_index+1}/${member_roles_chunks.length}`,
                                         value: `${member_roles_chunk.join(' - ')}`,
                                         inline: false,
@@ -230,18 +230,18 @@ export default new ClientInteraction({
                                     ] : []),
 
                                     {
-                                        name: 'Account Creation Date',
+                                        name: 'Account Created On',
                                         value: `<t:${member_created_timestamp_epoch}:F> (<t:${member_created_timestamp_epoch}:R>)`,
                                         inline: false,
                                     }, {
-                                        name: 'Joined Guild Date',
+                                        name: 'Joined Guild On',
                                         value: `<t:${member_joined_timestamp_epoch}:F> (<t:${member_joined_timestamp_epoch}:R>)`,
                                         inline: false,
                                     },
 
                                     ...(member.premiumSinceTimestamp ? [
                                         {
-                                            name: 'Boosting Since Date',
+                                            name: 'Boosting Since',
                                             value: `<t:${member_premium_since_timestamp_epoch}:F> (<t:${member_premium_since_timestamp_epoch}:R>)`,
                                             inline: false,
                                         },

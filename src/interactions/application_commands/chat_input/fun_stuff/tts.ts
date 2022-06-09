@@ -16,7 +16,7 @@ import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '../..
 
 import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
 
-import { array_chunks, delay, string_ellipses } from '../../../../common/lib/utilities';
+import { arrayChunks, delay, stringEllipses } from '../../../../common/lib/utilities';
 
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
@@ -154,7 +154,7 @@ export default new ClientInteraction({
             return;
         }
 
-        const tts_text_chunks = array_chunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
+        const tts_text_chunks = arrayChunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
 
         if (tts_text_chunks.length > 1) {
             await interaction.editReply({
@@ -168,7 +168,7 @@ export default new ClientInteraction({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        description: `${interaction.user}, added text-to-speech to the queue:\`\`\`\n${string_ellipses(text, 512)}\n\`\`\``,
+                        description: `${interaction.user}, added text-to-speech to the queue:\`\`\`\n${stringEllipses(text, 512)}\n\`\`\``,
                     }),
                 ],
             });
@@ -255,7 +255,7 @@ export default new ClientInteraction({
                                 CustomEmbed.from({
                                     description: [
                                         `${interaction.user}, playing text-to-speech:`,
-                                        `\`\`\`\n${string_ellipses(tts_text, 512)}\n\`\`\``,
+                                        `\`\`\`\n${stringEllipses(tts_text, 512)}\n\`\`\``,
                                     ].join('\n'),
                                 }),
                             ],

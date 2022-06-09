@@ -2,10 +2,6 @@
 
 //------------------------------------------------------------//
 
-import { promisify } from 'node:util';
-
-import { exec as runShellCommandSync } from 'node:child_process';
-
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '../../../../common/app/message';
@@ -16,12 +12,8 @@ import { delay } from '../../../../common/lib/utilities';
 
 //------------------------------------------------------------//
 
-const runShellCommand = promisify(runShellCommandSync);
-
-//------------------------------------------------------------//
-
 export default new ClientInteraction({
-    identifier: 'register_commands',
+    identifier: 'publish_commands',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         description: 'n/a',
@@ -47,32 +39,10 @@ export default new ClientInteraction({
         await interaction.reply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, registering global commands...`,
+                    description: `${interaction.user}, publishing global commands to Discord...`,
                 }),
             ],
         }).catch(() => {});
-
-        /** re-build project */
-        let build_result: { stdout: string; stderr: string } | undefined;
-        try {
-            build_result = await runShellCommand('npm run build');
-        } catch (error) {
-            console.trace({ error, build_result });
-
-            await interaction.reply({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to build project`,
-                    }),
-                ],
-            }).catch(() => {});
-
-            return;
-        }
-
-        /* re-register all interaction files */
-        await ClientInteractionManager.registerClientInteractions(discord_client);
 
         /* remove non-existent commands */
         for (const [ application_command_id, application_command ] of await discord_client.application.commands.fetch()) {
@@ -101,12 +71,24 @@ export default new ClientInteraction({
             await discord_client.application.commands.set(commands_to_register);
         } catch (error) {
             console.trace(error);
+
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, failed to publish global commands to Discord.`,
+                    }),
+                ],
+            }).catch(() => {});
+
+            return;
         }
 
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, registered ${commands_to_register.length} global commands!`,
+                    color: CustomEmbed.colors.GREEN,
+                    description: `${interaction.user}, published ${commands_to_register.length} global commands to Discord.`,
                 }),
             ],
         }).catch(() => {});
