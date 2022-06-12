@@ -90,14 +90,14 @@ module.exports.default = new ClientInteraction({
             ],
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
                             type: 3,
-                            custom_id: 'help_menu',
+                            customId: 'help_menu',
                             placeholder: 'Select a page!',
-                            min_values: 1,
-                            max_values: 1,
+                            minValues: 1,
+                            maxValues: 1,
                             options: ClientCommandHelper.categories.map(({ id, name, description }) => ({
                                 label: name,
                                 description: description.slice(0, 100),

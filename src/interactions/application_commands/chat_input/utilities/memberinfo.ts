@@ -287,32 +287,32 @@ export default new ClientInteraction({
         await bot_message.edit({
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'default',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'default',
                             label: 'Information',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'flags',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'flags',
                             label: 'Flags',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'media',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'media',
                             label: 'Media',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'permissions',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'permissions',
                             label: 'Permissions',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'roles',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'roles',
                             label: 'Roles',
                         },
                     ],

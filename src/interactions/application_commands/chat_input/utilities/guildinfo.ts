@@ -341,43 +341,43 @@ export default new ClientInteraction({
         await bot_message.edit({
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'default',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'default',
                             label: 'Information',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'roles',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'roles',
                             label: 'Roles',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'emojis',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'emojis',
                             label: 'Emojis',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'media',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'media',
                             label: 'Media',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'features',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'features',
                             label: 'Features',
                         },
                     ],
                 },
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'channels',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'channels',
                             label: 'Channels',
                         },
                     ],

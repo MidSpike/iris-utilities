@@ -72,21 +72,21 @@ async function editInteractionReplyForQueueItems(
         ],
         components: [
             {
-                type: 1,
+                type: Discord.ComponentType.ActionRow,
                 components: [
                     {
-                        type: 2,
-                        style: 2,
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
                         customId: 'queue_items_display_mode_previous_tracks',
                         label: 'Previous Tracks',
                     }, {
-                        type: 2,
-                        style: 2,
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
                         customId: 'queue_items_display_mode_current_track',
                         label: 'Current Track',
                     }, {
-                        type: 2,
-                        style: 2,
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
                         customId: 'queue_items_display_mode_future_tracks',
                         label: 'Upcoming Tracks',
                     },

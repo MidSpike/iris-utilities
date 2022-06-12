@@ -36,7 +36,7 @@ async function generateMessagePayload(interaction_author: Discord.User): Promise
         ],
         components: [
             {
-                type: 1,
+                type: Discord.ComponentType.ActionRow,
                 components: [
                     flip_coin_button.setDisabled(false),
                 ],
@@ -94,7 +94,7 @@ export default new ClientInteraction({
                         ],
                         components: [
                             {
-                                type: 1,
+                                type: Discord.ComponentType.ActionRow,
                                 components: [
                                     flip_coin_button.setDisabled(true),
                                 ],

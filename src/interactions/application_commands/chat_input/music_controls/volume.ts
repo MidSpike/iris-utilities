@@ -82,21 +82,21 @@ export default new ClientInteraction({
             ],
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 2,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
                             customId: 'volume_mute',
                             emoji: CustomEmoji.convertToObject(CustomEmoji.identifiers.MUTE),
                         }, {
-                            type: 2,
-                            style: 2,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
                             customId: 'volume_down',
                             emoji: CustomEmoji.convertToObject(CustomEmoji.identifiers.VOLUME_DOWN),
                         }, {
-                            type: 2,
-                            style: 2,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
                             customId: 'volume_up',
                             emoji: CustomEmoji.convertToObject(CustomEmoji.identifiers.VOLUME_UP),
                         },

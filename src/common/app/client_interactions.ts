@@ -31,7 +31,6 @@ enum ClientCommandAccessLevels {
     BOT_SUPER,
 }
 
-
 //------------------------------------------------------------//
 
 export class ClientCommandHelper {
@@ -43,43 +42,50 @@ export class ClientCommandHelper {
         DMS_ONLY: 'DMS_ONLY',
     };
 
-    static categories: Discord.Collection<string, ClientCommandCategory> = new Discord.Collection([
-        {
-            id: 'HELP_AND_INFORMATION',
-            name: 'Help And Information',
-            description: 'n/a',
-        }, {
-            id: 'MUSIC_CONTROLS',
-            name: 'Music Controls',
-            description: 'n/a',
-        }, {
-            id: 'FUN_STUFF',
-            name: 'Fun Stuff',
-            description: 'n/a',
-        }, {
-            id: 'UTILITIES',
-            name: 'Utilities',
-            description: 'n/a',
-        }, {
-            id: 'GUILD_STAFF',
-            name: 'Guild Staff',
-            description: 'Commands for guild mods, guild admins, guild owner, and bot super.',
-        }, {
-            id: 'GUILD_ADMIN',
-            name: 'Guild Admin',
-            description: 'Commands for guild admins, guild owner, and bot super.',
-        }, {
-            id: 'GUILD_OWNER',
-            name: 'Guild Owner',
-            description: 'Commands for the guild owner and bot super.',
-        }, {
-            id: 'BOT_SUPER',
-            name: 'Bot Super',
-            description: 'Commands for bot admins and the bot owner.',
-        },
-    ].map((command_category) => ([ command_category.id, command_category ])));
+    static categories = new Discord.Collection<string, ClientCommandCategory>(
+        [
+            {
+                id: 'HELP_AND_INFORMATION',
+                name: 'Help And Information',
+                description: 'n/a',
+            }, {
+                id: 'MUSIC_CONTROLS',
+                name: 'Music Controls',
+                description: 'n/a',
+            }, {
+                id: 'FUN_STUFF',
+                name: 'Fun Stuff',
+                description: 'n/a',
+            }, {
+                id: 'UTILITIES',
+                name: 'Utilities',
+                description: 'n/a',
+            }, {
+                id: 'GUILD_STAFF',
+                name: 'Guild Staff',
+                description: 'Commands for guild mods, guild admins, guild owner, and bot super.',
+            }, {
+                id: 'GUILD_ADMIN',
+                name: 'Guild Admin',
+                description: 'Commands for guild admins, guild owner, and bot super.',
+            }, {
+                id: 'GUILD_OWNER',
+                name: 'Guild Owner',
+                description: 'Commands for the guild owner and bot super.',
+            }, {
+                id: 'BOT_SUPER',
+                name: 'Bot Super',
+                description: 'Commands for bot admins and the bot owner.',
+            },
+        ].map(
+            (command_category) => ([ command_category.id, command_category ])
+        )
+    );
 
-    static async checkExecutionEnvironment(interaction: Discord.Interaction, required_environment: string): Promise<boolean> {
+    static async checkExecutionEnvironment(
+        interaction: Discord.Interaction,
+        required_environment: string,
+    ): Promise<boolean> {
         let is_valid_environment;
 
         switch (required_environment) {
@@ -120,7 +126,7 @@ export class ClientCommandHelper {
     }
 
     static async checkUserAccessLevel(
-        discord_client: Discord.Client,
+        discord_client: Discord.Client<true>,
         interaction: Discord.Interaction,
         required_access_level: number,
     ): Promise<boolean> {
@@ -255,19 +261,6 @@ export type ClientInteractionMetadata = {
 };
 export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<unknown>;
 
-export type ClientInteractionConstructorOptions = {
-    type: ClientInteractionType;
-    identifier: ClientInteractionIdentifier;
-    data?: ClientInteractionData;
-    metadata: {
-        allowed_execution_environment?: string;
-        command_category?: ClientCommandCategory;
-        required_bot_permissions?: Discord.PermissionResolvable[];
-        required_user_access_level?: number;
-    },
-    handler: ClientInteractionHandler;
-}
-
 //------------------------------------------------------------//
 
 export class ClientInteraction {
@@ -277,7 +270,20 @@ export class ClientInteraction {
     private _metadata: ClientInteractionMetadata | undefined;
     private _handler: ClientInteractionHandler;
 
-    constructor(opts: ClientInteractionConstructorOptions) {
+    constructor(
+        opts: {
+            type: ClientInteractionType;
+            identifier: ClientInteractionIdentifier;
+            data?: ClientInteractionData;
+            metadata: {
+                allowed_execution_environment?: string;
+                command_category?: ClientCommandCategory;
+                required_bot_permissions?: Discord.PermissionResolvable[];
+                required_user_access_level?: number;
+            },
+            handler: ClientInteractionHandler;
+        },
+    ) {
         this._identifier = opts.identifier;
         this._type = opts.type;
         this._data = opts.data;
