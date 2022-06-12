@@ -122,17 +122,17 @@ export async function requestPotentialNotSafeForWorkContentConsent(channel: Disc
             ],
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'user_consents_to_potential_nsfw_content',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'user_consents_to_potential_nsfw_content',
                             label: 'Yes',
                         }, {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'user_does_not_consent_to_potential_nsfw_content',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'user_does_not_consent_to_potential_nsfw_content',
                             label: 'No',
                         },
                     ],

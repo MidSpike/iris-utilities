@@ -47,12 +47,12 @@ export default new ClientInteraction({
         //     content: `${interaction.member}, did the test!`,
         //     components: [
         //         {
-        //             type: 1,
+        //             type: Discord.ComponentType.ActionRow,
         //             components: [
         //                 {
-        //                     type: 2,
-        //                     style: 1,
-        //                     custom_id: 'test_button',
+        //                     type: Discord.ComponentType.Button,
+        //                     style: Discord.ButtonStyle.Primary,
+        //                     customId: 'test_button',
         //                     label: 'Test Button',
         //                 },
         //             ],

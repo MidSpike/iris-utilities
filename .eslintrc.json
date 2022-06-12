@@ -197,7 +197,17 @@
         "no-lonely-if": "error",
         "no-loop-func": "error",
         "no-loss-of-precision": "error",
-        "no-magic-numbers": "off",
+        "no-magic-numbers": [
+            "off",
+            {
+                "ignoreArrayIndexes": true,
+                "ignoreDefaultValues": true,
+                "ignore": [
+                    0,
+                    1
+                ]
+            }
+        ],
         "no-mixed-operators": [
             "error",
             {

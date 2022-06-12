@@ -104,12 +104,12 @@ export default new ClientInteraction({
             ],
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 2,
-                            custom_id: 'generate_new_cah_card',
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'generate_new_cah_card',
                             label: 'Generate New Card',
                         },
                     ],

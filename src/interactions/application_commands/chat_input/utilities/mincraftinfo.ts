@@ -120,7 +120,7 @@ export default new ClientInteraction({
                 await bot_message.edit({
                     embeds: [
                         CustomEmbed.from({
-                            title: `MC User > ${Discord.Util.escapeMarkdown(mc_user_username)}`,
+                            title: `MC User > ${Discord.escapeMarkdown(mc_user_username)}`,
                             fields: [
                                 {
                                     name: 'UUID',
@@ -128,7 +128,7 @@ export default new ClientInteraction({
                                     inline: false,
                                 }, {
                                     name: 'Name History',
-                                    value: mc_user_name_history.map(({ name, changedToAt }) => `${Discord.Util.escapeMarkdown(name)} ${changedToAt ? `(<t:${`${changedToAt}`.slice(0, -3)}:f>)` : ''}`).join('\n'),
+                                    value: mc_user_name_history.map(({ name, changedToAt }) => `${Discord.escapeMarkdown(name)} ${changedToAt ? `(<t:${`${changedToAt}`.slice(0, -3)}:f>)` : ''}`).join('\n'),
                                     inline: false,
                                 }, {
                                     name: 'Avatar',

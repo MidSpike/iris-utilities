@@ -39,10 +39,11 @@ export default {
         console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> client is ready.`);
 
         discord_client.user.setPresence({
+            status: 'online',
             activities: [
                 {
+                    type: Discord.ActivityType.Listening,
                     name: 'slash commands!',
-                    type: 2,
                 },
             ],
         });

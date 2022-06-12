@@ -38,7 +38,7 @@ const akinator_credit_text = 'Powered by https://akinator.com/';
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(akinator: Akinator) {
+async function generateMessagePayload(akinator: Akinator): Promise<Discord.WebhookEditMessageOptions> {
     return {
         embeds: [
             CustomEmbed.from({
@@ -54,27 +54,25 @@ async function generateMessagePayload(akinator: Akinator) {
         ],
         components: [
             {
-                type: 1,
-                components: [
-                    ...akinator.answers.map((answer, index) => ({
-                        type: 2,
-                        style: 2,
-                        custom_id: `akinator_button__step_${index}`,
-                        label: `${answer}`,
-                    })),
-                ],
+                type: Discord.ComponentType.ActionRow,
+                components: akinator.answers.map((answer, index) => ({
+                    type: Discord.ComponentType.Button,
+                    style: Discord.ButtonStyle.Secondary,
+                    customId: `akinator_button__step_${index}`,
+                    label: `${answer}`,
+                })),
             }, {
-                type: 1,
+                type: Discord.ComponentType.ActionRow,
                 components: [
                     {
-                        type: 2,
-                        style: 1,
-                        custom_id: 'akinator_button__previous',
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Primary,
+                        customId: 'akinator_button__previous',
                         label: 'Show Previous Question',
                     }, {
-                        type: 2,
-                        style: 4,
-                        custom_id: 'akinator_button__end_session',
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Danger,
+                        customId: 'akinator_button__end_session',
                         label: 'End Akinator Session',
                     },
                 ],

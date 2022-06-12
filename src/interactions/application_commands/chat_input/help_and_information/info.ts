@@ -10,6 +10,11 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
+const bot_support_url = process.env.DISCORD_BOT_SUPPORT_GUILD_INVITE_URL as string;
+if (!bot_support_url?.length) throw new Error('DISCORD_BOT_SUPPORT_GUILD_INVITE_URL is undefined or empty');
+
+//------------------------------------------------------------//
+
 export default new ClientInteraction({
     identifier: 'info',
     type: Discord.InteractionType.ApplicationCommand,
@@ -51,14 +56,29 @@ export default new ClientInteraction({
 
         const bot_creation_unix_epoch = Math.floor(discord_client.user.createdTimestamp / 1000);
 
-        const distributed_bot_sharding_info = await discord_client.shard!.broadcastEval((client) => [
-                `\`[ Shard ${client.shard!.ids.join(', ')} / ${client.shard!.count} ]\`:`,
+        const distributed_bot_info = await discord_client.shard!.broadcastEval((client) => ({
+            ping_ms: client.ws.ping,
+            num_cached_guilds: client.guilds.cache.size,
+            num_cached_users: client.users.cache.size,
+            num_cached_channels: client.channels.cache.size,
+            num_cached_emojis: client.emojis.cache.size,
+            shard_info: [
+                `\`[ Shard ${client.shard!.ids.map(shard_id => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
                 `> - ${client.ws.ping}ms ping`,
                 `> - ${client.guilds.cache.size} cached guild(s)`,
                 `> - ${client.users.cache.size} cached user(s)`,
                 `> - ${client.channels.cache.size} cached channel(s)`,
                 `> - ${client.emojis.cache.size} cached emoji(s)`,
-            ].join('\n'));
+            ].join('\n'),
+        }));
+
+        const combined_bot_info_totals = {
+            average_ping_ms: distributed_bot_info.reduce((acc, curr) => acc + curr.ping_ms, 0) / distributed_bot_info.length,
+            num_cached_guilds: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_guilds, 0),
+            num_cached_users: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_users, 0),
+            num_cached_channels: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_channels, 0),
+            num_cached_emojis: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_emojis, 0),
+        };
 
         await interaction.followUp({
             embeds: [
@@ -72,9 +92,18 @@ export default new ClientInteraction({
                             name: 'About Me',
                             value: `${bot_application.description}`,
                         }, {
-                            name: 'Sharding Status',
+                            name: 'Combined Shard Info',
                             value: [
-                                distributed_bot_sharding_info.join('\n\n'),
+                                `> - ${combined_bot_info_totals.average_ping_ms}ms average ping`,
+                                `> - ${combined_bot_info_totals.num_cached_guilds} total cached guild(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_users} total cached user(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_channels} total cached channel(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_emojis} total cached emoji(s)`,
+                            ].join('\n'),
+                        }, {
+                            name: 'Individual Shard Info',
+                            value: [
+                                distributed_bot_info.map(({ shard_info }) => shard_info).join('\n\n'),
                             ].join('\n'),
                         },
                     ],
@@ -82,41 +111,41 @@ export default new ClientInteraction({
             ],
             components: [
                 {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 5,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Link,
                             label: 'Invite Me',
                             url: `${bot_invite_url}`,
                         }, {
-                            type: 2,
-                            style: 5,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Link,
                             label: 'Support Server',
-                            url: 'https://discord.gg/BXJpS6g',
+                            url: `${bot_support_url}`,
                         }, {
-                            type: 2,
-                            style: 5,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Link,
                             label: 'Website',
                             url: 'https://iris-utilities.com/',
                         },
                     ],
                 }, {
-                    type: 1,
+                    type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 2,
-                            style: 5,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Link,
                             label: 'Donate',
                             url: 'https://github.com/sponsors/MidSpike',
                         }, {
-                            type: 2,
-                            style: 5,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Link,
                             label: 'Source Code',
                             url: 'https://github.com/MidSpike/iris-utilities',
                         }, {
-                            type: 2,
-                            style: 5,
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Link,
                             label: 'Privacy Policy',
                             url: 'https://iris-utilities.com/pages/privacy.html',
                         },
