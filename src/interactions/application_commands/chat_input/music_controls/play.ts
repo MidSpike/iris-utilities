@@ -1,37 +1,35 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import ytdl, { getInfo as getYouTubeInfo } from 'ytdl-core';
+import { delay } from '@root/common/lib/utilities';
 
-import { delay } from '../../../../common/lib/utilities';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
-
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
     identifier: 'play',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'allows for playing audio resources',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'query',
                 description: 'the query to search',
                 required: true,
             }, {
-                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                type: Discord.ApplicationCommandOptionType.Boolean,
                 name: 'playnext',
                 description: 'whether to play next',
                 required: false,
@@ -42,16 +40,17 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
         command_category: ClientCommandHelper.categories.get('MUSIC_CONTROLS'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -61,7 +60,10 @@ export default new ClientInteraction({
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
+
+        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
@@ -102,7 +104,6 @@ export default new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-ignore This works, even though it's not a valid type.
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -158,47 +159,14 @@ export default new ClientInteraction({
             const search_result = search_results[i];
 
             try {
-                let track_title = 'Unknown Track';
-                let track_url = 'https://google.com/';
-
-                const urlObj = new URL(search_result.url);
-                if ((/(youtu\.be|youtube\.com)$/gi).test(urlObj.hostname)) {
-                    const info = await getYouTubeInfo(`${urlObj}`, {
-                        requestOptions: {
-                            headers: {
-                                'Accept-Language': 'en-US,en;q=0.5',
-                                'User-Agent': process.env.YTDL_USER_AGENT,
-                                'Cookie': process.env.YTDL_COOKIE,
-                                'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
-                            },
-                        },
-                    });
-
-                    track_title = info.videoDetails.title;
-                    track_url = info.videoDetails.video_url;
-                } else {
-                    track_title = `Audio stream from ${urlObj.hostname}`;
-                }
+                const track_title = search_result.title;
+                const track_url = search_result.url;
 
                 const track = new RemoteTrack({
                     title: track_title,
                     url: track_url,
-                }, () => new Promise((resolve, reject) => {
-                    const stream = ytdl(track.metadata.url, {
-                        lang: 'en',
-                        filter: 'audioonly',
-                        quality: 'highestaudio',
-                        // eslint-disable-next-line no-bitwise
-                        highWaterMark: 1<<25, // 32 MB
-                        requestOptions: {
-                            headers: {
-                                'Accept-Language': 'en-US,en;q=0.5',
-                                'User-Agent': process.env.YTDL_USER_AGENT,
-                                'Cookie': process.env.YTDL_COOKIE,
-                                'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
-                            },
-                        },
-                    });
+                }, () => new Promise(async (resolve, reject) => {
+                    const stream = await Streamer.youtubeStream(track.metadata.url);
 
                     if (!stream) {
                         reject(new Error('No stdout'));

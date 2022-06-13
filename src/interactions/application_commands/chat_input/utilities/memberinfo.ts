@@ -1,26 +1,26 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { array_chunks } from '../../../../common/lib/utilities';
+import { arrayChunks } from '@root/common/lib/utilities';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
     identifier: 'memberinfo',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays information about a guild member',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.USER,
+                type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
                 description: 'the guild member to lookup',
                 required: false,
@@ -31,14 +31,15 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -52,7 +53,7 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const member_id = interaction.options.getUser('member') ?? interaction.member.id;
+        const member_id = interaction.options.getUser('member', false)?.id ?? interaction.member.id;
         const member = await interaction.guild.members.fetch(member_id);
 
         await member.user.fetch(true); // force fetch the user
@@ -98,9 +99,9 @@ export default new ClientInteraction({
                 }
 
                 case 'media': {
-                    const guild_member_icon_url = member.avatarURL({ format: 'png', size: 4096, dynamic: true });
-                    const global_user_icon_url = member.user.displayAvatarURL({ format: 'png', size: 4096, dynamic: true });
-                    const global_user_banner_url = member.user.bannerURL({ format: 'png', size: 4096, dynamic: true });
+                    const guild_member_icon_url = member.avatarURL({ extension: 'gif', size: 4096 });
+                    const global_user_icon_url = member.user.displayAvatarURL({ extension: 'gif', size: 4096 });
+                    const global_user_banner_url = member.user.bannerURL({ extension: 'gif', size: 4096 });
 
                     await bot_message.edit({
                         embeds: [
@@ -156,11 +157,11 @@ export default new ClientInteraction({
 
                                     {
                                         name: 'Enhanced Permissions',
-                                        value: `${'```'}\n${member_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                                        value: `${'```'}\n${member_permissions.includes('Administrator') ? 'ADMINISTRATOR' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Inherited Permissions',
-                                        value: `${'```'}\n${everyone_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                                        value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     },
                                 ],
@@ -187,7 +188,7 @@ export default new ClientInteraction({
                                         inline: false,
                                     },
 
-                                    ...array_chunks(member_roles, 32).map((member_roles_chunk, chunk_index, member_roles_chunks) => ({
+                                    ...arrayChunks(member_roles, 32).map((member_roles_chunk, chunk_index, member_roles_chunks) => ({
                                         name: `Roles ${chunk_index+1}/${member_roles_chunks.length}`,
                                         value: `${member_roles_chunk.join(' - ')}`,
                                         inline: false,
@@ -229,18 +230,18 @@ export default new ClientInteraction({
                                     ] : []),
 
                                     {
-                                        name: 'Account Creation Date',
+                                        name: 'Account Created On',
                                         value: `<t:${member_created_timestamp_epoch}:F> (<t:${member_created_timestamp_epoch}:R>)`,
                                         inline: false,
                                     }, {
-                                        name: 'Joined Guild Date',
+                                        name: 'Joined Guild On',
                                         value: `<t:${member_joined_timestamp_epoch}:F> (<t:${member_joined_timestamp_epoch}:R>)`,
                                         inline: false,
                                     },
 
                                     ...(member.premiumSinceTimestamp ? [
                                         {
-                                            name: 'Boosting Since Date',
+                                            name: 'Boosting Since',
                                             value: `<t:${member_premium_since_timestamp_epoch}:F> (<t:${member_premium_since_timestamp_epoch}:R>)`,
                                             inline: false,
                                         },

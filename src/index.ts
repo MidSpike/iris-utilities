@@ -1,6 +1,9 @@
-'use strict';
-
 //------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
+//------------------------------------------------------------//
+
+// eslint-disable-next-line no-unused-expressions
+require('module-alias/register');
 
 // eslint-disable-next-line no-unused-expressions
 require('manakin').global;
@@ -57,6 +60,7 @@ sharding_manager.on('shardCreate', (shard) => {
 
 console.log('<SM> spawning shards...');
 sharding_manager.spawn({
-    timeout: 1 * 60_000,
+    timeout: 60_000,
     delay: 10_000,
+    amount: 'auto',
 });

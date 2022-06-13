@@ -2,6 +2,8 @@
     "defaultSeverity": "error",
     "compilerOptions": {
         "baseUrl": ".",
+        "rootDir": "./src",
+        "outDir": "./dist",
         "allowJs": true,
         "checkJs": false,
         "target": "ESNext",
@@ -13,12 +15,15 @@
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
-        "declaration": true,
+        "sourceMap": true,
+        "declaration": false,
         "typeRoots": [
             "@types",
             "./typings"
         ],
-        "outDir": "./dist"
+        "paths": {
+            "@root/*": [ "src/*" ]
+        }
     },
     "exclude": [
         "node_modules",

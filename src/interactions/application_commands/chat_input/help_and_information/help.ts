@@ -1,12 +1,12 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -14,13 +14,13 @@ async function createHelpEmbed(command_category_id: string) {
     const command_category = ClientCommandHelper.categories.get(command_category_id);
     if (!command_category) throw new Error(`No command category with id ${command_category_id}`);
 
-    const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.Constants.ApplicationCommandTypes.CHAT_INPUT);
+    const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.ApplicationCommandType.ChatInput);
 
     const commands_in_specified_category = chat_input_commands.filter(client_interaction => client_interaction.metadata.command_category!.id === command_category.id);
     const mapped_commands_in_specified_category = commands_in_specified_category.map(client_interaction => {
         const filtered_client_interactions = client_interaction.data.options!.filter(option => ![
-            Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
-            Discord.Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+            Discord.ApplicationCommandOptionType.SubcommandGroup,
+            Discord.ApplicationCommandOptionType.Subcommand,
         ].includes(option.type as number)) as (Discord.ApplicationCommandOption & { required?: boolean })[];
 
         const command_usage = filtered_client_interactions.map(({ required, name, type }) =>
@@ -48,13 +48,13 @@ async function createHelpEmbed(command_category_id: string) {
 
 module.exports.default = new ClientInteraction({
     identifier: 'help',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays various information about the bot',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'category',
                 description: 'the category to show',
                 choices: ClientCommandHelper.categories.map(category => ({
@@ -69,22 +69,24 @@ module.exports.default = new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
         command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
         const bot_message = await interaction.editReply({
             content: `Hello there, I\'m ${discord_client.user!.username}!`,
             embeds: [
-                await createHelpEmbed(interaction.options.getString('category') ?? 'HELP_AND_INFORMATION'),
+                await createHelpEmbed(interaction.options.getString('category', false) ?? 'HELP_AND_INFORMATION'),
             ],
             components: [
                 {

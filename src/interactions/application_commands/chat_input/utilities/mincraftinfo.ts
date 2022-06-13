@@ -1,26 +1,26 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import axios from 'axios';
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
     identifier: 'minecraftinfo',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays information about a minecraft user or server',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'type',
                 description: 'the query type to lookup',
                 choices: [
@@ -34,7 +34,7 @@ export default new ClientInteraction({
                 ],
                 required: true,
             }, {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'query',
                 description: 'the query value to lookup',
                 required: true,
@@ -45,13 +45,15 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
+        if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -66,8 +68,8 @@ export default new ClientInteraction({
 
         if (!(bot_message instanceof Discord.Message)) return;
 
-        const query_type = interaction.options.get('type')?.value as string;
-        const query_value = interaction.options.get('query')?.value as string;
+        const query_type = interaction.options.getString('type', true);
+        const query_value = interaction.options.getString('query', true);
 
         switch (query_type) {
             case 'user': {
@@ -226,7 +228,7 @@ export default new ClientInteraction({
                 const mc_server_info_icon_base64 = (mc_server_info_raw_icon ?? '').split(',')[1] || null;
                 const mc_server_info_icon_buffer = mc_server_info_icon_base64 ? Buffer.from(mc_server_info_icon_base64, 'base64') : null;
                 const mc_server_info_icon_attachment_name = 'mc-server-icon.png';
-                const mc_server_info_icon_attachment = mc_server_info_icon_buffer ? new Discord.MessageAttachment(mc_server_info_icon_buffer, mc_server_info_icon_attachment_name) : null;
+                const mc_server_info_icon_attachment = mc_server_info_icon_buffer ? new Discord.AttachmentBuilder(mc_server_info_icon_buffer, { name: mc_server_info_icon_attachment_name }) : null;
 
                 await bot_message.edit({
                     embeds: [

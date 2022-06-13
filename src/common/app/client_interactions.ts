@@ -1,12 +1,12 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { go_mongo_db } from '../lib/go_mongo_db';
+import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 
 import { CustomEmbed } from './message';
 
@@ -20,12 +20,11 @@ type ClientCommandCategory = {
     id: string;
     name: string;
     description: string;
-    // required_access_level: number;
 };
 
 enum ClientCommandAccessLevels {
     EVERYONE,
-    // DONATOR, // reserved for future usage
+    DONATOR,
     GUILD_STAFF,
     GUILD_ADMIN,
     GUILD_OWNER,
@@ -105,7 +104,7 @@ export class ClientCommandHelper {
         }
 
         if (!is_valid_environment && interaction.isRepliable()) {
-            interaction.reply({
+            await interaction.reply({
                 ephemeral: true,
                 embeds: [
                     CustomEmbed.from({
@@ -114,7 +113,7 @@ export class ClientCommandHelper {
                         description: `This command can only be executed in ${required_environment}`,
                     }),
                 ],
-            });
+            }).catch(console.warn);
         }
 
         return is_valid_environment;
@@ -134,7 +133,7 @@ export class ClientCommandHelper {
 
             const guild_member = await guild.members.fetch(interaction.user.id);
             const guild_member_roles = guild_member.roles.cache;
-            const guild_member_is_administrator = guild_member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR);
+            const guild_member_is_administrator = guild_member.permissions.has(Discord.PermissionFlagsBits.Administrator);
 
             const guild_config = await GuildConfigsManager.fetch(guild.id);
             const guild_staff_role_ids = guild_config.staff_role_ids ?? [];
@@ -205,16 +204,18 @@ export class ClientCommandHelper {
 
         const channel = await discord_client.channels.fetch(interaction.channelId as string) as Discord.GuildChannel;
         if (!channel) return true; // the channel doesn't exist, so we can assume the bot has all permissions
-        if (!channel?.isText()) return true; // the channel is not a text channel, so we can't check permissions
+        if (!channel?.isTextBased()) return true; // the channel is not a text channel, so we can't check permissions
 
-        const bot_guild_permissions = channel.guild.me!.permissions;
+        const bot_member = await channel.guild.members.fetch(discord_client.user!.id);
+
+        const bot_guild_permissions = bot_member.permissions;
         const bot_channel_permissions = channel.permissionsFor(discord_client.user!.id)!;
-        const bot_permissions = new Discord.Permissions([ bot_guild_permissions, bot_channel_permissions ]);
+        const bot_permissions = new Discord.PermissionsBitField([ bot_guild_permissions, bot_channel_permissions ]);
 
         const missing_permissions = required_permissions.filter(required_permission => !bot_permissions.has(required_permission));
 
         if (missing_permissions.length > 0) {
-            const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.Permissions.FLAGS).find(([ _, perm ]) => perm === permission)?.[0]);
+            const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.PermissionFlagsBits).find(([ _, perm ]) => perm === permission)?.[0]);
 
             if (interaction.isRepliable()) {
                 interaction.reply({
@@ -252,7 +253,7 @@ export type ClientInteractionMetadata = {
     required_bot_permissions?: Discord.PermissionResolvable[];
     required_user_access_level?: number;
 };
-export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.Interaction) => Promise<unknown>;
+export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<unknown>;
 
 export type ClientInteractionConstructorOptions = {
     type: ClientInteractionType;
@@ -305,7 +306,7 @@ export class ClientInteraction {
 
     async handler(
         discord_client: Discord.Client<true>,
-        interaction: Discord.Interaction,
+        interaction: Discord.AnyInteraction,
     ) {
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
@@ -343,7 +344,7 @@ export class ClientInteractionManager {
     static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction> = new Discord.Collection();
 
     static async registerClientInteractions(discord_client: Discord.Client<true>) {
-        ClientInteractionManager.interactions.clear(); // remove all existing interactions so we can re-register them
+        ClientInteractionManager.interactions.clear(); // remove all existing interactions
 
         const path_to_interaction_files = path.join(process.cwd(), 'dist', 'interactions');
         const client_interaction_file_names: string[] = recursiveReadDirectory(path_to_interaction_files);
@@ -353,17 +354,14 @@ export class ClientInteractionManager {
 
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
-            console.log(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+            console.info(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+
+            delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
 
             const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
                 console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path}`);
-                continue;
-            }
-
-            if (ClientInteractionManager.interactions.has(client_interaction.identifier)) {
-                console.warn(`<DC S#(${discord_client.shard!.ids.join(', ')})> client interaction: ${client_interaction.identifier} is already registered; skipping...`);
                 continue;
             }
 
@@ -373,33 +371,46 @@ export class ClientInteractionManager {
 
     static async handleUnknownInteraction(
         discord_client: Discord.Client,
-        unknown_interaction: Discord.Interaction,
+        unknown_interaction: Discord.AnyInteraction,
     ): Promise<unknown> {
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
-        const client_interaction: ClientInteraction | undefined = ClientInteractionManager.interactions.find(interaction => {
-            const unknown_interaction_identifier = unknown_interaction.isMessageComponent() ? (
-                unknown_interaction.customId
-            ) : (
-                unknown_interaction.isModalSubmit() ? (
-                    unknown_interaction.customId
-                ) : (
-                    unknown_interaction.isApplicationCommand() ? (
-                        unknown_interaction.commandName
-                    ) : (
-                        unknown_interaction.isAutocomplete() ? (
-                            unknown_interaction.commandName
-                        ) : (
-                            unknown_interaction.id
-                        )
-                    )
-                )
-            );
+        let unknown_interaction_identifier: string;
+        switch (unknown_interaction.type) {
+            case Discord.InteractionType.ApplicationCommand: {
+                unknown_interaction_identifier = unknown_interaction.commandName;
+                break;
+            }
 
-            return interaction.identifier === unknown_interaction_identifier;
-        });
+            case Discord.InteractionType.MessageComponent: {
+                unknown_interaction_identifier = unknown_interaction.customId;
+                break;
+            }
 
-        /* ensure the interaction exists */
+            case Discord.InteractionType.ApplicationCommandAutocomplete: {
+                unknown_interaction_identifier = unknown_interaction.commandName;
+                break;
+            }
+
+            case Discord.InteractionType.ModalSubmit: {
+                unknown_interaction_identifier = unknown_interaction.customId;
+                break;
+            }
+
+            default: {
+                /* this is necessary to re-assert that a 'never' condition might actually happen */
+                const really_unknown_interaction = unknown_interaction as Discord.Interaction;
+
+                console.warn(`ClientInteractionManager.handleUnknownInteraction(): unknown interaction type: ${really_unknown_interaction.type}`);
+
+                unknown_interaction_identifier = really_unknown_interaction.id;
+                break;
+            }
+        }
+
+        const client_interaction = ClientInteractionManager.interactions.get(unknown_interaction_identifier);
+
+        /* ensure the client interaction exists before handling it, unknown interactions are expected */
         if (!client_interaction) return;
 
         /* run the interaction handler */
@@ -418,7 +429,7 @@ export class ClientInteractionManager {
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
                         title: 'Interaction Error',
-                        description: `An error occurred while handling: \`${client_interaction.identifier}\``,
+                        description: `An error occurred while handling: \`${unknown_interaction_identifier}\``,
                         fields: [
                             {
                                 name: 'Error Message',

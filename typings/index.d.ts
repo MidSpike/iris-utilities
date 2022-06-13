@@ -1,10 +1,12 @@
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
+//------------------------------------------------------------//
+
 import * as Discord from 'discord.js';
 
 //------------------------------------------------------------//
 
 export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
-    /** @todo */
-    // enabled?: boolean;
     name: string;
     handler(
         discord_client: Discord.Client,
@@ -16,10 +18,20 @@ export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
 
 export type GuildId = string;
 
-export type GuildConfig = {
-    [key: string]: unknown;
+export type GuildConfigTemplate = {
+    _creation_epoch: number;
+    _last_modified_epoch: number;
     staff_role_ids?: string[];
     admin_role_ids?: string[];
+    logging_member_retention_channel_id?: string;
+    logging_message_reactions_channel_id?: string;
+    logging_commands_channel_id?: string;
+    logging_moderation_channel_id?: string;
+}
+
+export interface GuildConfig extends GuildConfigTemplate {
+    [key: string]: unknown;
+    guild_id: GuildId;
 }
 
 //------------------------------------------------------------//
@@ -28,7 +40,11 @@ export type SettingAction<Setting> = {
     name: string,
     description: string,
     options: Discord.ApplicationCommandOptionData[],
-    handler: (setting: Setting, guild_config: GuildConfig, command_interaction: Discord.CommandInteraction<'cached'>) => Promise<unknown>,
+    handler: (
+        setting: Setting,
+        guild_config: GuildConfig,
+        command_interaction: Discord.CommandInteraction<'cached'>
+    ) => Promise<unknown>,
 }
 
 export type Setting = {

@@ -1,5 +1,5 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import stream from 'node:stream';
@@ -10,13 +10,13 @@ import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '@root/common/app/music/music';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { array_chunks, delay, string_ellipses } from '../../../../common/lib/utilities';
+import { arrayChunks, delay, stringEllipses } from '@root/common/lib/utilities';
 
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
@@ -47,18 +47,18 @@ const voice_codes = [
 
 export default new ClientInteraction({
     identifier: 'tts',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'allows for text to speech',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'text',
                 description: 'the text to speak',
                 required: true,
             }, {
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Discord.ApplicationCommandOptionType.String,
                 name: 'voice',
                 description: 'the voice to use',
                 required: false,
@@ -73,15 +73,15 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
         command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
@@ -93,7 +93,10 @@ export default new ClientInteraction({
         const member = await interaction.guild!.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
+
+        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
@@ -126,7 +129,6 @@ export default new ClientInteraction({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-ignore This works, even though it's not a valid type.
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -152,7 +154,7 @@ export default new ClientInteraction({
             return;
         }
 
-        const tts_text_chunks = array_chunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
+        const tts_text_chunks = arrayChunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
 
         if (tts_text_chunks.length > 1) {
             await interaction.editReply({
@@ -166,7 +168,7 @@ export default new ClientInteraction({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        description: `${interaction.user}, added text-to-speech to the queue:\`\`\`\n${string_ellipses(text, 512)}\n\`\`\``,
+                        description: `${interaction.user}, added text-to-speech to the queue:\`\`\`\n${stringEllipses(text, 512)}\n\`\`\``,
                     }),
                 ],
             });
@@ -253,7 +255,7 @@ export default new ClientInteraction({
                                 CustomEmbed.from({
                                     description: [
                                         `${interaction.user}, playing text-to-speech:`,
-                                        `\`\`\`\n${string_ellipses(tts_text, 512)}\n\`\`\``,
+                                        `\`\`\`\n${stringEllipses(tts_text, 512)}\n\`\`\``,
                                     ].join('\n'),
                                 }),
                             ],
