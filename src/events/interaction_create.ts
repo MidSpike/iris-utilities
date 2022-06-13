@@ -1,12 +1,12 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import Typings from 'typings';
+import { ClientEventExport } from 'typings';
 
 import * as Discord from 'discord.js';
 
-import { ClientInteractionManager } from '../common/app/client_interactions';
+import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -21,4 +21,4 @@ export default {
 
         await ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
     },
-} as Typings.ClientEventExport<typeof event_name>;
+} as ClientEventExport<typeof event_name>;

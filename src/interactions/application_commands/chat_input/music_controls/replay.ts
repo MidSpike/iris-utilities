@@ -1,16 +1,16 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { music_subscriptions } from '../../../../common/app/music/music';
+import { music_subscriptions } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 

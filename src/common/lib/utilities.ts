@@ -1,3 +1,7 @@
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
+//------------------------------------------------------------//
+
 /**
  * Asynchronous setTimeout
  */
@@ -70,4 +74,21 @@ export function randomItemFromArray<T=unknown>(
     array_of_things: T[],
 ): T {
     return array_of_things[randomNumberFromInclusiveRange(0, array_of_things.length - 1)];
+}
+
+/**
+ * Parses a URL from a string and will return undefined if the URL is invalid
+ */
+export function parseUrlFromString(
+    url_string: string,
+): URL | undefined {
+    let url;
+
+    try {
+        url = new URL(url_string);
+    } catch (error) {
+        return undefined;
+    }
+
+    return url;
 }

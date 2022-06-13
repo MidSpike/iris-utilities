@@ -1,5 +1,5 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as fs from 'node:fs';
@@ -8,11 +8,11 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { randomItemFromArray, delay } from '../../../../common/lib/utilities';
+import { delay, randomItemFromArray } from '@root/common/lib/utilities';
 
-import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '../../../../common/app/message';
+import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 

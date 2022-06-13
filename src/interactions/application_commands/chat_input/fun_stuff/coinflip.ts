@@ -1,18 +1,25 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { delay } from '../../../../common/lib/utilities';
+import { delay } from '@root/common/lib/utilities';
 
-import { CustomEmbed, disableMessageComponents } from '../../../../common/app/message';
+import { CustomEmbed, disableMessageComponents } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(interaction_author: Discord.User) {
+const flip_coin_button = new Discord.ButtonBuilder()
+    .setStyle(Discord.ButtonStyle.Secondary)
+    .setCustomId('flip_coin_button')
+    .setLabel('Flip Another Coin');
+
+//------------------------------------------------------------//
+
+async function generateMessagePayload(interaction_author: Discord.User): Promise<Discord.MessageOptions> {
     const coin_facing = Math.random() > 0.5 ? 'heads' : 'tails';
 
     return {
@@ -31,12 +38,7 @@ async function generateMessagePayload(interaction_author: Discord.User) {
             {
                 type: 1,
                 components: [
-                    {
-                        type: 2,
-                        style: 2,
-                        custom_id: 'flip_coin_button',
-                        label: 'Flip Another Coin',
-                    },
+                    flip_coin_button.setDisabled(false),
                 ],
             },
         ],
@@ -78,19 +80,25 @@ export default new ClientInteraction({
         });
 
         button_interaction_collector.on('collect', async (button_interaction) => {
+            if (!button_interaction.inCachedGuild()) return;
+
             await button_interaction.deferUpdate();
 
             switch (button_interaction.customId) {
                 case 'flip_coin_button': {
-                    if (!(button_interaction.message instanceof Discord.Message)) return;
-
-                    await disableMessageComponents(button_interaction.message);
-
                     await button_interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
                                 description: `${interaction.user}, flipping a coin...`,
                             }),
+                        ],
+                        components: [
+                            {
+                                type: 1,
+                                components: [
+                                    flip_coin_button.setDisabled(true),
+                                ],
+                            },
                         ],
                     });
 

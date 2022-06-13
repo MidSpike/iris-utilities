@@ -1,14 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed, disableMessageComponents } from '../../../../common/app/message';
+import { CustomEmbed, CustomEmoji, disableMessageComponents } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { music_subscriptions } from '../../../../common/app/music/music';
+import { music_subscriptions } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
@@ -88,26 +88,17 @@ export default new ClientInteraction({
                             type: 2,
                             style: 2,
                             customId: 'volume_mute',
-                            emoji: {
-                                id: '971821789594411078',
-                                name: 'bot_emoji_mute',
-                            },
+                            emoji: CustomEmoji.convertToObject(CustomEmoji.identifiers.MUTE),
                         }, {
                             type: 2,
                             style: 2,
                             customId: 'volume_down',
-                            emoji: {
-                                id: '971821711509041242',
-                                name: 'bot_emoji_volume_down',
-                            },
+                            emoji: CustomEmoji.convertToObject(CustomEmoji.identifiers.VOLUME_DOWN),
                         }, {
                             type: 2,
                             style: 2,
                             customId: 'volume_up',
-                            emoji: {
-                                id: '971821558735724614',
-                                name: 'bot_emoji_volume_up',
-                            },
+                            emoji: CustomEmoji.convertToObject(CustomEmoji.identifiers.VOLUME_UP),
                         },
                     ],
                 },

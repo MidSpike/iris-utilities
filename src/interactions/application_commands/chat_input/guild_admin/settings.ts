@@ -1,5 +1,5 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import { Setting } from 'typings';
@@ -8,11 +8,11 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { GuildConfigsManager } from '../../../../common/app/guild_configs';
+import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 const recursiveReadDirectory = require('recursive-read-directory');
 
@@ -81,7 +81,7 @@ export default new ClientInteraction({
 
         const setting = settings.find(setting => setting.name === setting_name);
         if (!setting) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -95,7 +95,7 @@ export default new ClientInteraction({
 
         const setting_action = setting.actions.find(action => action.name === setting_action_name);
         if (!setting_action) {
-            return interaction.followUp({
+            return interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,

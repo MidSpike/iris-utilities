@@ -1,18 +1,18 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { delay } from '../../../../common/lib/utilities';
+import { delay } from '@root/common/lib/utilities';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, YouTubeStreamer, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -162,30 +162,11 @@ export default new ClientInteraction({
                 const track_title = search_result.title;
                 const track_url = search_result.url;
 
-                // const urlObj = new URL(search_result.url);
-                // if ((/(youtu\.be|youtube\.com)$/gi).test(urlObj.hostname)) {
-                //     const info = await getYouTubeInfo(`${urlObj}`, {
-                //         requestOptions: {
-                //             headers: {
-                //                 'Accept-Language': 'en-US,en;q=0.5',
-                //                 'User-Agent': process.env.YTDL_USER_AGENT,
-                //                 'Cookie': process.env.YTDL_COOKIE,
-                //                 'x-youtube-identity-token': process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN,
-                //             },
-                //         },
-                //     });
-
-                //     track_title = info.videoDetails.title;
-                //     track_url = info.videoDetails.video_url;
-                // } else {
-                //     track_title = `Audio stream from ${urlObj.hostname}`;
-                // }
-
                 const track = new RemoteTrack({
                     title: track_title,
                     url: track_url,
                 }, () => new Promise(async (resolve, reject) => {
-                    const stream = await YouTubeStreamer.stream(track.metadata.url);
+                    const stream = await Streamer.youtubeStream(track.metadata.url);
 
                     if (!stream) {
                         reject(new Error('No stdout'));

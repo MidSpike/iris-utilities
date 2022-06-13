@@ -1,5 +1,5 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import stream from 'node:stream';
@@ -10,13 +10,13 @@ import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '@root/common/app/music/music';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { arrayChunks, delay, stringEllipses } from '../../../../common/lib/utilities';
+import { arrayChunks, delay, stringEllipses } from '@root/common/lib/utilities';
 
 import { GoogleTranslateTTS } from 'google-translate-tts';
 

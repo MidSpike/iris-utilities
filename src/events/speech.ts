@@ -1,14 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, YouTubeStreamer, music_subscriptions } from '../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
-import { CustomEmbed } from '../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
 //------------------------------------------------------------//
 
@@ -130,7 +130,7 @@ export default {
                     title: search_result.title,
                     url: search_result.url,
                 }, () => new Promise(async (resolve, reject) => {
-                    const stream = await YouTubeStreamer.stream(track.metadata.url);
+                    const stream = await Streamer.youtubeStream(track.metadata.url);
 
                     if (!stream) {
                         reject(new Error('No stdout'));
