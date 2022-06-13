@@ -1,8 +1,53 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
+
+//------------------------------------------------------------//
+
+type CustomEmojiIdentifierName = string;
+type CustomEmojiIdentifier = string;
+
+export class CustomEmoji {
+    static identifiers: {
+        [key: CustomEmojiIdentifierName]: CustomEmojiIdentifier;
+    } = {
+        SPEAKER: '<:bot_emoji_speaker:971821916392423494>',
+        MUTE: '<:bot_emoji_mute:971821789594411078>',
+        VOLUME_DOWN: '<:bot_emoji_volume_down:971821711509041242>',
+        VOLUME_UP: '<:bot_emoji_volume_up:971821558735724614>',
+        BOT: '<:bot_emoji_bot:878350454021554215>',
+        MIDSPIKE: '<:bot_emoji_midspike:878349649675690024>',
+        ZERO: '<:bot_emoji_zero:678691063178985480>',
+        ONE: '<:bot_emoji_one:678691126357655572>',
+        TWO: '<:bot_emoji_two:678691155738624011>',
+        THREE: '<:bot_emoji_three:678691184603824128>',
+        FOUR: '<:bot_emoji_four:678691214102364181>',
+        FIVE: '<:bot_emoji_five:678691239348011018>',
+        SIX: '<:bot_emoji_six:678691272986329102>',
+        SEVEN: '<:bot_emoji_seven:678691301276778526>',
+        EIGHT: '<:bot_emoji_eight:678691330783969290>',
+        NINE: '<:bot_emoji_nine:678691358415781915>',
+    };
+
+    static convertToObject(
+        custom_emoji_identifier: CustomEmojiIdentifier,
+    ): {
+        id?: string;
+        name?: string;
+    } {
+        const [
+            emoji_name,
+            emoji_id,
+        ] = custom_emoji_identifier.replace(/[\<\>]/gi, '').split(':').slice(1);
+
+        return {
+            id: emoji_id,
+            name: emoji_name,
+        };
+    }
+}
 
 //------------------------------------------------------------//
 
@@ -18,10 +63,10 @@ export class CustomEmbed {
         VIOLET: 0xAA00FF,
     };
 
-    static from(options: Discord.MessageEmbedOptions): Discord.MessageEmbed {
+    static from(options: Discord.APIEmbed): Discord.EmbedBuilder {
         options.color ??= this.colors.BRAND;
 
-        return new Discord.MessageEmbed(options);
+        return Discord.EmbedBuilder.from(options);
     }
 }
 
@@ -30,13 +75,15 @@ export class CustomEmbed {
 export function disableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
     return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
-        // @ts-ignore-next-line
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
-            components: component_row.components.map(component => ({
-                ...component.toJSON(),
-                disabled: true,
-            })),
+            components: component_row.components.map(component =>
+                component.type === Discord.ComponentType.Button ? (
+                    Discord.ButtonBuilder.from(component).setDisabled(true)
+                ) : component.type === Discord.ComponentType.SelectMenu ? (
+                    Discord.SelectMenuBuilder.from(component).setDisabled(true)
+                ) : component
+            ),
         })),
     }));
 }
@@ -44,13 +91,15 @@ export function disableMessageComponents(message: Discord.Message): Promise<Disc
 export function enableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
     return message.fetch(true).then(message => message.edit({
         embeds: message.embeds,
-        // @ts-ignore-next-line
         components: message.components.map(component_row => ({
             ...component_row.toJSON(),
-            components: component_row.components.map(component => ({
-                ...component.toJSON(),
-                disabled: false,
-            })),
+            components: component_row.components.map(component =>
+                component.type === Discord.ComponentType.Button ? (
+                    Discord.ButtonBuilder.from(component).setDisabled(false)
+                ) : component.type === Discord.ComponentType.SelectMenu ? (
+                    Discord.SelectMenuBuilder.from(component).setDisabled(false)
+                ) : component
+            ),
         })),
     }));
 }
@@ -59,12 +108,12 @@ export function enableMessageComponents(message: Discord.Message): Promise<Disco
 
 export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.TextBasedChannel, user: Discord.User): Promise<boolean> {
     if (!(channel instanceof Discord.Channel)) throw new TypeError('channel must be an instance of Discord.Channel');
-    if (!channel.isText()) throw new TypeError('channel must be a text-based channel');
+    if (!channel.isTextBased()) throw new TypeError('channel must be a text-based channel');
     if (!(user instanceof Discord.User)) throw new TypeError('user must be an instance of Discord.User');
 
     try {
         await channel.send({
-            content: `<@!${user.id}>`,
+            content: `<@${user.id}>`,
             embeds: [
                 CustomEmbed.from({
                     title: 'Warning, this might contain potential NSFW content!',

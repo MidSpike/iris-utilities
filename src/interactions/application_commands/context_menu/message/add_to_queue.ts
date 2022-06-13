@@ -1,40 +1,38 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
-
-const { exec: ytdl } = require('youtube-dl-exec');
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
     identifier: 'Add To Queue',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.MESSAGE,
+        type: Discord.ApplicationCommandType.Message,
         description: '', // required for the command to be registered
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
-            Discord.Permissions.FLAGS.CONNECT,
-            Discord.Permissions.FLAGS.SPEAK,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
+            Discord.PermissionFlagsBits.Connect,
+            Discord.PermissionFlagsBits.Speak,
         ],
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isContextMenu()) return;
+        if (!interaction.isMessageContextMenuCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -42,7 +40,10 @@ export default new ClientInteraction({
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = member.voice.channelId;
-        const bot_voice_channel_id = interaction.guild.me!.voice.channelId;
+
+        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
             return interaction.followUp({
@@ -66,9 +67,7 @@ export default new ClientInteraction({
             });
         }
 
-        const message_id = interaction.options.resolved.messages!.first()!.id;
-
-        const message = await interaction.channel!.messages.fetch(message_id).catch(() => undefined);
+        const message = interaction.targetMessage;
         if (!message) {
             return interaction.editReply({
                 embeds: [
@@ -168,39 +167,25 @@ export default new ClientInteraction({
         const track = new RemoteTrack({
             title: search_result.title,
             url: search_result.url,
-        }, () => new Promise((resolve, reject) => {
-            const process = ytdl(track.metadata.url!, {
-                o: '-',
-                q: '',
-                f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-                r: '100K',
-            }, {
-                stdio: [ 'ignore', 'pipe', 'ignore' ],
-            });
+        }, () => new Promise(async (resolve, reject) => {
+            const stream = await Streamer.youtubeStream(track.metadata.url);
 
-            const stream = process?.stdout;
             if (!stream) {
                 reject(new Error('No stdout'));
                 return;
             }
 
-            const onError = (error: unknown) => {
+            demuxProbe(stream).then((probe) => {
+                resolve(createAudioResource(probe.stream, {
+                    inputType: probe.type,
+                    inlineVolume: true, // allows volume to be adjusted while playing
+                    metadata: track, // the track
+                }));
+            }).catch((error: unknown) => {
                 console.trace(error);
 
-                if (!process.killed) process.kill();
-                stream.resume();
                 reject(error);
-            };
-
-            process.once('spawn', () => {
-                demuxProbe(stream).then((probe) => {
-                    resolve(createAudioResource(probe.stream, {
-                        inputType: probe.type,
-                        inlineVolume: true, // allows volume to be adjusted while playing
-                        metadata: track, // the track
-                    }));
-                }).catch(onError);
-            }).catch(onError);
+            });
         }), {
             onStart() {
                 // IMPORTANT: Initialize the volume interface

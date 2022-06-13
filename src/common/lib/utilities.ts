@@ -1,3 +1,7 @@
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
+//------------------------------------------------------------//
+
 /**
  * Asynchronous setTimeout
  */
@@ -7,10 +11,23 @@ export function delay(
     return new Promise(resolve => setTimeout(() => resolve(), time_in_milliseconds));
 }
 
+export function* inclusiveRange(
+    start: number,
+    end: number,
+    step: number = 1,
+): IterableIterator<number> {
+    let current = start;
+
+    while (current <= end) {
+        yield current;
+        current += step;
+    }
+}
+
 /**
  * Generates a random integer in an inclusive range: min <= return_value <= max
  */
-export function random_range_inclusive(
+export function randomNumberFromInclusiveRange(
     min: number,
     max: number,
 ): number {
@@ -20,7 +37,7 @@ export function random_range_inclusive(
 /**
  * Ellipses a string to a specified length (including the ellipses)
  */
-export function string_ellipses(
+export function stringEllipses(
     string_to_ellipses: string,
     output_length_limit: number = Number.MAX_SAFE_INTEGER,
     ellipses: string = '...',
@@ -34,7 +51,7 @@ export function string_ellipses(
 /**
  * Splits an array into a new chunked array containing arrays of a specified size (or less for the last chunk)
  */
-export function array_chunks<T=unknown>(
+export function arrayChunks<T=unknown>(
     array_of_things: T[],
     chunk_size: number,
 ): T[][] {
@@ -53,8 +70,25 @@ export function array_chunks<T=unknown>(
 /**
  * Fetches a random item from the specified array
  */
-export function array_random<T=unknown>(
+export function randomItemFromArray<T=unknown>(
     array_of_things: T[],
 ): T {
-    return array_of_things[random_range_inclusive(0, array_of_things.length - 1)];
+    return array_of_things[randomNumberFromInclusiveRange(0, array_of_things.length - 1)];
+}
+
+/**
+ * Parses a URL from a string and will return undefined if the URL is invalid
+ */
+export function parseUrlFromString(
+    url_string: string,
+): URL | undefined {
+    let url;
+
+    try {
+        url = new URL(url_string);
+    } catch (error) {
+        return undefined;
+    }
+
+    return url;
 }

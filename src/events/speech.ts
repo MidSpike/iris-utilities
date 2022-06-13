@@ -1,16 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, music_subscriptions } from '../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
-import { CustomEmbed } from '../common/app/message';
-
-const { exec: ytdl } = require('youtube-dl-exec');
+import { CustomEmbed } from '@root/common/app/message';
 
 //------------------------------------------------------------//
 
@@ -65,7 +63,9 @@ export default {
         const guild_member_voice_channel_id = guild_member.voice.channelId;
         if (!guild_member_voice_channel_id) return;
 
-        const bot_voice_channel_id = guild.me!.voice.channelId;
+        const bot_member = await guild.members.fetch(discord_client.user.id);
+
+        const bot_voice_channel_id = bot_member.voice.channelId;
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) return;
 
         const user_input = msg.content.replace(voice_command_activation_regex, '').toLowerCase().trim();
@@ -87,7 +87,6 @@ export default {
                 joinVoiceChannel({
                     channelId: voice_channel.id,
                     guildId: guild.id,
-                    // @ts-ignore This works, even though it's not a valid type.
                     adapterCreator: guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -130,39 +129,25 @@ export default {
                 const track = new RemoteTrack({
                     title: search_result.title,
                     url: search_result.url,
-                }, () => new Promise((resolve, reject) => {
-                    const process = ytdl(track.metadata.url!, {
-                        o: '-',
-                        q: '',
-                        f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-                        r: '100K',
-                    }, {
-                        stdio: [ 'ignore', 'pipe', 'ignore' ],
-                    });
+                }, () => new Promise(async (resolve, reject) => {
+                    const stream = await Streamer.youtubeStream(track.metadata.url);
 
-                    const stream = process?.stdout;
                     if (!stream) {
                         reject(new Error('No stdout'));
                         return;
                     }
 
-                    const onError = (error: unknown) => {
+                    demuxProbe(stream).then((probe) => {
+                        resolve(createAudioResource(probe.stream, {
+                            inputType: probe.type,
+                            inlineVolume: true, // allows volume to be adjusted while playing
+                            metadata: track, // the track
+                        }));
+                    }).catch((error: unknown) => {
                         console.trace(error);
 
-                        if (!process.killed) process.kill();
-                        stream.resume();
                         reject(error);
-                    };
-
-                    process.once('spawn', () => {
-                        demuxProbe(stream).then((probe) => {
-                            resolve(createAudioResource(probe.stream, {
-                                inputType: probe.type,
-                                inlineVolume: true, // allows volume to be adjusted while playing
-                                metadata: track, // the track
-                            }));
-                        }).catch(onError);
-                    }).catch(onError);
+                    });
                 }), {
                     onStart() {
                         // IMPORTANT: Initialize the volume interface

@@ -1,13 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import { Setting } from 'typings';
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../common/app/message';
-import { GuildConfigsManager } from '../../common/app/guild_configs';
+import { CustomEmbed } from '@root/common/app/message';
+
+import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 //------------------------------------------------------------//
 
@@ -19,13 +20,13 @@ export default {
             description: 'lists all guild admin roles',
             options: [],
             async handler(setting, guild_config, command_interaction) {
-                const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
+                const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
-                command_interaction.followUp({
+                command_interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Current guild admin roles',
-                            description: guild_admin_role_ids.length > 0? guild_admin_role_ids.map(role_id => `<@&${role_id}>`).join('\n'): 'No guild admin roles exist yet!',
+                            description: guild_admin_role_ids.length > 0 ? guild_admin_role_ids.map(role_id => `<@&${role_id}>`).join('\n') : 'No guild admin roles exist yet!',
                         }),
                     ],
                 }).catch(console.warn);
@@ -36,18 +37,22 @@ export default {
             options: [
                 {
                     required: true,
-                    type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                    type: Discord.ApplicationCommandOptionType.Role,
                     name: 'value',
                     description: 'the role to add to the admins list',
                 },
             ],
-            async handler(setting, guild_config, command_interaction) {
+            async handler(setting, guild_config, interaction) {
+                if (!interaction.isChatInputCommand()) return;
+                if (!interaction.inCachedGuild()) return;
+                if (!interaction.channel) return;
+
                 const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.get('value')?.value as string;
+                const role_id = interaction.options.getString('value', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
-                    return command_interaction.followUp({
+                    return interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
@@ -58,11 +63,11 @@ export default {
                     }).catch(console.warn);
                 }
 
-                await GuildConfigsManager.update(command_interaction.guildId, {
+                await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: [...guild_admin_role_ids, role_id],
                 });
 
-                await command_interaction.followUp({
+                await interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Added guild admin role',
@@ -77,18 +82,22 @@ export default {
             options: [
                 {
                     required: true,
-                    type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                    type: Discord.ApplicationCommandOptionType.Role,
                     name: 'value',
                     description: 'the role to remove from the admins list',
                 },
             ],
-            async handler(setting, guild_config, command_interaction) {
+            async handler(setting, guild_config, interaction) {
+                if (!interaction.isChatInputCommand()) return;
+                if (!interaction.inCachedGuild()) return;
+                if (!interaction.channel) return;
+
                 const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
-                const role_id = command_interaction.options.get('value')?.value as string;
+                const role_id = interaction.options.getString('value', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
-                    return command_interaction.followUp({
+                    return interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
@@ -99,11 +108,11 @@ export default {
                     }).catch(console.warn);
                 }
 
-                await GuildConfigsManager.update(command_interaction.guildId, {
+                await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: [...guild_admin_role_ids, role_id],
                 });
 
-                await command_interaction.followUp({
+                await interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Added guild admin role',
@@ -122,7 +131,7 @@ export default {
                     admin_role_ids: [],
                 });
 
-                command_interaction.followUp({
+                command_interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Reset the guild admin roles',
@@ -146,7 +155,7 @@ export default {
                     admin_role_ids: existing_role_ids,
                 });
 
-                command_interaction.followUp({
+                command_interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Cleaned up the guild admin roles',

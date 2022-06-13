@@ -1,16 +1,16 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import Typings from 'typings';
+import { ClientEventExport } from 'typings';
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
 //------------------------------------------------------------//
 
-const event_name = Discord.Constants.Events.MESSAGE_CREATE;
+const event_name = Discord.Events.MessageCreate;
 export default {
     name: event_name,
     async handler(
@@ -54,4 +54,4 @@ export default {
             return;
         }
     },
-} as Typings.ClientEventExport<typeof event_name>;
+} as ClientEventExport<typeof event_name>;

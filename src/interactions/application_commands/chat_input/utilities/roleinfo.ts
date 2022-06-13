@@ -1,26 +1,24 @@
-'use strict';
-
 //------------------------------------------------------------//
-
-import moment from 'moment-timezone';
+//        Copyright (c) MidSpike. All rights reserved.        //
+//------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
     identifier: 'roleinfo',
-    type: Discord.Constants.InteractionTypes.APPLICATION_COMMAND,
+    type: Discord.InteractionType.ApplicationCommand,
     data: {
-        type: Discord.Constants.ApplicationCommandTypes.CHAT_INPUT,
+        type: Discord.ApplicationCommandType.ChatInput,
         description: 'displays information about a guild role',
         options: [
             {
-                type: Discord.Constants.ApplicationCommandOptionTypes.ROLE,
+                type: Discord.ApplicationCommandOptionType.Role,
                 name: 'role',
                 description: 'the guild role to lookup',
                 required: true,
@@ -31,14 +29,15 @@ export default new ClientInteraction({
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
         required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
         required_bot_permissions: [
-            Discord.Permissions.FLAGS.VIEW_CHANNEL,
-            Discord.Permissions.FLAGS.SEND_MESSAGES,
+            Discord.PermissionFlagsBits.ViewChannel,
+            Discord.PermissionFlagsBits.SendMessages,
         ],
         command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -52,8 +51,8 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const role_id = interaction.options.get('role', true).value as string;
-        const role = await interaction.guild.roles.fetch(role_id);
+        const role_resolvable = interaction.options.getRole('role', true).id;
+        const role = await interaction.guild.roles.fetch(role_resolvable);
 
         if (!role) {
             await bot_message.edit({
@@ -71,6 +70,8 @@ export default new ClientInteraction({
         const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
         const role_permissions = role.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
 
+        const role_created_timestamp_epoch = `${role.createdTimestamp}`.slice(0, -3);
+
         await bot_message.edit({
             embeds: [
                 CustomEmbed.from({
@@ -86,15 +87,15 @@ export default new ClientInteraction({
                             inline: false,
                         }, {
                             name: 'Creation Date',
-                            value: `${'```'}\n${moment(role.createdTimestamp).tz('America/New_York').format('YYYY[-]MM[-]DD hh:mm A [GMT]ZZ')}\n${'```'}`,
+                            value: `<t:${role_created_timestamp_epoch}:F> (<t:${role_created_timestamp_epoch}:R>)`,
                             inline: false,
                         }, {
                             name: 'Enhanced Permissions',
-                            value: `${'```'}\n${role_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : role_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                            value: `${'```'}\n${role_permissions.includes('Administrator') ? 'ADMINISTRATOR' : role_permissions.join('\n') || 'n/a'}\n${'```'}`,
                             inline: false,
                         }, {
                             name: 'Inherited Permissions',
-                            value: `${'```'}\n${everyone_permissions.includes('ADMINISTRATOR') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                            value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
                             inline: false,
                         },
 

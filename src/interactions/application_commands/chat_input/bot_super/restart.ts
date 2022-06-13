@@ -4,14 +4,14 @@
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed, CustomEmoji } from '@root/common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
-    identifier: 'test',
+    identifier: 'restart',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         description: 'n/a',
@@ -33,31 +33,18 @@ export default new ClientInteraction({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        console.log('test', CustomEmoji.identifiers.SEVEN);
-
         await interaction.reply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, running test...`,
+                    description: `${interaction.user}, restarting ${discord_client.shard!.count} shard(s)...`,
                 }),
             ],
         }).catch(() => {});
 
-        // await interaction.followUp({
-        //     content: `${interaction.member}, did the test!`,
-        //     components: [
-        //         {
-        //             type: 1,
-        //             components: [
-        //                 {
-        //                     type: 2,
-        //                     style: 1,
-        //                     custom_id: 'test_button',
-        //                     label: 'Test Button',
-        //                 },
-        //             ],
-        //         },
-        //     ],
-        // }).catch(console.warn);
+        await discord_client.shard!.respawnAll({
+            timeout: 60_000,
+            shardDelay: 60_000,
+            respawnDelay: 10_000,
+        });
     },
 });
