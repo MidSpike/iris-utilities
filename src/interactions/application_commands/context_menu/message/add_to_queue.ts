@@ -1,16 +1,16 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, YouTubeStreamer, music_subscriptions } from '../../../../common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -32,7 +32,7 @@ export default new ClientInteraction({
         ],
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isContextMenuCommand()) return;
+        if (!interaction.isMessageContextMenuCommand()) return;
         if (!interaction.inCachedGuild()) return;
 
         await interaction.deferReply({ ephemeral: false });
@@ -67,9 +67,7 @@ export default new ClientInteraction({
             });
         }
 
-        const message_id = interaction.options.resolved.messages!.first()!.id;
-
-        const message = await interaction.channel!.messages.fetch(message_id).catch(() => undefined);
+        const message = interaction.targetMessage;
         if (!message) {
             return interaction.editReply({
                 embeds: [
@@ -170,7 +168,7 @@ export default new ClientInteraction({
             title: search_result.title,
             url: search_result.url,
         }, () => new Promise(async (resolve, reject) => {
-            const stream = await YouTubeStreamer.stream(track.metadata.url);
+            const stream = await Streamer.youtubeStream(track.metadata.url);
 
             if (!stream) {
                 reject(new Error('No stdout'));

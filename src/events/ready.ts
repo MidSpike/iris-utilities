@@ -1,14 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import Typings from 'typings';
+import { ClientEventExport } from 'typings';
 
 import * as Discord from 'discord.js';
 
-import { GuildConfigsManager } from '../common/app/guild_configs';
+import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
-import { MusicReconnaissance } from '../common/app/music/music';
+import { MusicReconnaissance } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
@@ -55,4 +55,4 @@ export default {
             updateAllGuildConfigs(discord_client);
         }, 30_000); // 30 seconds
     },
-} as Typings.ClientEventExport<typeof event_name>;
+} as ClientEventExport<typeof event_name>;

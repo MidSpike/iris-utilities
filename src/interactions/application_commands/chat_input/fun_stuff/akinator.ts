@@ -1,14 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
 import { Aki as Akinator } from 'aki-api';
 
-import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '../../../../common/app/message';
+import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 

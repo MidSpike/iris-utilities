@@ -1,14 +1,14 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '@root/common/app/client_interactions';
 
-import { delay } from '../../../../common/lib/utilities';
+import { delay } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 

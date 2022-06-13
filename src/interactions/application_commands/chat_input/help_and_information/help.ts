@@ -1,12 +1,12 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../../../../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '../../../../common/app/client_interactions';
+import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
@@ -86,7 +86,7 @@ module.exports.default = new ClientInteraction({
         const bot_message = await interaction.editReply({
             content: `Hello there, I\'m ${discord_client.user!.username}!`,
             embeds: [
-                await createHelpEmbed(interaction.options.getString('category') ?? 'HELP_AND_INFORMATION'),
+                await createHelpEmbed(interaction.options.getString('category', false) ?? 'HELP_AND_INFORMATION'),
             ],
             components: [
                 {

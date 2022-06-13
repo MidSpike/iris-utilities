@@ -1,6 +1,9 @@
-'use strict';
-
 //------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
+//------------------------------------------------------------//
+
+// eslint-disable-next-line no-unused-expressions
+require('module-alias/register');
 
 // eslint-disable-next-line no-unused-expressions
 require('manakin').global;
@@ -13,7 +16,7 @@ import * as Discord from 'discord.js';
 
 import { addSpeechEvent } from 'discord-speech-recognition';
 
-import { ClientInteractionManager } from './common/app/client_interactions';
+import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
 const recursiveReadDirectory = require('recursive-read-directory');
 
@@ -114,11 +117,11 @@ async function main() {
         process.exit(1);
     }
 
-    console.log('<DC> Logging in...');
+    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> Logging in...`);
     try {
         discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
     } catch (error) {
-        console.trace('<DC> failed to login', error);
+        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to login`, error);
 
         process.exit(1);
     }

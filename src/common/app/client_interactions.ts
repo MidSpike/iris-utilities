@@ -1,12 +1,12 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
 import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { go_mongo_db } from '../lib/go_mongo_db';
+import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 
 import { CustomEmbed } from './message';
 
@@ -20,12 +20,11 @@ type ClientCommandCategory = {
     id: string;
     name: string;
     description: string;
-    // required_access_level: number;
 };
 
 enum ClientCommandAccessLevels {
     EVERYONE,
-    // DONATOR, // reserved for future usage
+    DONATOR,
     GUILD_STAFF,
     GUILD_ADMIN,
     GUILD_OWNER,
@@ -105,7 +104,7 @@ export class ClientCommandHelper {
         }
 
         if (!is_valid_environment && interaction.isRepliable()) {
-            interaction.reply({
+            await interaction.reply({
                 ephemeral: true,
                 embeds: [
                     CustomEmbed.from({
@@ -114,7 +113,7 @@ export class ClientCommandHelper {
                         description: `This command can only be executed in ${required_environment}`,
                     }),
                 ],
-            });
+            }).catch(console.warn);
         }
 
         return is_valid_environment;
@@ -254,7 +253,7 @@ export type ClientInteractionMetadata = {
     required_bot_permissions?: Discord.PermissionResolvable[];
     required_user_access_level?: number;
 };
-export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.Interaction) => Promise<unknown>;
+export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<unknown>;
 
 export type ClientInteractionConstructorOptions = {
     type: ClientInteractionType;
@@ -307,7 +306,7 @@ export class ClientInteraction {
 
     async handler(
         discord_client: Discord.Client<true>,
-        interaction: Discord.Interaction,
+        interaction: Discord.AnyInteraction,
     ) {
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
@@ -372,27 +371,42 @@ export class ClientInteractionManager {
 
     static async handleUnknownInteraction(
         discord_client: Discord.Client,
-        unknown_interaction: Discord.Interaction,
+        unknown_interaction: Discord.AnyInteraction,
     ): Promise<unknown> {
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
-        const unknown_interaction_identifier = unknown_interaction.isMessageComponent() ? (
-            unknown_interaction.customId
-        ) : (
-            unknown_interaction.isModalSubmit() ? (
-                unknown_interaction.customId
-            ) : (
-                unknown_interaction.isChatInputCommand() ? (
-                    unknown_interaction.commandName
-                ) : (
-                    unknown_interaction.isAutocomplete() ? (
-                        unknown_interaction.commandName
-                    ) : (
-                        unknown_interaction.id
-                    )
-                )
-            )
-        );
+        let unknown_interaction_identifier: string;
+        switch (unknown_interaction.type) {
+            case Discord.InteractionType.ApplicationCommand: {
+                unknown_interaction_identifier = unknown_interaction.commandName;
+                break;
+            }
+
+            case Discord.InteractionType.MessageComponent: {
+                unknown_interaction_identifier = unknown_interaction.customId;
+                break;
+            }
+
+            case Discord.InteractionType.ApplicationCommandAutocomplete: {
+                unknown_interaction_identifier = unknown_interaction.commandName;
+                break;
+            }
+
+            case Discord.InteractionType.ModalSubmit: {
+                unknown_interaction_identifier = unknown_interaction.customId;
+                break;
+            }
+
+            default: {
+                /* this is necessary to re-assert that a 'never' condition might actually happen */
+                const really_unknown_interaction = unknown_interaction as Discord.Interaction;
+
+                console.warn(`ClientInteractionManager.handleUnknownInteraction(): unknown interaction type: ${really_unknown_interaction.type}`);
+
+                unknown_interaction_identifier = really_unknown_interaction.id;
+                break;
+            }
+        }
 
         const client_interaction = ClientInteractionManager.interactions.get(unknown_interaction_identifier);
 

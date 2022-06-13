@@ -1,12 +1,12 @@
-'use strict';
-
+//------------------------------------------------------------//
+//        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import Typings from 'typings';
+import { ClientEventExport } from 'typings';
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed } from '../common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
 //------------------------------------------------------------//
 
@@ -54,4 +54,4 @@ export default {
             return;
         }
     },
-} as Typings.ClientEventExport<typeof event_name>;
+} as ClientEventExport<typeof event_name>;

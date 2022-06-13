@@ -376,7 +376,10 @@
             {
                 "vars": "all",
                 "args": "none",
-                "ignoreRestSiblings": true
+                "ignoreRestSiblings": true,
+                "varsIgnorePattern": "^_",
+                "argsIgnorePattern": "^_",
+                "destructuredArrayIgnorePattern": "^_"
             }
         ],
         "@typescript-eslint/no-non-null-assertion": "off",
