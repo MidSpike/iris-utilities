@@ -109,7 +109,7 @@ export default new ClientInteraction({
         } catch (error) {
             console.warn(error);
 
-            await interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
