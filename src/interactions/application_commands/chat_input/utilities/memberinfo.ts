@@ -6,7 +6,7 @@ import * as Discord from 'discord.js';
 
 import { arrayChunks } from '@root/common/lib/utilities';
 
-import { CustomEmbed } from '@root/common/app/message';
+import { CustomEmbed, disableMessageComponents } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
@@ -53,8 +53,8 @@ export default new ClientInteraction({
 
         await interaction.guild.members.fetch(); // cache all members
 
-        const member_id = interaction.options.getUser('member', false)?.id ?? interaction.member.id;
-        const member = await interaction.guild.members.fetch(member_id);
+        const member_resolvable = interaction.options.getUser('member', false) ?? interaction.member;
+        const member = await interaction.guild.members.fetch(member_resolvable);
 
         await member.user.fetch(true); // force fetch the user
 
@@ -65,11 +65,17 @@ export default new ClientInteraction({
 
         const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
 
-        type MemberInfoSectionName = 'default' | 'flags' | 'media' | 'permissions' | 'roles';
+        type MemberInfoSectionName = (
+            | 'memberinfo_btn_default'
+            | 'memberinfo_btn_flags'
+            | 'memberinfo_btn_media'
+            | 'memberinfo_btn_permissions'
+            | 'memberinfo_btn_roles'
+        );
 
         async function updateBotMessage(mode: MemberInfoSectionName) {
             switch (mode) {
-                case 'flags': {
+                case 'memberinfo_btn_flags': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -98,10 +104,10 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'media': {
-                    const guild_member_icon_url = member.avatarURL({ extension: 'gif', size: 4096 });
-                    const global_user_icon_url = member.user.displayAvatarURL({ extension: 'gif', size: 4096 });
-                    const global_user_banner_url = member.user.bannerURL({ extension: 'gif', size: 4096 });
+                case 'memberinfo_btn_media': {
+                    const guild_member_icon_url = member.avatarURL({ forceStatic: false, size: 4096 });
+                    const global_user_icon_url = member.user.displayAvatarURL({ forceStatic: false, size: 4096 });
+                    const global_user_banner_url = member.user.bannerURL({ forceStatic: false, size: 4096 });
 
                     await bot_message.edit({
                         embeds: [
@@ -139,7 +145,7 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'permissions': {
+                case 'memberinfo_btn_permissions': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -172,7 +178,7 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'roles': {
+                case 'memberinfo_btn_roles': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -282,7 +288,7 @@ export default new ClientInteraction({
             }
         }
 
-        await updateBotMessage('default');
+        await updateBotMessage('memberinfo_btn_default');
 
         await bot_message.edit({
             components: [
@@ -292,27 +298,27 @@ export default new ClientInteraction({
                         {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'default',
+                            customId: 'memberinfo_btn_default',
                             label: 'Information',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'flags',
+                            customId: 'memberinfo_btn_flags',
                             label: 'Flags',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'media',
+                            customId: 'memberinfo_btn_media',
                             label: 'Media',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'permissions',
+                            customId: 'memberinfo_btn_permissions',
                             label: 'Permissions',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'roles',
+                            customId: 'memberinfo_btn_roles',
                             label: 'Roles',
                         },
                     ],
@@ -326,16 +332,14 @@ export default new ClientInteraction({
         });
 
         message_button_collector.on('collect', async (button_interaction) => {
-            message_button_collector.resetTimer();
             await button_interaction.deferUpdate();
-
-            if (message_button_collector.ended) return;
+            message_button_collector.resetTimer();
 
             await updateBotMessage(button_interaction.customId as MemberInfoSectionName);
         });
 
         message_button_collector.on('end', async () => {
-            await bot_message.delete().catch(console.warn);
+            disableMessageComponents(bot_message);
         });
     },
 });

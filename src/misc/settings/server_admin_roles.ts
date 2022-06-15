@@ -13,11 +13,11 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 //------------------------------------------------------------//
 
 export default {
-    name: 'guild_admin_roles',
+    name: 'server_admin_roles',
     actions: [
         {
             name: 'list',
-            description: 'lists all guild admin roles',
+            description: 'lists all roles in the server admins list',
             options: [],
             async handler(setting, guild_config, command_interaction) {
                 const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
@@ -25,8 +25,14 @@ export default {
                 command_interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            title: 'Current guild admin roles',
-                            description: guild_admin_role_ids.length > 0 ? guild_admin_role_ids.map(role_id => `<@&${role_id}>`).join('\n') : 'No guild admin roles exist yet!',
+                            description: [
+                                ...(guild_admin_role_ids.length > 0 ? [
+                                    `${command_interaction.user}, here are the current server admin roles:`,
+                                    guild_admin_role_ids.map(role_id => `- <@&${role_id}>`).join('\n'),
+                                ] : [
+                                    `${command_interaction.user}, the server admin roles list is empty.`,
+                                ]),
+                            ].join('\n'),
                         }),
                     ],
                 }).catch(console.warn);
@@ -36,10 +42,10 @@ export default {
             description: 'adds a specified role to the admins list',
             options: [
                 {
-                    required: true,
                     type: Discord.ApplicationCommandOptionType.Role,
-                    name: 'value',
+                    name: 'role',
                     description: 'the role to add to the admins list',
+                    required: true,
                 },
             ],
             async handler(setting, guild_config, interaction) {
@@ -49,29 +55,30 @@ export default {
 
                 const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
-                const role_id = interaction.options.getString('value', true);
+                const role = interaction.options.getRole('role', true);
 
-                if (guild_admin_role_ids.includes(role_id)) {
+                if (guild_admin_role_ids.includes(role.id)) {
                     return interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
-                                title: 'Role already added',
-                                description: `<@&${role_id}> is already an admin role`,
+                                description: `${interaction.user}, <@&${role.id}> is already in the admin roles list.`,
                             }),
                         ],
                     }).catch(console.warn);
                 }
 
                 await GuildConfigsManager.update(interaction.guildId, {
-                    admin_role_ids: [...guild_admin_role_ids, role_id],
+                    admin_role_ids: [
+                        ...guild_admin_role_ids,
+                        role.id,
+                    ],
                 });
 
                 await interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            title: 'Added guild admin role',
-                            description: `<@&${role_id}>`,
+                            description: `${interaction.user}, added ${role} to server admins list.`,
                         }),
                     ],
                 }).catch(console.warn);
@@ -81,10 +88,10 @@ export default {
             description: 'removes a specified role from the admins list',
             options: [
                 {
-                    required: true,
                     type: Discord.ApplicationCommandOptionType.Role,
-                    name: 'value',
+                    name: 'role',
                     description: 'the role to remove from the admins list',
+                    required: true,
                 },
             ],
             async handler(setting, guild_config, interaction) {
@@ -94,29 +101,30 @@ export default {
 
                 const guild_admin_role_ids = guild_config.admin_role_ids ?? [];
 
-                const role_id = interaction.options.getString('value', true);
+                const role_id = interaction.options.getString('role', true);
 
                 if (guild_admin_role_ids.includes(role_id)) {
                     return interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
                                 color: CustomEmbed.colors.YELLOW,
-                                title: 'Role already added',
-                                description: `<@&${role_id}> is already an admin role`,
+                                description: `${interaction.user}, <@&${role_id}> is already in the admin roles list.`,
                             }),
                         ],
                     }).catch(console.warn);
                 }
 
                 await GuildConfigsManager.update(interaction.guildId, {
-                    admin_role_ids: [...guild_admin_role_ids, role_id],
+                    admin_role_ids: [
+                        ...guild_admin_role_ids,
+                        role_id,
+                    ],
                 });
 
                 await interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            title: 'Added guild admin role',
-                            description: `<@&${role_id}>`,
+                            description: `${interaction.user}, added <@&${role_id}> to server admins list`,
                         }),
                     ],
                 }).catch(console.warn);
@@ -125,16 +133,16 @@ export default {
             name: 'reset',
             description: 'resets back to default',
             options: [],
-            async handler(setting, guild_config, command_interaction) {
+            async handler(setting, guild_config, interaction) {
 
-                await GuildConfigsManager.update(command_interaction.guildId, {
+                await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: [],
                 });
 
-                command_interaction.editReply({
+                interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            title: 'Reset the guild admin roles',
+                            description: `${interaction.user}, reset the server admin roles list`,
                         }),
                     ],
                 }).catch(console.warn);
@@ -143,22 +151,22 @@ export default {
             name: 'cleanup',
             description: 'removes any deleted roles',
             options: [],
-            async handler(setting, guild_config, command_interaction) {
+            async handler(setting, guild_config, interaction) {
                 const guild_admin_role_ids: string[] = guild_config.admin_role_ids ?? [];
 
-                const guild = await command_interaction.client.guilds.fetch(command_interaction.guildId);
+                const guild = await interaction.client.guilds.fetch(interaction.guildId);
                 const guild_role_ids = Array.from(guild.roles.cache.keys());
 
                 const existing_role_ids = guild_admin_role_ids.filter(role_id => guild_role_ids.includes(role_id));
 
-                await GuildConfigsManager.update(command_interaction.guildId, {
+                await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: existing_role_ids,
                 });
 
-                command_interaction.editReply({
+                interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            title: 'Cleaned up the guild admin roles',
+                            description: `${interaction.user}, cleaned up the server admin roles`,
                         }),
                     ],
                 }).catch(console.warn);

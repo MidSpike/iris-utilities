@@ -108,16 +108,20 @@ export function enableMessageComponents(message: Discord.Message): Promise<Disco
 
 export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.TextBasedChannel, user: Discord.User): Promise<boolean> {
     if (!(channel instanceof Discord.Channel)) throw new TypeError('channel must be an instance of Discord.Channel');
-    if (!channel.isTextBased()) throw new TypeError('channel must be a text-based channel');
     if (!(user instanceof Discord.User)) throw new TypeError('user must be an instance of Discord.User');
+
+    if (!channel.isTextBased()) throw new TypeError('channel must be a text-based channel');
 
     try {
         await channel.send({
-            content: `<@${user.id}>`,
+            content: `${user}`,
             embeds: [
                 CustomEmbed.from({
-                    title: 'Warning, this might contain potential NSFW content!',
-                    description: 'Do you wish to proceed?',
+                    title: 'Heads up!',
+                    description: [
+                        'This command might contain content that is not safe for work.',
+                        'Do you understand the risks and still want to run this command?',
+                    ].join('\n'),
                 }),
             ],
             components: [
@@ -126,14 +130,14 @@ export async function requestPotentialNotSafeForWorkContentConsent(channel: Disc
                     components: [
                         {
                             type: Discord.ComponentType.Button,
-                            style: Discord.ButtonStyle.Secondary,
+                            style: Discord.ButtonStyle.Danger,
                             customId: 'user_consents_to_potential_nsfw_content',
-                            label: 'Yes',
+                            label: 'I understand the risks',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
                             customId: 'user_does_not_consent_to_potential_nsfw_content',
-                            label: 'No',
+                            label: 'Cancel',
                         },
                     ],
                 },

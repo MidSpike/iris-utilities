@@ -4,9 +4,11 @@
 
 import * as Discord from 'discord.js';
 
-import { CustomEmbed, CustomEmoji } from '@root/common/app/message';
+import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
+
+import { delay } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -33,31 +35,30 @@ export default new ClientInteraction({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        console.log('test', CustomEmoji.identifiers.SEVEN);
+        await interaction.deferReply({ ephemeral: false });
 
-        await interaction.reply({
+        await delay(5000);
+
+        await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, running test...`,
+                    color: CustomEmbed.colors.GREEN,
+                    description: `${interaction.member}, did the test!`,
                 }),
             ],
-        }).catch(() => {});
-
-        // await interaction.followUp({
-        //     content: `${interaction.member}, did the test!`,
-        //     components: [
-        //         {
-        //             type: Discord.ComponentType.ActionRow,
-        //             components: [
-        //                 {
-        //                     type: Discord.ComponentType.Button,
-        //                     style: Discord.ButtonStyle.Primary,
-        //                     customId: 'test_button',
-        //                     label: 'Test Button',
-        //                 },
-        //             ],
-        //         },
-        //     ],
-        // }).catch(console.warn);
+            components: [
+                {
+                    type: Discord.ComponentType.ActionRow,
+                    components: [
+                        {
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Primary,
+                            customId: 'test_button',
+                            label: 'Test Button',
+                        },
+                    ],
+                },
+            ],
+        }).catch(console.warn);
     },
 });

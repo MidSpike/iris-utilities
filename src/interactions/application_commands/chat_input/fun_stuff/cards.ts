@@ -93,10 +93,9 @@ export default new ClientInteraction({
         await interaction.deferReply({ ephemeral: false });
 
         const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel, interaction.user);
-        if (!user_consents_to_potential_nsfw) return;
+        if (!user_consents_to_potential_nsfw) return await interaction.deleteReply();
 
-        const bot_message = await interaction.followUp({
-            fetchReply: true,
+        const bot_message = await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
                     title: 'Loading...',
