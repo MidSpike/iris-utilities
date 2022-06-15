@@ -6,18 +6,18 @@ import * as Discord from 'discord.js';
 
 import { arrayChunks } from '@root/common/lib/utilities';
 
-import { CustomEmbed } from '@root/common/app/message';
+import { CustomEmbed, disableMessageComponents } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction({
-    identifier: 'guildinfo',
+    identifier: 'serverinfo',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'displays information about this guild',
+        description: 'displays information about this server',
         options: [],
     },
     metadata: {
@@ -36,9 +36,10 @@ export default new ClientInteraction({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const guild = interaction.guild;
+        const guild_resolvable = interaction.guild;
+        const guild = await interaction.client.guilds.fetch({ guild: guild_resolvable, withCounts: true });
 
-        const bot_message = await interaction.followUp({
+        const bot_message = await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
                     description: 'Loading...',
@@ -54,11 +55,18 @@ export default new ClientInteraction({
         const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
         const guild_emoji_chunks = arrayChunks(guild_emojis, 25);
 
-        type GuildInfoSectionName = 'default' | 'roles' | 'emojis' | 'features' | 'channels' | 'media';
+        type GuildInfoSectionName = (
+            | 'serverinfo_btn_default'
+            | 'serverinfo_btn_roles'
+            | 'serverinfo_btn_emojis'
+            | 'serverinfo_btn_features'
+            | 'serverinfo_btn_channels'
+            | 'serverinfo_btn_media'
+        );
 
         async function updateBotMessage(mode: GuildInfoSectionName) {
             switch (mode) {
-                case 'roles': {
+                case 'serverinfo_btn_roles': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -86,7 +94,7 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'emojis': {
+                case 'serverinfo_btn_emojis': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -114,7 +122,7 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'features': {
+                case 'serverinfo_btn_features': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -142,7 +150,7 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'channels': {
+                case 'serverinfo_btn_channels': {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
@@ -196,10 +204,10 @@ export default new ClientInteraction({
                     break;
                 }
 
-                case 'media': {
-                    const guild_icon_url = guild.iconURL({ extension: 'gif', size: 4096 });
+                case 'serverinfo_btn_media': {
+                    const guild_icon_url = guild.iconURL({ forceStatic: false, size: 4096 });
 
-                    const guild_banner_url = guild.bannerURL({ extension: 'gif', size: 4096 });
+                    const guild_banner_url = guild.bannerURL({ forceStatic: false, size: 4096 });
 
                     await bot_message.edit({
                         embeds: [
@@ -336,7 +344,7 @@ export default new ClientInteraction({
             }
         }
 
-        await updateBotMessage('default');
+        await updateBotMessage('serverinfo_btn_default');
 
         await bot_message.edit({
             components: [
@@ -346,27 +354,27 @@ export default new ClientInteraction({
                         {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'default',
+                            customId: 'serverinfo_btn_default',
                             label: 'Information',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'roles',
+                            customId: 'serverinfo_btn_roles',
                             label: 'Roles',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'emojis',
+                            customId: 'serverinfo_btn_emojis',
                             label: 'Emojis',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'media',
+                            customId: 'serverinfo_btn_media',
                             label: 'Media',
                         }, {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'features',
+                            customId: 'serverinfo_btn_features',
                             label: 'Features',
                         },
                     ],
@@ -377,7 +385,7 @@ export default new ClientInteraction({
                         {
                             type: Discord.ComponentType.Button,
                             style: Discord.ButtonStyle.Secondary,
-                            customId: 'channels',
+                            customId: 'serverinfo_btn_channels',
                             label: 'Channels',
                         },
                     ],
@@ -391,16 +399,14 @@ export default new ClientInteraction({
         });
 
         message_button_collector.on('collect', async (button_interaction) => {
-            message_button_collector.resetTimer();
             await button_interaction.deferUpdate();
-
-            if (message_button_collector.ended) return;
+            message_button_collector.resetTimer();
 
             await updateBotMessage(button_interaction.customId as GuildInfoSectionName);
         });
 
         message_button_collector.on('end', async () => {
-            await bot_message.delete().catch(console.warn);
+            disableMessageComponents(bot_message);
         });
     },
 });
