@@ -36,7 +36,7 @@
     "aki-api": "6.0.8",
     "axios": "0.27.2",
     "discord-api-types": "0.33.5",
-    "discord-player": "5.2.2",
+    "discord-player": "6.0.0-dev.0",
     "discord-speech-recognition": "github:MidSpike/discord-speech-recognition#c5ea1118d14b8b8423b27a072cfe5fba5269ab4d",
     "discord.js": "14.0.0-dev.1655165434-b4e28a8",
     "dotenv": "16.0.1",

@@ -16,6 +16,19 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
+function escapeHTML(text: string): string {
+    return text.replace(/\&/gi, '&amp;')
+        .replace(/\"/gi, '&quot;')
+        .replace(/\'/gi, '&apos;')
+        .replace(/\`/gi, '&grave;')
+        .replace(/\</gi, '&lt;')
+        .replace(/\>/gi, '&gt;')
+        .replace(/\//gi, '&#47;')
+        .replace(/\\/gi, '&#92;');
+}
+
+//------------------------------------------------------------//
+
 const yes_button = new Discord.ButtonBuilder()
     .setStyle(Discord.ButtonStyle.Success)
     .setCustomId('would_you_rather__yes_button')
@@ -153,16 +166,16 @@ export default new ClientInteraction({
                 <body>
                     <div class="parent">
                         <div class="id">
-                            #${dilemma_id}
+                            #${escapeHTML(dilemma_id)}
                         </div>
                         <div class="situation">
-                            ${dilemma_situation}
+                            ${escapeHTML(dilemma_situation)}
                         </div>
                         <div class="break">
                             However
                         </div>
                         <div class="exception">
-                            ${dilemma_exception}
+                            ${escapeHTML(dilemma_exception)}
                         </div>
                     </div>
                 </body>
