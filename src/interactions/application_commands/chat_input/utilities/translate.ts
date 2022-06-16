@@ -2,6 +2,10 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import * as fs from 'node:fs';
+
+import * as path from 'node:path';
+
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
@@ -14,58 +18,17 @@ const translateUsingGoogle = require('translate-google');
 
 //------------------------------------------------------------//
 
-const google_translate_languages = [
-    { code: 'auto', name: 'Automatically Detect' },
-    { code: 'af', name: 'Afrikaans' },
-    { code: 'sq', name: 'Albanian' },
-    { code: 'ar', name: 'Arabic' },
-    { code: 'hy', name: 'Armenian' },
-    { code: 'ca', name: 'Catalan' },
-    { code: 'zh', name: 'Chinese' },
-    { code: 'zh-cn', name: 'Chinese (Mandarin/China)' },
-    { code: 'zh-tw', name: 'Chinese (Mandarin/Taiwan)' },
-    { code: 'zh-yue', name: 'Chinese (Cantonese)' },
-    { code: 'hr', name: 'Croatian' },
-    { code: 'cs', name: 'Czech' },
-    { code: 'da', name: 'Danish' },
-    { code: 'nl', name: 'Dutch' },
-    { code: 'en', name: 'English' },
-    { code: 'eo', name: 'Esperanto' },
-    { code: 'fi', name: 'Finnish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'el', name: 'Greek' },
-    { code: 'ht', name: 'Haitian Creole' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'hu', name: 'Hungarian' },
-    { code: 'is', name: 'Icelandic' },
-    { code: 'id', name: 'Indonesian' },
-    { code: 'it', name: 'Italian' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'ko', name: 'Korean' },
-    { code: 'la', name: 'Latin' },
-    { code: 'lv', name: 'Latvian' },
-    { code: 'mk', name: 'Macedonian' },
-    { code: 'no', name: 'Norwegian' },
-    { code: 'pl', name: 'Polish' },
-    { code: 'pt', name: 'Portuguese' },
-    { code: 'pt-br', name: 'Portuguese (Brazil)' },
-    { code: 'ro', name: 'Romanian' },
-    { code: 'ru', name: 'Russian' },
-    { code: 'sr', name: 'Serbian' },
-    { code: 'sk', name: 'Slovak' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'es-es', name: 'Spanish (Spain)' },
-    { code: 'es-us', name: 'Spanish (United States)' },
-    { code: 'sw', name: 'Swahili' },
-    { code: 'sv', name: 'Swedish' },
-    { code: 'ta', name: 'Tamil' },
-    { code: 'th', name: 'Thai' },
-    { code: 'tr', name: 'Turkish' },
-    { code: 'vi', name: 'Vietnamese' },
-    { code: 'cy', name: 'Welsh' },
-];
-
+const google_translate_languages: {
+    code: string,
+    name: string,
+}[] = JSON.parse(
+    fs.readFileSync(
+        path.join(process.cwd(), 'misc', 'google_translate_languages.json'),
+        {
+            encoding: 'utf8',
+        }
+    )
+);
 
 //------------------------------------------------------------//
 
@@ -105,7 +68,7 @@ export default new ClientInteraction({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
+        command_category: ClientCommandHelper.categories.get('UTILITIES'),
     },
     async handler(discord_client, interaction) {
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
