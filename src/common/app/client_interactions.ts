@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import { DistributiveOmit } from 'typings';
+
 import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
@@ -215,7 +217,7 @@ export class ClientCommandHelper {
         const bot_member = await channel.guild.members.fetch(discord_client.user!.id);
 
         const bot_guild_permissions = bot_member.permissions;
-        const bot_channel_permissions = channel.permissionsFor(discord_client.user!.id)!;
+        const bot_channel_permissions = channel.permissionsFor(discord_client.user!.id, true)!;
         const bot_permissions = new Discord.PermissionsBitField([ bot_guild_permissions, bot_channel_permissions ]);
 
         const missing_permissions = required_permissions.filter(required_permission => !bot_permissions.has(required_permission));
@@ -246,12 +248,7 @@ export class ClientCommandHelper {
 //------------------------------------------------------------//
 
 export type ClientInteractionIdentifier = string;
-export type ClientInteractionType = number;
-export type ClientInteractionData = {
-    type: ClientInteractionType,
-    description: string,
-    options?: Discord.ApplicationCommandOptionData[],
-}
+
 export type ClientInteractionMetadata = {
     [key: string]: unknown;
     allowed_execution_environment?: string;
@@ -259,22 +256,25 @@ export type ClientInteractionMetadata = {
     required_bot_permissions?: Discord.PermissionResolvable[];
     required_user_access_level?: number;
 };
-export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<unknown>;
+
+export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<void>;
 
 //------------------------------------------------------------//
 
-export class ClientInteraction {
-    private _identifier: ClientInteractionIdentifier;
-    private _type: ClientInteractionType;
-    private _data: ClientInteractionData | undefined;
-    private _metadata: ClientInteractionMetadata | undefined;
-    private _handler: ClientInteractionHandler;
+export class ClientInteraction<
+    DiscordInteractionCommandData extends Discord.ApplicationCommandData,
+> {
+    private _identifier;
+    private _type;
+    private _data;
+    private _metadata;
+    private _handler;
 
     constructor(
         opts: {
-            type: ClientInteractionType;
+            type: Discord.InteractionType;
             identifier: ClientInteractionIdentifier;
-            data?: ClientInteractionData;
+            data?: DistributiveOmit<DiscordInteractionCommandData, 'name'> | never;
             metadata: {
                 allowed_execution_environment?: string;
                 command_category?: ClientCommandCategory;
@@ -301,8 +301,8 @@ export class ClientInteraction {
 
     get data() {
         return {
-            name: this._identifier,
             ...this._data,
+            name: this._identifier,
         };
     }
 
@@ -347,7 +347,7 @@ export class ClientInteraction {
 //------------------------------------------------------------//
 
 export class ClientInteractionManager {
-    static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction> = new Discord.Collection();
+    static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction<Discord.ApplicationCommandData>> = new Discord.Collection();
 
     static async registerClientInteractions(discord_client: Discord.Client<true>) {
         ClientInteractionManager.interactions.clear(); // remove all existing interactions

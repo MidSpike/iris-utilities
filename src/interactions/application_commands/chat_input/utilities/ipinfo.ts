@@ -38,7 +38,7 @@ const ip_api_com_response_key_overrides: { [key: string]: string; } = {
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'ipinfo',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

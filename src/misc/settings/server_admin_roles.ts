@@ -16,6 +16,26 @@ export default {
     name: 'server_admin_roles',
     actions: [
         {
+            name: 'help',
+            description: 'displays information about the server admin roles feature',
+            options: [],
+            async handler(setting, guild_config, command_interaction) {
+                command_interaction.editReply({
+                    embeds: [
+                        CustomEmbed.from({
+                            description: [
+                                `${command_interaction.user}, server admin roles is a feature that allows you to assign roles to be recognized as server admins by me.`,
+                                '',
+                                'For example, by default only users with the \`Administrator\` permission can run my server admin commands.',
+                                'If you want to allow another role to have access to my server admin commands, you can add that role using this command.',
+                                '',
+                                'By default, the server admin roles list is empty.',
+                            ].join('\n'),
+                        }),
+                    ],
+                }).catch(console.warn);
+            },
+        }, {
             name: 'list',
             description: 'lists all roles in the server admins list',
             options: [],

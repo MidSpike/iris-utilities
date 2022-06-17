@@ -14,7 +14,7 @@ import { music_subscriptions } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'replay',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

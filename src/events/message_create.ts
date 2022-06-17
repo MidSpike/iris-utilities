@@ -8,6 +8,8 @@ import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
 
+import urlBlockingHandler from '@root/handlers/url_blocking_handler';
+
 //------------------------------------------------------------//
 
 const event_name = Discord.Events.MessageCreate;
@@ -22,8 +24,11 @@ export default {
         if (message.author.bot) return; // don't respond to bots
         if (message.author.system) return; // don't respond to system messages
 
-        /* check if the bot was pinged in a guild */
-        if (message.guild && !message.reference && message.mentions.users.has(discord_client.user.id)) {
+        /* check if the bot was pinged (but not replied to) */
+        if (
+            !message.reference &&
+            message.mentions.users.has(discord_client.user.id)
+        ) {
             await message.reply({
                 embeds: [
                     CustomEmbed.from({
@@ -50,8 +55,11 @@ export default {
                     }),
                 ],
             }).catch(console.warn);
+        }
 
-            return;
+        /* run guild message handlers */
+        if (message.inGuild()) {
+            urlBlockingHandler(discord_client, message);
         }
     },
 } as ClientEventExport<typeof event_name>;

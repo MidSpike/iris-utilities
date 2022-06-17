@@ -43,7 +43,7 @@ for (const setting_file_name of settings_file_names) {
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'settings',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
@@ -81,7 +81,7 @@ export default new ClientInteraction({
 
         const setting = settings.find(setting => setting.name === setting_name);
         if (!setting) {
-            return interaction.editReply({
+            interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -89,13 +89,15 @@ export default new ClientInteraction({
                     }),
                 ],
             }).catch(console.warn);
+
+            return;
         }
 
         const setting_action_name = interaction.options.getSubcommand(true);
 
         const setting_action = setting.actions.find(action => action.name === setting_action_name);
         if (!setting_action) {
-            return interaction.editReply({
+            interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -103,6 +105,8 @@ export default new ClientInteraction({
                     }),
                 ],
             }).catch(console.warn);
+
+            return;
         }
 
         const guild_config = await GuildConfigsManager.fetch(interaction.guildId);

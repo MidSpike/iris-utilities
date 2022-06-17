@@ -43,7 +43,7 @@ const no_button = new Discord.ButtonBuilder()
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'would_you',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

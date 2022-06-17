@@ -14,12 +14,11 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.MessageApplicationCommandData>({
     identifier: 'Add To Queue',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.Message,
-        description: '', // required for the command to be registered
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
@@ -46,7 +45,7 @@ export default new ClientInteraction({
         const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
-            return interaction.followUp({
+            interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -54,10 +53,12 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
-            return interaction.editReply({
+            interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -65,11 +66,13 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         const message = interaction.targetMessage;
         if (!message) {
-            return interaction.editReply({
+            interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
@@ -77,28 +80,34 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         if (message.author.system || message.author.bot) {
-            return interaction.followUp({
+            interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, you can\'t play anything from a message sent by a bot or system account.`,
                     }),
                 ],
             });
+
+            return;
         }
 
         const query = message.cleanContent;
 
         if (!query.length) {
-            return interaction.followUp({
+            interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, you can only use this command on messages that have content.`,
                     }),
                 ],
             });
+
+            return;
         }
 
         let music_subscription = music_subscriptions.get(interaction.guildId);

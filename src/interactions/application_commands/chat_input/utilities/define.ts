@@ -31,7 +31,7 @@ type DefinitionApiResult = {
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'define',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

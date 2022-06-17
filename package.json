@@ -55,7 +55,7 @@
     "recursive-read-directory": "github:MidSpike/recursive-read-directory#v0.0.1-beta",
     "sodium": "3.0.2",
     "string-similarity": "4.0.4",
-    "translate-google": "github:MidSpike/translate-google#1.4.3-fork-0.0.2",
+    "@midspike/translate-google": "github:MidSpike/translate-google#1.4.3-fork-0.0.2",
     "tweetnacl": "1.0.3",
     "uuid": "8.3.2",
     "youtube-dl-exec": "2.0.12",

@@ -16,7 +16,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'play',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
@@ -66,7 +66,7 @@ export default new ClientInteraction({
         const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
-            return interaction.followUp({
+            interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -74,10 +74,12 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
-            return interaction.editReply({
+            interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -85,6 +87,8 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         await interaction.editReply({

@@ -14,7 +14,7 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-const translateUsingGoogle = require('translate-google');
+const translateUsingGoogle = require('@midspike/translate-google');
 
 //------------------------------------------------------------//
 
@@ -32,12 +32,11 @@ const google_translate_languages: {
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.MessageApplicationCommandData>({
     identifier: 'Translate Message',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.Message,
-        description: '', // required for the command to be registered, silly discord
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_AND_DMS,
@@ -55,7 +54,7 @@ export default new ClientInteraction({
 
         const text_to_translate = message.cleanContent;
         if (!text_to_translate.length) {
-            return interaction.reply({
+            interaction.reply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -66,6 +65,8 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         await interaction.showModal(
@@ -96,7 +97,10 @@ export default new ClientInteraction({
         await modal_submit_interaction.deferReply();
 
         const translate_to_language = google_translate_languages.map(language => ({
-            score: compareTwoStrings(translate_to_query, language.name),
+            score: Math.max(
+                compareTwoStrings(translate_to_query, language.name),
+                compareTwoStrings(translate_to_query, language.code),
+            ),
             language: language,
         })).sort(
             (a, b) => b.score - a.score

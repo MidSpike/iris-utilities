@@ -83,7 +83,7 @@ async function generateMessagePayload(akinator: Akinator): Promise<Discord.Webho
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'akinator',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

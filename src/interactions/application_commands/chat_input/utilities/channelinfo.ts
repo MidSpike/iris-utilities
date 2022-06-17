@@ -10,7 +10,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'channelinfo',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
@@ -67,7 +67,7 @@ export default new ClientInteraction({
             return;
         }
 
-        const everyone_permissions = channel.permissionsFor(interaction.guild.roles.everyone.id)?.toArray() ?? [];
+        const everyone_permissions = channel.permissionsFor(interaction.guild.roles.everyone.id, true)?.toArray() ?? [];
 
         const channel_created_timestamp_epoch = `${channel.createdTimestamp}`.slice(0, -3);
 
