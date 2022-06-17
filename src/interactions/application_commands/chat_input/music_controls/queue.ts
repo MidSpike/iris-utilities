@@ -100,7 +100,7 @@ async function editInteractionReplyForQueueItems(
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'queue',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

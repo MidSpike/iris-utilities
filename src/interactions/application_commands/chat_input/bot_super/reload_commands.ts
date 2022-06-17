@@ -18,7 +18,7 @@ const runShellCommand = promisify(runShellCommandSync);
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'reload_commands',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

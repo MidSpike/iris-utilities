@@ -55,6 +55,7 @@ const discord_client = new Discord.Client({
         Discord.GatewayIntentBits.GuildEmojisAndStickers,
         Discord.GatewayIntentBits.GuildScheduledEvents,
         Discord.GatewayIntentBits.DirectMessages,
+        Discord.GatewayIntentBits.MessageContent,
     ],
     partials: [
         Discord.Partials.User,

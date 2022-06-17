@@ -18,7 +18,7 @@ function clampVolume(volume: number, min_volume=0, max_volume=200) {
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'volume',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

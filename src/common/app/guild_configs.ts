@@ -27,7 +27,7 @@ type GuildConfigCacheItem = {
 //------------------------------------------------------------//
 
 export class GuildConfigsManager {
-    static cache_lifespan = 30_000; // 30 seconds
+    static cache_lifespan = 15_000; // 15 seconds
 
     static cache = new Discord.Collection<GuildId, GuildConfigCacheItem>();
 

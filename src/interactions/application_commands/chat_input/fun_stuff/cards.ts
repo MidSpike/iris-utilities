@@ -68,7 +68,7 @@ async function updateMessageWithNewContent(discord_client: Discord.Client<true>,
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'cards',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

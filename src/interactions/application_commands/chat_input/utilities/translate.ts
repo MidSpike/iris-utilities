@@ -14,7 +14,7 @@ import { compareTwoStrings } from 'string-similarity';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-const translateUsingGoogle = require('translate-google');
+const translateUsingGoogle = require('@midspike/translate-google');
 
 //------------------------------------------------------------//
 
@@ -32,7 +32,7 @@ const google_translate_languages: {
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'translate',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
@@ -75,7 +75,11 @@ export default new ClientInteraction({
             const query_option = interaction.options.getFocused(true);
 
             const matching_languages = google_translate_languages.map(language => ({
-                score: compareTwoStrings(`${query_option.value}`, language.name),
+                score: Math.max(
+                    (query_option.value.length < 10 ? compareTwoStrings(query_option.value, language.code) : 0),
+                    (query_option.value.length > 3 ? compareTwoStrings(query_option.value, language.name) : 0),
+                    (language.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
+                ),
                 language: language,
             })).sort(
                 (a, b) => b.score - a.score
@@ -83,7 +87,7 @@ export default new ClientInteraction({
                 language => language.language
             ).filter(
                 // if the query option is 'to' then remove 'auto'
-                language => query_option.name === 'to' && language.code !== 'auto'
+                language => (query_option.name === 'to' ? language.code !== 'auto' : true)
             );
 
             interaction.respond(

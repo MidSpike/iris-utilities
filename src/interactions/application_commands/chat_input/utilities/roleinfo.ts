@@ -10,7 +10,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'roleinfo',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

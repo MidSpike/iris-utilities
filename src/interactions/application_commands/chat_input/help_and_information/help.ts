@@ -18,7 +18,7 @@ async function createHelpEmbed(command_category_id: string) {
 
     const commands_in_specified_category = chat_input_commands.filter(client_interaction => client_interaction.metadata.command_category!.id === command_category.id);
     const mapped_commands_in_specified_category = commands_in_specified_category.map(client_interaction => {
-        const filtered_client_interactions = client_interaction.data.options!.filter(option => ![
+        const filtered_client_interactions = (client_interaction.data as Discord.ChatInputApplicationCommandData).options!.filter(option => ![
             Discord.ApplicationCommandOptionType.SubcommandGroup,
             Discord.ApplicationCommandOptionType.Subcommand,
         ].includes(option.type as number)) as (Discord.ApplicationCommandOption & { required?: boolean })[];
@@ -46,7 +46,7 @@ async function createHelpEmbed(command_category_id: string) {
 
 //------------------------------------------------------------//
 
-module.exports.default = new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'help',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

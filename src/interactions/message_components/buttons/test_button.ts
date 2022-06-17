@@ -10,7 +10,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<never>({
     identifier: 'test_button',
     type: Discord.InteractionType.MessageComponent,
     metadata: {

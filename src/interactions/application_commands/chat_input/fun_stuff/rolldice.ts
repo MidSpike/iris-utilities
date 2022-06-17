@@ -29,7 +29,7 @@ function rollDice(
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'rolldice',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

@@ -12,7 +12,7 @@ import { delay } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'test',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

@@ -12,7 +12,7 @@ import { music_subscriptions } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'stop',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

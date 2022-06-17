@@ -47,7 +47,7 @@ async function generateMessagePayload(interaction_author: Discord.User): Promise
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'coinflip',
     type: Discord.InteractionType.ApplicationCommand,
     data: {

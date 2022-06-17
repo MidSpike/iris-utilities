@@ -39,7 +39,7 @@ const discord_activities = [
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'activity',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
@@ -77,7 +77,7 @@ export default new ClientInteraction({
 
         const voice_channel = member.voice.channel;
         if (!voice_channel) {
-            return await interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -85,12 +85,14 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         const specified_activity_id = interaction.options.getString('id', false);
 
         if (!specified_activity_id) {
-            return interaction.followUp({
+            interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         title: 'Available Activities',
@@ -98,6 +100,8 @@ export default new ClientInteraction({
                     }),
                 ],
             });
+
+            return;
         }
 
         const activity = discord_activities.find(activity => activity.id === specified_activity_id) ?? {

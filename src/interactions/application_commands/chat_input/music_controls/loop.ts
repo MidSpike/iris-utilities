@@ -12,7 +12,7 @@ import { QueueLoopingMode, music_subscriptions } from '@root/common/app/music/mu
 
 //------------------------------------------------------------//
 
-export default new ClientInteraction({
+export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'loop',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
