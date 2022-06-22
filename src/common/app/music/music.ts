@@ -119,13 +119,12 @@ export class MusicSubscription {
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
-                // track.onEnd() is called to notify the track that it has finished playing.
-                (oldState.resource.metadata as Track).onFinish();
-                this.processQueue(false);
+                (oldState.resource.metadata as Track).onFinish(); // notify the track that it has finished playing
+                this.processQueue(false); // advance the queue to the next track
             } else if (newState.status === AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
-                // track.onStart() is called to notify the track that playback has started.
-                (newState.resource.metadata as Track).onStart();
+                (newState.resource.metadata as Track).onStart(); // notify the track that it has started playing
+                this.queue.volume_manager.initialize(); // initialize the volume manager for each track
             }
         });
 

@@ -11,7 +11,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'channelinfo',
+    identifier: 'channel_info',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
@@ -32,7 +32,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
         ],
-        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -53,7 +53,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const channel_resolvable = interaction.options.getChannel('channel', false)?.id ?? interaction.channelId;
         const channel = await interaction.guild.channels.fetch(channel_resolvable);
-
         if (!channel) {
             await bot_message.edit({
                 embeds: [
@@ -136,14 +135,15 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             inline: true,
                         },
 
-                        // eslint-disable-next-line no-negated-condition
-                        ...(!channel.isVoiceBased() ? [
+                        ...(channel.isVoiceBased() ? [
+                            // show nothing
+                        ] : [
                             {
                                 name: '\u200b',
                                 value: '\u200b',
                                 inline: true,
                             },
-                        ] : []),
+                        ]),
 
                         ...(channel.isVoiceBased() ? [
                             {
@@ -162,11 +162,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 name: '\u200b',
                                 value: '\u200b',
                                 inline: true,
-                            }, {
-                                name: 'Members',
-                                value: `${channel.members.size > 15 ? '\`More than 15 people!\`' : channel.members.map(member => `${member}`).join(' - ')}`,
-                                inline: false,
                             },
+                            ...(channel.members.size > 0 ? [
+                                {
+                                    name: 'Members',
+                                    value: `${channel.members.size > 10 ? '\`More than 10 people!\`' : channel.members.map(member => `${member}`).join(' - ')}`,
+                                    inline: false,
+                                },
+                            ] : []),
                         ] : []),
                     ],
                 }),

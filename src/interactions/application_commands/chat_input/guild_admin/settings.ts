@@ -68,7 +68,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
         ],
-        command_category: ClientCommandHelper.categories.get('GUILD_ADMIN'),
+        command_category: ClientCommandHelper.categories.GUILD_ADMIN,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;

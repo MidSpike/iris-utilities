@@ -1,0 +1,452 @@
+[
+    {
+        "provider": "ibm",
+        "name": "IBM Kate - English (United Kingdom)",
+        "code": "en-GB_KateV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM James - English (United Kingdom)",
+        "code": "en-GB_JamesV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Charlotte - English (United Kingdom)",
+        "code": "en-GB_CharlotteV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Allison - English (United States)",
+        "code": "en-US_AllisonV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Emily - English (United States)",
+        "code": "en-US_EmilyV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Henry - English (United States)",
+        "code": "en-US_HenryV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Kevin - English (United States)",
+        "code": "en-US_KevinV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Lisa - English (United States)",
+        "code": "en-US_LisaV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Michael - English (United States)",
+        "code": "en-US_MichaelV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Olivia - English (United States)",
+        "code": "en-US_OliviaV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Louise - French (Canada)",
+        "code": "fr-CA_LouiseV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Nicolas - French (France)",
+        "code": "fr-FR_NicolasV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Renee - French (France)",
+        "code": "fr-FR_ReneeV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Birgit - German (Germany)",
+        "code": "de-DE_BirgitV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Dieter - German (Germany)",
+        "code": "de-DE_DieterV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Erika - German (Germany)",
+        "code": "de-DE_ErikaV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Francesca - Italian (Italy)",
+        "code": "it-IT_FrancescaV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Emi - Japanese (Japan)",
+        "code": "ja-JP_EmiV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Isabela - Portuguese (Brazil)",
+        "code": "pt-BR_IsabelaV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Enrique - Spanish (Spain)",
+        "code": "es-ES_EnriqueV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Laura - Spanish (Spain)",
+        "code": "es-ES_LauraV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Sofia - Spanish (Mexico)",
+        "code": "es-US_SofiaV3Voice"
+    },
+    {
+        "provider": "google",
+        "code": "af-ZA",
+        "name": "Google - Afrikaans (South Africa)"
+    },
+    {
+        "provider": "google",
+        "code": "sq",
+        "name": "Google - Albanian (Albania)"
+    },
+    {
+        "provider": "google",
+        "code": "ar-XA",
+        "name": "Google - Arabic (Saudi Arabia)"
+    },
+    {
+        "provider": "google",
+        "code": "bn-IN",
+        "name": "Google - Bengali (India)"
+    },
+    {
+        "provider": "google",
+        "code": "bs",
+        "name": "Google - Bosnian (Bosnia)"
+    },
+    {
+        "provider": "google",
+        "code": "bg-BG",
+        "name": "Google - Bulgarian (Bulgaria)"
+    },
+    {
+        "provider": "google",
+        "code": "ca-ES",
+        "name": "Google - Catalan (Spain)"
+    },
+    {
+        "provider": "google",
+        "code": "zh-CN",
+        "name": "Google - Chinese (China)"
+    },
+    {
+        "provider": "google",
+        "code": "zh-TW",
+        "name": "Google - Chinese (Taiwan)"
+    },
+    {
+        "provider": "google",
+        "code": "cmn-CN",
+        "name": "Google - Mandarin (China)"
+    },
+    {
+        "provider": "google",
+        "code": "cmn-TW",
+        "name": "Google - Mandarin (Taiwan)"
+    },
+    {
+        "provider": "google",
+        "code": "hr",
+        "name": "Google - Croatian (Croatia)"
+    },
+    {
+        "provider": "google",
+        "code": "cs-CZ",
+        "name": "Google - Czech (Czech Republic)"
+    },
+    {
+        "provider": "google",
+        "code": "da-DK",
+        "name": "Google - Danish (Denmark)"
+    },
+    {
+        "provider": "google",
+        "code": "nl-BE",
+        "name": "Google - Dutch (Belgium)"
+    },
+    {
+        "provider": "google",
+        "code": "nl-NL",
+        "name": "Google - Dutch (Netherlands)"
+    },
+    {
+        "provider": "google",
+        "code": "en-GB",
+        "name": "Google - English (United Kingdom)"
+    },
+    {
+        "provider": "google",
+        "code": "en-US",
+        "name": "Google - English (United States)"
+    },
+    {
+        "provider": "google",
+        "code": "en-AU",
+        "name": "Google - English (Australia)"
+    },
+    {
+        "provider": "google",
+        "code": "en-IN",
+        "name": "Google - English (India)"
+    },
+    {
+        "provider": "google",
+        "code": "et",
+        "name": "Google - Estonian (Estonia)"
+    },
+    {
+        "provider": "google",
+        "code": "fil-PH",
+        "name": "Google - Filipino (Philippines)"
+    },
+    {
+        "provider": "google",
+        "code": "fi-FI",
+        "name": "Google - Finnish (Finland)"
+    },
+    {
+        "provider": "google",
+        "code": "fr-CA",
+        "name": "Google - French (Canada)"
+    },
+    {
+        "provider": "google",
+        "code": "fr-FR",
+        "name": "Google - French (France)"
+    },
+    {
+        "provider": "google",
+        "code": "de-DE",
+        "name": "Google - German (Germany)"
+    },
+    {
+        "provider": "google",
+        "code": "el-GR",
+        "name": "Google - Greek (Greece)"
+    },
+    {
+        "provider": "google",
+        "code": "gu-IN",
+        "name": "Google - Gujarati (India)"
+    },
+    {
+        "provider": "google",
+        "code": "iw",
+        "name": "Google - Hebrew (Israel)"
+    },
+    {
+        "provider": "google",
+        "code": "hi-IN",
+        "name": "Google - Hindi (India)"
+    },
+    {
+        "provider": "google",
+        "code": "hu-HU",
+        "name": "Google - Hungarian (Hungary)"
+    },
+    {
+        "provider": "google",
+        "code": "is-IS",
+        "name": "Google - Icelandic (Iceland)"
+    },
+    {
+        "provider": "google",
+        "code": "id-ID",
+        "name": "Google - Indonesian (Indonesia)"
+    },
+    {
+        "provider": "google",
+        "code": "it-IT",
+        "name": "Google - Italian (Italy)"
+    },
+    {
+        "provider": "google",
+        "code": "ja-JP",
+        "name": "Google - Japanese (Japan)"
+    },
+    {
+        "provider": "google",
+        "code": "jv",
+        "name": "Google - Javanese (Indonesia)"
+    },
+    {
+        "provider": "google",
+        "code": "kn-IN",
+        "name": "Google - Kannada (India)"
+    },
+    {
+        "provider": "google",
+        "code": "km",
+        "name": "Google - Khmer (Cambodia)"
+    },
+    {
+        "provider": "google",
+        "code": "ko-KR",
+        "name": "Google - Korean (South Korea)"
+    },
+    {
+        "provider": "google",
+        "code": "la",
+        "name": "Google - Latin (World)"
+    },
+    {
+        "provider": "google",
+        "code": "lv-LV",
+        "name": "Google - Latvian (Latvia)"
+    },
+    {
+        "provider": "google",
+        "code": "ms-MY",
+        "name": "Google - Malay (Malaysia)"
+    },
+    {
+        "provider": "google",
+        "code": "ml-IN",
+        "name": "Google - Malayalam (India)"
+    },
+    {
+        "provider": "google",
+        "code": "mr",
+        "name": "Google - Marathi (India)"
+    },
+    {
+        "provider": "google",
+        "code": "my",
+        "name": "Google - Burmese (Myanmar)"
+    },
+    {
+        "provider": "google",
+        "code": "ne",
+        "name": "Google - Nepali (Nepal)"
+    },
+    {
+        "provider": "google",
+        "code": "nb-NO",
+        "name": "Google - Norwegian (Norway)"
+    },
+    {
+        "provider": "google",
+        "code": "pl-PL",
+        "name": "Google - Polish (Poland)"
+    },
+    {
+        "provider": "google",
+        "code": "pt-PT",
+        "name": "Google - Portuguese (Portugal)"
+    },
+    {
+        "provider": "google",
+        "code": "pt-BR",
+        "name": "Google - Portuguese (Brazil)"
+    },
+    {
+        "provider": "google",
+        "code": "ro-RO",
+        "name": "Google - Romanian (Romania)"
+    },
+    {
+        "provider": "google",
+        "code": "ru-RU",
+        "name": "Google - Russian (Russia)"
+    },
+    {
+        "provider": "google",
+        "code": "sr-RS",
+        "name": "Google - Serbian (Serbia)"
+    },
+    {
+        "provider": "google",
+        "code": "si",
+        "name": "Google - Sinhala (Sinhalese)"
+    },
+    {
+        "provider": "google",
+        "code": "sk-SK",
+        "name": "Google - Slovak (Slovakia)"
+    },
+    {
+        "provider": "google",
+        "code": "es-ES",
+        "name": "Google - Spanish (Spain)"
+    },
+    {
+        "provider": "google",
+        "code": "es-US",
+        "name": "Google - Spanish (North America)"
+    },
+    {
+        "provider": "google",
+        "code": "su",
+        "name": "Google - Sundanese (Indonesia)"
+    },
+    {
+        "provider": "google",
+        "code": "sw",
+        "name": "Google - Swahili (Kenya)"
+    },
+    {
+        "provider": "google",
+        "code": "sv-SE",
+        "name": "Google - Swedish (Sweden)"
+    },
+    {
+        "provider": "google",
+        "code": "tl",
+        "name": "Google - Tagalog (Philippines)"
+    },
+    {
+        "provider": "google",
+        "code": "ta-IN",
+        "name": "Google - Tamil (India)"
+    },
+    {
+        "provider": "google",
+        "code": "te-IN",
+        "name": "Google - Telugu (India)"
+    },
+    {
+        "provider": "google",
+        "code": "th-TH",
+        "name": "Google - Thai (Thailand)"
+    },
+    {
+        "provider": "google",
+        "code": "tr-TR",
+        "name": "Google - Turkish (Turkey)"
+    },
+    {
+        "provider": "google",
+        "code": "uk-UA",
+        "name": "Google - Ukrainian (Ukraine)"
+    },
+    {
+        "provider": "google",
+        "code": "ur",
+        "name": "Google - Urdu (Pakistan)"
+    },
+    {
+        "provider": "google",
+        "code": "vi-VN",
+        "name": "Google - Vietnamese (Vietnam)"
+    }
+]

@@ -2,18 +2,24 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import { promisify } from 'node:util';
+
+import { exec as runShellCommandSync } from 'node:child_process';
+
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '@root/common/app/client_interactions';
 
-import { delay } from '@root/common/lib/utilities';
+//------------------------------------------------------------//
+
+const runShellCommand = promisify(runShellCommandSync);
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'publish_commands',
+    identifier: 'reload_interactions',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         description: 'n/a',
@@ -29,7 +35,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('BOT_SUPER'),
+        command_category: ClientCommandHelper.categories.BOT_SUPER,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -39,44 +45,23 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.reply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, publishing global commands to Discord...`,
+                    description: `${interaction.user}, reloading all interactions...`,
                 }),
             ],
         }).catch(() => {});
 
-        /* remove non-existent commands */
-        for (const [ application_command_id, application_command ] of await discord_client.application.commands.fetch()) {
-            const command_exists = ClientInteractionManager.interactions.find(interaction => interaction.identifier === application_command.name);
-
-            if (!command_exists) {
-                console.info(`<DC A - ${discord_client.user.username}> removing non-existent global command: ${application_command.name};`);
-                await discord_client.application.commands.delete(application_command_id);
-            }
-
-            await delay(100); // prevent api abuse
-        }
-
-        /* register all commands */
-        const commands_to_register: Discord.ApplicationCommandDataResolvable[] = [];
-        for (const client_interaction of ClientInteractionManager.interactions.values()) {
-            if (client_interaction.type !== Discord.InteractionType.ApplicationCommand) continue;
-
-            console.info(`<DC A - ${discord_client.user.username}> preparing to register global command: ${client_interaction.identifier};`);
-
-            commands_to_register.push(client_interaction.data as Discord.ApplicationCommandDataResolvable);
-        }
-
+        /** re-build project */
+        let build_result: { stdout: string; stderr: string } | undefined;
         try {
-            console.info(`<DC A - ${discord_client.user.username}> registering ${commands_to_register.length} global commands...`);
-            await discord_client.application.commands.set(commands_to_register);
+            build_result = await runShellCommand('npm run build');
         } catch (error) {
-            console.trace(error);
+            console.trace({ error, build_result });
 
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to publish global commands to Discord.`,
+                        description: `${interaction.user}, failed to build interaction files.`,
                     }),
                 ],
             }).catch(() => {});
@@ -84,11 +69,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
+        /* re-register all interaction files */
+        await ClientInteractionManager.registerClientInteractions(discord_client);
+
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.GREEN,
-                    description: `${interaction.user}, published ${commands_to_register.length} global commands to Discord.`,
+                    description: `${interaction.user}, reloaded all interactions.`,
                 }),
             ],
         }).catch(() => {});

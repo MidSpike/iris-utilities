@@ -11,7 +11,7 @@ import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from
 //------------------------------------------------------------//
 
 async function createHelpEmbed(command_category_id: string) {
-    const command_category = ClientCommandHelper.categories.get(command_category_id);
+    const command_category = ClientCommandHelper.categories[command_category_id];
     if (!command_category) throw new Error(`No command category with id ${command_category_id}`);
 
     const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.ApplicationCommandType.ChatInput);
@@ -57,7 +57,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'category',
                 description: 'the category to show',
-                choices: ClientCommandHelper.categories.map(category => ({
+                choices: Object.values(ClientCommandHelper.categories).map(category => ({
                     name: category.name,
                     value: category.id,
                 })),
@@ -74,7 +74,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
+        command_category: ClientCommandHelper.categories.HELP_AND_INFORMATION,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -98,7 +98,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             placeholder: 'Select a page!',
                             minValues: 1,
                             maxValues: 1,
-                            options: ClientCommandHelper.categories.map(({ id, name, description }) => ({
+                            options: Object.values(ClientCommandHelper.categories).map(({ id, name, description }) => ({
                                 label: name,
                                 description: description.slice(0, 100),
                                 value: id,

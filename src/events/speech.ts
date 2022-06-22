@@ -151,7 +151,7 @@ export default {
                 }), {
                     onStart() {
                         // IMPORTANT: Initialize the volume interface
-                        music_subscription!.queue.volume_manager.initialize();
+                        // music_subscription!.queue.volume_manager.initialize();
 
                         voice_command_text_channel.send({
                             embeds: [

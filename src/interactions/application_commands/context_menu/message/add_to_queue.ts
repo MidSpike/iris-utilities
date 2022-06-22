@@ -198,7 +198,7 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
         }), {
             onStart() {
                 // IMPORTANT: Initialize the volume interface
-                music_subscription!.queue.volume_manager.initialize();
+                // music_subscription!.queue.volume_manager.initialize();
 
                 interaction.followUp({
                     embeds: [
