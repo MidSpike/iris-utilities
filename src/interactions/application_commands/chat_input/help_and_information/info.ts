@@ -2,6 +2,10 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
+import os from 'node:os';
+
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
@@ -12,6 +16,49 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 const bot_support_url = process.env.DISCORD_BOT_SUPPORT_GUILD_INVITE_URL as string;
 if (!bot_support_url?.length) throw new Error('DISCORD_BOT_SUPPORT_GUILD_INVITE_URL is undefined or empty');
+
+//------------------------------------------------------------//
+
+const memory_unit_divisor = 1024;
+const memory_units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
+
+function memoryUsageToSmallestUnit(memory_usage_in_bytes: number): string {
+    let memory_usage_in_bytes_clone = memory_usage_in_bytes;
+
+    let memory_unit_index = 0;
+
+    while (memory_usage_in_bytes_clone > memory_unit_divisor) {
+        memory_usage_in_bytes_clone /= memory_unit_divisor;
+        memory_unit_index += 1;
+    }
+
+    return `${Math.round(memory_usage_in_bytes_clone)} ${memory_units[memory_unit_index]}`;
+}
+
+//------------------------------------------------------------//
+
+const uptime_units: [string, number][] = [
+    ['Seconds', 60],
+    ['Minutes', 60],
+    ['Hours', 24],
+    ['Days', 365],
+    ['Years', 10],
+    ['Decades', 10],
+];
+
+function uptimeToHumanString(uptime_in_seconds: number): string {
+    let uptime_in_seconds_clone = uptime_in_seconds;
+
+    let uptime_unit_index = 0;
+
+    while (uptime_in_seconds_clone > uptime_units[uptime_unit_index][1]) {
+        uptime_in_seconds_clone /= uptime_units[uptime_unit_index][1];
+        uptime_unit_index += 1;
+    }
+
+    return `${Math.round(uptime_in_seconds_clone)} ${uptime_units[uptime_unit_index][0]}`;
+
+}
 
 //------------------------------------------------------------//
 
@@ -32,7 +79,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
+        command_category: ClientCommandHelper.categories.HELP_AND_INFORMATION,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -65,10 +112,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             shard_info: [
                 `\`[ Shard ${client.shard!.ids.map(shard_id => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
                 `> - ${client.ws.ping}ms ping`,
-                `> - ${client.guilds.cache.size} cached guild(s)`,
-                `> - ${client.users.cache.size} cached user(s)`,
-                `> - ${client.channels.cache.size} cached channel(s)`,
-                `> - ${client.emojis.cache.size} cached emoji(s)`,
+                `> - ${client.guilds.cache.size} guild(s)`,
+                `> - ${client.users.cache.size} user(s)`,
+                `> - ${client.channels.cache.size} channel(s)`,
+                `> - ${client.emojis.cache.size} emoji(s)`,
             ].join('\n'),
         }));
 
@@ -79,6 +126,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             num_cached_channels: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_channels, 0),
             num_cached_emojis: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_emojis, 0),
         };
+
+        const total_system_free_memory = os.freemem();
+        const total_system_memory = os.totalmem();
+        const total_system_memory_usage = total_system_memory - total_system_free_memory;
+        const total_process_memory_usage = process.memoryUsage().heapUsed;
+        const total_process_memory = process.memoryUsage().heapTotal;
 
         await interaction.followUp({
             embeds: [
@@ -92,16 +145,36 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             name: 'About Me',
                             value: `${bot_application.description}`,
                         }, {
-                            name: 'Combined Shard Info',
+                            name: 'Process Memory Usage',
+                            value: [
+                                `> ${memoryUsageToSmallestUnit(total_process_memory_usage)} / ${memoryUsageToSmallestUnit(total_process_memory)}`,
+                            ].join('\n'),
+                            inline: true,
+                        }, {
+                            name: 'System Memory Usage',
+                            value: [
+                                `> ${memoryUsageToSmallestUnit(total_system_memory_usage)} / ${memoryUsageToSmallestUnit(total_system_memory)}`,
+                            ].join('\n'),
+                            inline: true,
+                        }, {
+                            name: 'Server Information',
+                            value: [
+                                `> - ${os.version()} (${os.release()})`,
+                                `> - ${os.arch()} ${os.cpus().at(0)!.model.replace(/\s+/gi, ' ')} (x${os.cpus().length})`,
+                                `> - ${uptimeToHumanString(os.uptime())} of Uptime`,
+                            ].join('\n'),
+                            inline: false,
+                        }, {
+                            name: 'Combined Shard Cache',
                             value: [
                                 `> - ${combined_bot_info_totals.average_ping_ms}ms average ping`,
-                                `> - ${combined_bot_info_totals.num_cached_guilds} total cached guild(s)`,
-                                `> - ${combined_bot_info_totals.num_cached_users} total cached user(s)`,
-                                `> - ${combined_bot_info_totals.num_cached_channels} total cached channel(s)`,
-                                `> - ${combined_bot_info_totals.num_cached_emojis} total cached emoji(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_guilds} total guild(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_users} total user(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_channels} total channel(s)`,
+                                `> - ${combined_bot_info_totals.num_cached_emojis} total emoji(s)`,
                             ].join('\n'),
                         }, {
-                            name: 'Individual Shard Info',
+                            name: 'Individual Shard Caches',
                             value: [
                                 distributed_bot_info.map(({ shard_info }) => shard_info).join('\n\n'),
                             ].join('\n'),

@@ -20,10 +20,30 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         description: 'n/a',
         options: [
             {
-                type: Discord.ApplicationCommandOptionType.String,
-                name: 'expression',
-                description: 'the math expression to evaluate',
-                required: true,
+                type: Discord.ApplicationCommandOptionType.Subcommand,
+                name: 'evaluate',
+                description: 'Evaluates a mathematical expression.',
+                options: [
+                    {
+                        type: Discord.ApplicationCommandOptionType.String,
+                        name: 'expression',
+                        description: 'the math expression to evaluate',
+                        required: true,
+                    },
+                ],
+            }, {
+                type: Discord.ApplicationCommandOptionType.Subcommand,
+                name: 'evaluate_live',
+                description: 'Evaluates a mathematical expression.',
+                options: [
+                    {
+                        type: Discord.ApplicationCommandOptionType.String,
+                        name: 'expression',
+                        description: 'the math expression to evaluate',
+                        autocomplete: true,
+                        required: true,
+                    },
+                ],
             },
         ],
     },
@@ -34,12 +54,33 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
         ],
-        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
+
+        if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
+            const autocomplete_expression = interaction.options.getFocused();
+
+            let evaluated_math;
+            try {
+                evaluated_math = MathJs.evaluate(autocomplete_expression);
+            } catch (error) {
+                evaluated_math = 'Failed to evaluate expression.';
+            }
+
+            interaction.respond([
+                {
+                    name: `${autocomplete_expression} = ${evaluated_math}`,
+                    value: `${evaluated_math}`,
+                },
+            ]);
+
+            return;
+        }
+
+        if (!interaction.isChatInputCommand()) return;
 
         await interaction.deferReply({ ephemeral: false });
 

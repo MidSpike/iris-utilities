@@ -13,7 +13,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'serverinfo',
+    identifier: 'server_info',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
@@ -27,7 +27,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
         ],
-        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -54,6 +54,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
         const guild_emoji_chunks = arrayChunks(guild_emojis, 25);
+
+        const guild_bans = await guild.bans.fetch().catch(() => undefined);
 
         type GuildInfoSectionName = (
             | 'serverinfo_btn_default'
@@ -234,6 +236,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         inline: false,
                                     },
                                 ],
+                                ...(guild_icon_url ? {
+                                    image: {
+                                        url: guild_icon_url,
+                                    },
+                                } : {}),
                             }),
                         ],
                     });
@@ -254,16 +261,16 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         value: `${'```'}\n${guild.name}\n${'```'}`,
                                         inline: false,
                                     }, {
+                                        name: 'Description',
+                                        value: `${'```'}\n${guild.description || 'n/a'}\n${'```'}`,
+                                        inline: false,
+                                    }, {
                                         name: 'Snowflake',
                                         value: `${'```'}\n${guild.id}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Created On',
                                         value: `<t:${guild_created_timestamp_epoch}:F> (<t:${guild_created_timestamp_epoch}:R>)`,
-                                        inline: false,
-                                    }, {
-                                        name: 'Description',
-                                        value: `${'```'}\n${guild.description || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     },
 
@@ -330,8 +337,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         value: `\`${guild_members.filter(m => !m.user.bot).size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
-                                        name: '\u200b',
-                                        value: '\u200b',
+                                        name: 'Bans',
+                                        value: `\`${guild_bans ? guild_bans.size : 'n/a'}\``,
                                         inline: true,
                                     },
                                 ],

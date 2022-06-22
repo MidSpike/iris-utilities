@@ -26,7 +26,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.SendMessages,
             Discord.PermissionFlagsBits.Connect,
         ],
-        command_category: ClientCommandHelper.categories.get('BOT_SUPER'),
+        command_category: ClientCommandHelper.categories.BOT_SUPER,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;

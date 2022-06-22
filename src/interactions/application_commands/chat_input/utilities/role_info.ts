@@ -11,11 +11,11 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'roleinfo',
+    identifier: 'role_info',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'displays information about a guild role',
+        description: 'displays information about a role in this guild',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.Role,
@@ -32,7 +32,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
         ],
-        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -91,11 +91,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             inline: false,
                         }, {
                             name: 'Enhanced Permissions',
-                            value: `${'```'}\n${role_permissions.includes('Administrator') ? 'ADMINISTRATOR' : role_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                            value: `${'```'}\n${role_permissions.includes('Administrator') ? 'Administrator' : role_permissions.join('\n') || 'n/a'}\n${'```'}`,
                             inline: false,
                         }, {
                             name: 'Inherited Permissions',
-                            value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                            value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'Administrator' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
                             inline: false,
                         },
 

@@ -68,9 +68,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
+        if (!interaction.inCachedGuild()) return;
+
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
             const query_option = interaction.options.getFocused(true);
 

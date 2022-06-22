@@ -2,10 +2,6 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import {
-    AudioResource,
-} from '@discordjs/voice';
-
 import { Track } from './track';
 
 //------------------------------------------------------------//
@@ -30,19 +26,16 @@ export class QueueVolumeManager {
 
     // eslint-disable-next-line no-use-before-define
     constructor(queue: Queue) {
-        // eslint-disable-next-line no-use-before-define
-        if (!(queue instanceof Queue)) throw new TypeError('queue must be an instance of Queue');
-
         this._queue = queue;
     }
 
-    private _getActiveResource(): AudioResource | undefined {
-        return this._queue.current_track?.resource;
+    private _getCurrentTrack() {
+        return this._queue.current_track;
     }
 
     get volume() {
-        const active_resource_volume = this._getActiveResource()?.volume?.volumeLogarithmic;
-        const raw_logarithmic_volume = this._raw_volume ?? active_resource_volume ?? this._default_raw_volume;
+        const active_resource_volume = this._getCurrentTrack()?.resource?.volume?.volumeLogarithmic;
+        const raw_logarithmic_volume = active_resource_volume ?? this._raw_volume;
 
         return Math.round(raw_logarithmic_volume / this._volume_multiplier * this._human_volume_multiplier);
     }
@@ -50,7 +43,7 @@ export class QueueVolumeManager {
     set volume(human_volume) {
         this._raw_volume = (human_volume / this._human_volume_multiplier) * this._volume_multiplier;
 
-        const active_resource = this._getActiveResource();
+        const active_resource = this._getCurrentTrack()?.resource;
         if (!active_resource) return;
 
         active_resource.volume?.setVolumeLogarithmic(this._raw_volume);
@@ -61,7 +54,7 @@ export class QueueVolumeManager {
     }
 
     toggleMute() {
-        const active_resource = this._getActiveResource();
+        const active_resource = this._getCurrentTrack()?.resource;
         if (!active_resource) return;
 
         if (this._muted) {
@@ -76,13 +69,16 @@ export class QueueVolumeManager {
 
     /**
      * Initializes the volume manager.
-     * Intended purpose is to set a sensible default volume.
+     * Intended purpose is to set a sensible default volume upon each track change.
      */
     initialize() {
-        const active_resource = this._getActiveResource();
+        const active_resource = this._getCurrentTrack()?.resource;
         if (!active_resource) return;
 
-        active_resource.volume?.setVolumeLogarithmic(this._raw_volume ?? this._default_raw_volume);
+        // don't update the volume directly, as subsequent volume multipliers may be compounded together
+        const temp_volume = this._raw_volume * (this._getCurrentTrack()?.volume_multiplier ?? 1.0);
+
+        active_resource.volume?.setVolumeLogarithmic(temp_volume);
     }
 }
 

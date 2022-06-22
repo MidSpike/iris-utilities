@@ -13,7 +13,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'memberinfo',
+    identifier: 'user_info',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
@@ -34,7 +34,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
         ],
-        command_category: ClientCommandHelper.categories.get('UTILITIES'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -51,10 +51,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             ],
         });
 
-        await interaction.guild.members.fetch(); // cache all members
-
         const member_resolvable = interaction.options.getUser('member', false) ?? interaction.member;
-        const member = await interaction.guild.members.fetch(member_resolvable);
+        const member = await interaction.guild.members.fetch({ user: member_resolvable });
 
         await member.user.fetch(true); // force fetch the user
 
@@ -127,17 +125,20 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     {
                                         name: 'Member Avatar',
                                         value: `${guild_member_icon_url ? `[Image](${guild_member_icon_url})` : '\`n/a\`'}`,
-                                        inline: false,
+                                        inline: true,
                                     }, {
-                                        name: 'Global Avatar',
+                                        name: 'User Avatar',
                                         value: `${global_user_icon_url ? `[Image](${global_user_icon_url})` : '\`n/a\`'}`,
-                                        inline: false,
+                                        inline: true,
                                     }, {
-                                        name: 'Global Banner',
+                                        name: 'User Banner',
                                         value: `${global_user_banner_url ? `[Image](${global_user_banner_url})` : '\`n/a\`'}`,
-                                        inline: false,
+                                        inline: true,
                                     },
                                 ],
+                                image: {
+                                    url: global_user_icon_url,
+                                },
                             }),
                         ],
                     });
@@ -163,11 +164,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                                     {
                                         name: 'Enhanced Permissions',
-                                        value: `${'```'}\n${member_permissions.includes('Administrator') ? 'ADMINISTRATOR' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                                        value: `${'```'}\n${member_permissions.includes('Administrator') ? 'Administrator' : member_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Inherited Permissions',
-                                        value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'ADMINISTRATOR' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
+                                        value: `${'```'}\n${everyone_permissions.includes('Administrator') ? 'Administrator' : everyone_permissions.join('\n') || 'n/a'}\n${'```'}`,
                                         inline: false,
                                     },
                                 ],
@@ -254,12 +255,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     ] : []),
 
                                     {
-                                        name: 'Bot',
-                                        value: `\`${member.user.bot}\``,
-                                        inline: true,
-                                    }, {
                                         name: 'System',
                                         value: `\`${member.user.system}\``,
+                                        inline: true,
+                                    }, {
+                                        name: 'Bot',
+                                        value: `\`${member.user.bot}\``,
                                         inline: true,
                                     }, {
                                         name: 'Manageable',
@@ -276,6 +277,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     }, {
                                         name: 'Display Color',
                                         value: `\`${member.displayHexColor}\``,
+                                        inline: true,
+                                    }, {
+                                        name: 'Accent Color',
+                                        value: `${member.user.accentColor ?? '\`automatic\`'}`,
                                         inline: true,
                                     },
                                 ],

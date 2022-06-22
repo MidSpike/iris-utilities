@@ -31,7 +31,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('MUSIC_CONTROLS'),
+        command_category: ClientCommandHelper.categories.MUSIC_CONTROLS,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;

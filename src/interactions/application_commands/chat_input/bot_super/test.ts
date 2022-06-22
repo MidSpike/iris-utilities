@@ -28,7 +28,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.SendMessages,
             Discord.PermissionFlagsBits.Connect,
         ],
-        command_category: ClientCommandHelper.categories.get('BOT_SUPER'),
+        command_category: ClientCommandHelper.categories.BOT_SUPER,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -60,5 +60,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 },
             ],
         }).catch(console.warn);
+
+        console.log(
+            Discord.Formatters.formatEmoji('713382564886216767')
+        );
     },
 });

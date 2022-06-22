@@ -32,7 +32,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('HELP_AND_INFORMATION'),
+        command_category: ClientCommandHelper.categories.HELP_AND_INFORMATION,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;

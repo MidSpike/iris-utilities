@@ -63,7 +63,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
+        command_category: ClientCommandHelper.categories.FUN_STUFF,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;

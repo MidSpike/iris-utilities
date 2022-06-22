@@ -2,11 +2,17 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import * as fs from 'node:fs';
+
+import * as path from 'node:path';
+
 import stream from 'node:stream';
 
 import axios from 'axios';
 
 import * as Discord from 'discord.js';
+
+import { compareTwoStrings } from 'string-similarity';
 
 import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
 
@@ -22,26 +28,18 @@ import { GoogleTranslateTTS } from 'google-translate-tts';
 
 //------------------------------------------------------------//
 
-const voice_codes = [
-    { provider: 'google', name: 'Google - English (United Kingdom)', code: 'en-GB' },
-    { provider: 'google', name: 'Google - English (United States)', code: 'en-US' },
-    { provider: 'google', name: 'Google - English (Australia)', code: 'en-AU' },
-    { provider: 'google', name: 'Google - Deutsch (Deutschland)', code: 'de' },
-    { provider: 'google', name: 'Google - Nederlands (Nederland)', code: 'nl' },
-    { provider: 'ibm', name: 'IBM Kate - English (United Kingdom)', code: 'en-GB_KateV3Voice' },
-    { provider: 'ibm', name: 'IBM James - English (United Kingdom)', code: 'en-GB_JamesV3Voice' },
-    { provider: 'ibm', name: 'IBM Charlotte - English (United Kingdom)', code: 'en-GB_CharlotteV3Voice' },
-    { provider: 'ibm', name: 'IBM Allison - English (United States)', code: 'en-US_AllisonV3Voice' },
-    { provider: 'ibm', name: 'IBM Emily - English (United States)', code: 'en-US_EmilyV3Voice' },
-    { provider: 'ibm', name: 'IBM Henry - English (United States)', code: 'en-US_HenryV3Voice' },
-    { provider: 'ibm', name: 'IBM Kevin - English (United States)', code: 'en-US_KevinV3Voice' },
-    { provider: 'ibm', name: 'IBM Lisa - English (United States)', code: 'en-US_LisaV3Voice' },
-    { provider: 'ibm', name: 'IBM Michael - English (United States)', code: 'en-US_MichaelV3Voice' },
-    { provider: 'ibm', name: 'IBM Olivia - English (United States)', code: 'en-US_OliviaV3Voice' },
-    { provider: 'ibm', name: 'IBM Birgit - Deutsch (Deutschland)', code: 'de-DE_BirgitV3Voice' },
-    { provider: 'ibm', name: 'IBM Dieter - Deutsch (Deutschland)', code: 'de-DE_DieterV3Voice' },
-    { provider: 'ibm', name: 'IBM Erika - Deutsch (Deutschland)', code: 'de-DE_ErikaV3Voice' },
-];
+const voices: {
+    provider: 'ibm' | 'google',
+    code: string,
+    name: string,
+}[] = JSON.parse(
+    fs.readFileSync(
+        path.join(process.cwd(), 'misc', 'tts_voices.json'),
+        {
+            encoding: 'utf8',
+        }
+    )
+);
 
 //------------------------------------------------------------//
 
@@ -62,10 +60,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 name: 'voice',
                 description: 'the voice to use',
                 required: false,
-                choices: voice_codes.map(code => ({
-                    name: code.name,
-                    value: `${code.provider}:${code.code}`,
-                })),
+                autocomplete: true,
             },
         ],
     },
@@ -78,19 +73,45 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.get('FUN_STUFF'),
+        command_category: ClientCommandHelper.categories.UTILITIES,
     },
     async handler(discord_client, interaction) {
-        if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
-        if (!interaction.channel) return;
+
+        if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
+            const query_option = interaction.options.getFocused(true);
+
+            const matching_voices = voices.map(voice => ({
+                score: Math.max(
+                    (query_option.value.length < 10 ? compareTwoStrings(query_option.value, voice.code) : 0),
+                    (query_option.value.length > 3 ? compareTwoStrings(query_option.value, voice.name) : 0),
+                    (voice.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
+                ),
+                voice: voice,
+            })).sort(
+                (a, b) => b.score - a.score
+            ).map(
+                item => item.voice
+            );
+
+            interaction.respond(
+                matching_voices.map(voice => ({
+                    name: voice.name,
+                    value: `${voice.provider}:${voice.code}`,
+                })).slice(0, 25) // 25 is the maximum allowed by discord
+            );
+
+            return;
+        }
+
+        if (!interaction.isChatInputCommand()) return;
 
         await interaction.deferReply({ ephemeral: false });
 
         const text = interaction.options.getString('text', true);
         const provider_voice = interaction.options.getString('voice', false) ?? 'ibm:en-GB_KateV3Voice';
 
-        const member = await interaction.guild!.members.fetch(interaction.user.id);
+        const member = await interaction.guild.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = member.voice.channelId;
 
@@ -251,7 +272,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }), {
                 onStart() {
                     // IMPORTANT: Initialize the volume interface
-                    music_subscription!.queue.volume_manager.initialize();
+                    // music_subscription!.queue.volume_manager.initialize();
 
                     if (i > 1) {
                         interaction.channel!.send({

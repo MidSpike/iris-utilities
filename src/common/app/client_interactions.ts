@@ -18,19 +18,27 @@ const recursiveReadDirectory = require('recursive-read-directory');
 
 //------------------------------------------------------------//
 
+type ClientCommandCategoryId = 'HELP_AND_INFORMATION' | 'MUSIC_CONTROLS' | 'FUN_STUFF' | 'UTILITIES' | 'GUILD_STAFF' | 'GUILD_ADMIN' | 'GUILD_OWNER' | 'BOT_SUPER';
+
 type ClientCommandCategory = {
-    id: string;
+    id: ClientCommandCategoryId;
     name: string;
     description: string;
 };
 
 enum ClientCommandAccessLevels {
-    EVERYONE,
-    DONATOR,
-    GUILD_STAFF,
-    GUILD_ADMIN,
-    GUILD_OWNER,
-    BOT_SUPER,
+    EVERYONE = 1,
+    DONATOR = 25,
+    GUILD_STAFF = 100,
+    GUILD_ADMIN = 500,
+    GUILD_OWNER = 1000,
+    BOT_SUPER = 100_000_000,
+}
+
+enum ClientCommandExecutionEnvironments {
+    GUILD_AND_DMS = 'GUILD_AND_DMS',
+    GUILD_ONLY = 'GUILD_ONLY',
+    DMS_ONLY = 'DMS_ONLY',
 }
 
 //------------------------------------------------------------//
@@ -38,70 +46,73 @@ enum ClientCommandAccessLevels {
 export class ClientCommandHelper {
     static access_levels = ClientCommandAccessLevels;
 
-    static execution_environments = {
-        GUILD_AND_DMS: 'GUILD_AND_DMS',
-        GUILD_ONLY: 'GUILD_ONLY',
-        DMS_ONLY: 'DMS_ONLY',
-    };
+    static execution_environments = ClientCommandExecutionEnvironments;
 
-    static categories = new Discord.Collection<string, ClientCommandCategory>(
-        [
+    static categories = Object.fromEntries(
+        ([
             {
                 id: 'HELP_AND_INFORMATION',
                 name: 'Help And Information',
                 description: 'n/a',
-            }, {
+            },
+            {
                 id: 'MUSIC_CONTROLS',
                 name: 'Music Controls',
                 description: 'n/a',
-            }, {
+            },
+            {
                 id: 'FUN_STUFF',
                 name: 'Fun Stuff',
                 description: 'n/a',
-            }, {
+            },
+            {
                 id: 'UTILITIES',
                 name: 'Utilities',
                 description: 'n/a',
-            }, {
+            },
+            {
                 id: 'GUILD_STAFF',
                 name: 'Guild Staff',
                 description: 'Commands for guild mods, guild admins, guild owner, and bot super.',
-            }, {
+            },
+            {
                 id: 'GUILD_ADMIN',
                 name: 'Guild Admin',
                 description: 'Commands for guild admins, guild owner, and bot super.',
-            }, {
+            },
+            {
                 id: 'GUILD_OWNER',
                 name: 'Guild Owner',
                 description: 'Commands for the guild owner and bot super.',
-            }, {
+            },
+            {
                 id: 'BOT_SUPER',
                 name: 'Bot Super',
                 description: 'Commands for bot admins and the bot owner.',
             },
-        ].map(
-            (command_category) => ([ command_category.id, command_category ])
+        ] as ClientCommandCategory[]).map(
+            (category) => ([ category.id, category ])
         )
     );
 
     static async checkExecutionEnvironment(
         interaction: Discord.Interaction,
-        required_environment: string,
+        required_environment: ClientCommandExecutionEnvironments,
     ): Promise<boolean> {
         let is_valid_environment;
 
         switch (required_environment) {
-            case ClientCommandHelper.execution_environments.GUILD_AND_DMS: {
+            case ClientCommandExecutionEnvironments.GUILD_AND_DMS: {
                 is_valid_environment = true;
                 break;
             }
 
-            case ClientCommandHelper.execution_environments.GUILD_ONLY: {
+            case ClientCommandExecutionEnvironments.GUILD_ONLY: {
                 is_valid_environment = Boolean(interaction.guildId);
                 break;
             }
 
-            case ClientCommandHelper.execution_environments.DMS_ONLY: {
+            case ClientCommandExecutionEnvironments.DMS_ONLY: {
                 is_valid_environment = !interaction.guildId;
                 break;
             }
@@ -130,7 +141,8 @@ export class ClientCommandHelper {
     static async checkUserAccessLevel(
         discord_client: Discord.Client<true>,
         interaction: Discord.Interaction,
-        required_access_level: number,
+        required_access_level: ClientCommandAccessLevels,
+        reply_to_interaction: boolean = true,
     ): Promise<boolean> {
         const access_levels_for_user = [ ClientCommandHelper.access_levels.EVERYONE ]; // default access level
 
@@ -171,9 +183,9 @@ export class ClientCommandHelper {
         }
 
         /* check the user's access levels */
-        const highest_access_level_for_user = Math.max(...access_levels_for_user);
+        const highest_access_level_for_user: ClientCommandAccessLevels = Math.max(...access_levels_for_user);
         if (highest_access_level_for_user < required_access_level) {
-            if (interaction.isRepliable()) {
+            if (reply_to_interaction && interaction.isRepliable()) {
                 interaction.reply({
                     ephemeral: true,
                     embeds: [
@@ -183,12 +195,12 @@ export class ClientCommandHelper {
                             description: 'You aren\'t allowed to do that!',
                             fields: [
                                 {
-                                    name: 'Required Access Level',
-                                    value: `${required_access_level}`,
+                                    name: 'Your Access Level',
+                                    value: `${ClientCommandAccessLevels[highest_access_level_for_user]}`,
                                     inline: true,
                                 }, {
-                                    name: 'Your Access Level',
-                                    value: `${highest_access_level_for_user}`,
+                                    name: 'Required Access Level',
+                                    value: `${ClientCommandAccessLevels[required_access_level]}`,
                                     inline: true,
                                 },
                             ],
@@ -251,10 +263,10 @@ export type ClientInteractionIdentifier = string;
 
 export type ClientInteractionMetadata = {
     [key: string]: unknown;
-    allowed_execution_environment?: string;
     command_category?: ClientCommandCategory;
+    allowed_execution_environment?: ClientCommandExecutionEnvironments;
     required_bot_permissions?: Discord.PermissionResolvable[];
-    required_user_access_level?: number;
+    required_user_access_level?: ClientCommandAccessLevels;
 };
 
 export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<void>;
@@ -275,12 +287,7 @@ export class ClientInteraction<
             type: Discord.InteractionType;
             identifier: ClientInteractionIdentifier;
             data?: DistributiveOmit<DiscordInteractionCommandData, 'name'> | never;
-            metadata: {
-                allowed_execution_environment?: string;
-                command_category?: ClientCommandCategory;
-                required_bot_permissions?: Discord.PermissionResolvable[];
-                required_user_access_level?: number;
-            },
+            metadata?: ClientInteractionMetadata;
             handler: ClientInteractionHandler;
         },
     ) {
@@ -347,7 +354,7 @@ export class ClientInteraction<
 //------------------------------------------------------------//
 
 export class ClientInteractionManager {
-    static interactions: Discord.Collection<ClientInteractionIdentifier, ClientInteraction<Discord.ApplicationCommandData>> = new Discord.Collection();
+    static interactions = new Discord.Collection<ClientInteractionIdentifier, ClientInteraction<Discord.ApplicationCommandData>>();
 
     static async registerClientInteractions(discord_client: Discord.Client<true>) {
         ClientInteractionManager.interactions.clear(); // remove all existing interactions
