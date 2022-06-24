@@ -73,26 +73,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         switch (query_type) {
             case 'user': {
-                const {
-                    player: {
-                        id: mc_user_uuid,
-                        username: mc_user_username,
-                        meta: {
-                            name_history: mc_user_name_history,
-                        },
-                    },
-                } = {
-                    player: {
-                        id: null,
-                        username: null,
-                        meta: {
-                            name_history: null,
-                        },
-                    },
-                    ...(
-                        await axios.get(`https://playerdb.co/api/player/minecraft/${encodeURIComponent(query_value)}`).catch(() => null)
-                    )?.data?.data ?? {},
-                } as {
+                const response_data: {
                     player: {
                         id: string,
                         username: string,
@@ -100,18 +81,29 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             name_history: { name: string, changedToAt: number }[],
                         },
                     },
-                };
+                } | undefined = await axios({
+                    method: 'get',
+                    url: `https://playerdb.co/api/player/minecraft/${encodeURIComponent(query_value)}`,
+                    validateStatus: (status_code) => status_code === 200,
+                }).then(response => response.data?.data).catch(() => undefined);
+
+                const mc_user_uuid = response_data?.player?.id;
 
                 if (!mc_user_uuid) {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
-                                description: `Unable to find a user matching: \`${query_value}\``,
+                                color: CustomEmbed.colors.YELLOW,
+                                title: 'MC User > Error',
+                                description: `${interaction.user}, unable to find a user matching: \`${query_value}\``,
                             }),
                         ],
                     });
                     return;
                 }
+
+                const mc_user_username = response_data?.player?.username;
+                const mc_user_name_history = response_data?.player?.meta?.name_history;
 
                 const mc_avatar_image = `https://crafatar.com/avatars/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
                 const mc_body_image = `https://crafatar.com/renders/body/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
@@ -128,7 +120,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     inline: false,
                                 }, {
                                     name: 'Name History',
-                                    value: mc_user_name_history.map(({ name, changedToAt }) => `${Discord.escapeMarkdown(name)} ${changedToAt ? `(<t:${`${changedToAt}`.slice(0, -3)}:f>)` : ''}`).join('\n'),
+                                    value: (mc_user_name_history ? (
+                                        mc_user_name_history.map(({ name, changedToAt }) => `${Discord.escapeMarkdown(name)} ${changedToAt ? `(<t:${`${changedToAt}`.slice(0, -3)}:f>)` : ''}`).join('\n')
+                                    ) : (
+                                        'No name history was found'
+                                    )),
                                     inline: false,
                                 }, {
                                     name: 'Avatar',
@@ -158,44 +154,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             case 'server': {
-                const {
-                    debug: {
-                        ping: mc_server_info_found,
-                    },
-                    ip: mc_server_info_ip,
-                    icon: mc_server_info_raw_icon,
-                    hostname: mc_server_info_hostname,
-                    software: mc_server_info_software,
-                    version: mc_server_info_version,
-                    online: mc_server_info_online,
-                    motd: {
-                        clean: mc_server_info_motd_clean,
-                    },
-                    players: {
-                        online: mc_server_info_players,
-                        max: mc_server_info_max_players,
-                    },
-                } = {
-                    debug: {
-                        ping: null,
-                    },
-                    ip: null,
-                    icon: null,
-                    hostname: null,
-                    software: null,
-                    version: null,
-                    online: null,
-                    motd: {
-                        clean: null,
-                    },
-                    players: {
-                        online: null,
-                        max: null,
-                    },
-                    ...(
-                        await axios.get(`https://api.mcsrvstat.us/2/${encodeURIComponent(query_value)}`).catch(() => undefined)
-                    )?.data ?? {},
-                } as {
+                const response_data: {
                     debug: {
                         ping: number,
                     },
@@ -212,18 +171,36 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         online: number,
                         max: number,
                     },
-                };
+                } | undefined = await axios({
+                    method: 'get',
+                    url: `https://api.mcsrvstat.us/2/${encodeURIComponent(query_value)}`,
+                    validateStatus: (status_code) => status_code === 200,
+                }).then(response => response.data).catch(() => undefined);
+
+                const mc_server_info_found = response_data?.debug?.ping;
 
                 if (!mc_server_info_found) {
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
-                                description: `Unable to find a server matching: \`${query_value}\``,
+                                color: CustomEmbed.colors.YELLOW,
+                                title: 'MC Server > Error',
+                                description: `${interaction.user}, unable to find a server matching: \`${query_value}\``,
                             }),
                         ],
                     });
                     return;
                 }
+
+                const mc_server_info_ip = response_data?.ip;
+                const mc_server_info_raw_icon = response_data?.icon;
+                const mc_server_info_hostname = response_data?.hostname;
+                const mc_server_info_software = response_data?.software;
+                const mc_server_info_version = response_data?.version;
+                const mc_server_info_online = response_data?.online;
+                const mc_server_info_motd_clean = response_data?.motd?.clean;
+                const mc_server_info_players = response_data?.players?.online;
+                const mc_server_info_max_players = response_data?.players?.max;
 
                 const mc_server_info_icon_base64 = (mc_server_info_raw_icon ?? '').split(',')[1] || null;
                 const mc_server_info_icon_buffer = mc_server_info_icon_base64 ? Buffer.from(mc_server_info_icon_base64, 'base64') : null;

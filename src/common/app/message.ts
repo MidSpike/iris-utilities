@@ -106,11 +106,14 @@ export function enableMessageComponents(message: Discord.Message): Promise<Disco
 
 //------------------------------------------------------------//
 
-export async function requestPotentialNotSafeForWorkContentConsent(channel: Discord.TextBasedChannel, user: Discord.User): Promise<boolean> {
-    if (!(channel instanceof Discord.Channel)) throw new TypeError('channel must be an instance of Discord.Channel');
-    if (!(user instanceof Discord.User)) throw new TypeError('user must be an instance of Discord.User');
-
-    if (!channel.isTextBased()) throw new TypeError('channel must be a text-based channel');
+export async function requestPotentialNotSafeForWorkContentConsent(
+    channel: Discord.TextBasedChannel,
+    user: Discord.User,
+): Promise<boolean> {
+    // if the user is in a nsfw channel, assume they have already given consent
+    if ('nsfw' in channel) {
+        if (channel.nsfw) return true;
+    }
 
     try {
         await channel.send({

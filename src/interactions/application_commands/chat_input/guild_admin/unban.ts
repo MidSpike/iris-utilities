@@ -8,31 +8,26 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { doesMemberPossessPermissionFlagBit, isMemberAboveOtherMember } from '@root/common/app/permissions';
+import { doesMemberPossessPermissionFlagBit } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'ban',
+    identifier: 'unban',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'bans a user from the guild',
+        description: 'unbans a user from the guild',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
-                description: 'the guild member or id to ban',
+                description: 'the guild member or id to unban',
                 required: true,
             }, {
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'reason',
-                description: 'the reason for the ban',
-                required: false,
-            }, {
-                type: Discord.ApplicationCommandOptionType.Boolean,
-                name: 'remove_recent_messages',
-                description: 'remove messages sent by the user in the last 7 days',
+                description: 'the reason for the unban',
                 required: false,
             },
         ],
@@ -58,7 +53,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const reason = Discord.escapeMarkdown(
             interaction.options.getString('reason', false) || 'no reason was provided'
         );
-        const remove_recent_messages = interaction.options.getBoolean('remove_recent_messages', false) ?? false;
 
         const is_user_allowed_to_ban = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.BanMembers);
         if (!is_user_allowed_to_ban) {
@@ -66,7 +60,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, you do not have permission to ban members`,
+                        description: `${interaction.user}, you do not have permission to unban members`,
                     }),
                 ],
             });
@@ -79,7 +73,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you must specify a valid user to ban!`,
+                        description: `${interaction.user}, you must specify a valid user to unban!`,
                     }),
                 ],
             });
@@ -87,60 +81,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const member = await interaction.guild.members.fetch(user.id).catch(() => undefined);
-        if (member) {
-            if (!member.bannable) {
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
-                            description: `${interaction.user}, I\'m not allowed to ban ${member}!`,
-                        }),
-                    ],
-                });
-
-                return;
-            }
-
-            const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
-            if (!isMemberAboveOtherMember(bot_member, member)) {
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
-                            description: `${interaction.user}, I\'m not allowed to ban ${member}.`,
-                        }),
-                    ],
-                });
-
-                return;
-            }
-
-            if (!isMemberAboveOtherMember(interaction.member, member)) {
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
-                            description: `${interaction.user}, you are not allowed to ban ${member}!`,
-                        }),
-                    ],
-                });
-
-                return;
-            }
-        }
-
         try {
-            await interaction.guild.members.ban(user, {
-                reason: reason,
-                deleteMessageDays: remove_recent_messages ? 7 : undefined, // 7 is the maximum allowed by Discord
-            });
+            await interaction.guild.members.unban(user, reason);
         } catch (error) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to ban ${user} from the server!`,
+                        description: `${interaction.user}, failed to unban ${user} from the server!`,
                         fields: [
                             {
                                 name: 'Error Message',
@@ -162,7 +110,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.GREEN,
-                    description: `${interaction.user}, successfully banned ${user} from the server!`,
+                    description: `${interaction.user}, successfully unbanned ${user} from the server!`,
                     fields: [
                         {
                             name: 'Reason',
@@ -171,9 +119,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 `${reason}`,
                                 '\`\`\`',
                             ].join('\n'),
-                        }, {
-                            name: 'Removed recent messages',
-                            value: `${remove_recent_messages}`,
                         },
                     ],
                 }),

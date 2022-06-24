@@ -128,12 +128,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             height: auto;
                         }
                         div {
-                            background-color: #000000;
                             color: #ff5500;
                             font-size: 2rem;
                             text-align: center;
                             font-family: Helvetica, Arial, sans-serif;
                             font-weight: 900;
+                            text-shadow: 0.1em 0.1em 0.1em #000000;
                         }
                         div.id {
                             margin-bottom: 1rem;
@@ -141,6 +141,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             text-align: left;
                         }
                         div.parent {
+                            background-image: radial-gradient(circle at center, #000000, #6e2500ff);
                             padding: 2rem;
                         }
                         div.situation {
@@ -157,6 +158,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             font-weight: 900;
                             text-align: center;
                             text-transform: uppercase;
+                            text-shadow: none !important;
                         }
                         div.exception {
                             padding: 2rem 2rem 3rem 2rem;

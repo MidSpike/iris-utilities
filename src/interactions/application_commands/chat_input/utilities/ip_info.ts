@@ -79,9 +79,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const query = interaction.options.getString('query', true);
 
         /* documentation: https://ip-api.com/docs/api:json */
-        const { data: response_data }: {
+        const response_data: {
             [key: string]: string;
-        } = await axios.get(`http://ip-api.com/json/${query}?fields=66846719`);
+        } = await axios({
+            method: 'get',
+            url: `http://ip-api.com/json/${query}?fields=66846719`,
+            validateStatus: (status_code) => status_code === 200,
+        }).then(response => response.data);
 
         await interaction.editReply({
             embeds: [

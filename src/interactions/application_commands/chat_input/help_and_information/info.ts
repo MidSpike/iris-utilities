@@ -103,21 +103,31 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const bot_creation_unix_epoch = Math.floor(discord_client.user.createdTimestamp / 1000);
 
-        const distributed_bot_info = await discord_client.shard!.broadcastEval((client) => ({
-            ping_ms: client.ws.ping,
-            num_cached_guilds: client.guilds.cache.size,
-            num_cached_users: client.users.cache.size,
-            num_cached_channels: client.channels.cache.size,
-            num_cached_emojis: client.emojis.cache.size,
-            shard_info: [
-                `\`[ Shard ${client.shard!.ids.map(shard_id => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
-                `> - ${client.ws.ping}ms ping`,
-                `> - ${client.guilds.cache.size} guild(s)`,
-                `> - ${client.users.cache.size} user(s)`,
-                `> - ${client.channels.cache.size} channel(s)`,
-                `> - ${client.emojis.cache.size} emoji(s)`,
-            ].join('\n'),
-        }));
+        const distributed_bot_info = await discord_client.shard!.broadcastEval((client) => {
+            const shard_cached_member_ids = new Set(); // using Set to prevent duplicates
+
+            for (const guild of client.guilds.cache.values()) {
+                for (const [ member_id ] of guild.members.cache) {
+                    shard_cached_member_ids.add(member_id);
+                }
+            }
+
+            return {
+                ping_ms: client.ws.ping,
+                num_cached_guilds: client.guilds.cache.size,
+                num_cached_users: shard_cached_member_ids.size,
+                num_cached_channels: client.channels.cache.size,
+                num_cached_emojis: client.emojis.cache.size,
+                shard_info: [
+                    `\`[ Shard ${client.shard!.ids.map(shard_id => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
+                    `> - ${client.ws.ping}ms ping`,
+                    `> - ${client.guilds.cache.size} guild(s)`,
+                    `> - ${client.channels.cache.size} channel(s)`,
+                    `> - ${shard_cached_member_ids.size} user(s)`,
+                    `> - ${client.emojis.cache.size} emoji(s)`,
+                ].join('\n'),
+            };
+        });
 
         const combined_bot_info_totals = {
             average_ping_ms: distributed_bot_info.reduce((acc, curr) => acc + curr.ping_ms, 0) / distributed_bot_info.length,
