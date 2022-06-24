@@ -13,26 +13,21 @@ import { doesMemberPossessPermissionFlagBit, isMemberAboveOtherMember } from '@r
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'ban',
+    identifier: 'kick',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'bans a user from the guild',
+        description: 'kicks a user from the guild',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
-                description: 'the guild member or id to ban',
+                description: 'the guild member or id to kick',
                 required: true,
             }, {
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'reason',
-                description: 'the reason for the ban',
-                required: false,
-            }, {
-                type: Discord.ApplicationCommandOptionType.Boolean,
-                name: 'remove_recent_messages',
-                description: 'remove messages sent by the user in the last 7 days',
+                description: 'the reason for the kick',
                 required: false,
             },
         ],
@@ -43,7 +38,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
-            Discord.PermissionFlagsBits.BanMembers,
+            Discord.PermissionFlagsBits.KickMembers,
         ],
         command_category: ClientCommandHelper.categories.GUILD_ADMIN,
     },
@@ -54,19 +49,18 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const user = interaction.options.getUser('member', true);
+        const member = interaction.options.getMember('member');
         const reason = Discord.escapeMarkdown(
             interaction.options.getString('reason', false) || 'no reason was provided'
         );
-        const remove_recent_messages = interaction.options.getBoolean('remove_recent_messages', false) ?? false;
 
-        const is_user_allowed_to_ban = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.BanMembers);
-        if (!is_user_allowed_to_ban) {
+        const is_user_allowed_to_kick = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.KickMembers);
+        if (!is_user_allowed_to_kick) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, you do not have permission to ban members`,
+                        description: `${interaction.user}, you do not have permission to kick members`,
                     }),
                 ],
             });
@@ -74,12 +68,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        if (!user) {
+        if (!member) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you must specify a valid user to ban!`,
+                        description: `${interaction.user}, you must specify a valid user to kick!`,
                     }),
                 ],
             });
@@ -87,60 +81,54 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const member = await interaction.guild.members.fetch(user.id).catch(() => undefined);
-        if (member) {
-            if (!member.bannable) {
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
-                            description: `${interaction.user}, I\'m not allowed to ban ${member}!`,
-                        }),
-                    ],
-                });
+        if (!member.kickable) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, I\'m not allowed to kick ${member}!`,
+                    }),
+                ],
+            });
 
-                return;
-            }
+            return;
+        }
 
-            const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
-            if (!isMemberAboveOtherMember(bot_member, member)) {
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
-                            description: `${interaction.user}, I\'m not allowed to ban ${member}.`,
-                        }),
-                    ],
-                });
+        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+        if (!isMemberAboveOtherMember(bot_member, member)) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, I\'m not allowed to kick ${member}.`,
+                    }),
+                ],
+            });
 
-                return;
-            }
+            return;
+        }
 
-            if (!isMemberAboveOtherMember(interaction.member, member)) {
-                await interaction.editReply({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
-                            description: `${interaction.user}, you are not allowed to ban ${member}!`,
-                        }),
-                    ],
-                });
+        if (!isMemberAboveOtherMember(interaction.member, member)) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, you are not allowed to kick ${member}!`,
+                    }),
+                ],
+            });
 
-                return;
-            }
+            return;
         }
 
         try {
-            await interaction.guild.members.ban(user, {
-                reason: reason,
-                deleteMessageDays: remove_recent_messages ? 7 : undefined, // 7 is the maximum allowed by Discord
-            });
+            await interaction.guild.members.kick(member, reason);
         } catch (error) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to ban ${user} from the server!`,
+                        description: `${interaction.user}, failed to kick ${member} from the server!`,
                         fields: [
                             {
                                 name: 'Error Message',
@@ -162,7 +150,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.GREEN,
-                    description: `${interaction.user}, successfully banned ${user} from the server!`,
+                    description: `${interaction.user}, successfully kicked ${member} from the server!`,
                     fields: [
                         {
                             name: 'Reason',
@@ -171,9 +159,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 `${reason}`,
                                 '\`\`\`',
                             ].join('\n'),
-                        }, {
-                            name: 'Removed recent messages',
-                            value: `${remove_recent_messages}`,
                         },
                     ],
                 }),

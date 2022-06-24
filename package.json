@@ -39,7 +39,7 @@
     "discord-api-types": "0.33.5",
     "discord-player": "6.0.0-dev.0",
     "discord-speech-recognition": "github:MidSpike/discord-speech-recognition#c5ea1118d14b8b8423b27a072cfe5fba5269ab4d",
-    "discord.js": "^14.0.0-dev.1655899441-a3799f9",
+    "discord.js": "^14.0.0-dev.1656060492-e24970e",
     "dotenv": "16.0.1",
     "ffmpeg-static": "4.4.1",
     "ffmpeg-stream": "^0.7.0",

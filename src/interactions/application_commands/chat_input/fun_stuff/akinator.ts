@@ -238,8 +238,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         button_interaction_collector.on('end', async (collected_interactions, reason) => {
             const most_recent_interaction = collected_interactions.last();
 
-            if (!(most_recent_interaction instanceof Discord.MessageComponentInteraction)) return;
-            if (!(most_recent_interaction.message instanceof Discord.Message)) return;
+            if (!most_recent_interaction) return;
+            if (!most_recent_interaction.inCachedGuild()) return;
 
             await disableMessageComponents(most_recent_interaction.message);
         });

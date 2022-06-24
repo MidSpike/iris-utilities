@@ -160,7 +160,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 ] : []),
                             ].join('\n\n'),
                         })
-                    ).slice(0, 9)
+                    ).slice(0, 5)
                 ) : []),
             ],
         });

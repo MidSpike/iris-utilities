@@ -218,7 +218,7 @@ export class ClientCommandHelper {
     static async checkBotPermissions(
         discord_client: Discord.Client,
         interaction: Discord.Interaction,
-        required_permissions: Discord.PermissionResolvable[],
+        required_permissions: bigint[],
     ): Promise<boolean> {
         if (!interaction.inGuild()) return true; // if the interaction is not in a guild, then assume the bot has all permissions we might need
 
@@ -265,11 +265,11 @@ export type ClientInteractionMetadata = {
     [key: string]: unknown;
     command_category?: ClientCommandCategory;
     allowed_execution_environment?: ClientCommandExecutionEnvironments;
-    required_bot_permissions?: Discord.PermissionResolvable[];
+    required_bot_permissions?: bigint[];
     required_user_access_level?: ClientCommandAccessLevels;
 };
 
-export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.AnyInteraction) => Promise<void>;
+export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.Interaction) => Promise<void>;
 
 //------------------------------------------------------------//
 
@@ -319,7 +319,7 @@ export class ClientInteraction<
 
     async handler(
         discord_client: Discord.Client<true>,
-        interaction: Discord.AnyInteraction,
+        interaction: Discord.Interaction,
     ) {
         if (this.metadata.allowed_execution_environment) {
             const is_allowed_execution_environment = await ClientCommandHelper.checkExecutionEnvironment(interaction, this.metadata.allowed_execution_environment);
@@ -384,11 +384,12 @@ export class ClientInteractionManager {
 
     static async handleUnknownInteraction(
         discord_client: Discord.Client,
-        unknown_interaction: Discord.AnyInteraction,
+        unknown_interaction: Discord.Interaction,
     ): Promise<unknown> {
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
         let unknown_interaction_identifier: string;
+
         switch (unknown_interaction.type) {
             case Discord.InteractionType.ApplicationCommand: {
                 unknown_interaction_identifier = unknown_interaction.commandName;
