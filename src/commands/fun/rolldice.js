@@ -37,7 +37,7 @@ module.exports = new DisBotCommand({
         const { command_args } = opts;
 
         /**
-         * Allows for arguments to passed as '5d20' to get [5, 20]  
+         * Allows for arguments to passed as '5d20' to get [5, 20]
          * Also allows for '' to turn into []
          * @type {number[]} 
          */
