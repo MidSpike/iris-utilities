@@ -36,13 +36,13 @@ module.exports = new DisBotCommand({
 
         const distributed_people_music_listener_count = await client.shard.broadcastEval(`
             this.voice.connections.map(connection => 
-                connection.channel.members.filter(member => !member.user.bot).size
+                connection.channel?.members?.filter(member => !member.user.bot)?.size ?? 0
             ).reduce((accumulator, amount_of_people) => accumulator + amount_of_people, 0) ?? 0;
         `);
         const total_people_music_listener_count = distributed_people_music_listener_count.reduce((accumulator, people_count) => accumulator + people_count, 0);
         const distributed_bot_music_listener_count = await client.shard.broadcastEval(`
             this.voice.connections.map(connection => 
-                connection.channel.members.filter(member => member.user.bot && member.user.id !== this.user.id).size
+                connection.channel?.members?.filter(member => member.user.bot && member.user.id !== this.user.id)?.size ?? 0
             ).reduce((accumulator, amount_of_bots) => accumulator + amount_of_bots, 0) ?? 0;
         `);
         const total_bot_music_listener_count = distributed_bot_music_listener_count.reduce((accumulator, bot_count) => accumulator + bot_count, 0);
