@@ -1,6 +1,6 @@
 {
   "name": "iris-utilities",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": "MidSpike",
   "license": "CUSTOM",
   "description": "",
@@ -27,7 +27,7 @@
     "languagedetect": "2.0.0",
     "libsodium-wrappers": "0.7.9",
     "manakin": "0.5.2",
-    "mathjs": "10.5.3",
+    "mathjs": "10.6.3",
     "moment-timezone": "0.5.34",
     "node-emoji": "1.11.0",
     "node-gtts": "2.0.2",
