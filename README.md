@@ -1,5 +1,13 @@
 # Hello world, this is iris-utilities!
 
+> **Warning**
+> 
+> This version of I.R.I.S. Utilities is extremely outdated will not work properly in the future. Discord (and discord.js) have made numerous breaking changes in recent months that have facilitated the need for I.R.I.S. Utilities to be completely rewritten.
+> 
+> I've been working on the new version of I.R.I.S. Utilities in a private repository, and the codebase will become open-source before being deployed.
+> 
+> Even though this version of I.R.I.S. Utilities is currently deployed, I highly discourage using it.
+
 ## Information
 
 ### What is I.R.I.S. Utilities?
