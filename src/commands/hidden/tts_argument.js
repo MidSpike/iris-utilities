@@ -42,7 +42,7 @@ module.exports = new DisBotCommand({
             do {
                 let evil_insult_api_response;
                 try {
-                    evil_insult_api_response = await axios.get(`https://evilinsult.com/generate_insult.php?lang=en&type=json`)
+                    evil_insult_api_response = await axios.get(`https://evilinsult.com/generate_insult.php?v=${Date.now()}&lang=en&type=json`)
                 } catch (error) {
                     logUserError(message, error);
                     return;
