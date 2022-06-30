@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { DistributiveOmit } from 'typings';
+import { DistributiveOmit } from '@root/types/index';
 
 import * as path from 'node:path';
 
@@ -220,10 +220,10 @@ export class ClientCommandHelper {
         interaction: Discord.Interaction,
         required_permissions: bigint[],
     ): Promise<boolean> {
-        if (!interaction.inGuild()) return true; // if the interaction is not in a guild, then assume the bot has all permissions we might need
+        if (!interaction.inGuild()) return true; // if the interaction is not in a guild, then assume the bot has all of the required permissions
 
         const channel = await discord_client.channels.fetch(interaction.channelId as string) as Discord.GuildChannel;
-        if (!channel) return true; // the channel doesn't exist, so we can assume the bot has all permissions
+        if (!channel) return true; // the channel doesn't exist, so we can assume the bot has all of the required permissions
         if (!channel?.isTextBased()) return true; // the channel is not a text channel, so we can't check permissions
 
         const bot_member = await channel.guild.members.fetch(discord_client.user!.id);

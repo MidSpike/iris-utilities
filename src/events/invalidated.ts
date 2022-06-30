@@ -4,21 +4,16 @@
 
 import { ClientEventExport } from '@root/types/index';
 
-import * as Discord from 'discord.js';
+import process from 'node:process';
 
-import { ClientInteractionManager } from '@root/common/app/client_interactions';
+import * as Discord from 'discord.js';
 
 //------------------------------------------------------------//
 
-const event_name = Discord.Events.InteractionCreate;
+const event_name = Discord.Events.Invalidated;
 export default {
     name: event_name,
-    async handler(
-        discord_client,
-        unknown_interaction,
-    ) {
-        if (!discord_client.isReady()) return;
-
-        await ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
+    async handler() {
+        process.exit(1);
     },
 } as ClientEventExport<typeof event_name>;

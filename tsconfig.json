@@ -18,11 +18,10 @@
         "sourceMap": true,
         "declaration": false,
         "typeRoots": [
-            "@types",
-            "./typings"
+            "@types"
         ],
         "paths": {
-            "@root/*": [ "src/*" ]
+            "@root/*": [ "src/*" ],
         }
     },
     "exclude": [
@@ -31,6 +30,5 @@
     ],
     "include": [
         "src",
-        "typings"
     ]
 }

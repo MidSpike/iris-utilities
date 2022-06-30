@@ -14,13 +14,18 @@ export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
     name: string;
     handler(
         discord_client: Discord.Client,
-        ...args: Discord.ClientEvents[EventName],
+        ...args: Discord.ClientEvents[EventName]
     ): Promise<void>;
 }
 
 //------------------------------------------------------------//
 
 export type GuildId = string;
+
+export enum GuildConfigLoggingChannels {
+    MEMBER_JOIN = 'member_join',
+    MEMBER_LEAVE = 'member_leave',
+}
 
 export type GuildConfigTemplate = {
     _creation_epoch: number;
@@ -32,10 +37,9 @@ export interface GuildConfig extends GuildConfigTemplate {
     guild_id: GuildId;
     staff_role_ids?: string[];
     admin_role_ids?: string[];
-    logging_member_retention_channel_id?: string;
-    logging_message_reactions_channel_id?: string;
-    logging_commands_channel_id?: string;
-    logging_moderation_channel_id?: string;
+    logging_channels?: {
+        [v in GuildConfigLoggingChannels]?: string;
+    };
     url_blocking_enabled?: boolean;
 }
 

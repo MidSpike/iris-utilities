@@ -204,9 +204,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             case 'items': {
                 const message = await editInteractionReplyForQueueItems(interaction);
 
-                const message_component_collector = interaction.channel!.createMessageComponentCollector({
+                const message_component_collector = message.createMessageComponentCollector({
                     componentType: Discord.ComponentType.Button,
-                    filter: (message_component_interaction) => message_component_interaction.message.id === message.id,
                 });
 
                 message_component_collector.on('collect', async (message_component_interaction: Discord.MessageComponentInteraction) => {

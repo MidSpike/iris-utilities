@@ -6,7 +6,7 @@ import * as fs from 'node:fs';
 
 import * as path from 'node:path';
 
-import stream from 'node:stream';
+import { Readable } from 'node:stream';
 
 import axios from 'axios';
 
@@ -14,7 +14,7 @@ import * as Discord from 'discord.js';
 
 import { compareTwoStrings } from 'string-similarity';
 
-import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
+import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -209,8 +209,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 tts_text: tts_text,
                 tts_provider: provider,
                 tts_voice: voice,
-            }, () => new Promise(async (resolve, reject) => {
-                let stream: stream.Readable;
+            }, async () => {
+                let stream: Readable;
 
                 try {
                     switch (track.metadata.tts_provider) {
@@ -244,36 +244,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     }
                 } catch (error) {
                     console.trace(error);
-                    reject(error);
                     return;
                 }
 
-                if (!stream) {
-                    reject(new Error('No stdout'));
-                    return;
-                }
-
-                const onError = (error: unknown) => {
-                    console.trace(error);
-
-                    stream.resume();
-                    reject(error);
-
-                    return;
-                };
-
-                demuxProbe(stream).then((probe) => {
-                    resolve(createAudioResource(probe.stream, {
-                        inputType: probe.type,
-                        inlineVolume: true, // allows volume to be adjusted while playing
-                        metadata: track, // the track
-                    }));
-                }).catch(onError);
-            }), {
+                return stream;
+            }, {
                 onStart() {
-                    // IMPORTANT: Initialize the volume interface
-                    // music_subscription!.queue.volume_manager.initialize();
-
                     if (i > 1) {
                         interaction.channel!.send({
                             embeds: [
