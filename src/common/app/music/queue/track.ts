@@ -2,9 +2,9 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import {
-    AudioResource,
-} from '@discordjs/voice';
+import { Readable } from 'node:stream';
+
+import { AudioResource, createAudioResource, demuxProbe } from '@discordjs/voice';
 
 //------------------------------------------------------------//
 
@@ -13,65 +13,65 @@ export interface TrackMetadata {
     title: string;
 }
 
-export type BaseResourceCreator = () => Promise<AudioResource>;
-
 export class Track<
     MetaData extends TrackMetadata = TrackMetadata,
-    ResourceCreator extends BaseResourceCreator = BaseResourceCreator,
 > {
-    private _metadata: MetaData;
-
-    private _resource: AudioResource | undefined;
-
-    private _resource_creator: ResourceCreator;
-
-    private _events: {
-        onStart: () => void;
-        onFinish: () => void;
-        onError: (error: unknown) => void;
-    };
+    // eslint-disable-next-line no-use-before-define
+    private _resource: AudioResource<Track<MetaData>> | undefined = undefined;
 
     public volume_multiplier = 1.0;
 
     constructor(
-        metadata: MetaData,
-        resource_creator: ResourceCreator,
-        { onStart, onFinish, onError }: {
+        private _metadata: MetaData,
+        private _stream_creator: () => Promise<Readable | undefined>,
+        public _events: {
             onStart: () => void;
             onFinish: () => void;
             onError: (error: unknown) => void;
         }
-    ) {
-        this._metadata = metadata;
-        this._resource = undefined;
-        this._resource_creator = resource_creator;
-        this._events = { onStart, onFinish, onError };
-    }
+    ) {}
 
     get metadata(): MetaData {
         return this._metadata;
     }
 
-    get resource(): AudioResource | undefined {
+    get resource(): AudioResource<Track<MetaData>> | undefined {
         return this._resource;
     }
 
-    async initializeResource(): Promise<AudioResource> {
+    async initializeResource(): Promise<AudioResource<Track<MetaData>> | undefined> {
         await this.destroyResource(); // destroy any existing resource (useful for when the track is being re-used)
 
-        this._resource = await this._resource_creator();
+        let stream: Readable | undefined;
+        try {
+            stream = await this._stream_creator();
+
+            if (!stream) {
+                throw new Error('Failed to create stream');
+            }
+
+            this._resource = await demuxProbe(stream).then(
+                (probe) => createAudioResource(probe.stream, {
+                    inputType: probe.type,
+                    inlineVolume: true, // allows volume to be adjusted while playing
+                    metadata: this, // this track
+                })
+            );
+
+            if (!this._resource) throw new Error('Failed to create audio resource');
+        } catch (error: unknown) {
+            this._events.onError(error);
+
+            return undefined;
+        }
 
         this._resource.volume!.setVolumeLogarithmic(0);
 
         return this._resource;
     }
 
-    async fetchResource(): Promise<AudioResource> {
-        if (this._resource) {
-            return this._resource;
-        }
-
-        return await this.initializeResource();
+    async fetchResource(): Promise<AudioResource<Track<MetaData>> | undefined> {
+        return this._resource ?? await this.initializeResource() ?? undefined;
     }
 
     async destroyResource(): Promise<void> {

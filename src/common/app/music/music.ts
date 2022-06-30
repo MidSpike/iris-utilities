@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { GuildId } from 'typings';
+import { GuildId } from '@root/types/index';
 
 import { promisify } from 'node:util';
 
@@ -165,6 +165,7 @@ export class MusicSubscription {
         if (this.queue.locked) return;
 
         const next_track_resource = await next_track.initializeResource();
+        if (!next_track_resource) return;
 
         // Play the next track
         this._audio_player.play(next_track_resource);

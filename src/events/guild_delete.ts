@@ -2,13 +2,13 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport } from 'typings';
-
-import axios from 'axios';
+import { ClientEventExport } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
+
+import { sendWebhookMessage } from '@root/common/app/webhook';
 
 //------------------------------------------------------------//
 
@@ -30,36 +30,31 @@ export default {
 
         const guild_icon_url = guild.iconURL({ forceStatic: false, size: 4096 });
 
-        axios({
-            method: 'POST',
-            url: logging_webhook_url,
-            data: {
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
-                        fields: [
-                            {
-                                name: 'Guild',
-                                value: `\`${guild.name}\``,
-                                inline: true,
-                            }, {
-                                name: 'Snowflake',
-                                value: `\`${guild.id}\``,
-                                inline: true,
-                            }, {
-                                name: 'Removed On',
-                                value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
-                            },
-                        ],
-                        ...(guild_icon_url ? {
-                            thumbnail: {
-                                url: guild_icon_url,
-                            },
-                        } : {}),
-                    }),
-                ],
-            },
-            validateStatus: (status_code) => status_code >= 200 && status_code < 300,
-        }).catch(error => console.trace('Failed to post to guild retention logging webhook', error));
+        sendWebhookMessage(logging_webhook_url, {
+            embeds: [
+                CustomEmbed.from({
+                    color: CustomEmbed.colors.YELLOW,
+                    fields: [
+                        {
+                            name: 'Guild',
+                            value: `\`${guild.name}\``,
+                            inline: true,
+                        }, {
+                            name: 'Snowflake',
+                            value: `\`${guild.id}\``,
+                            inline: true,
+                        }, {
+                            name: 'Removed On',
+                            value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
+                        },
+                    ],
+                    ...(guild_icon_url ? {
+                        thumbnail: {
+                            url: guild_icon_url,
+                        },
+                    } : {}),
+                }).toJSON(),
+            ],
+        });
     },
 } as ClientEventExport<typeof event_name>;

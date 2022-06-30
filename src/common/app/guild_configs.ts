@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { GuildConfig, GuildConfigTemplate, GuildId } from 'typings';
+import { GuildConfig, GuildConfigTemplate, GuildId } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 
@@ -21,7 +21,7 @@ if (!db_guild_configs_collection_name?.length) throw new TypeError('MONGO_GUILD_
 type GuildConfigCacheItem = {
     guild_id: GuildId;
     config: GuildConfig;
-    epoch: number;
+    last_synced_epoch: number;
 }
 
 //------------------------------------------------------------//
@@ -54,12 +54,13 @@ export class GuildConfigsManager {
             ]);
         } catch (error) {
             console.trace(error);
+
             throw new Error(`GuildConfigsManager._create(): failed to create new guild_config for ${guild_id} in the database`);
         }
 
         GuildConfigsManager.cache.set(guild_id, {
             guild_id: guild_id,
-            epoch: Date.now(),
+            last_synced_epoch: Date.now(),
             config: new_guild_config,
         });
 
@@ -75,7 +76,7 @@ export class GuildConfigsManager {
         let guild_config = guild_config_cache_item?.config;
 
         const current_epoch = Date.now();
-        const cached_guild_config_has_expired = current_epoch >= (guild_config_cache_item?.epoch ?? current_epoch) + GuildConfigsManager.cache_lifespan;
+        const cached_guild_config_has_expired = current_epoch >= ((guild_config_cache_item?.last_synced_epoch ?? current_epoch) + GuildConfigsManager.cache_lifespan);
 
         if (!guild_config || cached_guild_config_has_expired || bypass_cache) {
             const [ db_guild_config ] = await go_mongo_db.find(db_name, db_guild_configs_collection_name, {
@@ -115,12 +116,13 @@ export class GuildConfigsManager {
             });
         } catch (error) {
             console.trace(error);
+
             throw new Error(`GuildConfigsManager.update(): failed to update guild_config for ${guild_id} in the database`);
         }
 
         GuildConfigsManager.cache.set(guild_id, {
             guild_id: guild_id,
-            epoch: Date.now(),
+            last_synced_epoch: Date.now(),
             config: updated_guild_config,
         });
 
@@ -136,6 +138,7 @@ export class GuildConfigsManager {
             });
         } catch (error) {
             console.trace(error);
+
             throw new Error(`GuildConfigsManager.remove(): failed to remove guild_config for ${guild_id} from the database`);
         }
 

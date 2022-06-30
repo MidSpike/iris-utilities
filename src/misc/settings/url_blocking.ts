@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Setting } from 'typings';
+import { Setting } from '@root/types/index';
 
 import { CustomEmbed } from '@root/common/app/message';
 

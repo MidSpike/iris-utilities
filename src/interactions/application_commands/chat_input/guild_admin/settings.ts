@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Setting } from 'typings';
+import { Setting } from '@root/types/index';
 
 import * as path from 'node:path';
 

@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
+import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
 
 import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
@@ -76,7 +76,7 @@ export default {
 
         if (!voice_command_name.length) return;
 
-        const voice_command_text_channel = discord_client.channels.cache.get('909136093516029972') as Discord.TextBasedChannel;
+        const voice_command_text_channel = await discord_client.channels.fetch('809900890583597082') as Discord.TextBasedChannel;
 
         let music_subscription = music_subscriptions.get(guild.id);
 
@@ -126,36 +126,15 @@ export default {
 
                 if (!search_result) return;
 
-                const track = new RemoteTrack({
+                const track: RemoteTrack = new RemoteTrack({
                     title: search_result.title,
                     url: search_result.url,
-                }, () => new Promise(async (resolve, reject) => {
-                    const stream = await Streamer.youtubeStream(track.metadata.url);
-
-                    if (!stream) {
-                        reject(new Error('No stdout'));
-                        return;
-                    }
-
-                    demuxProbe(stream).then((probe) => {
-                        resolve(createAudioResource(probe.stream, {
-                            inputType: probe.type,
-                            inlineVolume: true, // allows volume to be adjusted while playing
-                            metadata: track, // the track
-                        }));
-                    }).catch((error: unknown) => {
-                        console.trace(error);
-
-                        reject(error);
-                    });
-                }), {
+                }, () => Streamer.youtubeStream(track.metadata.url), {
                     onStart() {
-                        // IMPORTANT: Initialize the volume interface
-                        // music_subscription!.queue.volume_manager.initialize();
-
                         voice_command_text_channel.send({
                             embeds: [
                                 CustomEmbed.from({
+                                    title: 'Voice Command',
                                     description: `${msg.author}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
                                 }),
                             ],
@@ -165,6 +144,7 @@ export default {
                         voice_command_text_channel.send({
                             embeds: [
                                 CustomEmbed.from({
+                                    title: 'Voice Command',
                                     description: `${msg.author}, finished playing **${track.metadata.title}**.`,
                                 }),
                             ],
@@ -176,6 +156,7 @@ export default {
                         voice_command_text_channel.send({
                             embeds: [
                                 CustomEmbed.from({
+                                    title: 'Voice Command',
                                     color: CustomEmbed.colors.RED,
                                     description: `${msg.author}, failed to play **${track.metadata.title}**.`,
                                 }),
@@ -203,8 +184,18 @@ export default {
                 const maximum_allowed_volume = 100;
                 const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
 
+                voice_command_text_channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Voice Command',
+                            description: `${msg.author}, set the volume to **${volume_level}%**.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+
                 // eslint-disable-next-line require-atomic-updates
                 music_subscription.queue.volume_manager.volume = volume_level;
+
 
                 break;
             }
@@ -212,6 +203,15 @@ export default {
             case 'skit': // fallback for improper recognition
             case 'skin': // fallback for improper recognition
             case 'skip': {
+                voice_command_text_channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Voice Command',
+                            description: `${msg.author}, skipped the current track.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+
                 music_subscription.processQueue(true);
 
                 break;
@@ -219,6 +219,15 @@ export default {
 
             case 'star': // fallback for improper recognition
             case 'stop': {
+                voice_command_text_channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Voice Command',
+                            description: `${msg.author}, stopped the queue.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+
                 await music_subscription.kill();
 
                 break;

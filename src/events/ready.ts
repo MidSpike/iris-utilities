@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport } from 'typings';
+import { ClientEventExport } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 

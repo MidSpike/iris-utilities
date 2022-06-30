@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { VoiceConnectionStatus, createAudioResource, demuxProbe, entersState, joinVoiceChannel } from '@discordjs/voice';
+import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
 
 import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
 
@@ -173,33 +173,11 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
 
         const search_result = search_results.at(0)!;
 
-        const track = new RemoteTrack({
+        const track: RemoteTrack = new RemoteTrack({
             title: search_result.title,
             url: search_result.url,
-        }, () => new Promise(async (resolve, reject) => {
-            const stream = await Streamer.youtubeStream(track.metadata.url);
-
-            if (!stream) {
-                reject(new Error('No stdout'));
-                return;
-            }
-
-            demuxProbe(stream).then((probe) => {
-                resolve(createAudioResource(probe.stream, {
-                    inputType: probe.type,
-                    inlineVolume: true, // allows volume to be adjusted while playing
-                    metadata: track, // the track
-                }));
-            }).catch((error: unknown) => {
-                console.trace(error);
-
-                reject(error);
-            });
-        }), {
+        }, () => Streamer.youtubeStream(track.metadata.url), {
             onStart() {
-                // IMPORTANT: Initialize the volume interface
-                // music_subscription!.queue.volume_manager.initialize();
-
                 interaction.followUp({
                     embeds: [
                         CustomEmbed.from({

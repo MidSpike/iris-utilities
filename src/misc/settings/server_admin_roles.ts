@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Setting } from 'typings';
+import { Setting } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 
