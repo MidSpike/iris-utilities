@@ -8,7 +8,7 @@ import { CustomEmbed, disableMessageComponents } from '@root/common/app/message'
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { doesMemberPossessPermissionFlagBit } from '@root/common/app/permissions';
+import { doesMemberHavePermission } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
@@ -98,7 +98,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: true });
 
-        const is_user_allowed_to_view_bans = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.BanMembers);
+        const is_user_allowed_to_view_bans = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.BanMembers);
         if (!is_user_allowed_to_view_bans) {
             await interaction.editReply({
                 embeds: [

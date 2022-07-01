@@ -4,6 +4,8 @@
 
 import { DistributiveOmit } from '@root/types/index';
 
+import process from 'node:process';
+
 import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
@@ -40,6 +42,14 @@ enum ClientCommandExecutionEnvironments {
     GUILD_ONLY = 'GUILD_ONLY',
     DMS_ONLY = 'DMS_ONLY',
 }
+
+//------------------------------------------------------------//
+
+const db_name = process.env.MONGO_DATABASE_NAME as string;
+if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
+
+const db_super_people_collection_name = process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME as string;
+if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_PEOPLE_COLLECTION_NAME is not defined');
 
 //------------------------------------------------------------//
 
@@ -175,10 +185,11 @@ export class ClientCommandHelper {
             }
         }
 
-        /* check for bot super */
-        const bot_super_people = await go_mongo_db.find(process.env.MONGO_DATABASE_NAME as string, process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME as string, {});
-        const bot_super_people_ids = bot_super_people.map(bot_super_person => bot_super_person.discord_user_id);
-        if (bot_super_people_ids.includes(interaction.user.id)) {
+        /* check if the user is a super person (bot admin) */
+        const is_user_a_super_person = (await go_mongo_db.count(db_name, db_super_people_collection_name, {
+            discord_user_id: interaction.user.id,
+        })) > 0;
+        if (is_user_a_super_person) {
             access_levels_for_user.push(ClientCommandHelper.access_levels.BOT_SUPER);
         }
 

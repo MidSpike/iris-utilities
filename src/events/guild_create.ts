@@ -4,6 +4,8 @@
 
 import { ClientEventExport } from '@root/types/index';
 
+import process from 'node:process';
+
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';

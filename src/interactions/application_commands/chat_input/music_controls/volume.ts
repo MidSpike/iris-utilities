@@ -57,7 +57,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        title: 'Nothing is playing right now!',
+                        description: `${interaction.user}, nothing is playing right now!`,
                     }),
                 ],
             }).catch(() => {});
@@ -105,7 +105,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             ],
         });
 
-        const button_interaction_collector = await bot_message.createMessageComponentCollector({
+        const button_interaction_collector = bot_message.createMessageComponentCollector({
             time: 1 * 60_000, // 1 minute
         });
 
@@ -122,9 +122,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         embeds: [
                             CustomEmbed.from({
                                 ...(music_subscription.queue.volume_manager.muted ? {
-                                    description: `${interaction.user}, muted the volume!`,
+                                    description: `${button_interaction.user}, muted the volume!`,
                                 } : {
-                                    description: `${interaction.user}, unmuted the volume!`,
+                                    description: `${button_interaction.user}, unmuted the volume!`,
                                 }),
                             }),
                         ],

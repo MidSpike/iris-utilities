@@ -4,6 +4,8 @@
 
 import { GuildId } from '@root/types/index';
 
+import process from 'node:process';
+
 import { promisify } from 'node:util';
 
 import {

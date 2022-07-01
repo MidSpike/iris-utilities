@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
 import { Readable } from 'node:stream';
 
 import ytdl from 'ytdl-core';
