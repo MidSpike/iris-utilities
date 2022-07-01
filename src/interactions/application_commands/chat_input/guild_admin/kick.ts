@@ -8,7 +8,7 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { doesMemberPossessPermissionFlagBit, isMemberAboveOtherMember } from '@root/common/app/permissions';
+import { doesMemberHavePermission, isMemberAboveOtherMember } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
@@ -54,7 +54,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             interaction.options.getString('reason', false) || 'no reason was provided'
         );
 
-        const is_user_allowed_to_kick = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.KickMembers);
+        const is_user_allowed_to_kick = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.KickMembers);
         if (!is_user_allowed_to_kick) {
             await interaction.editReply({
                 embeds: [

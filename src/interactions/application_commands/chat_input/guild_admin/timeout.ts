@@ -8,7 +8,7 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { doesMemberPossessPermissionFlagBit, isMemberAboveOtherMember } from '@root/common/app/permissions';
+import { doesMemberHavePermission, isMemberAboveOtherMember } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
@@ -99,7 +99,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             interaction.options.getString('reason', false) || 'no reason was provided'
         );
 
-        const is_user_allowed_to_timeout = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.ModerateMembers);
+        const is_user_allowed_to_timeout = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.ModerateMembers);
         if (!is_user_allowed_to_timeout) {
             await interaction.editReply({
                 embeds: [
@@ -140,7 +140,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const member_has_admin_permission = await doesMemberPossessPermissionFlagBit(member, Discord.PermissionFlagsBits.Administrator);
+        const member_has_admin_permission = await doesMemberHavePermission(member, Discord.PermissionFlagsBits.Administrator);
         if (member_has_admin_permission) {
             await interaction.editReply({
                 embeds: [

@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
 import { GuildConfig, GuildConfigTemplate, GuildId } from '@root/types/index';
 
 import * as Discord from 'discord.js';

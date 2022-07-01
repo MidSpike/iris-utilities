@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';

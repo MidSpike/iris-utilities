@@ -8,7 +8,7 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { doesMemberPossessPermissionFlagBit, isMemberAboveOtherMember } from '@root/common/app/permissions';
+import { doesMemberHavePermission, isMemberAboveOtherMember } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
@@ -60,7 +60,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         );
         const remove_recent_messages = interaction.options.getBoolean('remove_recent_messages', false) ?? false;
 
-        const is_user_allowed_to_ban = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.BanMembers);
+        const is_user_allowed_to_ban = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.BanMembers);
         if (!is_user_allowed_to_ban) {
             await interaction.editReply({
                 embeds: [

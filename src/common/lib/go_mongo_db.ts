@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
 import { GoMongoDB } from 'go-mongo-db';
 
 //------------------------------------------------------------//

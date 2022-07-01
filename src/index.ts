@@ -10,6 +10,8 @@ require('manakin').global;
 
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
 import * as path from 'node:path';
 
 import * as Discord from 'discord.js';

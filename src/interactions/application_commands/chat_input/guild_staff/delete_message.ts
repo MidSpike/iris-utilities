@@ -10,7 +10,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 import { delay } from '@root/common/lib/utilities';
 
-import { doesMemberPossessPermissionFlagBit } from '@root/common/app/permissions';
+import { doesMemberHavePermission } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
@@ -54,7 +54,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const message_id = interaction.options.getString('message_id', true);
         const from_channel = interaction.options.getChannel('from_channel', false);
 
-        const is_user_allowed_to_manage_messages = await doesMemberPossessPermissionFlagBit(interaction.member, Discord.PermissionFlagsBits.ManageMessages);
+        const is_user_allowed_to_manage_messages = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.ManageMessages);
         if (!is_user_allowed_to_manage_messages) {
             await interaction.editReply({
                 embeds: [
