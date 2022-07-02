@@ -21,12 +21,7 @@ type PartialRedditSubredditAutocompleteApiResponse = {
                 display_name: string; // Example: 'subreddit'
                 display_name_prefixed: string; // Example: 'r/subreddit'
                 title: string; // Example: '/r/subreddit - An example subreddit'
-                public_description: string; // Example: 'An example subreddit'
-                icon_img: string; // The url of the subreddit icon
-                banner_img: string; // The url of the subreddit banner
-                header_img: string; // The url of the subreddit header
                 subscribers?: number; // The number of subscribers
-                primary_color: string; // Example: '#ff5500'
             };
         }[];
     };
@@ -119,11 +114,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             const subreddit_results = await axios({
                 method: 'get',
                 url: `https://www.reddit.com/api/subreddit_autocomplete_v2.json?${new URLSearchParams({
-                    'raw_json': '1',
+                    'raw_json': '1', // returns json instead of html
                     'limit': '10', // 10 is the maximum allowed by reddit
-                    'include_over_18': 'true',
-                    'typeahead_active': 'true',
-                    'include_profiles': 'false',
+                    'include_over_18': 'true', // Include subreddits that are NSFW
+                    'typeahead_active': 'true', // this enables fuzzy matching
+                    'include_profiles': 'false', // removes unneeded data
                     'query': query_option.value,
                 })}`,
                 validateStatus: (status_code) => status_code === 200,
@@ -141,7 +136,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 ).map((subreddit_result) => ({
                     name: `${subreddit_result.data.display_name_prefixed} - ${subreddit_result.data.title}`,
                     value: `${subreddit_result.data.display_name}`,
-                })).slice(0, 5) // limit to 5 results
+                })).slice(0, 5) // show only 5 results
             );
 
             return;
@@ -168,7 +163,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const subreddit_posts_results = await axios({
             method: 'get',
             url: `https://www.reddit.com/r/${subreddit_option_value}/${sort_by_option_value}.json?${new URLSearchParams({
-                'raw_json': '1',
+                'raw_json': '1', // returns json instead of html
                 'limit': '25', // maximum is 100
             })}`,
             validateStatus: (status_code) => status_code === 200,
@@ -208,7 +203,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             preview_video_url: subreddit_post.data.preview?.reddit_video_preview?.fallback_url,
         }));
 
-        let current_page = 0;
+        let current_page: number = 0;
 
         async function generateMessagePayload(
             mapped_subreddit_post: MappedSubredditPost,
@@ -217,16 +212,25 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         author: {
-                            name: mapped_subreddit_post.title,
-                            url: mapped_subreddit_post.url,
+                            icon_url: 'https://cdn.midspike.com/projects/iris/reddit-logo.png',
+                            name: `r/${subreddit_option_value}`,
                         },
+                        title: mapped_subreddit_post.title,
                         ...(mapped_subreddit_post.content?.length ? {
                             description: Discord.escapeMarkdown(
-                                stringEllipses(mapped_subreddit_post.content, 512)
+                                stringEllipses(
+                                    mapped_subreddit_post.content,
+                                    1024,
+                                    `... [Continue reading on reddit](${mapped_subreddit_post.url})`
+                                ),
                             ),
                         } : {}),
                         fields: [
                             {
+                                name: 'Link',
+                                value: `[View on Reddit](${mapped_subreddit_post.url})`,
+                                inline: true,
+                            }, {
                                 name: 'Author',
                                 value: `[${mapped_subreddit_post.author_name}](${mapped_subreddit_post.author_url})`,
                                 inline: true,
