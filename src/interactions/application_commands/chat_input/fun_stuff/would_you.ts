@@ -14,18 +14,7 @@ import { CustomEmbed, requestPotentialNotSafeForWorkContentConsent } from '@root
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-//------------------------------------------------------------//
-
-function escapeHTML(text: string): string {
-    return text.replace(/\&/gi, '&amp;')
-        .replace(/\"/gi, '&quot;')
-        .replace(/\'/gi, '&apos;')
-        .replace(/\`/gi, '&grave;')
-        .replace(/\</gi, '&lt;')
-        .replace(/\>/gi, '&gt;')
-        .replace(/\//gi, '&#47;')
-        .replace(/\\/gi, '&#92;');
-}
+import { escapeHtml } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -168,16 +157,16 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 <body>
                     <div class="parent">
                         <div class="id">
-                            #${escapeHTML(dilemma_id)}
+                            #${escapeHtml(dilemma_id)}
                         </div>
                         <div class="situation">
-                            ${escapeHTML(dilemma_situation)}
+                            ${escapeHtml(dilemma_situation)}
                         </div>
                         <div class="break">
                             However
                         </div>
                         <div class="exception">
-                            ${escapeHTML(dilemma_exception)}
+                            ${escapeHtml(dilemma_exception)}
                         </div>
                     </div>
                 </body>

@@ -92,3 +92,29 @@ export function parseUrlFromString(
 
     return url;
 }
+
+/**
+ * Replaces valid html characters with their html entity equivalents
+ */
+export function escapeHtml(
+    input_string: string,
+): string {
+    let output_string = input_string; // prevent mutation of the original string
+
+    const regex_replacements: [ RegExp, string ][] = [
+        [ /\&/gi, '&amp;' ],
+        [ /\"/gi, '&quot;' ],
+        [ /\'/gi, '&apos;' ],
+        [ /\`/gi, '&grave;' ],
+        [ /\</gi, '&lt;' ],
+        [ /\>/gi, '&gt;' ],
+        [ /\//gi, '&#47;' ],
+        [ /\\/gi, '&#92;' ],
+    ];
+
+    for (const [ regex, replacement ] of regex_replacements) {
+        output_string = output_string.replace(regex, replacement);
+    }
+
+    return output_string;
+}
