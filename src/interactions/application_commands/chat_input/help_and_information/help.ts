@@ -12,7 +12,7 @@ import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from
 
 async function createHelpEmbed(command_category_id: string) {
     const command_category = ClientCommandHelper.categories[command_category_id];
-    if (!command_category) throw new Error(`No command category with id ${command_category_id}`);
+    if (!command_category) throw new Error(`No command category exists with id: ${command_category_id};`);
 
     const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.ApplicationCommandType.ChatInput);
 
@@ -81,7 +81,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply({ ephemeral: true });
 
         const bot_message = await interaction.editReply({
             content: `Hello there, I\'m ${discord_client.user!.username}!`,
@@ -113,29 +113,30 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const interaction_collector = await bot_message.createMessageComponentCollector({
             filter: (inter) => inter.user.id === interaction.user.id,
+            componentType: Discord.ComponentType.SelectMenu,
             time: 5 * 60_000,
         });
 
         interaction_collector.on('collect', async (interaction) => {
             await interaction.deferUpdate();
 
-            if (!interaction.isSelectMenu()) return;
-
             switch (interaction.customId) {
                 case 'help_menu': {
-                    console.log(interaction.values);
                     await interaction.editReply({
                         embeds: [
                             await createHelpEmbed(interaction.values[0]),
                         ],
                     });
+
                     break;
                 }
 
                 default: {
-                    break;
+                    return;
                 }
             }
+
+            interaction_collector.resetTimer();
         });
 
         interaction_collector.on('end', async () => {

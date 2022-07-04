@@ -6,6 +6,10 @@ import { Readable } from 'node:stream';
 
 import { AudioResource, createAudioResource, demuxProbe } from '@discordjs/voice';
 
+import { extractVideoIdFromYoutubeUrl, youtubeRelatedVideoId } from '../searcher/youtube';
+
+import { MusicReconnaissance, StreamerSpace } from '../music';
+
 //------------------------------------------------------------//
 
 export interface TrackMetadata {
@@ -102,6 +106,38 @@ export interface RemoteTrackMetadata extends TrackMetadata {
 }
 
 export class RemoteTrack extends Track<RemoteTrackMetadata> {}
+
+export interface YouTubeTrackMetadata extends RemoteTrackMetadata {
+    url: string; // guaranteed to be a youtube url
+}
+
+export class YouTubeTrack extends Track<YouTubeTrackMetadata> {
+    async generateRelatedTrack() {
+        const video_id = extractVideoIdFromYoutubeUrl(this.metadata.url);
+        console.warn('video_id', { video_id });
+        if (!video_id) throw new Error('Failed to extract video id from url');
+
+        const related_video_id = await youtubeRelatedVideoId(video_id);
+        console.warn('related_video_id', { related_video_id });
+        if (!related_video_id) throw new Error('Failed to get related video id');
+
+        const related_search_results = await MusicReconnaissance.search(`https://www.youtube.com/watch?v=${related_video_id}`);
+
+        const related_search_result = related_search_results.at(0);
+        if (!related_search_result) throw new Error('Failed to get related search result');
+
+        const track: YouTubeTrack = new YouTubeTrack({
+            url: related_search_result.url,
+            title: related_search_result.title,
+        }, () => StreamerSpace.youtubeStream(track.metadata.url), {
+            onStart: () => {},
+            onFinish: () => {},
+            onError: () => {},
+        });
+
+        return track;
+    }
+}
 
 //------------------------------------------------------------//
 
