@@ -41,13 +41,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: '8ball',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'See what the magic 8 ball has to say',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'question',
-                description: 'the question to ask the magic 8 ball',
+                description: 'What do you want to ask the magic 8 ball?',
                 required: true,
             },
         ],
@@ -94,7 +94,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             ],
         });
 
-        await delay(5_000); // wait 5 seconds
+        await delay(7_500); // wait 7.5 seconds
 
         const random_8ball_response = randomItemFromArray(magic_8_ball_responses);
 
