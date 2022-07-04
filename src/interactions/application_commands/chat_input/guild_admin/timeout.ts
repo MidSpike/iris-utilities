@@ -93,12 +93,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const member = interaction.options.getMember('member');
-        const duration_in_minutes = interaction.options.getInteger('duration', false) ?? 5; // default to 5 minutes if not specified
-        const reason = Discord.escapeMarkdown(
-            interaction.options.getString('reason', false) || 'no reason was provided'
-        );
-
         const is_user_allowed_to_timeout = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.ModerateMembers);
         if (!is_user_allowed_to_timeout) {
             await interaction.editReply({
@@ -112,6 +106,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             return;
         }
+
+        const member = interaction.options.getMember('member');
+        const duration_in_minutes = interaction.options.getInteger('duration', false) ?? 5; // default to 5 minutes if not specified
+        const reason = Discord.escapeMarkdown(
+            interaction.options.getString('reason', false) || 'no reason was provided'
+        );
 
         if (!member) {
             await interaction.editReply({

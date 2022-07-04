@@ -22,7 +22,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             {
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
-                description: 'the guild member or id to kick',
+                description: 'the guild member to kick',
                 required: true,
             }, {
                 type: Discord.ApplicationCommandOptionType.String,
@@ -49,11 +49,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const member = interaction.options.getMember('member');
-        const reason = Discord.escapeMarkdown(
-            interaction.options.getString('reason', false) || 'no reason was provided'
-        );
-
         const is_user_allowed_to_kick = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.KickMembers);
         if (!is_user_allowed_to_kick) {
             await interaction.editReply({
@@ -67,6 +62,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             return;
         }
+
+        const member = interaction.options.getMember('member');
+        const reason = Discord.escapeMarkdown(
+            interaction.options.getString('reason', false) || 'no reason was provided'
+        );
 
         if (!member) {
             await interaction.editReply({
