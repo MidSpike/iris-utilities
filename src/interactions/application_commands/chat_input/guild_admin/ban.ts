@@ -54,12 +54,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const user = interaction.options.getUser('member', true);
-        const reason = Discord.escapeMarkdown(
-            interaction.options.getString('reason', false) || 'no reason was provided'
-        );
-        const remove_recent_messages = interaction.options.getBoolean('remove_recent_messages', false) ?? false;
-
         const is_user_allowed_to_ban = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.BanMembers);
         if (!is_user_allowed_to_ban) {
             await interaction.editReply({
@@ -73,6 +67,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             return;
         }
+
+        const user = interaction.options.getUser('member', true);
+        const reason = Discord.escapeMarkdown(
+            interaction.options.getString('reason', false) || 'no reason was provided'
+        );
+        const remove_recent_messages = interaction.options.getBoolean('remove_recent_messages', false) ?? false;
 
         if (!user) {
             await interaction.editReply({
