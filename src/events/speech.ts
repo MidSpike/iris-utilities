@@ -6,7 +6,7 @@ import * as Discord from 'discord.js';
 
 import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -126,10 +126,10 @@ export default {
 
                 if (!search_result) return;
 
-                const track: RemoteTrack = new RemoteTrack({
+                const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
                     title: search_result.title,
                     url: search_result.url,
-                }, () => Streamer.youtubeStream(track.metadata.url), {
+                }, () => StreamerSpace.youtubeStream(track.metadata.url), {
                     onStart() {
                         voice_command_text_channel.send({
                             embeds: [

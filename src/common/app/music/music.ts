@@ -26,11 +26,11 @@ import {
 
 import { Client as DiscordClient } from 'discord.js';
 
-import { Queue, QueueLoopingMode } from './queue/queue';
+import * as QueueSpace from './queue/queue';
 
-import { RemoteTrack, TextToSpeechTrack, Track } from './queue/track';
+import * as TrackSpace from './queue/track';
 
-import * as Streamer from './streamer/streamer';
+import * as StreamerSpace from './streamer/streamer';
 
 import { parseUrlFromString } from '@root/common/lib/utilities';
 
@@ -49,7 +49,7 @@ export class MusicSubscription {
 
     private readonly _audio_player: AudioPlayer;
 
-    readonly queue = new Queue();
+    readonly queue = new QueueSpace.Queue();
 
     private _locked = false;
 
@@ -121,16 +121,16 @@ export class MusicSubscription {
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
-                (oldState.resource.metadata as Track).onFinish(); // notify the track that it has finished playing
+                (oldState.resource.metadata as TrackSpace.Track).onFinish(); // notify the track that it has finished playing
                 this.processQueue(false); // advance the queue to the next track
             } else if (newState.status === AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
-                (newState.resource.metadata as Track).onStart(); // notify the track that it has started playing
+                (newState.resource.metadata as TrackSpace.Track).onStart(); // notify the track that it has started playing
                 this.queue.volume_manager.initialize(); // initialize the volume manager for each track
             }
         });
 
-        this._audio_player.on('error', (error) => (error.resource.metadata as Track).onError(error));
+        this._audio_player.on('error', (error) => (error.resource.metadata as TrackSpace.Track).onError(error));
 
         this._voice_connection.subscribe(this._audio_player);
     }
@@ -236,9 +236,11 @@ export class MusicReconnaissance {
             )
         ) {
             const video_id_from_query_param = query_url.searchParams.get('v');
+
             const new_query_params = video_id_from_query_param ? new URLSearchParams(`v=${video_id_from_query_param}`) : new URLSearchParams();
             modified_query = `${query_url.protocol}//${query_url.hostname}${query_url.pathname}?${new_query_params}`;
-            console.warn({
+
+            console.warn('MusicReconnaissance.search():', {
                 modified_query,
             });
         }
@@ -266,14 +268,11 @@ const music_subscriptions = new Map<GuildId, MusicSubscription>();
 //------------------------------------------------------------//
 
 export {
-    Queue,
-    QueueLoopingMode,
+    QueueSpace,
 
-    Track,
-    RemoteTrack,
-    TextToSpeechTrack,
+    TrackSpace,
 
-    Streamer,
+    StreamerSpace,
 
     music_subscriptions,
 };

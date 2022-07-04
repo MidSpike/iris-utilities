@@ -20,7 +20,7 @@ import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { MusicSubscription, TextToSpeechTrack, music_subscriptions } from '@root/common/app/music/music';
+import { MusicSubscription, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
@@ -206,7 +206,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             const [ provider, voice ] = provider_voice.split(':');
 
-            const track = new TextToSpeechTrack({
+            const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
                 title: `${interaction.user}'s TTS Message`,
                 tts_text: tts_text,
                 tts_provider: provider,

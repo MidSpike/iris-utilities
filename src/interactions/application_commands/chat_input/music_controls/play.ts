@@ -10,9 +10,10 @@ import { delay } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { MusicReconnaissance, MusicSubscription, RemoteTrack, Streamer, music_subscriptions } from '@root/common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
+
 
 //------------------------------------------------------------//
 
@@ -66,7 +67,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
-            interaction.followUp({
+            interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -121,7 +122,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         } catch (error) {
             console.warn(error);
 
-            await interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
@@ -136,7 +137,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const search_results = await MusicReconnaissance.search(query);
 
         if (search_results.length === 0) {
-            await interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, I couldn't find anything for **${query}**.`,
@@ -166,12 +167,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 const track_title = search_result.title;
                 const track_url = search_result.url;
 
-                const track: RemoteTrack = new RemoteTrack({
+                const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
                     title: track_title,
                     url: track_url,
-                }, () => Streamer.youtubeStream(track.metadata.url), {
+                }, () => StreamerSpace.youtubeStream(track.metadata.url), {
                     onStart() {
-                        interaction.followUp({
+                        interaction.channel!.send({
                             embeds: [
                                 CustomEmbed.from({
                                     description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
@@ -180,7 +181,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         }).catch(console.warn);
                     },
                     onFinish() {
-                        interaction.followUp({
+                        interaction.channel!.send({
                             embeds: [
                                 CustomEmbed.from({
                                     description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
@@ -191,7 +192,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     onError(error) {
                         console.trace(error);
 
-                        interaction.followUp({
+                        interaction.channel!.send({
                             embeds: [
                                 CustomEmbed.from({
                                     color: CustomEmbed.colors.RED,
@@ -217,6 +218,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 });
             } catch (error) {
                 console.warn(error);
+
                 await interaction.followUp({
                     embeds: [
                         CustomEmbed.from({

@@ -8,7 +8,7 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { QueueLoopingMode, music_subscriptions } from '@root/common/app/music/music';
+import { QueueSpace, music_subscriptions } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
@@ -33,12 +33,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     }, {
                         name: 'all tracks',
                         value: 'queue',
+                    }, {
+                        name: 'autoplay',
+                        value: 'autoplay',
                     },
-                    /** @todo */
-                    // {
-                    //     name: 'autoplay',
-                    //     value: 'autoplay',
-                    // },
                 ],
                 required: true,
             },
@@ -112,7 +110,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const looping_mode_option = interaction.options.get('type', true);
 
         try {
-            music_subscription.queue.looping_mode = looping_mode_option.value as QueueLoopingMode;
+            music_subscription.queue.looping_mode = looping_mode_option.value as QueueSpace.QueueLoopingMode;
         } catch (error) {
             console.trace(error, { looping_mode_option });
 

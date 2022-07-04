@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Track } from './track';
+import { Track, YouTubeTrack } from './track';
 
 //------------------------------------------------------------//
 
@@ -84,8 +84,7 @@ export class QueueVolumeManager {
 
 //------------------------------------------------------------//
 
-/** @todo export type QueueLoopingMode = 'off' | 'track' | 'queue' | 'autoplay'; */
-export type QueueLoopingMode = 'off' | 'track' | 'queue';
+export type QueueLoopingMode = 'off' | 'track' | 'queue' | 'autoplay';
 
 export class Queue {
     private _looping_mode: QueueLoopingMode = 'off';
@@ -192,10 +191,22 @@ export class Queue {
                 break;
             }
 
-            /** @todo */
-            // case 'autoplay': {
-            //     throw new Error('Autoplay mode not implemented!');
-            // }
+            case 'autoplay': {
+                console.log('processNextTrack(): autoplay mode');
+
+                if (previous_track instanceof YouTubeTrack) {
+                    const autoplay_track = await previous_track.generateRelatedTrack();
+
+                    if (autoplay_track) this._future_tracks.push(autoplay_track);
+                    next_track = this._future_tracks.shift();
+
+                    console.warn('autoplay', { next_track });
+                } else {
+                    next_track = this._future_tracks.shift();
+                }
+
+                break;
+            }
 
             default: {
                 throw new Error(`Unknown looping mode: ${this._looping_mode}`);
