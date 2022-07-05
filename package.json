@@ -7,7 +7,7 @@
   "keywords": [],
   "main": "index.js",
   "dependencies": {
-    "@discordjs/opus": "0.7.0",
+    "@discordjs/opus": "0.8.0",
     "@mapbox/node-pre-gyp": "1.0.9",
     "@midspike/node-ipc": "github:MidSpike/node-ipc#457bb099a55ffa14e47674f5c6df65bc6e513db2",
     "aki-api": "6.0.8",
