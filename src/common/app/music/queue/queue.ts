@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Track, YouTubeTrack } from './track';
+import { Track, YouTubeTrack } from '../track/track';
 
 //------------------------------------------------------------//
 
@@ -194,16 +194,21 @@ export class Queue {
             case 'autoplay': {
                 console.log('processNextTrack(): autoplay mode');
 
-                if (previous_track instanceof YouTubeTrack) {
+                if (
+                    this._future_tracks.length === 0 &&
+                    previous_track instanceof YouTubeTrack
+                ) {
                     const autoplay_track = await previous_track.generateRelatedTrack();
 
                     if (autoplay_track) this._future_tracks.push(autoplay_track);
                     next_track = this._future_tracks.shift();
 
                     console.warn('autoplay', { next_track });
-                } else {
-                    next_track = this._future_tracks.shift();
+
+                    break;
                 }
+
+                next_track = this._future_tracks.shift();
 
                 break;
             }
