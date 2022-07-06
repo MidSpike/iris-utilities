@@ -6,8 +6,6 @@ import { GuildId } from '@root/types/index';
 
 import process from 'node:process';
 
-import { promisify } from 'node:util';
-
 import {
     Player as DiscordPlayer,
     QueryType as DiscordPlayerQueryType,
@@ -28,15 +26,11 @@ import { Client as DiscordClient } from 'discord.js';
 
 import * as QueueSpace from './queue/queue';
 
-import * as TrackSpace from './queue/track';
+import * as TrackSpace from './track/track';
 
 import * as StreamerSpace from './streamer/streamer';
 
-import { parseUrlFromString } from '@root/common/lib/utilities';
-
-//------------------------------------------------------------//
-
-const delay = promisify(setTimeout);
+import { delay, parseUrlFromString } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
