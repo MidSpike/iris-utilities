@@ -177,7 +177,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                     await disableMessageComponents(button_interaction.message);
 
-                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', '')) as AkinatorAnswerId;
+                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''), 10) as AkinatorAnswerId;
 
                     await akinator.step(step_number);
 

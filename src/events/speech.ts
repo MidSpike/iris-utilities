@@ -176,7 +176,7 @@ export default {
 
             case 'vol': // fallback for improper recognition
             case 'volume': {
-                const volume_input = Number.parseInt(voice_command_args[0]);
+                const volume_input = Number.parseInt(voice_command_args[0], 10);
 
                 if (Number.isNaN(volume_input)) return;
 
