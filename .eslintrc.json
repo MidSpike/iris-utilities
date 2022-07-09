@@ -306,7 +306,7 @@
         ],
         "radix": [
             "error",
-            "as-needed"
+            "always"
         ],
         "require-atomic-updates": "error",
         "require-await": "off",

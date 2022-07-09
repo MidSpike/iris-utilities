@@ -90,8 +90,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const dilemma_id = `${response_data.dilemma.id}`;
         const dilemma_situation = htmlEntitiesParser.decode(response_data.dilemma.txt1);
         const dilemma_exception = htmlEntitiesParser.decode(response_data.dilemma.txt2);
-        const dilemma_yes_votes_count = Number.parseInt(response_data.dilemma.yes);
-        const dilemma_no_votes_count = Number.parseInt(response_data.dilemma.no);
+        const dilemma_yes_votes_count = Number.parseInt(response_data.dilemma.yes, 10);
+        const dilemma_no_votes_count = Number.parseInt(response_data.dilemma.no, 10);
 
         const dilemma_total_votes = dilemma_yes_votes_count + dilemma_no_votes_count;
         const dilemma_yes_votes_percentage = Math.round(dilemma_yes_votes_count / dilemma_total_votes * 100);
