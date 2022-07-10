@@ -87,7 +87,8 @@ export default {
                 joinVoiceChannel({
                     channelId: voice_channel.id,
                     guildId: guild.id,
-                    adapterCreator: guild.voiceAdapterCreator,
+                    // @ts-expect-error
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
             );

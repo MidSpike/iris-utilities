@@ -32,31 +32,35 @@ export default {
 
         const guild_icon_url = guild.iconURL({ forceStatic: false, size: 4096 });
 
-        sendWebhookMessage(logging_webhook_url, {
-            embeds: [
-                CustomEmbed.from({
-                    color: CustomEmbed.colors.GREEN,
-                    fields: [
-                        {
-                            name: 'Guild',
-                            value: `\`${guild.name}\``,
-                            inline: true,
-                        }, {
-                            name: 'Snowflake',
-                            value: `\`${guild.id}\``,
-                            inline: true,
-                        }, {
-                            name: 'Added On',
-                            value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
-                        },
-                    ],
-                    ...(guild_icon_url ? {
-                        thumbnail: {
-                            url: guild_icon_url,
-                        },
-                    } : {}),
-                }).toJSON(),
-            ],
-        });
+        try {
+            sendWebhookMessage(logging_webhook_url, {
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.GREEN,
+                        fields: [
+                            {
+                                name: 'Guild',
+                                value: `\`${guild.name}\``,
+                                inline: true,
+                            }, {
+                                name: 'Snowflake',
+                                value: `\`${guild.id}\``,
+                                inline: true,
+                            }, {
+                                name: 'Added On',
+                                value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
+                            },
+                        ],
+                        ...(guild_icon_url ? {
+                            thumbnail: {
+                                url: guild_icon_url,
+                            },
+                        } : {}),
+                    }).toJSON(),
+                ],
+            });
+        } catch (error) {
+            console.trace(error);
+        }
     },
 } as ClientEventExport<typeof event_name>;
