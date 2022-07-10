@@ -37,7 +37,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        await delay(5000);
+        await delay(1000);
 
         await interaction.followUp({
             embeds: [
@@ -46,23 +46,19 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     description: `${interaction.member}, did the test!`,
                 }),
             ],
-            components: [
-                {
-                    type: Discord.ComponentType.ActionRow,
-                    components: [
-                        {
-                            type: Discord.ComponentType.Button,
-                            style: Discord.ButtonStyle.Primary,
-                            customId: 'test_button',
-                            label: 'Test Button',
-                        },
-                    ],
-                },
-            ],
+            // components: [
+            //     {
+            //         type: Discord.ComponentType.ActionRow,
+            //         components: [
+            //             {
+            //                 type: Discord.ComponentType.Button,
+            //                 style: Discord.ButtonStyle.Primary,
+            //                 customId: 'test_button',
+            //                 label: 'Test Button',
+            //             },
+            //         ],
+            //     },
+            // ],
         }).catch(console.warn);
-
-        console.log(
-            Discord.Formatters.formatEmoji('713382564886216767')
-        );
     },
 });
