@@ -156,6 +156,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
+                    // @ts-expect-error
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
