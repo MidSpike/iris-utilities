@@ -13,34 +13,34 @@ import { doesMemberHavePermission, isMemberAboveOtherMember } from '@root/common
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'disconnect',
+    identifier: 'deafen',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'disconnects a user in the guild',
+        description: 'deafens a user in the guild',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
-                description: 'the guild member to disconnect',
+                description: 'the guild member to deafen',
                 required: true,
             }, {
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'reason',
-                description: 'the reason for the disconnect',
+                description: 'the reason for the deafen',
                 required: false,
             },
         ],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
-            Discord.PermissionFlagsBits.MoveMembers,
+            Discord.PermissionFlagsBits.DeafenMembers,
         ],
-        command_category: ClientCommandHelper.categories.GUILD_ADMIN,
+        command_category: ClientCommandHelper.categories.GUILD_STAFF,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -49,13 +49,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const is_user_allowed_to_deafen = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.MoveMembers);
+        const is_user_allowed_to_deafen = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.DeafenMembers);
         if (!is_user_allowed_to_deafen) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, you do not have permission to disconnect members`,
+                        description: `${interaction.user}, you do not have permission to deafen members`,
                     }),
                 ],
             });
@@ -73,7 +73,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you must specify a valid user to disconnect!`,
+                        description: `${interaction.user}, you must specify a valid user to deafen!`,
                     }),
                 ],
             });
@@ -87,7 +87,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, I\'m not allowed to disconnect ${member}!`,
+                        description: `${interaction.user}, I\'m not allowed to deafen ${member}!`,
                     }),
                 ],
             });
@@ -100,7 +100,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you are not allowed to disconnect ${member}!`,
+                        description: `${interaction.user}, you are not allowed to deafen ${member}!`,
                     }),
                 ],
             });
@@ -109,13 +109,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         try {
-            await member.voice.disconnect(`Disconnected by ${interaction.user} for ${reason}`);
+            await member.voice.setMute(true, `Deafened by ${interaction.user} for ${reason}`);
         } catch (error) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to disconnect ${member}!`,
+                        description: `${interaction.user}, failed to deafen ${member}!`,
                         fields: [
                             {
                                 name: 'Error Message',
@@ -137,7 +137,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.GREEN,
-                    description: `${interaction.user}, successfully disconnected ${member}!`,
+                    description: `${interaction.user}, successfully deafened ${member}!`,
                     fields: [
                         {
                             name: 'Reason',

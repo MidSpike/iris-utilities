@@ -13,34 +13,34 @@ import { doesMemberHavePermission, isMemberAboveOtherMember } from '@root/common
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'kick',
+    identifier: 'unmute',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'kicks a user from the guild',
+        description: 'unmutes a user in the guild',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
-                description: 'the guild member to kick',
+                description: 'the guild member to unmute',
                 required: true,
             }, {
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'reason',
-                description: 'the reason for the kick',
+                description: 'the reason for the unmute',
                 required: false,
             },
         ],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
-            Discord.PermissionFlagsBits.KickMembers,
+            Discord.PermissionFlagsBits.MuteMembers,
         ],
-        command_category: ClientCommandHelper.categories.GUILD_ADMIN,
+        command_category: ClientCommandHelper.categories.GUILD_STAFF,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -49,13 +49,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const is_user_allowed_to_kick = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.KickMembers);
-        if (!is_user_allowed_to_kick) {
+        const is_user_allowed_to_mute = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.MuteMembers);
+        if (!is_user_allowed_to_mute) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, you do not have permission to kick members`,
+                        description: `${interaction.user}, you do not have permission to unmute members`,
                     }),
                 ],
             });
@@ -73,20 +73,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you must specify a valid user to kick!`,
-                    }),
-                ],
-            });
-
-            return;
-        }
-
-        if (!member.kickable) {
-            await interaction.editReply({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, I\'m not allowed to kick ${member}!`,
+                        description: `${interaction.user}, you must specify a valid user to unmute!`,
                     }),
                 ],
             });
@@ -100,7 +87,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, I\'m not allowed to kick ${member}.`,
+                        description: `${interaction.user}, I\'m not allowed to unmute ${member}!`,
                     }),
                 ],
             });
@@ -113,7 +100,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you are not allowed to kick ${member}!`,
+                        description: `${interaction.user}, you are not allowed to unmute ${member}!`,
                     }),
                 ],
             });
@@ -122,13 +109,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         try {
-            await interaction.guild.members.kick(member, reason);
+            await member.voice.setMute(false, `Muted by ${interaction.user} for ${reason}`);
         } catch (error) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to kick ${member} from the server!`,
+                        description: `${interaction.user}, failed to unmute ${member}!`,
                         fields: [
                             {
                                 name: 'Error Message',
@@ -150,7 +137,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.GREEN,
-                    description: `${interaction.user}, successfully kicked ${member} from the server!`,
+                    description: `${interaction.user}, successfully unmuted ${member}!`,
                     fields: [
                         {
                             name: 'Reason',
