@@ -13,34 +13,34 @@ import { doesMemberHavePermission, isMemberAboveOtherMember } from '@root/common
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'unmute',
+    identifier: 'mute',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'unmutes a user in the guild',
+        description: 'mutes a user in the guild',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'member',
-                description: 'the guild member to unmute',
+                description: 'the guild member to mute',
                 required: true,
             }, {
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'reason',
-                description: 'the reason for the unmute',
+                description: 'the reason for the mute',
                 required: false,
             },
         ],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
             Discord.PermissionFlagsBits.MuteMembers,
         ],
-        command_category: ClientCommandHelper.categories.GUILD_ADMIN,
+        command_category: ClientCommandHelper.categories.GUILD_STAFF,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
@@ -55,7 +55,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, you do not have permission to unmute members`,
+                        description: `${interaction.user}, you do not have permission to mute members`,
                     }),
                 ],
             });
@@ -73,7 +73,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you must specify a valid user to unmute!`,
+                        description: `${interaction.user}, you must specify a valid user to mute!`,
                     }),
                 ],
             });
@@ -87,7 +87,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, I\'m not allowed to unmute ${member}!`,
+                        description: `${interaction.user}, I\'m not allowed to mute ${member}!`,
                     }),
                 ],
             });
@@ -100,7 +100,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
-                        description: `${interaction.user}, you are not allowed to unmute ${member}!`,
+                        description: `${interaction.user}, you are not allowed to mute ${member}!`,
                     }),
                 ],
             });
@@ -109,13 +109,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         try {
-            await member.voice.setMute(false, `Muted by ${interaction.user} for ${reason}`);
+            await member.voice.setMute(true, `Muted by ${interaction.user} for ${reason}`);
         } catch (error) {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to unmute ${member}!`,
+                        description: `${interaction.user}, failed to mute ${member}!`,
                         fields: [
                             {
                                 name: 'Error Message',
@@ -137,7 +137,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.GREEN,
-                    description: `${interaction.user}, successfully unmuted ${member}!`,
+                    description: `${interaction.user}, successfully muted ${member}!`,
                     fields: [
                         {
                             name: 'Reason',

@@ -78,13 +78,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
             Discord.PermissionFlagsBits.ModerateMembers,
         ],
-        command_category: ClientCommandHelper.categories.GUILD_ADMIN,
+        command_category: ClientCommandHelper.categories.GUILD_STAFF,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;
