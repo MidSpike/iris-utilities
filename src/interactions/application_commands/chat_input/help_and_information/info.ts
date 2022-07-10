@@ -23,7 +23,7 @@ const memory_unit_divisor = 1024;
 const memory_units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
 
 function memoryUsageToSmallestUnit(memory_usage_in_bytes: number): string {
-    let memory_usage_in_bytes_clone = memory_usage_in_bytes;
+    let memory_usage_in_bytes_clone = Math.floor(memory_usage_in_bytes);
 
     let memory_unit_index = 0;
 
@@ -47,7 +47,7 @@ const uptime_units: [string, number][] = [
 ];
 
 function uptimeToHumanString(uptime_in_seconds: number): string {
-    let uptime_in_seconds_clone = uptime_in_seconds;
+    let uptime_in_seconds_clone = Math.floor(uptime_in_seconds);
 
     let uptime_unit_index = 0;
 
@@ -58,6 +58,17 @@ function uptimeToHumanString(uptime_in_seconds: number): string {
 
     return `${Math.round(uptime_in_seconds_clone)} ${uptime_units[uptime_unit_index][0]}`;
 
+}
+
+//------------------------------------------------------------//
+
+function formatCpuModelName(
+    cpu_model_name: string,
+): string {
+    return cpu_model_name
+        .replace(/\((c|r|tm)\)/gi, '')
+        .replace(/[^a-zA-Z0-9\s\.\,\_\-]/gi, '')
+        .replace(/\s+/gi, ' ');
 }
 
 //------------------------------------------------------------//
@@ -167,10 +178,16 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             ].join('\n'),
                             inline: true,
                         }, {
+                            name: 'Process Information',
+                            value: [
+                                `> - ${uptimeToHumanString(process.uptime())} of Uptime`,
+                            ].join('\n'),
+                            inline: false,
+                        }, {
                             name: 'Server Information',
                             value: [
-                                `> - ${os.version()} (${os.release()})`,
-                                `> - ${os.arch()} ${os.cpus().at(0)!.model.replace(/\s+/gi, ' ')} (x${os.cpus().length})`,
+                                `> - ${os.arch()} ${os.version()} (${os.release()})`,
+                                `> - ${formatCpuModelName(os.cpus().at(0)!.model)} (x${os.cpus().length})`,
                                 `> - ${uptimeToHumanString(os.uptime())} of Uptime`,
                             ].join('\n'),
                             inline: false,
