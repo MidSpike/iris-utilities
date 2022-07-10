@@ -15,12 +15,13 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 const flip_coin_button = new Discord.ButtonBuilder()
     .setStyle(Discord.ButtonStyle.Secondary)
     .setCustomId('flip_coin_button')
-    .setLabel('Flip Another Coin');
+    .setLabel('Flip Another Coin')
+    .setDisabled(false);
 
 //------------------------------------------------------------//
 
 async function generateMessagePayload(interaction_author: Discord.User): Promise<Discord.MessageOptions> {
-    const coin_facing = Math.random() > 0.5 ? 'heads' : 'tails';
+    const coin_facing: 'heads' | 'tails' = Math.random() > 0.5 ? 'heads' : 'tails';
 
     return {
         embeds: [
@@ -38,7 +39,7 @@ async function generateMessagePayload(interaction_author: Discord.User): Promise
             {
                 type: Discord.ComponentType.ActionRow,
                 components: [
-                    flip_coin_button.setDisabled(false),
+                    Discord.ButtonBuilder.from(flip_coin_button),
                 ],
             },
         ],
@@ -48,10 +49,10 @@ async function generateMessagePayload(interaction_author: Discord.User): Promise
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'coinflip',
+    identifier: 'flip',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'flips a coin',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },
@@ -96,7 +97,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             {
                                 type: Discord.ComponentType.ActionRow,
                                 components: [
-                                    flip_coin_button.setDisabled(true),
+                                    Discord.ButtonBuilder.from(flip_coin_button).setDisabled(true),
                                 ],
                             },
                         ],
