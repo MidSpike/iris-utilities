@@ -30,7 +30,7 @@ function rollDice(
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'rolldice',
+    identifier: 'roll',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         description: 'n/a',
@@ -42,14 +42,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 description: 'the amount of dice to roll',
                 required: false,
                 minValue: 1,
-                maxValue: 100,
+                maxValue: 1024,
             }, {
                 type: Discord.ApplicationCommandOptionType.Integer,
                 name: 'sides',
                 description: 'the number of sides on the dice',
                 required: false,
                 minValue: 1,
-                maxValue: 100,
+                maxValue: 1024,
             },
         ],
     },
@@ -78,11 +78,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    title: `Rolled ${amount_of_dice}, ${number_of_sides ?? 6}-sided dice!`,
+                    title: `Rolled ${amount_of_dice}, ${number_of_sides ?? 6}-sided ${amount_of_dice === 1 ? 'die' : 'dice'}!`,
                     description: amount_of_dice === 1 ? (
-                        `You rolled ${combined_dice_value}`
+                        `${interaction.user}, you rolled a **${combined_dice_value}**`
+                    ) : amount_of_dice <= 100 ? (
+                        `${interaction.user}, you rolled ${rolled_dice.map(v => `**${v}**`).join(' + ')} = **${combined_dice_value}**`
                     ) : (
-                        `You rolled \`${rolled_dice.join(' + ')}\` = ${combined_dice_value}`
+                        `${interaction.user}, you rolled a combined total of **${combined_dice_value}**`
                     ),
                 }),
             ],
