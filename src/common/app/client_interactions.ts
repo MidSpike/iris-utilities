@@ -10,6 +10,8 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
+import { stringEllipses } from '@root/common/lib/utilities';
+
 import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 
 import { CustomEmbed } from './message';
@@ -364,6 +366,47 @@ export class ClientInteraction<
 
 //------------------------------------------------------------//
 
+type ClientInteractionCooldownUserId = Discord.Snowflake;
+
+type ClientInteractionCooldownData = {
+    last_execution_epoch: number;
+    cooldown_duration_ms: number;
+};
+
+class ClientInteractionCooldownManager {
+    private static _cooldowns = new Map<ClientInteractionCooldownUserId, ClientInteractionCooldownData>();
+
+    public static readonly default_cooldown_duration_ms: number = 1_500; // 1.5 seconds
+
+    public static async isUserOnCooldown(
+        user_id: ClientInteractionCooldownUserId,
+    ): Promise<boolean> {
+        const cooldown_data = ClientInteractionCooldownManager._cooldowns.get(user_id);
+        if (!cooldown_data) return false;
+
+        const now_epoch = Date.now();
+        const cooldown_expiration_epoch = cooldown_data.last_execution_epoch + cooldown_data.cooldown_duration_ms;
+
+        if (cooldown_expiration_epoch > now_epoch) return true;
+
+        ClientInteractionCooldownManager._cooldowns.delete(user_id);
+
+        return false;
+    }
+
+    public static async setUserOnCooldown(
+        user_id: ClientInteractionCooldownUserId,
+        duration_ms: number,
+    ): Promise<void> {
+        ClientInteractionCooldownManager._cooldowns.set(user_id, {
+            last_execution_epoch: Date.now(),
+            cooldown_duration_ms: duration_ms,
+        });
+    }
+}
+
+//------------------------------------------------------------//
+
 export class ClientInteractionManager {
     static interactions = new Discord.Collection<ClientInteractionIdentifier, ClientInteraction<Discord.ApplicationCommandData>>();
 
@@ -385,7 +428,7 @@ export class ClientInteractionManager {
             const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
-                console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path}`);
+                console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
                 continue;
             }
 
@@ -426,17 +469,29 @@ export class ClientInteractionManager {
                 /* this is necessary to re-assert that a 'never' condition might actually happen */
                 const really_unknown_interaction = unknown_interaction as Discord.Interaction;
 
-                console.warn(`ClientInteractionManager.handleUnknownInteraction(): unknown interaction type: ${really_unknown_interaction.type}`);
+                console.warn(`ClientInteractionManager.handleUnknownInteraction(): unknown interaction type: ${really_unknown_interaction.type};`);
 
                 unknown_interaction_identifier = really_unknown_interaction.id;
+
                 break;
             }
         }
 
         const client_interaction = ClientInteractionManager.interactions.get(unknown_interaction_identifier);
 
-        /* ensure the client interaction exists before handling it, unknown interactions are expected */
+        /* ensure the client interaction exists before handling it */
         if (!client_interaction) return;
+
+        /* check if the user is on a cooldown */
+        const is_user_on_cooldown = await ClientInteractionCooldownManager.isUserOnCooldown(unknown_interaction.user.id);
+        if (is_user_on_cooldown) {
+            console.warn(`ClientInteractionManager.handleUnknownInteraction(): command cooldown triggered for user: ${unknown_interaction.user.id};`);
+
+            return;
+        }
+
+        /* set the user on a cooldown */
+        await ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, ClientInteractionCooldownManager.default_cooldown_duration_ms);
 
         /* run the interaction handler */
         try {
@@ -449,21 +504,28 @@ export class ClientInteractionManager {
                 error_message: error,
             });
 
-            unknown_interaction.channel?.send({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
-                        title: 'Interaction Error',
-                        description: `An error occurred while handling: \`${unknown_interaction_identifier}\``,
-                        fields: [
-                            {
-                                name: 'Error Message',
-                                value: `\`\`\`\n${error}\n\`\`\``,
-                            },
-                        ],
-                    }),
-                ],
-            })?.catch(console.warn);
+            if (unknown_interaction.channel?.isTextBased()) {
+                unknown_interaction.channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.colors.RED,
+                            title: 'Interaction Error',
+                            description: `An error occurred while handling: \`${unknown_interaction_identifier}\`.`,
+                            fields: [
+                                {
+                                    name: 'Error Message',
+                                    value: [
+                                        '\`\`\`',
+                                        stringEllipses(Discord.escapeMarkdown(`${error}`), 1000),
+                                        '\`\`\`',
+                                    ].join('\n'),
+                                },
+                            ],
+                        }),
+                    ],
+                }).catch(console.warn);
+            }
+
         }
     }
 }
