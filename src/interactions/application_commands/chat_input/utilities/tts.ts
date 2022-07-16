@@ -16,7 +16,7 @@ import * as Discord from 'discord.js';
 
 import { compareTwoStrings } from 'string-similarity';
 
-import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
+import * as DiscordVoice from '@discordjs/voice';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -153,10 +153,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         // join that channel and create a subscription.
         if (!music_subscription || !bot_voice_channel_id) {
             music_subscription = new MusicSubscription(
-                joinVoiceChannel({
+                DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-expect-error
+                    // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -166,7 +166,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         // Make sure the connection is ready before processing the user's request
         try {
-            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3);
+            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
             console.warn(error);
 

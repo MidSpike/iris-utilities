@@ -4,13 +4,13 @@
 
 import * as Discord from 'discord.js';
 
-import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
+import * as DiscordVoice from '@discordjs/voice';
 
 import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { music_subscriptions } from '@root/common/app/music/music';
+import { MusicSubscription, music_subscriptions } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
@@ -83,30 +83,26 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const music_subscription = music_subscriptions.get(interaction.guildId);
-        if (!music_subscription) {
-            await interaction.editReply({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
-                        title: 'Nothing is playing right now!',
-                    }),
-                ],
-            }).catch(() => {});
+        let music_subscription = music_subscriptions.get(interaction.guildId);
 
-            return;
+        // If a connection to the guild doesn't already exist and the user is in a voice channel,
+        // join that channel and create a subscription.
+        if (!music_subscription || !bot_voice_channel_id) {
+            music_subscription = new MusicSubscription(
+                DiscordVoice.joinVoiceChannel({
+                    channelId: guild_member_voice_channel_id,
+                    guildId: interaction.guildId,
+                    // @ts-ignore
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    selfDeaf: false,
+                })
+            );
+            music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
-        joinVoiceChannel({
-            channelId: guild_member_voice_channel_id,
-            guildId: interaction.guildId,
-            // @ts-expect-error
-            adapterCreator: interaction.guild.voiceAdapterCreator,
-            selfDeaf: false,
-        });
-
+        // Make sure the connection is ready before processing the user's request
         try {
-            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3); // 10 seconds
+            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
             console.warn(error);
 

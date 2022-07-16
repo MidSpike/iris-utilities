@@ -2,9 +2,13 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import { Readable } from 'node:stream';
+
+import axios from 'axios';
+
 import * as Discord from 'discord.js';
 
-import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
+import * as DiscordVoice from '@discordjs/voice';
 
 import { delay } from '@root/common/lib/utilities';
 
@@ -14,6 +18,195 @@ import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, musi
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
+//------------------------------------------------------------//
+
+async function playQuery(
+    interaction: Discord.ChatInputCommandInteraction,
+    music_subscription: MusicSubscription,
+    query: string,
+    playnext: boolean,
+) {
+    const search_results = await MusicReconnaissance.search(query);
+
+    if (search_results.length === 0) {
+        await interaction.editReply({
+            embeds: [
+                CustomEmbed.from({
+                    description: `${interaction.user}, I couldn't find anything for **${query}**.`,
+                }),
+            ],
+        });
+
+        return;
+    }
+
+    if (search_results.length > 1) {
+        await interaction.followUp({
+            embeds: [
+                CustomEmbed.from({
+                    description: `${interaction.user}, added ${search_results.length} track(s) to the queue...`,
+                }),
+            ],
+        });
+    }
+
+    for (let i = 0; i < search_results.length; i++) {
+        const insert_index = playnext ? i : music_subscription.queue.future_tracks.length;
+
+        const search_result = search_results[i];
+
+        try {
+            const track_title = search_result.title;
+            const track_url = search_result.url;
+
+            const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
+                title: track_title,
+                url: track_url,
+            }, () => StreamerSpace.youtubeStream(track.metadata.url), {
+                onStart() {
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+                onFinish() {
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+                onError(error) {
+                    console.trace(error);
+
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.colors.RED,
+                                description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+            });
+
+            // Add the track and reply a success message to the user
+            music_subscription.queue.addTrack(track, insert_index);
+
+            // Process the music subscription's queue
+            await music_subscription.processQueue(false);
+
+            await interaction.followUp({
+                embeds: [
+                    CustomEmbed.from({
+                        description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
+                    }),
+                ],
+            });
+        } catch (error) {
+            console.warn(error);
+
+            await interaction.followUp({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, failed to add **${search_result.title}** to the queue.`,
+                    }),
+                ],
+            });
+        }
+
+        await delay(5_000);
+    }
+}
+
+async function playAttachment(
+    interaction: Discord.ChatInputCommandInteraction,
+    music_subscription: MusicSubscription,
+    attachment: Discord.Attachment,
+    playnext: boolean,
+) {
+    const attachment_name: string = attachment.name || 'Unknown Attachment';
+    const attachment_url: string = attachment.url;
+
+    try {
+        const track: TrackSpace.RemoteTrack = new TrackSpace.RemoteTrack(
+            {
+                title: attachment_name,
+                url: attachment_url,
+            },
+            () => axios({
+                method: 'get',
+                url: attachment_url,
+                responseType: 'stream',
+                validateStatus: (status_code) => status_code === 200,
+            }).then(response => response.data as Readable),
+            {
+                onStart() {
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+                onFinish() {
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+                onError(error) {
+                    console.trace(error);
+
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.colors.RED,
+                                description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+            }
+        );
+
+        // Add the track and reply a success message to the user
+        const insert_index = playnext ? 0 : music_subscription.queue.future_tracks.length;
+        music_subscription.queue.addTrack(track, insert_index);
+
+        // Process the music subscription's queue
+        await music_subscription.processQueue(false);
+
+        await interaction.followUp({
+            embeds: [
+                CustomEmbed.from({
+                    description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
+                }),
+            ],
+        });
+    } catch (error) {
+        console.warn(error);
+
+        await interaction.followUp({
+            embeds: [
+                CustomEmbed.from({
+                    color: CustomEmbed.colors.RED,
+                    description: `${interaction.user}, failed to add **${attachment.name}** to the queue.`,
+                }),
+            ],
+        });
+    }
+}
 
 //------------------------------------------------------------//
 
@@ -25,15 +218,40 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         description: 'allows for playing audio resources',
         options: [
             {
-                type: Discord.ApplicationCommandOptionType.String,
-                name: 'query',
-                description: 'the query to search',
-                required: true,
-            }, {
-                type: Discord.ApplicationCommandOptionType.Boolean,
-                name: 'playnext',
-                description: 'whether to play next',
-                required: false,
+                type: Discord.ApplicationCommandOptionType.Subcommand,
+                name: 'music',
+                description: 'searches for music, then plays it',
+                options: [
+                    {
+                        type: Discord.ApplicationCommandOptionType.String,
+                        name: 'query',
+                        description: 'the query to search for',
+                        required: true,
+                    }, {
+                        type: Discord.ApplicationCommandOptionType.Boolean,
+                        name: 'playnext',
+                        description: 'whether to play next',
+                        required: false,
+                    },
+                ],
+            },
+            {
+                type: Discord.ApplicationCommandOptionType.Subcommand,
+                name: 'file',
+                description: 'plays a file',
+                options: [
+                    {
+                        type: Discord.ApplicationCommandOptionType.Attachment,
+                        name: 'attachment',
+                        description: 'the attachment to play',
+                        required: true,
+                    }, {
+                        type: Discord.ApplicationCommandOptionType.Boolean,
+                        name: 'playnext',
+                        description: 'whether to play next',
+                        required: false,
+                    },
+                ],
             },
         ],
     },
@@ -54,9 +272,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
-
-        const query = interaction.options.getString('query', true);
-        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
 
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
@@ -92,24 +307,16 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        await interaction.editReply({
-            embeds: [
-                CustomEmbed.from({
-                    description: `${interaction.user}, searching for:\`\`\`\n${query}\n\`\`\``,
-                }),
-            ],
-        });
-
         let music_subscription = music_subscriptions.get(interaction.guildId);
 
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
         // join that channel and create a subscription.
         if (!music_subscription || !bot_voice_channel_id) {
             music_subscription = new MusicSubscription(
-                joinVoiceChannel({
+                DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-expect-error
+                    // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -119,7 +326,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         // Make sure the connection is ready before processing the user's request
         try {
-            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3);
+            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
             console.warn(error);
 
@@ -135,102 +342,61 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const search_results = await MusicReconnaissance.search(query);
+        const playnext = interaction.options.getBoolean('playnext', false) ?? false;
 
-        if (search_results.length === 0) {
-            await interaction.editReply({
-                embeds: [
-                    CustomEmbed.from({
-                        description: `${interaction.user}, I couldn't find anything for **${query}**.`,
-                    }),
-                ],
-            });
+        const sub_command_name = interaction.options.getSubcommand();
+        switch (sub_command_name) {
+            case 'music': {
+                const query = interaction.options.getString('query', true);
 
-            return;
-        }
-
-        if (search_results.length > 1) {
-            await interaction.followUp({
-                embeds: [
-                    CustomEmbed.from({
-                        description: `${interaction.user}, added ${search_results.length} track(s) to the queue...`,
-                    }),
-                ],
-            });
-        }
-
-        for (let i = 0; i < search_results.length; i++) {
-            const insert_index = playnext ? i : music_subscription.queue.future_tracks.length;
-
-            const search_result = search_results[i];
-
-            try {
-                const track_title = search_result.title;
-                const track_url = search_result.url;
-
-                const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
-                    title: track_title,
-                    url: track_url,
-                }, () => StreamerSpace.youtubeStream(track.metadata.url), {
-                    onStart() {
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                    onFinish() {
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                    onError(error) {
-                        console.trace(error);
-
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    color: CustomEmbed.colors.RED,
-                                    description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                });
-
-                // Add the track and reply a success message to the user
-                music_subscription.queue.addTrack(track, insert_index);
-
-                // Process the music subscription's queue
-                await music_subscription.processQueue(false);
-
-                await interaction.followUp({
+                await interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
+                            description: [
+                                `${interaction.user}, searching for:`,
+                                '\`\`\`',
+                                `${query}`,
+                                '\`\`\`',
+                            ].join('\n'),
                         }),
                     ],
                 });
-            } catch (error) {
-                console.warn(error);
 
-                await interaction.followUp({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.RED,
-                            description: `${interaction.user}, failed to add **${search_result.title}** to the queue.`,
-                        }),
-                    ],
-                });
+                await playQuery(interaction, music_subscription, query, playnext);
+
+                break;
             }
 
-            await delay(5_000);
+            case 'file': {
+                const attachment = interaction.options.getAttachment('attachment', true);
+
+                await interaction.editReply({
+                    embeds: [
+                        CustomEmbed.from({
+                            description: [
+                                `${interaction.user}, buffering uploaded attachment...`,
+                            ].join('\n'),
+                        }),
+                    ],
+                });
+
+                await playAttachment(interaction, music_subscription, attachment, playnext);
+
+                break;
+            }
+
+            default: {
+                await interaction.editReply({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Error - Unknown Subcommand',
+                            description: `${interaction.user}, something went wrong.`,
+                        }),
+                    ],
+                });
+
+                break;
+            }
         }
     },
 });

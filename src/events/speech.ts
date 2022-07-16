@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { VoiceConnectionStatus, entersState, joinVoiceChannel } from '@discordjs/voice';
+import * as DiscordVoice from '@discordjs/voice';
 
 import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
@@ -84,10 +84,10 @@ export default {
         // join that channel and create a subscription.
         if (!music_subscription || !bot_voice_channel_id) {
             music_subscription = new MusicSubscription(
-                joinVoiceChannel({
+                DiscordVoice.joinVoiceChannel({
                     channelId: voice_channel.id,
                     guildId: guild.id,
-                    // @ts-expect-error
+                    // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 })
@@ -97,7 +97,7 @@ export default {
 
         // Make sure the connection is ready before processing the user's request
         try {
-            await entersState(music_subscription.voice_connection, VoiceConnectionStatus.Ready, 10e3);
+            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
             console.warn(error);
 

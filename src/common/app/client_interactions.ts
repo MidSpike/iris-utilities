@@ -525,7 +525,6 @@ export class ClientInteractionManager {
                     ],
                 }).catch(console.warn);
             }
-
         }
     }
 }
