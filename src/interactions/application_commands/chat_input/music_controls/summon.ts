@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { joinVoiceChannel } from '@discordjs/voice';
+import * as DiscordVoice from '@discordjs/voice';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -62,10 +62,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
         // join that channel and create a subscription.
 
-        const voice_connection = joinVoiceChannel({
+        const voice_connection = DiscordVoice.joinVoiceChannel({
             channelId: guild_member_voice_channel_id,
             guildId: interaction.guildId,
-            // @ts-expect-error
+            // @ts-ignore
             adapterCreator: interaction.guild.voiceAdapterCreator,
             selfDeaf: false,
         });

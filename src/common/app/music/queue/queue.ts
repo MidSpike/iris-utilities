@@ -7,24 +7,17 @@ import { Track, YouTubeTrack } from '../track/track';
 //------------------------------------------------------------//
 
 export class QueueVolumeManager {
-    private _volume_multiplier = 0.40;
-
-    private _human_volume_multiplier = 100;
-
-    private _muted_previous_raw_volume: number = 0;
-
-    private _muted = false;
-
-    private _default_volume = 50;
-
-    private _default_raw_volume = (this._default_volume / this._human_volume_multiplier) * this._volume_multiplier;
-
-    private _raw_volume = this._default_raw_volume;
-
-    // eslint-disable-next-line no-use-before-define
     private _queue: Queue;
 
-    // eslint-disable-next-line no-use-before-define
+    private _volume_multiplier = 0.40;
+    private _human_volume_multiplier = 100;
+    private _muted_previous_raw_volume: number = 0;
+    private _default_volume = 50;
+    private _default_raw_volume = (this._default_volume / this._human_volume_multiplier) * this._volume_multiplier;
+    private _raw_volume = this._default_raw_volume;
+
+    public muted = false;
+
     constructor(queue: Queue) {
         this._queue = queue;
     }
@@ -49,22 +42,18 @@ export class QueueVolumeManager {
         active_resource.volume?.setVolumeLogarithmic(this._raw_volume);
     }
 
-    get muted() {
-        return this._muted;
-    }
-
     toggleMute() {
         const active_resource = this._getCurrentTrack()?.resource;
         if (!active_resource) return;
 
-        if (this._muted) {
+        if (this.muted) {
             active_resource.volume!.setVolumeLogarithmic(this._muted_previous_raw_volume);
         } else {
             this._muted_previous_raw_volume = active_resource.volume!.volumeLogarithmic;
             active_resource.volume!.setVolumeLogarithmic(0);
         }
 
-        this._muted = !this._muted;
+        this.muted = !this.muted;
     }
 
     /**
@@ -87,17 +76,13 @@ export class QueueVolumeManager {
 export type QueueLoopingMode = 'off' | 'track' | 'queue' | 'autoplay';
 
 export class Queue {
-    private _looping_mode: QueueLoopingMode = 'off';
-
     private _previous_tracks: Track[] = [];
-
     private _current_track: Track | undefined = undefined;
-
     private _future_tracks: Track[] = [];
 
-    public readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
-
     public locked: boolean = false;
+    public looping_mode: QueueLoopingMode = 'off';
+    public readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
 
     constructor() {}
 
@@ -111,14 +96,6 @@ export class Queue {
 
     get future_tracks() {
         return this._future_tracks;
-    }
-
-    get looping_mode(): QueueLoopingMode {
-        return this._looping_mode;
-    }
-
-    set looping_mode(mode: QueueLoopingMode) {
-        this._looping_mode = mode;
     }
 
     /**
@@ -150,29 +127,27 @@ export class Queue {
         this._previous_tracks.splice(0, this._previous_tracks.length);
     }
 
-    clearFutureTracks() {
-        this._future_tracks.splice(0, this._future_tracks.length);
+    clearCurrentTrack() {
+        this._current_track = undefined;
     }
 
-    clearAllTracks() {
+    clearFutureTracks() {
         this._future_tracks.splice(0, this._future_tracks.length);
-        this._current_track = undefined;
-        this._previous_tracks.splice(0, this._previous_tracks.length);
     }
 
     shuffleTracks() {
         this._future_tracks.sort(() => Math.random() - 0.5); // weighted, but works well enough
     }
 
-    async processNextTrack(): Promise<Track | void> {
-        if (this.locked) return;
+    async processNextTrack(): Promise<Track | undefined> {
+        if (this.locked) return undefined;
         this.locked = true;
 
         const previous_track = this._current_track;
         if (previous_track) this._previous_tracks.splice(0, 0, previous_track);
 
         let next_track: Track | undefined;
-        switch (this._looping_mode) {
+        switch (this.looping_mode) {
             case 'off': {
                 next_track = this._future_tracks.shift();
                 break;
@@ -186,7 +161,7 @@ export class Queue {
 
             case 'queue': {
                 if (previous_track) this._future_tracks.push(previous_track);
-                next_track = this._future_tracks.shift();
+                next_track = this._future_tracks.shift()!;
 
                 break;
             }
@@ -194,18 +169,23 @@ export class Queue {
             case 'autoplay': {
                 console.log('processNextTrack(): autoplay mode');
 
-                if (
-                    this._future_tracks.length === 0 &&
-                    previous_track instanceof YouTubeTrack
-                ) {
-                    const autoplay_track = await previous_track.generateRelatedTrack();
+                if (this._future_tracks.length === 0) {
+                    let most_recent_yt_track: YouTubeTrack | undefined;
 
-                    if (autoplay_track) this._future_tracks.push(autoplay_track);
-                    next_track = this._future_tracks.shift();
+                    for (const previous_track of this._previous_tracks) {
+                        if (previous_track instanceof YouTubeTrack) {
+                            most_recent_yt_track = previous_track;
+                            break;
+                        }
+                    }
 
-                    console.warn('autoplay', { next_track });
+                    if (most_recent_yt_track) {
+                        const autoplay_track = await most_recent_yt_track.generateRelatedTrack();
 
-                    break;
+                        if (autoplay_track) {
+                            this._future_tracks.push(autoplay_track);
+                        }
+                    }
                 }
 
                 next_track = this._future_tracks.shift();
@@ -214,16 +194,14 @@ export class Queue {
             }
 
             default: {
-                throw new Error(`Unknown looping mode: ${this._looping_mode}`);
+                throw new Error(`Unknown looping mode: ${this.looping_mode}`);
             }
         }
 
         if (!next_track) {
-            this._current_track = undefined;
+            this.reset();
 
-            this.locked = false;
-
-            return;
+            return undefined;
         }
 
         this._current_track = next_track;
@@ -233,8 +211,15 @@ export class Queue {
         return next_track;
     }
 
-    resetState() {
-        this.clearAllTracks();
-        this._looping_mode = 'off';
+    reset() {
+        this.locked = true;
+
+        this.clearPreviousTracks();
+        this.clearCurrentTrack();
+        this.clearFutureTracks();
+
+        this.looping_mode = 'off';
+
+        this.locked = false;
     }
 }

@@ -4,7 +4,7 @@
 
 import { Readable } from 'node:stream';
 
-import { AudioResource, createAudioResource, demuxProbe } from '@discordjs/voice';
+import * as DiscordVoice from '@discordjs/voice';
 
 import { extractVideoIdFromYoutubeUrl, youtubeRelatedVideoId } from '../searcher/youtube';
 
@@ -20,8 +20,7 @@ export interface TrackMetadata {
 export class Track<
     MetaData extends TrackMetadata = TrackMetadata,
 > {
-    // eslint-disable-next-line no-use-before-define
-    private _resource: AudioResource<Track<MetaData>> | undefined = undefined;
+    private _resource: DiscordVoice.AudioResource<Track<MetaData>> | undefined = undefined;
 
     public volume_multiplier = 1.0;
 
@@ -39,11 +38,11 @@ export class Track<
         return this._metadata;
     }
 
-    get resource(): AudioResource<Track<MetaData>> | undefined {
+    get resource(): DiscordVoice.AudioResource<Track<MetaData>> | undefined {
         return this._resource;
     }
 
-    async initializeResource(): Promise<AudioResource<Track<MetaData>> | undefined> {
+    async initializeResource(): Promise<DiscordVoice.AudioResource<Track<MetaData>> | undefined> {
         await this.destroyResource(); // destroy any existing resource (useful for when the track is being re-used)
 
         let stream: Readable | undefined;
@@ -54,8 +53,8 @@ export class Track<
                 throw new Error('Failed to create stream');
             }
 
-            this._resource = await demuxProbe(stream).then(
-                (probe) => createAudioResource(probe.stream, {
+            this._resource = await DiscordVoice.demuxProbe(stream).then(
+                (probe) => DiscordVoice.createAudioResource(probe.stream, {
                     inputType: probe.type,
                     inlineVolume: true, // allows volume to be adjusted while playing
                     metadata: this, // this track
@@ -74,7 +73,7 @@ export class Track<
         return this._resource;
     }
 
-    async fetchResource(): Promise<AudioResource<Track<MetaData>> | undefined> {
+    async fetchResource(): Promise<DiscordVoice.AudioResource<Track<MetaData>> | undefined> {
         return this._resource ?? await this.initializeResource() ?? undefined;
     }
 
