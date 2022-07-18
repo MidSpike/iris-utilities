@@ -76,17 +76,17 @@ async function editInteractionReplyForQueueItems(
                 components: [
                     {
                         type: Discord.ComponentType.Button,
-                        style: Discord.ButtonStyle.Secondary,
+                        style: (display_mode === 'previous_tracks' ? Discord.ButtonStyle.Primary : Discord.ButtonStyle.Secondary),
                         customId: 'queue_items_display_mode_previous_tracks',
                         label: 'Previous Tracks',
                     }, {
                         type: Discord.ComponentType.Button,
-                        style: Discord.ButtonStyle.Secondary,
+                        style: (display_mode === 'current_track' ? Discord.ButtonStyle.Primary : Discord.ButtonStyle.Secondary),
                         customId: 'queue_items_display_mode_current_track',
                         label: 'Current Track',
                     }, {
                         type: Discord.ComponentType.Button,
-                        style: Discord.ButtonStyle.Secondary,
+                        style: (display_mode === 'future_tracks' ? Discord.ButtonStyle.Primary : Discord.ButtonStyle.Secondary),
                         customId: 'queue_items_display_mode_future_tracks',
                         label: 'Upcoming Tracks',
                     },
@@ -297,7 +297,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             case 'clear': {
-                music_subscription.queue.clearAllTracks();
+                music_subscription.queue.clearPreviousTracks();
+                music_subscription.queue.clearCurrentTrack();
+                music_subscription.queue.clearFutureTracks();
 
                 await interaction.editReply({
                     embeds: [

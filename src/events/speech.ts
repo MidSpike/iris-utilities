@@ -120,49 +120,51 @@ export default {
                 const search_query = voice_command_args.join(' ');
 
                 const search_results = await MusicReconnaissance.search(search_query);
-
                 if (search_results.length === 0) return;
 
                 const search_result = search_results.at(0);
-
                 if (!search_result) return;
 
                 const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
-                    title: search_result.title,
-                    url: search_result.url,
-                }, () => StreamerSpace.youtubeStream(track.metadata.url), {
-                    onStart() {
-                        voice_command_text_channel.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    title: 'Voice Command',
-                                    description: `${msg.author}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
+                    metadata: {
+                        title: search_result.title,
+                        url: search_result.url,
                     },
-                    onFinish() {
-                        voice_command_text_channel.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    title: 'Voice Command',
-                                    description: `${msg.author}, finished playing **${track.metadata.title}**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                    onError(error) {
-                        console.trace(error);
+                    stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
+                    events: {
+                        onStart(track) {
+                            voice_command_text_channel.send({
+                                embeds: [
+                                    CustomEmbed.from({
+                                        title: 'Voice Command',
+                                        description: `${msg.author}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        },
+                        onFinish(track) {
+                            voice_command_text_channel.send({
+                                embeds: [
+                                    CustomEmbed.from({
+                                        title: 'Voice Command',
+                                        description: `${msg.author}, finished playing **${track.metadata.title}**.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        },
+                        onError(track, error) {
+                            console.trace(error);
 
-                        voice_command_text_channel.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    title: 'Voice Command',
-                                    color: CustomEmbed.colors.RED,
-                                    description: `${msg.author}, failed to play **${track.metadata.title}**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
+                            voice_command_text_channel.send({
+                                embeds: [
+                                    CustomEmbed.from({
+                                        title: 'Voice Command',
+                                        color: CustomEmbed.colors.RED,
+                                        description: `${msg.author}, failed to play **${track.metadata.title}**.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        },
                     },
                 });
 

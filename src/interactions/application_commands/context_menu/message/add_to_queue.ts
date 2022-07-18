@@ -174,38 +174,42 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
         const search_result = search_results.at(0)!;
 
         const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
-            title: search_result.title,
-            url: search_result.url,
-        }, () => StreamerSpace.youtubeStream(track.metadata.url), {
-            onStart() {
-                interaction.followUp({
-                    embeds: [
-                        CustomEmbed.from({
-                            description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+            metadata: {
+                title: search_result.title,
+                url: search_result.url,
             },
-            onFinish() {
-                interaction.followUp({
-                    embeds: [
-                        CustomEmbed.from({
-                            description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
-                        }),
-                    ],
-                }).catch(console.warn);
-            },
-            onError(error) {
-                console.trace(error);
+            stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
+            events: {
+                onStart(track) {
+                    interaction.followUp({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+                onFinish(track) {
+                    interaction.followUp({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
+                onError(track, error) {
+                    console.trace(error);
 
-                interaction.followUp({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.colors.RED,
-                            description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+                    interaction.followUp({
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.colors.RED,
+                                description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                },
             },
         });
 
