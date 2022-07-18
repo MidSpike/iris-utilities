@@ -20,19 +20,35 @@ export interface TrackMetadata {
 export class Track<
     MetaData extends TrackMetadata = TrackMetadata,
 > {
+    private _metadata: MetaData;
+    private _stream_creator: () => Promise<Readable | undefined>;
+    private _events: {
+        onStart(track: Track): void;
+        onFinish(track: Track): void;
+        onError(track: Track, error: unknown): void;
+    };
+
     private _resource: DiscordVoice.AudioResource<Track<MetaData>> | undefined = undefined;
 
     public volume_multiplier = 1.0;
 
-    constructor(
-        private _metadata: MetaData,
-        private _stream_creator: () => Promise<Readable | undefined>,
-        public _events: {
-            onStart: () => void;
-            onFinish: () => void;
-            onError: (error: unknown) => void;
-        }
-    ) {}
+    constructor({
+        metadata,
+        stream_creator,
+        events,
+    }: {
+        metadata: MetaData;
+        stream_creator: () => Promise<Readable | undefined>;
+        events: {
+            onStart(track: Track): void;
+            onFinish(track: Track): void;
+            onError(track: Track, error: unknown): void;
+        };
+    }) {
+        this._metadata = metadata;
+        this._stream_creator = stream_creator;
+        this._events = events;
+    }
 
     get metadata(): MetaData {
         return this._metadata;
@@ -63,7 +79,7 @@ export class Track<
 
             if (!this._resource) throw new Error('Failed to create audio resource');
         } catch (error: unknown) {
-            this._events.onError(error);
+            this._events.onError(this, error);
 
             return undefined;
         }
@@ -82,19 +98,19 @@ export class Track<
     }
 
     async onStart() {
-        this._events.onStart();
+        this._events.onStart(this);
     }
 
     async onFinish() {
         await this.destroyResource();
 
-        this._events.onFinish();
+        this._events.onFinish(this);
     }
 
     async onError(error: unknown) {
         await this.destroyResource();
 
-        this._events.onError(error);
+        this._events.onError(this, error);
     }
 }
 
@@ -126,12 +142,16 @@ export class YouTubeTrack extends Track<YouTubeTrackMetadata> {
         if (!related_search_result) throw new Error('Failed to get related search result');
 
         const track: YouTubeTrack = new YouTubeTrack({
-            url: related_search_result.url,
-            title: related_search_result.title,
-        }, () => StreamerSpace.youtubeStream(track.metadata.url), {
-            onStart: () => {},
-            onFinish: () => {},
-            onError: () => {},
+            metadata: {
+                title: related_search_result.title,
+                url: related_search_result.url,
+            },
+            stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
+            events: {
+                onStart: () => {},
+                onFinish: () => {},
+                onError: () => {},
+            },
         });
 
         return track;

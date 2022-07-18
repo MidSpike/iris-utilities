@@ -208,86 +208,90 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             const [ provider, voice ] = provider_voice.split(':');
 
             const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
-                title: `${interaction.user}'s TTS Message`,
-                tts_text: tts_text,
-                tts_provider: provider,
-                tts_voice: voice,
-            }, async () => {
-                let stream: Readable;
+                metadata: {
+                    title: `${interaction.user}'s TTS Message`,
+                    tts_text: tts_text,
+                    tts_provider: provider,
+                    tts_voice: voice,
+                },
+                stream_creator: async () => {
+                    let stream: Readable;
 
-                try {
-                    switch (track.metadata.tts_provider) {
-                        case 'google': {
-                            const gt_tts = new GoogleTranslateTTS({
-                                language: track.metadata.tts_voice,
-                                text: track.metadata.tts_text,
-                            });
+                    try {
+                        switch (track.metadata.tts_provider) {
+                            case 'google': {
+                                const gt_tts = new GoogleTranslateTTS({
+                                    language: track.metadata.tts_voice,
+                                    text: track.metadata.tts_text,
+                                });
 
-                            stream = await gt_tts.stream();
+                                stream = await gt_tts.stream();
 
-                            break;
+                                break;
+                            }
+
+                            case 'ibm': {
+                                const response = await axios({
+                                    method: 'get',
+                                    url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
+                                    responseType: 'stream',
+                                    timeout: 1 * 30_000,
+                                });
+
+                                stream = response.data;
+
+                                break;
+                            }
+
+                            default: {
+                                throw new Error(`Unknown TTS provider: ${track.metadata.tts_provider};`);
+                            }
                         }
-
-                        case 'ibm': {
-                            const response = await axios({
-                                method: 'get',
-                                url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
-                                responseType: 'stream',
-                                timeout: 1 * 30_000,
-                            });
-
-                            stream = response.data;
-
-                            break;
-                        }
-
-                        default: {
-                            throw new Error(`Unknown TTS provider: ${track.metadata.tts_provider};`);
-                        }
+                    } catch (error) {
+                        console.trace(error);
+                        return;
                     }
-                } catch (error) {
-                    console.trace(error);
-                    return;
-                }
 
-                return stream;
-            }, {
-                onStart() {
-                    if (i > 1) {
+                    return stream;
+                },
+                events: {
+                    onStart(track) {
+                        if (i > 1) {
+                            interaction.channel!.send({
+                                embeds: [
+                                    CustomEmbed.from({
+                                        description: [
+                                            `${interaction.user}, playing text-to-speech:`,
+                                            `\`\`\`\n${stringEllipses(tts_text, 512)}\n\`\`\``,
+                                        ].join('\n'),
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        }
+                    },
+                    onFinish(track) {
+                        if (i === tts_text_chunks.length - 1) {
+                            interaction.channel!.send({
+                                embeds: [
+                                    CustomEmbed.from({
+                                        description: `${interaction.user}, finished playing text-to-speech.`,
+                                    }),
+                                ],
+                            }).catch(console.warn);
+                        }
+                    },
+                    onError(track, error) {
+                        console.trace(error);
+
                         interaction.channel!.send({
                             embeds: [
                                 CustomEmbed.from({
-                                    description: [
-                                        `${interaction.user}, playing text-to-speech:`,
-                                        `\`\`\`\n${stringEllipses(tts_text, 512)}\n\`\`\``,
-                                    ].join('\n'),
+                                    color: CustomEmbed.colors.RED,
+                                    description: `${interaction.user}, failed to play text-to-speech.`,
                                 }),
                             ],
                         }).catch(console.warn);
-                    }
-                },
-                onFinish() {
-                    if (i === tts_text_chunks.length - 1) {
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    description: `${interaction.user}, finished playing text-to-speech.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    }
-                },
-                onError(error) {
-                    console.trace(error);
-
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                color: CustomEmbed.colors.RED,
-                                description: `${interaction.user}, failed to play text-to-speech.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
+                    },
                 },
             });
 

@@ -2,10 +2,6 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Readable } from 'node:stream';
-
-import axios from 'axios';
-
 import * as Discord from 'discord.js';
 
 import * as DiscordVoice from '@discordjs/voice';
@@ -60,38 +56,42 @@ async function playQuery(
             const track_url = search_result.url;
 
             const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
-                title: track_title,
-                url: track_url,
-            }, () => StreamerSpace.youtubeStream(track.metadata.url), {
-                onStart() {
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
+                metadata: {
+                    title: track_title,
+                    url: track_url,
                 },
-                onFinish() {
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
-                },
-                onError(error) {
-                    console.trace(error);
+                stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
+                events: {
+                    onStart(track) {
+                        interaction.channel!.send({
+                            embeds: [
+                                CustomEmbed.from({
+                                    description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                                }),
+                            ],
+                        }).catch(console.warn);
+                    },
+                    onFinish(track) {
+                        interaction.channel!.send({
+                            embeds: [
+                                CustomEmbed.from({
+                                    description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                                }),
+                            ],
+                        }).catch(console.warn);
+                    },
+                    onError(track, error) {
+                        console.trace(error);
 
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                color: CustomEmbed.colors.RED,
-                                description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
+                        interaction.channel!.send({
+                            embeds: [
+                                CustomEmbed.from({
+                                    color: CustomEmbed.colors.RED,
+                                    description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
+                                }),
+                            ],
+                        }).catch(console.warn);
+                    },
                 },
             });
 
@@ -135,19 +135,14 @@ async function playAttachment(
     const attachment_url: string = attachment.url;
 
     try {
-        const track: TrackSpace.RemoteTrack = new TrackSpace.RemoteTrack(
-            {
+        const track: TrackSpace.RemoteTrack = new TrackSpace.RemoteTrack({
+            metadata: {
                 title: attachment_name,
                 url: attachment_url,
             },
-            () => axios({
-                method: 'get',
-                url: attachment_url,
-                responseType: 'stream',
-                validateStatus: (status_code) => status_code === 200,
-            }).then(response => response.data as Readable),
-            {
-                onStart() {
+            stream_creator: () => StreamerSpace.remoteStream(attachment_url),
+            events: {
+                onStart(track) {
                     interaction.channel!.send({
                         embeds: [
                             CustomEmbed.from({
@@ -156,7 +151,7 @@ async function playAttachment(
                         ],
                     }).catch(console.warn);
                 },
-                onFinish() {
+                onFinish(track) {
                     interaction.channel!.send({
                         embeds: [
                             CustomEmbed.from({
@@ -165,7 +160,7 @@ async function playAttachment(
                         ],
                     }).catch(console.warn);
                 },
-                onError(error) {
+                onError(track, error) {
                     console.trace(error);
 
                     interaction.channel!.send({
@@ -177,8 +172,8 @@ async function playAttachment(
                         ],
                     }).catch(console.warn);
                 },
-            }
-        );
+            },
+        });
 
         // Add the track and reply a success message to the user
         const insert_index = playnext ? 0 : music_subscription.queue.future_tracks.length;

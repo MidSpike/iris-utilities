@@ -6,11 +6,7 @@ import { GuildId } from '@root/types/index';
 
 import process from 'node:process';
 
-import {
-    Player as DiscordPlayer,
-    QueryType as DiscordPlayerQueryType,
-    Track as DiscordPlayerTrack,
-} from 'discord-player';
+import * as DiscordPlayer from 'discord-player';
 
 import * as DiscordVoice from '@discordjs/voice';
 
@@ -31,98 +27,124 @@ import { delay, parseUrlFromString } from '@root/common/lib/utilities';
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
  */
 export class MusicSubscription {
-    private readonly _voice_connection: DiscordVoice.VoiceConnection;
+    private _locked = false;
 
-    private readonly _audio_player: DiscordVoice.AudioPlayer;
+    readonly audio_player: DiscordVoice.AudioPlayer;
+
+    readonly voice_connection: DiscordVoice.VoiceConnection;
 
     readonly queue = new QueueSpace.Queue();
 
-    private _locked = false;
+    constructor(
+        voice_connection: DiscordVoice.VoiceConnection,
+    ) {
+        const audio_player = DiscordVoice.createAudioPlayer();
 
-    constructor(voice_connection: DiscordVoice.VoiceConnection) {
-        this._audio_player = DiscordVoice.createAudioPlayer();
+        audio_player.on<'error'>('error', (error) => {
+            console.trace(error);
 
-        this._voice_connection = voice_connection;
-        this._voice_connection.on<'error'>('error', console.warn);
+            this.queue.current_track?.onError(error); // notify the track that it has errored
 
-        this._voice_connection.on<'stateChange'>('stateChange', async (oldState, newState) => {
-            if (newState.status === DiscordVoice.VoiceConnectionStatus.Disconnected) {
-                if (newState.reason === DiscordVoice.VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
-                    /**
-                     * If the WebSocket closed with a 4014 code, this means that we should not manually attempt to reconnect,
-                     * but there is a chance the connection will recover itself if the reason of the disconnect was due to
-                     * switching voice channels. This is also the same code for the bot being kicked from the voice channel,
-                     * so we allow 5 seconds to figure out which scenario it is. If the bot has been kicked, we should destroy
-                     * the voice connection.
-                     */
-                    try {
-                        await DiscordVoice.entersState(this._voice_connection, DiscordVoice.VoiceConnectionStatus.Connecting, 5_000);
-                        // Probably moved voice channel
-                    } catch {
-                        this._voice_connection.destroy();
-                        // Probably removed from voice channel
-                    }
-                } else if (this._voice_connection.rejoinAttempts < 5) {
-                    /**
-                     * The disconnect in this case is recoverable, and we also have <5 repeated attempts so we will reconnect.
-                     */
-                    await delay((this._voice_connection.rejoinAttempts + 1) * 5_000);
-                    this._voice_connection.rejoin();
-                } else {
-                    /**
-                     * The disconnect in this case may be recoverable, but we have no more remaining attempts - destroy.
-                     */
-                    this._voice_connection.destroy();
-                }
-            } else if (newState.status === DiscordVoice.VoiceConnectionStatus.Destroyed) {
-                /**
-                 * Once destroyed, kill the subscription.
-                 */
-                await this.kill();
-            } else if (
-                !this._locked &&
-                (newState.status === DiscordVoice.VoiceConnectionStatus.Connecting || newState.status === DiscordVoice.VoiceConnectionStatus.Signalling)
-            ) {
-                /**
-                 * In the Signalling or Connecting states, we set a 20 second time limit for the connection to become ready
-                 * before destroying the voice connection. This stops the voice connection permanently existing in one of these
-                 * states.
-                 */
-                this._locked = true;
-
-                try {
-                    await DiscordVoice.entersState(this._voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 20_000);
-                } catch {
-                    if (this._voice_connection.state.status !== DiscordVoice.VoiceConnectionStatus.Destroyed) this._voice_connection.destroy();
-                } finally {
-                    this._locked = false;
-                }
-            }
+            this.processQueue(true); // advance the queue to the next track
         });
 
-        // Configure audio player
-        this._audio_player.on<'stateChange'>('stateChange', async (oldState, newState) => {
-            // await delay(50); // wait a bit to prevent funny business
-
-            if (newState.status === DiscordVoice.AudioPlayerStatus.Idle && oldState.status !== DiscordVoice.AudioPlayerStatus.Idle) {
+        audio_player.on<'stateChange'>('stateChange', async (oldState, newState) => {
+            if (
+                oldState.status !== DiscordVoice.AudioPlayerStatus.Idle &&
+                newState.status === DiscordVoice.AudioPlayerStatus.Idle
+            ) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
-                (oldState.resource.metadata as TrackSpace.Track).onFinish(); // notify the track that it has finished playing
+                this.queue.current_track?.onFinish(); // notify the track that it has finished playing
                 this.processQueue(false); // advance the queue to the next track
             } else if (newState.status === DiscordVoice.AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
-                (newState.resource.metadata as TrackSpace.Track).onStart(); // notify the track that it has started playing
+                this.queue.current_track?.onStart(); // notify the track that it has started playing
                 this.queue.volume_manager.initialize(); // initialize the volume manager for each track
             }
         });
 
-        this._audio_player.on('error', (error) => (error.resource.metadata as TrackSpace.Track).onError(error));
+        voice_connection.on<'error'>('error', (error) => {
+            console.trace(error);
+        });
 
-        this._voice_connection.subscribe(this._audio_player);
-    }
+        voice_connection.on<'stateChange'>('stateChange', async (oldState, newState) => {
+            switch (newState.status) {
+                case DiscordVoice.VoiceConnectionStatus.Disconnected: {
+                    const was_disconnected_by_websocket = newState.reason === DiscordVoice.VoiceConnectionDisconnectReason.WebSocketClose;
+                    if (was_disconnected_by_websocket && newState.closeCode === 4014) {
+                        /**
+                         * If the WebSocket closed with a 4014 code, this means that we should not manually attempt to reconnect,
+                         * but there is a chance the connection will recover itself if the reason of the disconnect was due to
+                         * switching voice channels. This is also the same code for the bot being kicked from the voice channel,
+                         * so we allow 5 seconds to figure out which scenario it is. If the bot has been kicked, we should destroy
+                         * the voice connection.
+                         */
+                        try {
+                            await DiscordVoice.entersState(voice_connection, DiscordVoice.VoiceConnectionStatus.Connecting, 5_000);
+                        } catch {
+                            voice_connection.destroy();
+                        }
 
-    get voice_connection() {
-        return this._voice_connection;
+                        break;
+                    }
+
+                    /**
+                     * Attempt to manually rejoin the voice connection.
+                     * Wait 5 seconds before attempting each reconnect.
+                     */
+                    if (voice_connection.rejoinAttempts < 5) {
+                        await delay((voice_connection.rejoinAttempts + 1) * 5_000);
+
+                        voice_connection.rejoin();
+
+                        break;
+                    }
+
+                    voice_connection.destroy();
+
+                    break;
+                }
+
+                case DiscordVoice.VoiceConnectionStatus.Destroyed: {
+                    /**
+                     * if the connection is destroyed, kill the music subscription.
+                     */
+                    await this.kill();
+
+                    break;
+                }
+
+                case DiscordVoice.VoiceConnectionStatus.Connecting:
+                case DiscordVoice.VoiceConnectionStatus.Signalling: {
+                    if (this._locked) break;
+                    this._locked = true;
+
+                    try {
+                        /**
+                         * Wait 20 seconds for the connection to become ready before destroying the voice connection.
+                         * This prevents the voice connection from permanently existing in one of these states.
+                         */
+                        await DiscordVoice.entersState(voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 20_000);
+                    } catch {
+                        voice_connection.destroy();
+                    } finally {
+                        this._locked = false;
+                    }
+
+                    break;
+                }
+
+                default: {
+                    break;
+                }
+            }
+        });
+
+        voice_connection.subscribe(audio_player);
+
+        this.audio_player = audio_player;
+        this.voice_connection = voice_connection;
     }
 
     /**
@@ -130,8 +152,8 @@ export class MusicSubscription {
      */
     async kill() {
         this.queue.reset();
-        this._audio_player.stop(true);
-        this._voice_connection.disconnect();
+        this.audio_player.stop(true);
+        this.voice_connection.disconnect(); // only disconnect, don't destroy the voice connection or an infinite loop might occur
     }
 
     /**
@@ -141,22 +163,25 @@ export class MusicSubscription {
     async processQueue(
         force: boolean = false,
     ) {
-        if (!force && this._audio_player.state.status !== DiscordVoice.AudioPlayerStatus.Idle) return;
+        // Check if the audio player is idle, and if not, don't process the queue without forcing.
+        if (!force && this.audio_player.state.status !== DiscordVoice.AudioPlayerStatus.Idle) return;
 
         // Pause the audio player if we are forcing the queue to be processed
-        if (force) this._audio_player.pause(true);
+        if (force) this.audio_player.pause(true);
 
+        // Get the next track from the queue
         const next_track = await this.queue.processNextTrack();
         if (!next_track) return;
 
         // Check if the queue is locked, and if so, allow the track to automatically be played.
         if (this.queue.locked) return;
 
+        // Get the track's audio resource
         const next_track_resource = await next_track.initializeResource();
         if (!next_track_resource) return;
 
         // Play the next track
-        this._audio_player.play(next_track_resource);
+        this.audio_player.play(next_track_resource);
     }
 }
 
@@ -171,8 +196,23 @@ export class MusicReconnaissance {
     private static _initialized = false;
 
     private static _client: DiscordClient<true>;
-    private static _discord_player: DiscordPlayer;
+    private static _discord_player: DiscordPlayer.Player;
 
+    static query_types = DiscordPlayer.QueryType;
+
+    /**
+     * Initializes the MusicReconnaissance singleton.
+     *
+     * @notice
+     * When initializing the MusicReconnaissance singleton, a proxy of the Discord client is created.
+     * This is to trick DiscordPlayer into thinking that it is using a real Discord client.
+     * This is necessary because DiscordPlayer uses an outdated (broken) version of the Discord client,
+     *
+     * @warning
+     * This method must be called before any other MusicReconnaissance methods are called.
+     *
+     * @param discord_client The Discord client to use for the MusicReconnaissance.
+     */
     static initialize(
         discord_client: DiscordClient<true>,
     ): void {
@@ -190,7 +230,7 @@ export class MusicReconnaissance {
         });
 
         MusicReconnaissance._client = discord_client;
-        MusicReconnaissance._discord_player = new DiscordPlayer(discord_client, {
+        MusicReconnaissance._discord_player = new DiscordPlayer.Player(discord_client, {
             ytdlOptions: {
                 requestOptions: {
                     headers: {
@@ -233,12 +273,12 @@ export class MusicReconnaissance {
 
         const search_result = await MusicReconnaissance._discord_player.search(modified_query, {
             requestedBy: MusicReconnaissance._client.user.id,
-            searchEngine: DiscordPlayerQueryType.AUTO,
+            searchEngine: DiscordPlayer.QueryType.AUTO,
         });
 
         const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(
-            track => track instanceof DiscordPlayerTrack
-        ) as DiscordPlayerTrack[];
+            track => track instanceof DiscordPlayer.Track,
+        ) as DiscordPlayer.Track[];
 
         return tracks.map(track => ({
             title: track.title,
