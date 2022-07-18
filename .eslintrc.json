@@ -259,7 +259,7 @@
         "no-unsafe-optional-chaining": "error",
         "no-unused-expressions": "error",
         "no-unused-vars": "off",
-        "no-use-before-define": "error",
+        "no-use-before-define": "off",
         "no-useless-backreference": "error",
         "no-useless-call": "error",
         "no-useless-computed-key": "off",
@@ -396,6 +396,12 @@
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-inferrable-types": "off",
         "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/ban-ts-comment": "off"
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-use-before-define": [
+            "error",
+            {
+                "ignoreTypeReferences": true
+            }
+        ]
     }
 }
