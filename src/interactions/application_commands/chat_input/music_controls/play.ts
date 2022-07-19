@@ -272,7 +272,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const guild_member_voice_channel_id = member.voice.channelId;
 
-        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+        const bot_member = await interaction.guild.members.fetchMe();
 
         const bot_voice_channel_id = bot_member.voice.channelId;
 
@@ -303,23 +303,20 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         let music_subscription = music_subscriptions.get(interaction.guildId);
-
-        // If a connection to the guild doesn't already exist and the user is in a voice channel,
-        // join that channel and create a subscription.
         if (!music_subscription || !bot_voice_channel_id) {
-            music_subscription = new MusicSubscription(
-                DiscordVoice.joinVoiceChannel({
+            music_subscription = new MusicSubscription({
+                voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
                     // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
-                })
-            );
+                }),
+                text_channel: interaction.channel,
+            });
             music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
-        // Make sure the connection is ready before processing the user's request
         try {
             await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
@@ -329,7 +326,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                        description: `${interaction.user}, I couldn't properly connect to that voice channel.`,
                     }),
                 ],
             });

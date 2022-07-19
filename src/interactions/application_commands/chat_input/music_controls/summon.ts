@@ -58,21 +58,35 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         let music_subscription = music_subscriptions.get(interaction.guildId);
-
-        // If a connection to the guild doesn't already exist and the user is in a voice channel,
-        // join that channel and create a subscription.
-
-        const voice_connection = DiscordVoice.joinVoiceChannel({
-            channelId: guild_member_voice_channel_id,
-            guildId: interaction.guildId,
-            // @ts-ignore
-            adapterCreator: interaction.guild.voiceAdapterCreator,
-            selfDeaf: false,
-        });
-
         if (!music_subscription) {
-            music_subscription = new MusicSubscription(voice_connection);
+            music_subscription = new MusicSubscription({
+                voice_connection: DiscordVoice.joinVoiceChannel({
+                    channelId: guild_member_voice_channel_id,
+                    guildId: interaction.guildId,
+                    // @ts-ignore
+                    adapterCreator: interaction.guild.voiceAdapterCreator,
+                    selfDeaf: false,
+                }),
+                text_channel: interaction.channel,
+            });
             music_subscriptions.set(interaction.guildId, music_subscription);
+        }
+
+        try {
+            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
+        } catch (error) {
+            console.warn(error);
+
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, I couldn't properly connect to that voice channel.`,
+                    }),
+                ],
+            });
+
+            return;
         }
 
         await interaction.editReply({

@@ -94,7 +94,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+        const bot_member = await interaction.guild.members.fetchMe();
         if (!isMemberAboveOtherMember(bot_member, member)) {
             await interaction.editReply({
                 embeds: [

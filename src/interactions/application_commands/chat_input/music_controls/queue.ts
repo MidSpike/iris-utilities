@@ -21,7 +21,6 @@ async function editInteractionReplyForQueueItems(
     if (!interaction.inCachedGuild()) throw new Error('interaction is not in a cached guild');
 
     const music_subscription = music_subscriptions.get(interaction.guildId);
-
     if (!music_subscription) {
         return await interaction.editReply({
             embeds: [
@@ -155,7 +154,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const guild_member_voice_channel_id = member.voice.channelId;
 
-        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+        const bot_member = await interaction.guild.members.fetchMe();
 
         const bot_voice_channel_id = bot_member.voice.channelId;
 

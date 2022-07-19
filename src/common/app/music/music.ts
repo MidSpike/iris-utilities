@@ -10,7 +10,7 @@ import * as DiscordPlayer from 'discord-player';
 
 import * as DiscordVoice from '@discordjs/voice';
 
-import { Client as DiscordClient } from 'discord.js';
+import * as Discord from 'discord.js';
 
 import * as QueueSpace from './queue/queue';
 
@@ -29,15 +29,21 @@ import { delay, parseUrlFromString } from '@root/common/lib/utilities';
 export class MusicSubscription {
     private _locked = false;
 
-    readonly audio_player: DiscordVoice.AudioPlayer;
+    readonly text_channel: Discord.TextBasedChannel;
 
     readonly voice_connection: DiscordVoice.VoiceConnection;
 
+    readonly audio_player: DiscordVoice.AudioPlayer;
+
     readonly queue = new QueueSpace.Queue();
 
-    constructor(
+    constructor({
+        voice_connection,
+        text_channel,
+    }: {
         voice_connection: DiscordVoice.VoiceConnection,
-    ) {
+        text_channel: Discord.TextBasedChannel,
+    }) {
         const audio_player = DiscordVoice.createAudioPlayer();
 
         audio_player.on<'error'>('error', (error) => {
@@ -144,6 +150,7 @@ export class MusicSubscription {
         voice_connection.subscribe(audio_player);
 
         this.audio_player = audio_player;
+        this.text_channel = text_channel;
         this.voice_connection = voice_connection;
     }
 
@@ -195,7 +202,7 @@ export type MusicReconnaissanceSearchResult = {
 export class MusicReconnaissance {
     private static _initialized = false;
 
-    private static _client: DiscordClient<true>;
+    private static _client: Discord.Client<true>;
     private static _discord_player: DiscordPlayer.Player;
 
     static query_types = DiscordPlayer.QueryType;
@@ -214,7 +221,7 @@ export class MusicReconnaissance {
      * @param discord_client The Discord client to use for the MusicReconnaissance.
      */
     static initialize(
-        discord_client: DiscordClient<true>,
+        discord_client: Discord.Client<true>,
     ): void {
         if (MusicReconnaissance._initialized) return;
 
