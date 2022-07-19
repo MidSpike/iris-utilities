@@ -4,9 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import * as DiscordVoice from '@discordjs/voice';
-
-import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
+import { MusicReconnaissance, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -63,7 +61,7 @@ export default {
         const guild_member_voice_channel_id = guild_member.voice.channelId;
         if (!guild_member_voice_channel_id) return;
 
-        const bot_member = await guild.members.fetch(discord_client.user.id);
+        const bot_member = await guild.members.fetchMe();
 
         const bot_voice_channel_id = bot_member.voice.channelId;
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) return;
@@ -76,35 +74,10 @@ export default {
 
         if (!voice_command_name.length) return;
 
-        const voice_command_text_channel = await discord_client.channels.fetch('809900890583597082') as Discord.TextBasedChannel;
+        const music_subscription = music_subscriptions.get(guild.id);
+        if (!music_subscription) return;
 
-        let music_subscription = music_subscriptions.get(guild.id);
-
-        // If a connection to the guild doesn't already exist and the user is in a voice channel,
-        // join that channel and create a subscription.
-        if (!music_subscription || !bot_voice_channel_id) {
-            music_subscription = new MusicSubscription(
-                DiscordVoice.joinVoiceChannel({
-                    channelId: voice_channel.id,
-                    guildId: guild.id,
-                    // @ts-ignore
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
-                    selfDeaf: false,
-                })
-            );
-            music_subscriptions.set(guild.id, music_subscription);
-        }
-
-        // Make sure the connection is ready before processing the user's request
-        try {
-            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
-        } catch (error) {
-            console.warn(error);
-
-            return;
-        }
-
-        await voice_command_text_channel.send({
+        await music_subscription.text_channel.send({
             embeds: [
                 CustomEmbed.from({
                     title: 'Voice Command',
@@ -133,7 +106,7 @@ export default {
                     stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
                     events: {
                         onStart(track) {
-                            voice_command_text_channel.send({
+                            music_subscription.text_channel.send({
                                 embeds: [
                                     CustomEmbed.from({
                                         title: 'Voice Command',
@@ -143,7 +116,7 @@ export default {
                             }).catch(console.warn);
                         },
                         onFinish(track) {
-                            voice_command_text_channel.send({
+                            music_subscription.text_channel.send({
                                 embeds: [
                                     CustomEmbed.from({
                                         title: 'Voice Command',
@@ -155,7 +128,7 @@ export default {
                         onError(track, error) {
                             console.trace(error);
 
-                            voice_command_text_channel.send({
+                            music_subscription.text_channel.send({
                                 embeds: [
                                     CustomEmbed.from({
                                         title: 'Voice Command',
@@ -187,7 +160,7 @@ export default {
                 const maximum_allowed_volume = 100;
                 const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
 
-                voice_command_text_channel.send({
+                music_subscription.text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
@@ -206,7 +179,7 @@ export default {
             case 'skit': // fallback for improper recognition
             case 'skin': // fallback for improper recognition
             case 'skip': {
-                voice_command_text_channel.send({
+                music_subscription.text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
@@ -222,7 +195,7 @@ export default {
 
             case 'star': // fallback for improper recognition
             case 'stop': {
-                voice_command_text_channel.send({
+                music_subscription.text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',

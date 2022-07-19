@@ -22,21 +22,21 @@ export default async function urlBlockingHandler(
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
     if (!guild_config.url_blocking_enabled) return; // url blocking is disabled
 
-    /* fetch the member's permissions */
-    const member_permissions = message.channel.permissionsFor(message.member);
-    const member_has_bypass_permission = member_permissions.has([
-        Discord.PermissionFlagsBits.ManageMessages,
-    ], true);
-    if (member_has_bypass_permission) return; // member has bypass permission
-
     /* fetch the bot member in the guild */
-    const bot_member = await message.guild.members.fetch(discord_client.user.id);
+    const bot_member = await message.guild.members.fetchMe();
     if (!bot_member) return; // this shouldn't happen, but just in-case
 
     /* check if the bot is allowed to manage messages */
     const bot_permissions = message.channel.permissionsFor(bot_member, true);
     const bot_can_manage_messages = bot_permissions.has(Discord.PermissionFlagsBits.ManageMessages, true);
     if (!bot_can_manage_messages) return; // unable to manage messages
+
+    /* fetch the member's permissions */
+    const member_permissions = message.channel.permissionsFor(message.member);
+    const member_has_bypass_permission = member_permissions.has([
+        Discord.PermissionFlagsBits.ManageMessages,
+    ], true);
+    if (member_has_bypass_permission) return; // member has bypass permission
 
     /* check if the message might contain a URL */
     const message_might_contain_url_regex = /\S*:.*\/.*\/.+\..+\/?/gi; // this is very sensitive and may incorrectly detect URLs

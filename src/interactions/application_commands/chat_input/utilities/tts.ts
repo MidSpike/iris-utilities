@@ -107,6 +107,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         if (!interaction.isChatInputCommand()) return;
+        if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: false });
 
@@ -117,7 +118,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const guild_member_voice_channel_id = member.voice.channelId;
 
-        const bot_member = await interaction.guild.members.fetch(discord_client.user.id);
+        const bot_member = await interaction.guild.members.fetchMe();
 
         const bot_voice_channel_id = bot_member.voice.channelId;
 
@@ -152,15 +153,16 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         // If a connection to the guild doesn't already exist and the user is in a voice channel,
         // join that channel and create a subscription.
         if (!music_subscription || !bot_voice_channel_id) {
-            music_subscription = new MusicSubscription(
-                DiscordVoice.joinVoiceChannel({
+            music_subscription = new MusicSubscription({
+                voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
                     // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
-                })
-            );
+                }),
+                text_channel: interaction.channel,
+            });
             music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
