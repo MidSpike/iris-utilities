@@ -14,6 +14,8 @@ import { stringEllipses } from '@root/common/lib/utilities';
 
 import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 
+import { sendWebhookMessage } from '@root/common/app/webhook';
+
 import { CustomEmbed } from './message';
 
 import { GuildConfigsManager } from './guild_configs';
@@ -52,6 +54,23 @@ if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
 
 const db_super_people_collection_name = process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME as string;
 if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_PEOPLE_COLLECTION_NAME is not defined');
+
+const anonymous_command_history_webhook_url = process.env.DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK as string;
+if (!anonymous_command_history_webhook_url?.length) throw new TypeError('DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK is not defined');
+
+//------------------------------------------------------------//
+
+function stringifyOptions(
+    options: Readonly<Discord.CommandInteractionOption[]>,
+): string {
+    const options_clone = [ ...options ];
+
+    return options_clone.map((option) => {
+        if (option.options?.length) return `${option.name} ${stringifyOptions(option.options)}`;
+        if (option.value) return `${option.name}:${option.value}`;
+        return option.name;
+    }).join(' ');
+}
 
 //------------------------------------------------------------//
 
@@ -492,6 +511,41 @@ export class ClientInteractionManager {
 
         /* set the user on a cooldown */
         await ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, ClientInteractionCooldownManager.default_cooldown_duration_ms);
+
+        /* log the interaction */
+        if (unknown_interaction.isChatInputCommand()) {
+            const current_timestamp = `${Date.now()}`.slice(0, -3);
+            try {
+
+                sendWebhookMessage(anonymous_command_history_webhook_url, {
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.colors.GREEN,
+                            fields: [
+                                {
+                                    name: 'Executed On',
+                                    value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
+                                    inline: false,
+                                }, {
+                                    name: 'Command Run',
+                                    value: [
+                                        '\`\`\`',
+                                        [
+                                            `/${unknown_interaction.commandName}`,
+                                            stringifyOptions(unknown_interaction.options.data),
+                                        ].join(' '),
+                                        '\`\`\`',
+                                    ].join('\n'),
+                                    inline: false,
+                                },
+                            ],
+                        }).toJSON(),
+                    ],
+                });
+            } catch (error) {
+                console.trace(error);
+            }
+        }
 
         /* run the interaction handler */
         try {
