@@ -111,10 +111,7 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
         }
 
         let music_subscription = music_subscriptions.get(interaction.guildId);
-
-        // If a connection to the guild doesn't already exist and the user is in a voice channel,
-        // join that channel and create a subscription.
-        if (!music_subscription || !bot_voice_channel_id) {
+        if (!bot_voice_channel_id || !music_subscription) {
             music_subscription = new MusicSubscription({
                 voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
@@ -128,7 +125,6 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
             music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
-        // Make sure the connection is ready before processing the user's request
         try {
             await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
         } catch (error) {
