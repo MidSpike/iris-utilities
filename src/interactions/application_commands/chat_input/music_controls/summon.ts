@@ -43,7 +43,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const guild_member = await interaction.guild.members.fetch(interaction.user.id);
 
         const guild_member_voice_channel_id = guild_member.voice.channelId;
-
         if (!guild_member_voice_channel_id) {
             interaction.followUp({
                 embeds: [
@@ -57,8 +56,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
+        const bot_member = await interaction.guild.members.fetchMe();
+        const bot_member_voice_channel_id = bot_member.voice.channelId;
+
         let music_subscription = music_subscriptions.get(interaction.guildId);
-        if (!music_subscription) {
+        if (!bot_member_voice_channel_id || !music_subscription) {
             music_subscription = new MusicSubscription({
                 voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,

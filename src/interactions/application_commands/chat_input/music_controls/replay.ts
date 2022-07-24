@@ -84,7 +84,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         let music_subscription = music_subscriptions.get(interaction.guildId);
-        if (!music_subscription || !bot_voice_channel_id) {
+        if (!bot_voice_channel_id || !music_subscription) {
             music_subscription = new MusicSubscription({
                 voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
