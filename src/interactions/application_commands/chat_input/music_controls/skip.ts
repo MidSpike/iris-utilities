@@ -86,26 +86,17 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const track_before_skip = music_subscription.queue.current_track;
         music_subscription.processQueue(true);
 
-        if (!track_before_skip) {
-            await interaction.editReply({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
-                        title: 'Nothing is playing right now!',
-                    }),
-                ],
-            }).catch(() => {});
-
-            return;
-        }
-
+        const skipped_track = music_subscription.queue.previous_tracks.at(0);
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, skipping **${track_before_skip.metadata.title}**!`,
+                    description: skipped_track ? (
+                        `${interaction.user}, skipped **${skipped_track.metadata.title}**!`
+                    ) : (
+                        `${interaction.user}, skipped the current track!`
+                    ),
                 }),
             ],
         }).catch(() => {});
