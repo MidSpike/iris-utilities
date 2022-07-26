@@ -20,7 +20,7 @@ import { attachSpeechEvent } from 'discord-speech-recognition';
 
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
-import { shouldUserVoiceBeProcessed } from './common/app/handlers/voice_receive';
+import { shouldUserVoiceBeProcessed } from './common/app/voice_receive';
 
 const recursiveReadDirectory = require('recursive-read-directory');
 
