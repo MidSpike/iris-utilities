@@ -37,7 +37,7 @@ async function createHelpEmbed(command_category_id: string) {
             mapped_commands_in_specified_category.length > 0 ? (
                 `${mapped_commands_in_specified_category.join('\n')}`
             ) : (
-                'Nothing to see here!'
+                'Nothing to see here yet!'
             ),
             '\`\`\`',
         ].join('\n'),
