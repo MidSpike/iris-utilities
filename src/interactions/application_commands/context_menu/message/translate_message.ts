@@ -50,7 +50,6 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isMessageContextMenuCommand()) return;
-        if (!interaction.inCachedGuild()) return;
 
         const message = interaction.targetMessage;
 
