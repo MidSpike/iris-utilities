@@ -26,7 +26,6 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isUserContextMenuCommand()) return;
-        if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: true });
