@@ -25,9 +25,9 @@ if (!db_user_configs_collection_name?.length) throw new TypeError('MONGO_USER_CO
 async function hasUserAllowedVoiceRecognition(
     user_id: string
 ): Promise<boolean> {
-    const user_config = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const [ user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         user_id: user_id,
-    }).catch(() => undefined) as unknown as UserConfig | undefined;
+    }).catch(() => undefined) as unknown as (UserConfig | undefined)[];
 
     return user_config?.voice_recognition_enabled ?? false; // default to false to avoid unwanted data collection
 }
@@ -93,8 +93,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             case 'listen_to_me': {
                 switch (interaction.options.getSubcommand(true)) {
                     case 'toggle': {
-                        const has_user_enabled_voice_recognition = await hasUserAllowedVoiceRecognition(interaction.user.id);
-                        if (has_user_enabled_voice_recognition) {
+                        const user_has_enabled_voice_recognition = await hasUserAllowedVoiceRecognition(interaction.user.id);
+                        if (user_has_enabled_voice_recognition) {
                             await setVoiceRecognitionStateForUser(interaction.user.id, false);
 
                             await interaction.editReply({
