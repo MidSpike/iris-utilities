@@ -47,15 +47,17 @@ export interface GuildConfig extends GuildConfigTemplate {
 
 export type UserId = string;
 
-export type UserConfigTemplate = {
-    _creation_epoch: number;
-    _last_modified_epoch: number;
-}
+// export type UserConfigTemplate = {
+//     _creation_epoch: number;
+//     _last_modified_epoch: number;
+// }
 
-export interface UserConfig extends UserConfigTemplate {
+// export interface UserConfig extends UserConfigTemplate {
+export interface UserConfig {
     [key: string]: unknown;
     user_id: UserId;
     is_blacklisted?: boolean;
+    voice_recognition_enabled?: boolean;
 }
 
 //------------------------------------------------------------//
