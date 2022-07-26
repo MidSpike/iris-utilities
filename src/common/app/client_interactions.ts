@@ -84,22 +84,22 @@ export class ClientCommandHelper {
             {
                 id: 'HELP_AND_INFORMATION',
                 name: 'Help And Information',
-                description: 'n/a',
+                description: 'Commands for getting started with this bot.',
             },
             {
                 id: 'MUSIC_CONTROLS',
                 name: 'Music Controls',
-                description: 'n/a',
+                description: 'Commands for controlling music playback.',
             },
             {
                 id: 'FUN_STUFF',
                 name: 'Fun Stuff',
-                description: 'n/a',
+                description: 'Commands for fun stuff that aren\'t considered utilities.',
             },
             {
                 id: 'UTILITIES',
                 name: 'Utilities',
-                description: 'n/a',
+                description: 'Commands for general purpose utilities.',
             },
             {
                 id: 'GUILD_STAFF',
