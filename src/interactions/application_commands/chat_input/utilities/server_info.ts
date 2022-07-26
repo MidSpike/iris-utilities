@@ -113,7 +113,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     },
 
                                     ...guild_emoji_chunks.map((guild_emoji_chunk, chunk_index, guild_emoji_chunks) => ({
-                                        name: `Roles ${chunk_index + 1}/${guild_emoji_chunks.length}`,
+                                        name: `Emojis ${chunk_index + 1}/${guild_emoji_chunks.length}`,
                                         value: arrayChunks(guild_emoji_chunk, 5).map((guild_emoji_mini_chunk) => guild_emoji_mini_chunk.join('')).join('\n'),
                                     })),
                                 ],
@@ -294,11 +294,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         inline: true,
                                     }, {
                                         name: 'Moderation Level',
-                                        value: `\`${guild.verificationLevel ?? 'n/a'}\``,
+                                        value: `\`${Discord.GuildVerificationLevel[guild.verificationLevel] ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Explicit Content Filter',
-                                        value: `\`${guild.explicitContentFilter ?? 'n/a'}\``,
+                                        value: `\`${Discord.GuildExplicitContentFilter[guild.explicitContentFilter] ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Preferred Locale',
@@ -306,14 +306,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         inline: true,
                                     }, {
                                         name: 'NSFW Level',
-                                        value: `\`${guild.nsfwLevel ?? 'n/a'}\``,
+                                        value: `\`${Discord.GuildNSFWLevel[guild.nsfwLevel] ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
-                                        name: 'Booster Level',
-                                        value: `\`${guild.premiumTier ?? 'n/a'}\``,
+                                        name: 'Boost Level',
+                                        value: `\`${Discord.GuildPremiumTier[guild.premiumTier] ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
-                                        name: 'Boosters',
+                                        name: 'Boosts',
                                         value: `\`${guild.premiumSubscriptionCount ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
