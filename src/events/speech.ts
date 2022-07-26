@@ -4,17 +4,11 @@
 
 import * as Discord from 'discord.js';
 
+import { VoiceMessage } from 'discord-speech-recognition';
+
 import { MusicReconnaissance, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
-
-//------------------------------------------------------------//
-
-type VoiceMessage = {
-    author: Discord.User;
-    channel: Discord.VoiceChannel;
-    content: string;
-}
 
 //------------------------------------------------------------//
 
@@ -28,7 +22,7 @@ export default {
 
         if (!msg?.content?.length) return;
         if (!msg?.channel) return;
-        if (!msg?.author) return;
+        if (!msg?.userId) return;
 
         console.log({
             voice_recognition: msg.content,
@@ -41,13 +35,10 @@ export default {
         console.log({
             voice_command_detected: {
                 content: msg.content,
-                author_id: msg.author?.id,
+                author_id: msg.userId,
                 voice_channel_id: msg.channel?.id,
             },
         });
-
-        const author = msg.author;
-        if (!author) return;
 
         const voice_channel = await discord_client.channels.fetch(msg.channel.id) as Discord.VoiceChannel;
         if (!voice_channel) return;
@@ -55,7 +46,7 @@ export default {
         const guild = await voice_channel.guild.fetch();
         if (!guild) return;
 
-        const guild_member = await guild.members.fetch(author.id);
+        const guild_member = await guild.members.fetch(msg.userId);
         if (!guild_member) return;
 
         const guild_member_voice_channel_id = guild_member.voice.channelId;
@@ -81,7 +72,7 @@ export default {
             embeds: [
                 CustomEmbed.from({
                     title: 'Voice Command',
-                    description: `${msg.author.username} said:\`\`\`\n${voice_command_name} ${voice_command_args.join(' ')}\n\`\`\``,
+                    description: `${guild_member.user.username} said:\`\`\`\n${voice_command_name} ${voice_command_args.join(' ')}\n\`\`\``,
                 }),
             ],
         }).catch(console.warn);
@@ -110,7 +101,7 @@ export default {
                                 embeds: [
                                     CustomEmbed.from({
                                         title: 'Voice Command',
-                                        description: `${msg.author}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                                        description: `${guild_member.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
                                     }),
                                 ],
                             }).catch(console.warn);
@@ -120,7 +111,7 @@ export default {
                                 embeds: [
                                     CustomEmbed.from({
                                         title: 'Voice Command',
-                                        description: `${msg.author}, finished playing **${track.metadata.title}**.`,
+                                        description: `${guild_member.user}, finished playing **${track.metadata.title}**.`,
                                     }),
                                 ],
                             }).catch(console.warn);
@@ -133,7 +124,7 @@ export default {
                                     CustomEmbed.from({
                                         title: 'Voice Command',
                                         color: CustomEmbed.colors.RED,
-                                        description: `${msg.author}, failed to play **${track.metadata.title}**.`,
+                                        description: `${guild_member.user}, failed to play **${track.metadata.title}**.`,
                                     }),
                                 ],
                             }).catch(console.warn);
@@ -164,7 +155,7 @@ export default {
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
-                            description: `${msg.author}, set the volume to **${volume_level}%**.`,
+                            description: `${guild_member.user}, set the volume to **${volume_level}%**.`,
                         }),
                     ],
                 }).catch(console.warn);
@@ -183,7 +174,7 @@ export default {
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
-                            description: `${msg.author}, skipped the current track.`,
+                            description: `${guild_member.user}, skipped the current track.`,
                         }),
                     ],
                 }).catch(console.warn);
@@ -199,7 +190,7 @@ export default {
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
-                            description: `${msg.author}, stopped the queue.`,
+                            description: `${guild_member.user}, stopped the queue.`,
                         }),
                     ],
                 }).catch(console.warn);

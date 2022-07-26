@@ -16,11 +16,15 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { addSpeechEvent } from 'discord-speech-recognition';
+import { attachSpeechEvent } from 'discord-speech-recognition';
 
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
+import { shouldUserVoiceBeProcessed } from './common/app/handlers/voice_receive';
+
 const recursiveReadDirectory = require('recursive-read-directory');
+
+//------------------------------------------------------------//
 
 type DiscordClientWithSharding = Discord.Client<true> & {
     shard: Discord.ShardClientUtil;
@@ -72,7 +76,10 @@ const discord_client = new Discord.Client({
 }) as DiscordClientWithSharding;
 
 /* adds speech recognition to discord client */
-addSpeechEvent(discord_client as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+attachSpeechEvent({
+    client: discord_client as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    shouldProcessUserId: (user_id) => shouldUserVoiceBeProcessed(discord_client, user_id),
+});
 
 //------------------------------------------------------------//
 
