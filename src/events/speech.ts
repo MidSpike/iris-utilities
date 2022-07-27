@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import axios from 'axios';
+
 import * as Discord from 'discord.js';
 
 import { VoiceMessage } from 'discord-speech-recognition';
@@ -28,7 +30,7 @@ export default {
             voice_recognition: msg.content,
         });
 
-        const voice_command_activation_regex = /^(\b(hey|a|play|yo|yellow|ok|okay|oi)\b\s)?\b(Ir(i?)s(h?)|Discord|Ziggy|Alexa|Google|Siri|Bixby|Cortana|Tesla)\b/gi;
+        const voice_command_activation_regex = /^(\b(hey|a|play|yo|yellow|ok|okay|oi)\b\s)?\b(Ir(i?)s(h?)|Discord|Disco|Ziggy|Alexa|Google|Siri|Bixby|Cortana|Tesla)\b/gi;
 
         if (!voice_command_activation_regex.test(msg.content)) return;
 
@@ -78,6 +80,40 @@ export default {
         }).catch(console.warn);
 
         switch (voice_command_name) {
+            case 'say': {
+                const tts_provider = 'ibm';
+                const tts_voice = 'en-US_KevinV3Voice';
+                const tts_text = voice_command_args.join(' ');
+
+                const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
+                    metadata: {
+                        title: 'Voice Command',
+                        tts_provider: tts_provider,
+                        tts_voice: tts_voice,
+                        tts_text: tts_text,
+                    },
+                    stream_creator: () => axios({
+                        method: 'get',
+                        url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
+                        responseType: 'stream',
+                        timeout: 1 * 30_000,
+                    }).then(response => response.data),
+                    events: {
+                        onStart() {},
+                        onFinish() {},
+                        onError() {},
+                    },
+                });
+
+                // Add the track and reply a success message to the user
+                music_subscription.queue.addTrack(track);
+
+                // Process the music subscription's queue
+                await music_subscription.processQueue(false);
+
+                break;
+            }
+
             case 'by': // fallback for improper recognition
             case 'hey': // fallback for improper recognition
             case 'play': {
