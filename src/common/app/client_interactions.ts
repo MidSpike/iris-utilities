@@ -24,7 +24,7 @@ const recursiveReadDirectory = require('recursive-read-directory');
 
 //------------------------------------------------------------//
 
-type ClientCommandCategoryId =
+export type ClientCommandCategoryId =
     | 'HELP_AND_INFORMATION'
     | 'MUSIC_CONTROLS'
     | 'FUN_STUFF'
@@ -35,13 +35,13 @@ type ClientCommandCategoryId =
     | 'GUILD_OWNER'
     | 'BOT_SUPER';
 
-type ClientCommandCategory = {
+export type ClientCommandCategory = {
     id: ClientCommandCategoryId;
     name: string;
     description: string;
 };
 
-enum ClientCommandAccessLevels {
+export enum ClientCommandAccessLevels {
     EVERYONE = 1,
     DONATOR = 25,
     GUILD_STAFF = 100,
@@ -50,7 +50,7 @@ enum ClientCommandAccessLevels {
     BOT_SUPER = 100_000_000,
 }
 
-enum ClientCommandExecutionEnvironments {
+export enum ClientCommandExecutionEnvironments {
     GUILD_AND_DMS = 'GUILD_AND_DMS',
     GUILD_ONLY = 'GUILD_ONLY',
     DMS_ONLY = 'DMS_ONLY',

@@ -6,11 +6,11 @@ import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '@root/common/app/client_interactions';
+import { ClientCommandCategoryId, ClientCommandHelper, ClientInteraction, ClientInteractionManager } from '@root/common/app/client_interactions';
 
 //------------------------------------------------------------//
 
-async function createHelpEmbed(command_category_id: string) {
+async function createHelpEmbed(command_category_id: ClientCommandCategoryId) {
     const command_category = ClientCommandHelper.categories[command_category_id];
     if (!command_category) throw new Error(`No command category exists with id: ${command_category_id};`);
 
@@ -83,10 +83,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: true });
 
+        const category_option_value = interaction.options.getString('category', false) as ClientCommandCategoryId | undefined;
+        const help_category_id = category_option_value ?? 'HELP_AND_INFORMATION';
+
         const bot_message = await interaction.editReply({
             content: `Hello there, I\'m ${discord_client.user!.username}!`,
             embeds: [
-                await createHelpEmbed(interaction.options.getString('category', false) ?? 'HELP_AND_INFORMATION'),
+                await createHelpEmbed(help_category_id),
             ],
             components: [
                 {
@@ -122,9 +125,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             switch (interaction.customId) {
                 case 'help_menu': {
+                    const category_id = interaction.values[0] as ClientCommandCategoryId;
+
                     await interaction.editReply({
                         embeds: [
-                            await createHelpEmbed(interaction.values[0]),
+                            await createHelpEmbed(category_id),
                         ],
                     });
 
