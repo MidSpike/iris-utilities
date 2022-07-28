@@ -13,8 +13,46 @@ import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 const db_name = process.env.MONGO_DATABASE_NAME as string;
 if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
 
+const db_user_configs_collection_name = process.env.MONGO_USER_CONFIGS_COLLECTION_NAME as string;
+if (!db_user_configs_collection_name?.length) throw new TypeError('MONGO_USER_CONFIGS_COLLECTION_NAME is not defined');
+
 const db_super_people_collection_name = process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME as string;
 if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_PEOPLE_COLLECTION_NAME is not defined');
+
+//------------------------------------------------------------//
+
+/**
+ * This function will check the database to see if the user is a super person.
+ * @param member the member to check
+ */
+ export async function doesMemberHaveSuperPersonStatus(
+    member: Discord.GuildMember,
+): Promise<boolean> {
+    const [ db_super_person_config ] = await go_mongo_db.find(db_name, db_super_people_collection_name, {
+        'discord_user_id': member.id,
+    });
+
+    return Boolean(db_super_person_config ?? false);
+}
+
+//------------------------------------------------------------//
+
+/**
+ * This function will check the database to see if the user is permitted access to donator features.
+ * @param member the member to check
+ */
+export async function doesMemberHaveDonatorStatus(
+    member: Discord.GuildMember,
+): Promise<boolean> {
+    const member_is_super_person = await doesMemberHaveSuperPersonStatus(member);
+    if (member_is_super_person) return true;
+
+    const [ db_user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+        'user_id': member.id,
+    });
+
+    return db_user_config?.donator ?? false;
+}
 
 //------------------------------------------------------------//
 
@@ -54,6 +92,8 @@ export function isMemberAboveOtherMember(
 
     return false;
 }
+
+//------------------------------------------------------------//
 
 /**
  * This function will always return `true` if the member meets one of the following conditions:
