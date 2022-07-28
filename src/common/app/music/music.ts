@@ -46,7 +46,7 @@ export class MusicSubscription {
     }) {
         const audio_player = DiscordVoice.createAudioPlayer();
 
-        audio_player.on<'error'>('error', (error) => {
+        audio_player.on('error', (error) => {
             console.trace(error);
 
             this.queue.current_track?.onError(error); // notify the track that it has errored
@@ -54,7 +54,7 @@ export class MusicSubscription {
             this.processQueue(true); // advance the queue to the next track
         });
 
-        audio_player.on<'stateChange'>('stateChange', async (oldState, newState) => {
+        audio_player.on('stateChange', async (oldState, newState) => {
             if (
                 oldState.status !== DiscordVoice.AudioPlayerStatus.Idle &&
                 newState.status === DiscordVoice.AudioPlayerStatus.Idle
@@ -70,11 +70,11 @@ export class MusicSubscription {
             }
         });
 
-        voice_connection.on<'error'>('error', (error) => {
+        voice_connection.on('error', (error) => {
             console.trace(error);
         });
 
-        voice_connection.on<'stateChange'>('stateChange', async (oldState, newState) => {
+        voice_connection.on('stateChange', async (oldState, newState) => {
             switch (newState.status) {
                 case DiscordVoice.VoiceConnectionStatus.Disconnected: {
                     const was_disconnected_by_websocket = newState.reason === DiscordVoice.VoiceConnectionDisconnectReason.WebSocketClose;
