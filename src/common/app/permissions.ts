@@ -23,13 +23,13 @@ if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_P
 
 /**
  * This function will check the database to see if the user is a super person.
- * @param member the member to check
+ * @param user_id the user's discord id
  */
-export async function doesMemberHaveSuperPersonStatus(
-    member: Discord.GuildMember,
+export async function doesUserHaveSuperPersonStatus(
+    user_id: string,
 ): Promise<boolean> {
     const [ db_super_person_config ] = await go_mongo_db.find(db_name, db_super_people_collection_name, {
-        'discord_user_id': member.id,
+        'discord_user_id': user_id,
     });
 
     return Boolean(db_super_person_config ?? false);
@@ -39,16 +39,16 @@ export async function doesMemberHaveSuperPersonStatus(
 
 /**
  * This function will check the database to see if the user is permitted access to donator features.
- * @param member the member to check
+ * @param user_id the user's discord id
  */
-export async function doesMemberHaveDonatorStatus(
-    member: Discord.GuildMember,
+export async function doesUserHaveDonatorStatus(
+    user_id: string,
 ): Promise<boolean> {
-    const member_is_super_person = await doesMemberHaveSuperPersonStatus(member);
+    const member_is_super_person = await doesUserHaveSuperPersonStatus(user_id);
     if (member_is_super_person) return true;
 
     const [ db_user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
-        'user_id': member.id,
+        'user_id': user_id,
     });
 
     return db_user_config?.donator ?? false;
