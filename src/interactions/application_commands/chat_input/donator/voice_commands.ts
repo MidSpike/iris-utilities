@@ -73,14 +73,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        required_user_access_level: ClientCommandHelper.access_levels.DONATOR,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
             Discord.PermissionFlagsBits.Connect,
             Discord.PermissionFlagsBits.Speak,
         ],
-        command_category: ClientCommandHelper.categories.MUSIC_CONTROLS,
+        command_category: ClientCommandHelper.categories.DONATOR,
     },
     async handler(discord_client, interaction) {
         if (!interaction.isChatInputCommand()) return;

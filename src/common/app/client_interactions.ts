@@ -12,19 +12,28 @@ import * as Discord from 'discord.js';
 
 import { stringEllipses } from '@root/common/lib/utilities';
 
-import { go_mongo_db } from '@root/common/lib/go_mongo_db';
-
 import { sendWebhookMessage } from '@root/common/app/webhook';
 
 import { CustomEmbed } from './message';
 
 import { GuildConfigsManager } from './guild_configs';
 
+import { doesUserHaveDonatorStatus, doesUserHaveSuperPersonStatus } from './permissions';
+
 const recursiveReadDirectory = require('recursive-read-directory');
 
 //------------------------------------------------------------//
 
-type ClientCommandCategoryId = 'HELP_AND_INFORMATION' | 'MUSIC_CONTROLS' | 'FUN_STUFF' | 'UTILITIES' | 'GUILD_STAFF' | 'GUILD_ADMIN' | 'GUILD_OWNER' | 'BOT_SUPER';
+type ClientCommandCategoryId =
+    | 'HELP_AND_INFORMATION'
+    | 'MUSIC_CONTROLS'
+    | 'FUN_STUFF'
+    | 'UTILITIES'
+    | 'DONATOR'
+    | 'GUILD_STAFF'
+    | 'GUILD_ADMIN'
+    | 'GUILD_OWNER'
+    | 'BOT_SUPER';
 
 type ClientCommandCategory = {
     id: ClientCommandCategoryId;
@@ -102,6 +111,11 @@ export class ClientCommandHelper {
                 description: 'Commands for general purpose utilities.',
             },
             {
+                id: 'DONATOR',
+                name: 'Donator',
+                description: 'Commands for donator-only features.',
+            },
+            {
                 id: 'GUILD_STAFF',
                 name: 'Guild Staff',
                 description: 'Commands for guild mods, guild admins, guild owner, and bot super.',
@@ -124,7 +138,9 @@ export class ClientCommandHelper {
         ] as ClientCommandCategory[]).map(
             (category) => ([ category.id, category ])
         )
-    );
+    ) as {
+        [key in ClientCommandCategoryId]: ClientCommandCategory;
+    };
 
     static async checkExecutionEnvironment(
         interaction: Discord.Interaction,
@@ -177,6 +193,12 @@ export class ClientCommandHelper {
     ): Promise<boolean> {
         const access_levels_for_user = [ ClientCommandHelper.access_levels.EVERYONE ]; // default access level
 
+        /* check if the user is a donator */
+        const is_user_a_donator = await doesUserHaveDonatorStatus(interaction.user.id);
+        if (is_user_a_donator) {
+            access_levels_for_user.push(ClientCommandHelper.access_levels.DONATOR);
+        }
+
         /* determine the user's access levels */
         if (interaction.guildId) {
             const guild = await discord_client.guilds.fetch(interaction.guildId);
@@ -207,9 +229,7 @@ export class ClientCommandHelper {
         }
 
         /* check if the user is a super person (bot admin) */
-        const is_user_a_super_person = (await go_mongo_db.count(db_name, db_super_people_collection_name, {
-            discord_user_id: interaction.user.id,
-        })) > 0;
+        const is_user_a_super_person = await doesUserHaveSuperPersonStatus(interaction.user.id);
         if (is_user_a_super_person) {
             access_levels_for_user.push(ClientCommandHelper.access_levels.BOT_SUPER);
         }
