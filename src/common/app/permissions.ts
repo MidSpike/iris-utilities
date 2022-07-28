@@ -25,7 +25,7 @@ if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_P
  * This function will check the database to see if the user is a super person.
  * @param member the member to check
  */
- export async function doesMemberHaveSuperPersonStatus(
+export async function doesMemberHaveSuperPersonStatus(
     member: Discord.GuildMember,
 ): Promise<boolean> {
     const [ db_super_person_config ] = await go_mongo_db.find(db_name, db_super_people_collection_name, {
