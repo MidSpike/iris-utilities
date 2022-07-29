@@ -37,6 +37,8 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
         const user_icon_url = user.displayAvatarURL({ forceStatic: false, size: 4096 });
         const user_banner_url = user.bannerURL({ forceStatic: false, size: 4096 });
 
+        const user_flags = user.flags?.toArray() ?? [];
+
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
@@ -89,7 +91,7 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
                         {
                             name: 'Account Flags',
                             value: [
-                                `${user.flags ? user.flags.toArray().map(flag => `- \`${flag}\``).join('\n') : 'n/a'}`,
+                                `${user_flags.map(flag => `- \`${flag}\``).join('\n') || 'n/a'}`,
                             ].join('\n'),
                             inline: false,
                         },
