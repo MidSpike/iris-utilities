@@ -39,7 +39,7 @@ export class QueueVolumeManager {
         const active_resource = this._getCurrentTrack()?.resource;
         if (!active_resource) return;
 
-        active_resource.volume?.setVolumeLogarithmic(this._raw_volume);
+        active_resource.volume!.setVolumeLogarithmic(this._raw_volume);
     }
 
     toggleMute() {
@@ -57,17 +57,18 @@ export class QueueVolumeManager {
     }
 
     /**
-     * Initializes the volume manager.
-     * Intended purpose is to set a sensible default volume upon each track change.
+     * Initializes the volume manager by maintaining a sensible default volume.
+     * This should be called as soon as a new track starts to play.
      */
     initialize() {
-        const active_resource = this._getCurrentTrack()?.resource;
+        const current_track = this._getCurrentTrack();
+        if (!current_track) return;
+
+        const active_resource = current_track.resource;
         if (!active_resource) return;
 
-        // don't update the volume directly, as subsequent volume multipliers may be compounded together
-        const temp_volume = this._raw_volume * (this._getCurrentTrack()?.volume_multiplier ?? 1.0);
-
-        active_resource.volume?.setVolumeLogarithmic(temp_volume);
+        // Update the volume directly to avoid subsequent compounding volume multipliers.
+        active_resource.volume!.setVolumeLogarithmic(this._raw_volume * current_track.volume_multiplier);
     }
 }
 

@@ -10,6 +10,9 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 //------------------------------------------------------------//
 
+/**
+ * Provides a way to fetch a guild-config logging channel from a guild then send a message to it.
+ */
 export async function guildLogger(
     guild: Discord.Guild,
     logging_location: GuildConfigLoggingChannels,
