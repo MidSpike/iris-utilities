@@ -16,27 +16,61 @@ if (!yt_api_key?.length) throw new TypeError('YOUTUBE_API_KEY is not defined');
 //------------------------------------------------------------//
 
 export function extractVideoIdFromYoutubeUrl(
-    yt_videO_url: string,
+    youtube_url: string,
 ): string | undefined {
-    let url: URL;
+    let youtube_url_instance: URL;
+
     try {
-        url = new URL(yt_videO_url);
-    } catch {
+        youtube_url_instance = new URL(youtube_url);
+    } catch (error) {
+        console.warn('Failed to parse URL:', youtube_url);
+
         return undefined;
     }
 
-    switch (url.hostname) {
+    const url_path = youtube_url_instance.pathname.split('/');
+
+    switch (youtube_url_instance.hostname) {
         case 'www.youtube.com':
         case 'youtube.com': {
-            return url.searchParams.get('v') || undefined;
+            switch (url_path.at(1)) {
+                case 'watch':
+                case 'embed': {
+                    if (youtube_url_instance.searchParams.has('v')) {
+                        return youtube_url_instance.searchParams.get('v')!;
+                    }
+
+                    const video_id = url_path.at(2);
+                    if (video_id?.length) {
+                        return video_id;
+                    }
+
+                    break;
+                }
+
+                default: {
+                    break;
+                }
+            }
+
+            break;
         }
+
         case 'youtu.be': {
-            return url.pathname.slice(1);
+            const video_id = url_path.at(1);
+            if (video_id?.length) {
+                return video_id;
+            }
+
+            break;
         }
+
         default: {
-            return undefined;
+            break;
         }
     }
+
+    return undefined;
 }
 
 export async function youtubeRelatedVideoId(
