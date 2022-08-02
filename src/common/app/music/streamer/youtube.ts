@@ -19,8 +19,7 @@ export async function youtubeStream(
         lang: 'en',
         filter: 'audioonly',
         quality: 'highestaudio',
-        // eslint-disable-next-line no-bitwise
-        highWaterMark: 1<<25, // 32 MB
+        highWaterMark: 32 * (1024 ** 2), // 32 Megabytes
         requestOptions: {
             headers: {
                 'Accept-Language': 'en-US,en;q=0.5',
