@@ -11,9 +11,11 @@ import ytdl from 'ytdl-core';
 //------------------------------------------------------------//
 
 export async function youtubeStream(
-    youtube_url: string,
+    youtube_url: string | URL,
 ): Promise<Readable> {
-    return ytdl(youtube_url, {
+    const youtube_url_string = youtube_url.toString();
+
+    return ytdl(youtube_url_string, {
         lang: 'en',
         filter: 'audioonly',
         quality: 'highestaudio',
