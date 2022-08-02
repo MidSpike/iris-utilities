@@ -3,7 +3,7 @@
 //------------------------------------------------------------//
 
 /**
- * Asynchronous setTimeout
+ * Asynchronous setTimeout for pausing the current thread.
  */
 export function delay(
     time_in_milliseconds: number,
@@ -11,6 +11,9 @@ export function delay(
     return new Promise(resolve => setTimeout(() => resolve(), time_in_milliseconds));
 }
 
+/**
+ * Generates an iterable inclusive range of numbers incrementing by the provided step.
+ */
 export function* inclusiveRange(
     start: number,
     end: number,
@@ -25,7 +28,7 @@ export function* inclusiveRange(
 }
 
 /**
- * Generates a random integer in an inclusive range: min <= return_value <= max
+ * Generates a random integer in an inclusive range: min <= return_value <= max.
  */
 export function randomNumberFromInclusiveRange(
     min: number,
@@ -35,7 +38,7 @@ export function randomNumberFromInclusiveRange(
 }
 
 /**
- * Ellipses a string to a specified length (including the ellipses)
+ * Ellipses a string to a specified length (including the ellipses).
  */
 export function stringEllipses(
     string_to_ellipses: string,
@@ -49,7 +52,7 @@ export function stringEllipses(
 }
 
 /**
- * Splits an array into a new chunked array containing arrays of a specified size (or less for the last chunk)
+ * Splits an array into a new chunked array containing arrays of a specified size (or less for the last chunk).
  */
 export function arrayChunks<T=unknown>(
     array_of_things: T[],
@@ -68,7 +71,7 @@ export function arrayChunks<T=unknown>(
 }
 
 /**
- * Fetches a random item from the specified array
+ * Fetches a random item from the specified array.
  */
 export function randomItemFromArray<T=unknown>(
     array_of_things: T[],
@@ -77,7 +80,7 @@ export function randomItemFromArray<T=unknown>(
 }
 
 /**
- * Parses a URL from a string and will return undefined if the URL is invalid
+ * Parses a URL from a string and will return undefined if the URL is invalid.
  */
 export function parseUrlFromString(
     url_string: string,
@@ -94,7 +97,7 @@ export function parseUrlFromString(
 }
 
 /**
- * Replaces valid html characters with their html entity equivalents
+ * Replaces potentially problematic html characters with their html entity equivalents.
  */
 export function escapeHtml(
     input_string: string,
