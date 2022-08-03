@@ -32,6 +32,11 @@ type DiscordClientWithSharding = Discord.Client<true> & {
 
 //------------------------------------------------------------//
 
+const discord_bot_token = process.env.DISCORD_BOT_API_TOKEN as string;
+if (!discord_bot_token?.length) throw new Error('DISCORD_BOT_API_TOKEN is not defined or is empty');
+
+//------------------------------------------------------------//
+
 /* prevent the process from crashing for unhandledRejections */
 process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------');
@@ -129,7 +134,7 @@ async function main() {
 
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> Logging in...`);
     try {
-        discord_client.login(process.env.DISCORD_BOT_API_TOKEN);
+        discord_client.login(discord_bot_token);
     } catch (error) {
         console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to login`, error);
 
