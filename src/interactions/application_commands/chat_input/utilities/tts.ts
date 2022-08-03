@@ -30,6 +30,11 @@ import { GoogleTranslateTTS } from 'google-translate-tts';
 
 //------------------------------------------------------------//
 
+const ibm_tts_api_url = process.env.IBM_TTS_API_URL as string;
+if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or is empty');
+
+//------------------------------------------------------------//
+
 const voices: {
     provider: 'ibm' | 'google',
     code: string,
@@ -235,7 +240,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             case 'ibm': {
                                 const response = await axios({
                                     method: 'get',
-                                    url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
+                                    url: `${ibm_tts_api_url}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
                                     responseType: 'stream',
                                     timeout: 1 * 30_000,
                                 });

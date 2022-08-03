@@ -18,6 +18,11 @@ import * as Discord from 'discord.js';
 
 //------------------------------------------------------------//
 
+const discord_bot_token = process.env.DISCORD_BOT_API_TOKEN as string;
+if (!discord_bot_token?.length) throw new Error('DISCORD_BOT_API_TOKEN is not defined or is empty');
+
+//------------------------------------------------------------//
+
 /* prevent the process from crashing for unhandledRejections */
 process.on('unhandledRejection', (reason, promise) => {
     console.error('----------------------------------------------------------------');
@@ -37,15 +42,15 @@ process.on('uncaughtException', (error) => {
 const discord_bot_entry_file_path = path.join(process.cwd(), 'dist', 'discord_bot.js');
 const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path, {
     mode: 'process',
-    token: process.env.DISCORD_BOT_API_TOKEN,
+    token: discord_bot_token,
+    totalShards: 'auto',
+    respawn: true,
     execArgv: [
         '--trace-warnings',
     ],
     shardArgs: [
         '--trace-warnings',
     ],
-    totalShards: 'auto',
-    respawn: true,
 });
 
 //------------------------------------------------------------//

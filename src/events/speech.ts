@@ -14,6 +14,11 @@ import { CustomEmbed } from '@root/common/app/message';
 
 //------------------------------------------------------------//
 
+const ibm_tts_api_url = process.env.IBM_TTS_API_URL as string;
+if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or is empty');
+
+//------------------------------------------------------------//
+
 export default {
     name: 'speech',
     async handler(
@@ -94,7 +99,7 @@ export default {
                     },
                     stream_creator: () => axios({
                         method: 'get',
-                        url: `${process.env.IBM_TTS_API_URL}?voice=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
+                        url: `${ibm_tts_api_url}?voice=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
                         responseType: 'stream',
                         timeout: 1 * 30_000,
                     }).then(response => response.data),
