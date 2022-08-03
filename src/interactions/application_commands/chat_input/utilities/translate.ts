@@ -124,7 +124,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const translated_text: string = await translateUsingGoogle(text_to_translate, {
             from: translated_from_language.code,
             to: translated_to_language.code,
-        });
+        }, 'translate.google.com');
 
         await interaction.editReply({
             embeds: [
