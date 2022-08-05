@@ -38,7 +38,7 @@
     "axios": "0.27.2",
     "discord-api-types": "0.37.1",
     "discord-player": "6.0.0-dev.0",
-    "discord-speech-recognition": "github:MidSpike/discord-speech-recognition#a82edf80d7dfb941750e6a6d066c9f198c6cab88",
+    "discord-speech-recognition": "github:MidSpike/discord-speech-recognition#140842af20a136eeca08b11829c1b7206e050d61",
     "discord.js": "14.1.2",
     "dotenv": "16.0.1",
     "ffmpeg-static": "5.0.2",
