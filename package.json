@@ -36,7 +36,7 @@
     "@midspike/translate-google": "github:MidSpike/translate-google#1.4.3-fork-0.1.0",
     "aki-api": "6.0.8",
     "axios": "0.27.2",
-    "discord-api-types": "0.37.0",
+    "discord-api-types": "0.37.1",
     "discord-player": "6.0.0-dev.0",
     "discord-speech-recognition": "github:MidSpike/discord-speech-recognition#a82edf80d7dfb941750e6a6d066c9f198c6cab88",
     "discord.js": "14.1.2",
