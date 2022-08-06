@@ -16,7 +16,9 @@ export default {
     ) {
         if (!discord_client.isReady()) return;
 
-        if (error.code === SpeechErrorCode.NetworkRequest) return; // ignore network errors, they happen way too often
+        // Ignore network errors as they happen way too often
+        if (error.code === SpeechErrorCode.NetworkRequest) return;
+        if (error.code === SpeechErrorCode.NetworkResponse) return;
 
         console.trace({
             error,
