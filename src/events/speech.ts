@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import * as Discord from 'discord.js';
 
-import { VoiceMessage } from 'discord-speech-recognition';
+import { VoiceMessage } from '@midspike/discord-speech-recognition';
 
 import { MusicReconnaissance, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 

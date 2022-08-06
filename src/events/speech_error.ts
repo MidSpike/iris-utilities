@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { SpeechError, SpeechErrorCode } from 'discord-speech-recognition';
+import { SpeechError, SpeechErrorCode } from '@midspike/discord-speech-recognition';
 
 //------------------------------------------------------------//
 

@@ -16,7 +16,7 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { attachSpeechEvent } from 'discord-speech-recognition';
+import { attachSpeechEvent } from '@midspike/discord-speech-recognition';
 
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
