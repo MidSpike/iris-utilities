@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import * as Discord from 'discord.js';
 
-import { VoiceMessage } from '@midspike/discord-speech-recognition';
+import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
 
 import { MusicReconnaissance, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
@@ -20,40 +20,40 @@ if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or
 //------------------------------------------------------------//
 
 export default {
-    name: 'speech',
+    name: DiscordSpeechRecognition.Events.VoiceMessage,
     async handler(
         discord_client: Discord.Client,
-        msg: VoiceMessage,
+        voice_message: DiscordSpeechRecognition.VoiceMessage,
     ) {
         if (!discord_client.isReady()) return;
 
-        if (!msg?.content?.length) return;
-        if (!msg?.channel) return;
-        if (!msg?.userId) return;
+        if (!voice_message?.content?.length) return;
+        if (!voice_message?.channel) return;
+        if (!voice_message?.userId) return;
 
         console.log({
-            voice_recognition: msg.content,
+            voice_recognition: voice_message.content,
         });
 
         const voice_command_activation_regex = /^(\b(hey|a|play|yo|yellow|ok|okay|oi)\b\s)?\b(Ir(i?)s(h?)|Discord|Disco|Ziggy|Alexa|Google|Siri|Bixby|Cortana|Tesla)\b/gi;
 
-        if (!voice_command_activation_regex.test(msg.content)) return;
+        if (!voice_command_activation_regex.test(voice_message.content)) return;
 
         console.log({
             voice_command_detected: {
-                content: msg.content,
-                author_id: msg.userId,
-                voice_channel_id: msg.channel?.id,
+                content: voice_message.content,
+                author_id: voice_message.userId,
+                voice_channel_id: voice_message.channel?.id,
             },
         });
 
-        const voice_channel = await discord_client.channels.fetch(msg.channel.id) as Discord.VoiceChannel;
+        const voice_channel = await discord_client.channels.fetch(voice_message.channel.id) as Discord.VoiceChannel;
         if (!voice_channel) return;
 
         const guild = await voice_channel.guild.fetch();
         if (!guild) return;
 
-        const guild_member = await guild.members.fetch(msg.userId);
+        const guild_member = await guild.members.fetch(voice_message.userId);
         if (!guild_member) return;
 
         const guild_member_voice_channel_id = guild_member.voice.channelId;
@@ -64,7 +64,7 @@ export default {
         const bot_voice_channel_id = bot_member.voice.channelId;
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) return;
 
-        const user_input = msg.content.replace(voice_command_activation_regex, '').toLowerCase().trim();
+        const user_input = voice_message.content.replace(voice_command_activation_regex, '').toLowerCase().trim();
         const user_input_args = user_input.split(/\s+/gi);
 
         const voice_command_name = user_input_args[0] ?? '';
