@@ -4,21 +4,21 @@
 
 import * as Discord from 'discord.js';
 
-import { SpeechError, SpeechErrorCode } from '@midspike/discord-speech-recognition';
+import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
 
 //------------------------------------------------------------//
 
 export default {
-    name: 'speechError',
+    name: DiscordSpeechRecognition.Events.Error,
     async handler(
         discord_client: Discord.Client,
-        error: SpeechError,
+        error: DiscordSpeechRecognition.SpeechError,
     ) {
         if (!discord_client.isReady()) return;
 
         // Ignore network errors as they happen way too often
-        if (error.code === SpeechErrorCode.NetworkRequest) return;
-        if (error.code === SpeechErrorCode.NetworkResponse) return;
+        if (error.code === DiscordSpeechRecognition.SpeechErrorCode.NetworkRequest) return;
+        if (error.code === DiscordSpeechRecognition.SpeechErrorCode.NetworkResponse) return;
 
         console.trace({
             error,
