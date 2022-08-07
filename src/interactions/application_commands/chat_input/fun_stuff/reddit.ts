@@ -134,8 +134,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 subreddit_results.data.children.sort(
                     (a, b) => (b.data.subscribers ?? 0) - (a.data.subscribers ?? 0),
                 ).map((subreddit_result) => ({
-                    name: `${subreddit_result.data.display_name_prefixed} - ${subreddit_result.data.title}`,
-                    value: `${subreddit_result.data.display_name}`,
+                    name: stringEllipses(`${subreddit_result.data.display_name_prefixed} - ${subreddit_result.data.title}`, 100),
+                    value: stringEllipses(`${subreddit_result.data.display_name}`, 100),
                 })).slice(0, 5) // show only 5 results
             );
 
