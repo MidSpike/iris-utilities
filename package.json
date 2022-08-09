@@ -56,7 +56,7 @@
     "opusscript": "0.0.8",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory#v0.0.1-beta",
     "sodium": "3.0.2",
-    "sodium-native": "3.3.0",
+    "sodium-native": "3.4.1",
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
     "uuid": "8.3.2",
