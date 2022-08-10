@@ -24,17 +24,18 @@ export default {
                 if (!command_interaction.inCachedGuild()) return;
                 if (!command_interaction.channel) return;
 
+                const available_logging_types = Object.values(GuildConfigLoggingChannels);
+
                 command_interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
                             description: [
-                                `${command_interaction.user}, logging channels is a feature that allows you to assign channels to be used for logging.`,
+                                `${command_interaction.user}, logging channels is a feature that allows you to assign channels to be used for logging various events that occur in the server.`,
                                 '',
-                                'Currently, the logging channels feature only supports logging the following types of events:',
-                                '- Guild Member Join',
-                                '- Guild Member Leave',
+                                'Currently, the following event types are supported:',
+                                available_logging_types.map(logging_type => `- \`${logging_type}\``).join('\n'),
                                 '',
-                                'By default, no logging channels are not set.',
+                                'By default, none of the logging channels are set.',
                             ].join('\n'),
                         }),
                     ],
