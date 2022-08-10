@@ -22,9 +22,14 @@ export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
 
 export type GuildId = string;
 
+/**
+ * Do not alter pre-existing values contained in this enum.
+ */
 export enum GuildConfigLoggingChannels {
     MEMBER_JOIN = 'member_join',
     MEMBER_LEAVE = 'member_leave',
+    MESSAGE_DELETED = 'message_deleted',
+    MESSAGE_MODIFIED = 'message_modified',
 }
 
 export type GuildConfigTemplate = {
