@@ -146,4 +146,60 @@ export class GuildConfigsManager {
 
         GuildConfigsManager.cache.delete(guild_id);
     }
+
+    static async getKey<T>(
+        guild_id: GuildId,
+        key: string,
+    ): Promise<T> {
+        const guild_config = await GuildConfigsManager.fetch(guild_id, true);
+
+        return guild_config[key] as T;
+    }
+
+    static async setKey(
+        guild_id: GuildId,
+        key: string,
+        value: unknown,
+    ): Promise<GuildConfig> {
+        try {
+            await go_mongo_db.update(db_name, db_guild_configs_collection_name, {
+                'guild_id': guild_id,
+            }, {
+                $set: {
+                    [key]: value,
+                },
+            }, {
+                upsert: true,
+            });
+        } catch (error) {
+            console.trace(error);
+
+            throw new Error(`GuildConfigsManager.setKey(): failed to update guild_config for ${guild_id} in the database`);
+        }
+
+        return await GuildConfigsManager.fetch(guild_id, true);
+    }
+
+    static async unsetKey(
+        guild_id: GuildId,
+        key: string,
+    ): Promise<GuildConfig> {
+        try {
+            await go_mongo_db.update(db_name, db_guild_configs_collection_name, {
+                'guild_id': guild_id,
+            }, {
+                $unset: {
+                    [key]: '', // mongo-db docs recommend using an empty string for $unset
+                },
+            }, {
+                upsert: true,
+            });
+        } catch (error) {
+            console.trace(error);
+
+            throw new Error(`GuildConfigsManager.unsetKey(): failed to update guild_config for ${guild_id} in the database`);
+        }
+
+        return await GuildConfigsManager.fetch(guild_id, true);
+    }
 }

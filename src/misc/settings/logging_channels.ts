@@ -109,12 +109,7 @@ export default {
                     return;
                 }
 
-                await GuildConfigsManager.update(interaction.guildId, {
-                    logging_channels: {
-                        ...guild_config.logging_channels,
-                        [db_logging_event]: channel.id,
-                    },
-                });
+                await GuildConfigsManager.setKey(interaction.guildId, `logging_channels.${db_logging_event}`, channel.id);
 
                 await interaction.editReply({
                     embeds: [
@@ -146,12 +141,7 @@ export default {
 
                 const db_logging_event = interaction.options.getString('event', true) as GuildConfigLoggingChannels;
 
-                await GuildConfigsManager.update(interaction.guildId, {
-                    logging_channels: {
-                        ...guild_config.logging_channels,
-                        [db_logging_event]: undefined,
-                    },
-                });
+                await GuildConfigsManager.unsetKey(interaction.guildId, `logging_channels.${db_logging_event}`);
 
                 await interaction.editReply({
                     embeds: [
@@ -166,9 +156,7 @@ export default {
             description: 'resets the logging feature',
             options: [],
             async handler(setting, guild_config, interaction) {
-                await GuildConfigsManager.update(interaction.guildId, {
-                    logging_channels: {},
-                });
+                await GuildConfigsManager.setKey(interaction.guildId, 'logging_channels', {});
 
                 interaction.editReply({
                     embeds: [

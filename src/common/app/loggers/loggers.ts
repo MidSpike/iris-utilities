@@ -35,8 +35,9 @@ export async function guildLogger(
     const logging_channel_id = logging_channel_ids[logging_location];
     if (!logging_channel_id) return false;
 
-    const logging_channel = await guild.channels.fetch(logging_channel_id);
-    if (!logging_channel?.isTextBased()) return false;
+    const logging_channel = await guild.channels.fetch(logging_channel_id).catch(() => undefined);
+    if (!logging_channel) return false;
+    if (!logging_channel.isTextBased()) return false;
 
     try {
         await logging_channel.send(message_options);
