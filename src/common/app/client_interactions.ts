@@ -311,6 +311,47 @@ export class ClientCommandHelper {
 
 //------------------------------------------------------------//
 
+type ClientInteractionCooldownUserId = Discord.Snowflake;
+
+type ClientInteractionCooldownData = {
+    last_execution_epoch: number;
+    cooldown_duration_ms: number;
+};
+
+class ClientInteractionCooldownManager {
+    private static _cooldowns = new Map<ClientInteractionCooldownUserId, ClientInteractionCooldownData>();
+
+    public static readonly default_cooldown_duration_ms: number = 1_500; // 1.5 seconds
+
+    public static async isUserOnCooldown(
+        user_id: ClientInteractionCooldownUserId,
+    ): Promise<boolean> {
+        const cooldown_data = ClientInteractionCooldownManager._cooldowns.get(user_id);
+        if (!cooldown_data) return false;
+
+        const now_epoch = Date.now();
+        const cooldown_expiration_epoch = cooldown_data.last_execution_epoch + cooldown_data.cooldown_duration_ms;
+
+        if (cooldown_expiration_epoch > now_epoch) return true;
+
+        ClientInteractionCooldownManager._cooldowns.delete(user_id);
+
+        return false;
+    }
+
+    public static async setUserOnCooldown(
+        user_id: ClientInteractionCooldownUserId,
+        duration_ms: number,
+    ): Promise<void> {
+        ClientInteractionCooldownManager._cooldowns.set(user_id, {
+            last_execution_epoch: Date.now(),
+            cooldown_duration_ms: duration_ms,
+        });
+    }
+}
+
+//------------------------------------------------------------//
+
 export type ClientInteractionIdentifier = string;
 
 export type ClientInteractionMetadata = {
@@ -333,6 +374,8 @@ export class ClientInteraction<
     private _data;
     private _metadata;
     private _handler;
+
+    public cooldown_duration_ms: number = ClientInteractionCooldownManager.default_cooldown_duration_ms;
 
     constructor(
         opts: {
@@ -400,47 +443,6 @@ export class ClientInteraction<
         console.log(`[ClientInteraction: ${this.identifier}]; executing handler...`);
 
         await this._handler(discord_client, interaction).catch(console.trace);
-    }
-}
-
-//------------------------------------------------------------//
-
-type ClientInteractionCooldownUserId = Discord.Snowflake;
-
-type ClientInteractionCooldownData = {
-    last_execution_epoch: number;
-    cooldown_duration_ms: number;
-};
-
-class ClientInteractionCooldownManager {
-    private static _cooldowns = new Map<ClientInteractionCooldownUserId, ClientInteractionCooldownData>();
-
-    public static readonly default_cooldown_duration_ms: number = 1_500; // 1.5 seconds
-
-    public static async isUserOnCooldown(
-        user_id: ClientInteractionCooldownUserId,
-    ): Promise<boolean> {
-        const cooldown_data = ClientInteractionCooldownManager._cooldowns.get(user_id);
-        if (!cooldown_data) return false;
-
-        const now_epoch = Date.now();
-        const cooldown_expiration_epoch = cooldown_data.last_execution_epoch + cooldown_data.cooldown_duration_ms;
-
-        if (cooldown_expiration_epoch > now_epoch) return true;
-
-        ClientInteractionCooldownManager._cooldowns.delete(user_id);
-
-        return false;
-    }
-
-    public static async setUserOnCooldown(
-        user_id: ClientInteractionCooldownUserId,
-        duration_ms: number,
-    ): Promise<void> {
-        ClientInteractionCooldownManager._cooldowns.set(user_id, {
-            last_execution_epoch: Date.now(),
-            cooldown_duration_ms: duration_ms,
-        });
     }
 }
 
@@ -529,8 +531,14 @@ export class ClientInteractionManager {
             return;
         }
 
-        /* set the user on a cooldown */
-        await ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, ClientInteractionCooldownManager.default_cooldown_duration_ms);
+        /* set the user on a cooldown for applicable interaction types */
+        if (
+            unknown_interaction.type === Discord.InteractionType.ApplicationCommand ||
+            unknown_interaction.type === Discord.InteractionType.MessageComponent ||
+            unknown_interaction.type === Discord.InteractionType.ModalSubmit
+        ) {
+            await ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, client_interaction.cooldown_duration_ms);
+        }
 
         /* log the interaction */
         if (unknown_interaction.isChatInputCommand()) {
