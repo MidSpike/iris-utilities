@@ -225,6 +225,7 @@ export default {
                 break;
             }
 
+            case 'disconnect':
             case 'star': // fallback for improper recognition
             case 'stop': {
                 music_subscription.text_channel.send({
