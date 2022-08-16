@@ -28,6 +28,9 @@ export type GuildId = string;
 export enum GuildConfigLoggingChannels {
     MEMBER_JOIN = 'member_join',
     MEMBER_LEAVE = 'member_leave',
+    MEMBER_CONNECT = 'member_connect',
+    MEMBER_DISCONNECT = 'member_disconnect',
+    MEMBER_MOVE = 'member_move',
     MESSAGE_DELETED = 'message_deleted',
     MESSAGE_MODIFIED = 'message_modified',
 }
