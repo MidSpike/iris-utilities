@@ -122,7 +122,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     'query': query_option.value,
                 })}`,
                 validateStatus: (status_code) => status_code === 200,
-            }).then(response => response.data) as PartialRedditSubredditAutocompleteApiResponse ?? {};
+            }).then((response) => response.data) as PartialRedditSubredditAutocompleteApiResponse ?? {};
 
             if (subreddit_results.data.children.length < 1) {
                 interaction.respond([]);
@@ -167,7 +167,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 'limit': '25', // maximum is 100
             })}`,
             validateStatus: (status_code) => status_code === 200,
-        }).then(response => response.data as PartialRedditSubredditPostsApiResponse).catch(() => undefined);
+        }).then((response) => response.data as PartialRedditSubredditPostsApiResponse).catch(() => undefined);
 
         if (!subreddit_posts_results || subreddit_posts_results.data.children.length < 1) {
             await interaction.editReply({

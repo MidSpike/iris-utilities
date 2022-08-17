@@ -85,7 +85,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     method: 'get',
                     url: `https://playerdb.co/api/player/minecraft/${encodeURIComponent(query_value)}`,
                     validateStatus: (status_code) => status_code === 200,
-                }).then(response => response.data?.data).catch(() => undefined);
+                }).then((response) => response.data?.data).catch(() => undefined);
 
                 const mc_user_uuid = response_data?.player?.id;
 
@@ -175,7 +175,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     method: 'get',
                     url: `https://api.mcsrvstat.us/2/${encodeURIComponent(query_value)}`,
                     validateStatus: (status_code) => status_code === 200,
-                }).then(response => response.data).catch(() => undefined);
+                }).then((response) => response.data).catch(() => undefined);
 
                 const mc_server_info_found = response_data?.debug?.ping;
 
@@ -215,7 +215,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 ...(mc_server_info_motd_clean ? [
                                     {
                                         name: 'Motd',
-                                        value: `\`\`\`${mc_server_info_motd_clean.map(s => s.trim()).join('\n')}\`\`\``,
+                                        value: `\`\`\`${mc_server_info_motd_clean.map((motd) => motd.trim()).join('\n')}\`\`\``,
                                         inline: false,
                                     },
                                 ] : []),

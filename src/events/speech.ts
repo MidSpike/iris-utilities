@@ -102,7 +102,7 @@ export default {
                         url: `${ibm_tts_api_url}?voice=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
                         responseType: 'stream',
                         timeout: 1 * 30_000,
-                    }).then(response => response.data),
+                    }).then((response) => response.data),
                     events: {
                         onStart() {},
                         onFinish() {},

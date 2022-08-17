@@ -153,10 +153,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     `**Example:**\n${example}`,
                                 ] : []),
                                 ...(synonyms?.length ? [
-                                    `**Synonyms:**\n${synonyms.slice(0, 3).map(s => `- ${s}`).join('\n')}`,
+                                    `**Synonyms:**\n${synonyms.slice(0, 3).map((synonym) => `- ${synonym}`).join('\n')}`,
                                 ] : []),
                                 ...(antonyms?.length ? [
-                                    `**Antonyms:**\n${antonyms.slice(0, 3).map(s => `- ${s}`).join('\n')}`,
+                                    `**Antonyms:**\n${antonyms.slice(0, 3).map((antonym) => `- ${antonym}`).join('\n')}`,
                                 ] : []),
                             ].join('\n\n'),
                         })

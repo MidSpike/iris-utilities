@@ -49,7 +49,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const guild_members = await guild.members.fetch(); // cache all members
 
-        const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
+        const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map((role) => `${role}`);
         const guild_role_chunks = arrayChunks(guild_roles, 25);
 
         const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
@@ -142,7 +142,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                                     {
                                         name: 'Features',
-                                        value: `${guild.features.length > 0 ? guild.features.map(feature_flag => `- \`${feature_flag}\``).join('\n') : '\`n/a\`'}`,
+                                        value: (guild.features.length > 0 ? guild.features.map((feature_flag) => `- \`${feature_flag}\``).join('\n') : '\`n/a\`'),
                                     },
                                 ],
                             }),
@@ -330,11 +330,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         inline: true,
                                     }, {
                                         name: 'Bots',
-                                        value: `\`${guild_members.filter(m => m.user.bot).size ?? 'n/a'}\``,
+                                        value: `\`${guild_members.filter((member) => member.user.bot).size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Members',
-                                        value: `\`${guild_members.filter(m => !m.user.bot).size ?? 'n/a'}\``,
+                                        value: `\`${guild_members.filter((member) => !member.user.bot).size ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Bans',

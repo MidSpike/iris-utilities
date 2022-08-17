@@ -33,7 +33,7 @@ export default {
                                 `${command_interaction.user}, logging channels is a feature that allows you to assign channels to be used for logging various events that occur in the server.`,
                                 '',
                                 'Currently, the following event types are supported:',
-                                available_logging_types.map(logging_type => `- \`${logging_type}\``).join('\n'),
+                                available_logging_types.map((logging_type) => `- \`${logging_type}\``).join('\n'),
                                 '',
                                 'By default, none of the logging channels are set.',
                             ].join('\n'),

@@ -68,7 +68,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
-        const role_permissions = role.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
+        const role_permissions = role.permissions.toArray().filter(
+            (permission_flag) => !everyone_permissions.includes(permission_flag)
+        );
 
         const role_created_timestamp_epoch = `${role.createdTimestamp}`.slice(0, -3);
 
@@ -125,11 +127,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             inline: true,
                         }, {
                             name: 'Bots',
-                            value: `\`${role.members.filter(m => m.user.bot).size}\``,
+                            value: `\`${role.members.filter((member) => member.user.bot).size}\``,
                             inline: true,
                         }, {
                             name: 'Members',
-                            value: `\`${role.members.filter(m => !m.user.bot).size}\``,
+                            value: `\`${role.members.filter((member) => !member.user.bot).size}\``,
                             inline: true,
                         }, {
                             name: '\u200b',

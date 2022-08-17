@@ -82,7 +82,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     description: amount_of_dice === 1 ? (
                         `${interaction.user}, you rolled a **${combined_dice_value}**`
                     ) : amount_of_dice <= 100 ? (
-                        `${interaction.user}, you rolled ${rolled_dice.map(v => `**${v}**`).join(' + ')} = **${combined_dice_value}**`
+                        `${interaction.user}, you rolled ${rolled_dice.map((die_value) => `**${die_value}**`).join(' + ')} = **${combined_dice_value}**`
                     ) : (
                         `${interaction.user}, you rolled a combined total of **${combined_dice_value}**`
                     ),

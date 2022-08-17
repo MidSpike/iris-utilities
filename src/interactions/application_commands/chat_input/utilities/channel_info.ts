@@ -166,7 +166,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             ...(channel.members.size > 0 ? [
                                 {
                                     name: 'Members',
-                                    value: `${channel.members.size > 10 ? '\`More than 10 people!\`' : channel.members.map(member => `${member}`).join(' - ')}`,
+                                    value: `${channel.members.size > 10 ? '\`More than 10 people!\`' : channel.members.map((member) => `${member}`).join(' - ')}`,
                                     inline: false,
                                 },
                             ] : []),

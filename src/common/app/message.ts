@@ -73,11 +73,11 @@ export class CustomEmbed {
 //------------------------------------------------------------//
 
 export function disableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
-    return message.fetch(true).then(message => message.edit({
+    return message.fetch(true).then((message) => message.edit({
         embeds: message.embeds,
-        components: message.components.map(component_row => ({
+        components: message.components.map((component_row) => ({
             ...component_row.toJSON(),
-            components: component_row.components.map(component =>
+            components: component_row.components.map((component) =>
                 component.type === Discord.ComponentType.Button ? (
                     Discord.ButtonBuilder.from(component).setDisabled(true)
                 ) : component.type === Discord.ComponentType.SelectMenu ? (
@@ -89,11 +89,11 @@ export function disableMessageComponents(message: Discord.Message): Promise<Disc
 }
 
 export function enableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
-    return message.fetch(true).then(message => message.edit({
+    return message.fetch(true).then((message) => message.edit({
         embeds: message.embeds,
-        components: message.components.map(component_row => ({
+        components: message.components.map((component_row) => ({
             ...component_row.toJSON(),
-            components: component_row.components.map(component =>
+            components: component_row.components.map((component) =>
                 component.type === Discord.ComponentType.Button ? (
                     Discord.ButtonBuilder.from(component).setDisabled(false)
                 ) : component.type === Discord.ComponentType.SelectMenu ? (

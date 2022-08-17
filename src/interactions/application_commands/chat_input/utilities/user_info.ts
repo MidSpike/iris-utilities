@@ -57,11 +57,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await member.user.fetch(true); // force fetch the user
 
         const everyone_permissions = interaction.guild.roles.everyone.permissions.toArray();
-        const member_permissions = member.permissions.toArray().filter(permission_flag => !everyone_permissions.includes(permission_flag));
+        const member_permissions = member.permissions.toArray().filter((permission_flag) => !everyone_permissions.includes(permission_flag));
 
         const member_user_flags = member.user.flags?.toArray() ?? [];
 
-        const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map(role => `${role}`);
+        const member_roles = member.roles.cache.sort((a, b) => a.position - b.position).map((role) => `${role}`);
 
         type MemberInfoSectionName = (
             | 'memberinfo_btn_default'
@@ -91,7 +91,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                                     {
                                         name: 'Flags',
-                                        value: `${member_user_flags.length > 0 ? member_user_flags.map(user_flag => `- \`${user_flag}\``).join('\n') : '\`n/a\`'}`,
+                                        value: `${member_user_flags.length > 0 ? member_user_flags.map((user_flag) => `- \`${user_flag}\``).join('\n') : '\`n/a\`'}`,
                                         inline: false,
                                     },
                                 ],

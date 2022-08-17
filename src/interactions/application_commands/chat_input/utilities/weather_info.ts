@@ -275,7 +275,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     'name': query_option.value,
                 })}`,
                 validateStatus: (status_code) => status_code === 200,
-            }).then(response => response.data.results) as WeatherLocationInfo[] ?? [];
+            }).then((response) => response.data.results) as WeatherLocationInfo[] ?? [];
 
             if (matching_locations.length < 1) {
                 interaction.respond([]);
@@ -289,7 +289,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             interaction.respond(
                 matching_locations.map((matching_location) => {
-                    const location_string = [ matching_location.admin1, matching_location.admin2, matching_location.admin3, matching_location.admin4 ].filter(item => Boolean(item)).join(', ');
+                    const location_string = [ matching_location.admin1, matching_location.admin2, matching_location.admin3, matching_location.admin4 ].filter((item) => Boolean(item)).join(', ');
 
                     return {
                         name: `${matching_location.name} - ${matching_location.country}, ${location_string}`,
@@ -349,13 +349,15 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 ])
             }`,
             validateStatus: (status_code) => status_code === 200,
-        }).then(response => response.data) as WeatherInfo;
+        }).then((response) => response.data) as WeatherInfo;
 
         const weather_status: string = weather_codes_mapping.find(
-            ([ code_range ]) => weather_info.current_weather.weathercode >= code_range[0] && weather_info.current_weather.weathercode <= code_range[1]
+            ([ code_range ]) =>
+                weather_info.current_weather.weathercode >= code_range[0] &&
+                weather_info.current_weather.weathercode <= code_range[1]
         )?.[1] ?? 'Unknown';
 
-        const location_string = [ matching_location.admin1, matching_location.admin2, matching_location.admin3, matching_location.admin4 ].filter(item => Boolean(item)).join(', ');
+        const location_string = [ matching_location.admin1, matching_location.admin2, matching_location.admin3, matching_location.admin4 ].filter((item) => Boolean(item)).join(', ');
 
         await interaction.editReply({
             embeds: [

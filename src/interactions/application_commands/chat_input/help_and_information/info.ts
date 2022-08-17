@@ -38,12 +38,12 @@ function memoryUsageToSmallestUnit(memory_usage_in_bytes: number): string {
 //------------------------------------------------------------//
 
 const uptime_units: [string, number][] = [
-    ['Seconds', 60],
-    ['Minutes', 60],
-    ['Hours', 24],
-    ['Days', 365],
-    ['Years', 10],
-    ['Decades', 10],
+    [ 'Seconds', 60 ],
+    [ 'Minutes', 60 ],
+    [ 'Hours', 24 ],
+    [ 'Days', 365 ],
+    [ 'Years', 10 ],
+    [ 'Decades', 10 ],
 ];
 
 function uptimeToHumanString(uptime_in_seconds: number): string {
@@ -130,7 +130,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 num_cached_channels: client.channels.cache.size,
                 num_cached_emojis: client.emojis.cache.size,
                 shard_info: [
-                    `\`[ Shard ${client.shard!.ids.map(shard_id => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
+                    `\`[ Shard ${client.shard!.ids.map((shard_id) => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
                     `> - ${client.ws.ping}ms ping`,
                     `> - ${client.guilds.cache.size} guild(s)`,
                     `> - ${client.channels.cache.size} channel(s)`,

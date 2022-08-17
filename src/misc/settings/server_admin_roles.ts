@@ -48,7 +48,7 @@ export default {
                             description: [
                                 ...(guild_admin_role_ids.length > 0 ? [
                                     `${command_interaction.user}, here are the current server admin roles:`,
-                                    guild_admin_role_ids.map(role_id => `- <@&${role_id}>`).join('\n'),
+                                    guild_admin_role_ids.map((role_id) => `- <@&${role_id}>`).join('\n'),
                                 ] : [
                                     `${command_interaction.user}, the server admin roles list is empty.`,
                                 ]),
@@ -177,7 +177,7 @@ export default {
                 const guild = await interaction.client.guilds.fetch(interaction.guildId);
                 const guild_role_ids = Array.from(guild.roles.cache.keys());
 
-                const existing_role_ids = guild_admin_role_ids.filter(role_id => guild_role_ids.includes(role_id));
+                const existing_role_ids = guild_admin_role_ids.filter((role_id) => guild_role_ids.includes(role_id));
 
                 await GuildConfigsManager.update(interaction.guildId, {
                     admin_role_ids: existing_role_ids,
