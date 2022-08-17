@@ -78,27 +78,31 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
             const query_option = interaction.options.getFocused(true);
 
-            const matching_languages = google_translate_languages.map(language => ({
-                score: Math.max(
-                    (query_option.value.length < 10 ? compareTwoStrings(query_option.value, language.code) : 0),
-                    (query_option.value.length > 3 ? compareTwoStrings(query_option.value, language.name) : 0),
-                    (language.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
-                ),
-                language: language,
-            })).sort(
+            const matching_languages = google_translate_languages.map(
+                (language) => ({
+                    score: Math.max(
+                        (query_option.value.length < 10 ? compareTwoStrings(query_option.value, language.code) : 0),
+                        (query_option.value.length > 3 ? compareTwoStrings(query_option.value, language.name) : 0),
+                        (language.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
+                    ),
+                    language: language,
+                })
+            ).sort(
                 (a, b) => b.score - a.score
             ).map(
-                language => language.language
+                (language) => language.language
             ).filter(
                 // if the query option is 'to' then remove 'auto'
-                language => (query_option.name === 'to' ? language.code !== 'auto' : true)
+                (language) => (query_option.name === 'to' ? language.code !== 'auto' : true)
             );
 
             interaction.respond(
-                matching_languages.map(language => ({
-                    name: language.name,
-                    value: language.code,
-                })).slice(0, 5)
+                matching_languages.map(
+                    (language) => ({
+                        name: language.name,
+                        value: language.code,
+                    })
+                ).slice(0, 5)
             );
 
             return;
@@ -112,14 +116,21 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const translate_to_code = interaction.options.getString('to', false);
         const translate_from_code = interaction.options.getString('from', false);
 
-        const translated_from_language = google_translate_languages.find(language =>
-            language.code === translate_from_code ||
-            language.name === translate_from_code
-        ) ?? google_translate_languages.find(language => language.code === 'auto')!;
-        const translated_to_language = google_translate_languages.find(language =>
-            language.code === translate_to_code ||
-            language.name === translate_to_code
-        ) ?? google_translate_languages.find(language => language.code === 'en')!;
+        const translated_from_language = google_translate_languages.find(
+            (language) =>
+                language.code === translate_from_code ||
+                language.name === translate_from_code
+        ) ?? google_translate_languages.find(
+            (language) => language.code === 'auto'
+        )!;
+
+        const translated_to_language = google_translate_languages.find(
+            (language) =>
+                language.code === translate_to_code ||
+                language.name === translate_to_code
+        ) ?? google_translate_languages.find(
+            (language) => language.code === 'en'
+        )!;
 
         const translated_text: string = await translateUsingGoogle(text_to_translate, {
             from: translated_from_language.code,

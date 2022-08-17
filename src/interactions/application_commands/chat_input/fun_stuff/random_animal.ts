@@ -53,7 +53,7 @@ async function fetchRandomAnimalImageUrl(
             }).then(
                 (response) => response.data as Partial<DogApiResponseData>,
             ).then(
-                response_data => response_data.status === 'success' ? response_data.message : undefined
+                (response_data) => response_data.status === 'success' ? response_data.message : undefined
             ).catch(() => undefined);
 
             break;
@@ -67,7 +67,7 @@ async function fetchRandomAnimalImageUrl(
             }).then(
                 (response) => response.data as Partial<CatApiResponseData>
             ).then(
-                response_data => response_data.file
+                (response_data) => response_data.file
             ).catch(() => undefined);
 
             break;
@@ -81,7 +81,7 @@ async function fetchRandomAnimalImageUrl(
             }).then(
                 (response) => response.data as Partial<FoxApiResponseData>
             ).then(
-                response_data => response_data.image
+                (response_data) => response_data.image
             ).catch(() => undefined);
 
             break;
@@ -95,7 +95,7 @@ async function fetchRandomAnimalImageUrl(
             }).then(
                 (response) => response.data as Partial<PandaApiResponseData>
             ).then(
-                response_data => response_data.link
+                (response_data) => response_data.link
             ).catch(() => undefined);
 
             break;

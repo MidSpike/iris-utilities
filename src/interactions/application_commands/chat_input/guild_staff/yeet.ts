@@ -179,7 +179,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             case 'all_users': {
-                const voice_channel_users = voice_channel_members.filter(member => !member.user.bot);
+                const voice_channel_users = voice_channel_members.filter((member) => !member.user.bot);
 
                 for (const member of voice_channel_users.values()) {
                     members_to_yeet.add(member);
@@ -189,7 +189,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             case 'all_bots': {
-                const voice_channel_bots = voice_channel_members.filter(member => member.user.bot);
+                const voice_channel_bots = voice_channel_members.filter((member) => member.user.bot);
 
                 for (const member of voice_channel_bots.values()) {
                     members_to_yeet.add(member);
@@ -209,7 +209,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         const random_voice_channel = interaction.guild.channels.cache.find(
-            channel => channel.isVoiceBased() && channel.id !== current_voice_channel.id
+            (channel) => channel.isVoiceBased() && channel.id !== current_voice_channel.id
         ) as Discord.VoiceBasedChannel | undefined;
 
         if (!random_voice_channel) {

@@ -97,18 +97,20 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
 
         await modal_submit_interaction.deferReply();
 
-        const translate_to_language = google_translate_languages.map(language => ({
-            score: Math.max(
-                compareTwoStrings(translate_to_query, language.name),
-                compareTwoStrings(translate_to_query, language.code),
-            ),
-            language: language,
-        })).sort(
+        const translate_to_language = google_translate_languages.map(
+            (language) => ({
+                score: Math.max(
+                    compareTwoStrings(translate_to_query, language.name),
+                    compareTwoStrings(translate_to_query, language.code),
+                ),
+                language: language,
+            })
+        ).sort(
             (a, b) => b.score - a.score
         ).map(
-            language => language.language
+            (language) => language.language
         ).filter(
-            language => language.code !== 'auto'
+            (language) => language.code !== 'auto'
         ).at(0)!;
 
         const translated_text: string = await translateUsingGoogle(text_to_translate, {

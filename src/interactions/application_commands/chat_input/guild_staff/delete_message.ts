@@ -81,7 +81,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const channels_to_look_in = from_channel ? [ from_channel ] : interaction.guild.channels.cache.filter(channel => channel.isTextBased()).values();
+        const channels_to_look_in = from_channel ? [ from_channel ] : interaction.guild.channels.cache.filter((channel) => channel.isTextBased()).values();
 
         let message: Discord.Message | undefined;
         for (const channel of channels_to_look_in) {

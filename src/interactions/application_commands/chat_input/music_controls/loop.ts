@@ -126,11 +126,15 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const command_looping_mode_option = this.data!.options!.find(option => option.name === looping_mode_option.name)! as Discord.ApplicationCommandChoicesData;
+        const command_looping_mode_option = this.data!.options!.find(
+            (option) => option.name === looping_mode_option.name
+        )! as Discord.ApplicationCommandChoicesData;
 
         const command_looping_mode_choices = command_looping_mode_option!.choices!;
 
-        const command_looping_mode_choice = command_looping_mode_choices.find(choice => choice.value === looping_mode_option.value)!;
+        const command_looping_mode_choice = command_looping_mode_choices.find(
+            (choice) => choice.value === looping_mode_option.value
+        )!;
 
         await interaction.editReply({
             embeds: [

@@ -51,11 +51,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
         description: 'n/a',
-        options: settings.map(setting => ({
+        options: settings.map((setting) => ({
             type: Discord.ApplicationCommandOptionType.SubcommandGroup,
             name: setting.name,
             description: 'n/a',
-            options: setting.actions.map(action => ({
+            options: setting.actions.map((action) => ({
                 type: Discord.ApplicationCommandOptionType.Subcommand,
                 name: action.name,
                 description: action.description,
@@ -81,7 +81,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const setting_name = interaction.options.getSubcommandGroup(true);
 
-        const setting = settings.find(setting => setting.name === setting_name);
+        const setting = settings.find((setting) => setting.name === setting_name);
         if (!setting) {
             interaction.editReply({
                 embeds: [
@@ -97,7 +97,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const setting_action_name = interaction.options.getSubcommand(true);
 
-        const setting_action = setting.actions.find(action => action.name === setting_action_name);
+        const setting_action = setting.actions.find((action) => action.name === setting_action_name);
         if (!setting_action) {
             interaction.editReply({
                 embeds: [

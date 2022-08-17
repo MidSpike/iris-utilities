@@ -128,8 +128,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const all_members_connected_to_a_voice_channel = interaction.guild.members.cache.filter(member => Boolean(member.voice.channel));
-        const all_members_in_a_different_voice_channel = all_members_connected_to_a_voice_channel.filter(member => member.voice.channelId !== current_voice_channel.id);
+        const all_members_connected_to_a_voice_channel = interaction.guild.members.cache.filter((member) => Boolean(member.voice.channel));
+        const all_members_in_a_different_voice_channel = all_members_connected_to_a_voice_channel.filter((member) => member.voice.channelId !== current_voice_channel.id);
 
         const members_to_yoink = new Set<Discord.GuildMember>();
         switch (subcommand_name) {
@@ -180,7 +180,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             case 'all_users': {
-                const voice_channel_users = all_members_in_a_different_voice_channel.filter(member => !member.user.bot);
+                const voice_channel_users = all_members_in_a_different_voice_channel.filter((member) => !member.user.bot);
 
                 for (const member of voice_channel_users.values()) {
                     members_to_yoink.add(member);
@@ -190,7 +190,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             case 'all_bots': {
-                const voice_channel_bots = all_members_in_a_different_voice_channel.filter(member => member.user.bot);
+                const voice_channel_bots = all_members_in_a_different_voice_channel.filter((member) => member.user.bot);
 
                 for (const member of voice_channel_bots.values()) {
                     members_to_yoink.add(member);

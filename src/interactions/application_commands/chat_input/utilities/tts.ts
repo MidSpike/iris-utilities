@@ -88,24 +88,28 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
             const query_option = interaction.options.getFocused(true);
 
-            const matching_voices = voices.map(voice => ({
-                score: Math.max(
-                    (query_option.value.length < 10 ? compareTwoStrings(query_option.value, voice.code) : 0),
-                    (query_option.value.length > 3 ? compareTwoStrings(query_option.value, voice.name) : 0),
-                    (voice.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
-                ),
-                voice: voice,
-            })).sort(
+            const matching_voices = voices.map(
+                (voice) => ({
+                    score: Math.max(
+                        (query_option.value.length < 10 ? compareTwoStrings(query_option.value, voice.code) : 0),
+                        (query_option.value.length > 3 ? compareTwoStrings(query_option.value, voice.name) : 0),
+                        (voice.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
+                    ),
+                    voice: voice,
+                })
+            ).sort(
                 (a, b) => b.score - a.score
             ).map(
-                item => item.voice
+                (item) => item.voice
             );
 
             interaction.respond(
-                matching_voices.map(voice => ({
-                    name: voice.name,
-                    value: `${voice.provider}:${voice.code}`,
-                })).slice(0, 25) // 25 is the maximum allowed by discord
+                matching_voices.map(
+                    (voice) => ({
+                        name: voice.name,
+                        value: `${voice.provider}:${voice.code}`,
+                    })
+                ).slice(0, 25) // 25 is the maximum allowed by discord
             );
 
             return;
@@ -189,7 +193,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const tts_text_chunks = arrayChunks(text.split(/\s/g), 50).map(chunk => chunk.join(' '));
+        const tts_text_chunks = arrayChunks(text.split(/\s/g), 50).map((chunk) => chunk.join(' '));
 
         if (tts_text_chunks.length > 1) {
             await interaction.editReply({

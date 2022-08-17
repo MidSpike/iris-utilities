@@ -295,10 +295,10 @@ export class MusicReconnaissance {
         });
 
         const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(
-            track => track instanceof DiscordPlayer.Track,
+            (track) => track instanceof DiscordPlayer.Track,
         ) as DiscordPlayer.Track[];
 
-        return tracks.map(track => ({
+        return tracks.map((track) => ({
             title: track.title,
             url: track.url,
         }));

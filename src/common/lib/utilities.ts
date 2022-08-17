@@ -8,7 +8,7 @@
 export function delay(
     time_in_milliseconds: number,
 ): Promise<void> {
-    return new Promise(resolve => setTimeout(() => resolve(), time_in_milliseconds));
+    return new Promise((resolve) => setTimeout(() => resolve(), time_in_milliseconds));
 }
 
 /**

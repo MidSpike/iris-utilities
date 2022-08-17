@@ -16,5 +16,5 @@ export async function remoteStream(
         url: remote_stream_url,
         responseType: 'stream',
         validateStatus: (status_code) => status_code >= 200 && status_code < 300,
-    }).then(response => response.data as Readable);
+    }).then((response) => response.data as Readable);
 }

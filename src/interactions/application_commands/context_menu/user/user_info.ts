@@ -90,9 +90,7 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
 
                         {
                             name: 'Account Flags',
-                            value: [
-                                `${user_flags.map(flag => `- \`${flag}\``).join('\n') || 'n/a'}`,
-                            ].join('\n'),
+                            value: (user_flags.map((flag) => `- \`${flag}\``).join('\n') || '\`n/a\`'),
                             inline: false,
                         },
                     ],

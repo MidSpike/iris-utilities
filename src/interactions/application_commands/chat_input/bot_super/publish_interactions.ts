@@ -46,7 +46,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         /* remove non-existent interactions */
         for (const [ application_command_id, application_command ] of await discord_client.application.commands.fetch()) {
-            const command_exists = ClientInteractionManager.interactions.find(interaction => interaction.identifier === application_command.name);
+            const command_exists = ClientInteractionManager.interactions.find((interaction) => interaction.identifier === application_command.name);
 
             if (!command_exists) {
                 console.info(`<DC A - ${discord_client.user.username}> removing non-existent global interactions: ${application_command.name};`);

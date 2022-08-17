@@ -85,7 +85,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             method: 'get',
             url: `http://ip-api.com/json/${query}?fields=66846719`,
             validateStatus: (status_code) => status_code === 200,
-        }).then(response => response.data);
+        }).then((response) => response.data);
 
         await interaction.editReply({
             embeds: [

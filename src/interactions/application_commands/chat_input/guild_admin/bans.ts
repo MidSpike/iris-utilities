@@ -42,7 +42,7 @@ async function generatePaginator(
                         `${interaction.user}, displaying up to 5 bans per page.`,
                         'The guild bans are sorted by most recent to oldest.',
                     ].join('\n'),
-                    fields: guild_bans.map(ban => ({
+                    fields: guild_bans.map((ban) => ({
                         name: 'Ban Record',
                         value: [
                             '\`\`\`',

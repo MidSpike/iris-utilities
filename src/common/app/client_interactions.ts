@@ -284,10 +284,10 @@ export class ClientCommandHelper {
         const bot_channel_permissions = channel.permissionsFor(discord_client.user!.id, true)!;
         const bot_permissions = new Discord.PermissionsBitField([ bot_guild_permissions, bot_channel_permissions ]);
 
-        const missing_permissions = required_permissions.filter(required_permission => !bot_permissions.has(required_permission));
+        const missing_permissions = required_permissions.filter((required_permission) => !bot_permissions.has(required_permission));
 
         if (missing_permissions.length > 0) {
-            const mapped_missing_permission_flags = missing_permissions.map(permission => Object.entries(Discord.PermissionFlagsBits).find(([ _, perm ]) => perm === permission)?.[0]);
+            const mapped_missing_permission_flags = missing_permissions.map((permission) => Object.entries(Discord.PermissionFlagsBits).find(([ _, perm ]) => perm === permission)?.[0]);
 
             if (interaction.isRepliable()) {
                 interaction.reply({

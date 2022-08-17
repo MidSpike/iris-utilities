@@ -14,21 +14,33 @@ async function createHelpEmbed(command_category_id: ClientCommandCategoryId) {
     const command_category = ClientCommandHelper.categories[command_category_id];
     if (!command_category) throw new Error(`No command category exists with id: ${command_category_id};`);
 
-    const chat_input_commands = ClientInteractionManager.interactions.filter(interaction => interaction.data.type === Discord.ApplicationCommandType.ChatInput);
+    const chat_input_commands = ClientInteractionManager.interactions.filter(
+        (interaction) => interaction.data.type === Discord.ApplicationCommandType.ChatInput
+    );
 
-    const commands_in_specified_category = chat_input_commands.filter(client_interaction => client_interaction.metadata.command_category!.id === command_category.id);
-    const mapped_commands_in_specified_category = commands_in_specified_category.map(client_interaction => {
-        const filtered_client_interactions = (client_interaction.data as Discord.ChatInputApplicationCommandData).options!.filter(option => ![
-            Discord.ApplicationCommandOptionType.SubcommandGroup,
-            Discord.ApplicationCommandOptionType.Subcommand,
-        ].includes(option.type as number)) as (Discord.ApplicationCommandOption & { required?: boolean })[];
+    const commands_in_specified_category = chat_input_commands.filter(
+        (client_interaction) => client_interaction.metadata.command_category!.id === command_category.id
+    );
 
-        const command_usage = filtered_client_interactions.map(({ required, name, type }) =>
-            `${required ? '<' : '['}${name}${required ? '>' : ']'}`
-            // `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
-        ).join(' ');
-        return `/${client_interaction.identifier} ${command_usage}`;
-    });
+    const mapped_commands_in_specified_category = commands_in_specified_category.map(
+        (client_interaction) => {
+            const client_command_options = (client_interaction.data as Discord.ChatInputApplicationCommandData).options!;
+
+            const filtered_client_interactions = client_command_options.filter(
+                (option) => ![
+                    Discord.ApplicationCommandOptionType.SubcommandGroup,
+                    Discord.ApplicationCommandOptionType.Subcommand,
+                ].includes(option.type as number)
+            ) as (Discord.ApplicationCommandOption & { required?: boolean })[];
+
+            const command_usage = filtered_client_interactions.map(({ required, name, type }) =>
+                `${required ? '<' : '['}${name}${required ? '>' : ']'}`
+                // `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
+            ).join(' ');
+
+            return `/${client_interaction.identifier} ${command_usage}`;
+        }
+    );
 
     return CustomEmbed.from({
         title: `${command_category.name}`,
@@ -57,10 +69,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'category',
                 description: 'the category to show',
-                choices: Object.values(ClientCommandHelper.categories).map(category => ({
-                    name: category.name,
-                    value: category.id,
-                })),
+                choices: Object.values(ClientCommandHelper.categories).map(
+                    (category) => ({
+                        name: category.name,
+                        value: category.id,
+                    })
+                ),
                 required: false,
             },
         ],

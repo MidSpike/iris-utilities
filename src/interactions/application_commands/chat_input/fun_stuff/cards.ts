@@ -33,13 +33,13 @@ const cah_card_set: {
     )
 );
 
-const black_cards = cah_card_set.filter(card => card.cardType === 'Q');
-const white_cards = cah_card_set.filter(card => card.cardType === 'A');
+const black_cards = cah_card_set.filter((card) => card.cardType === 'Q');
+const white_cards = cah_card_set.filter((card) => card.cardType === 'A');
 
 //------------------------------------------------------------//
 
 async function updateMessageWithNewContent(discord_client: Discord.Client<true>, message: Discord.Message) {
-    const selected_black_card = randomItemFromArray(black_cards.filter(card => card.numAnswers === 2));
+    const selected_black_card = randomItemFromArray(black_cards.filter((card) => card.numAnswers === 2));
     const selected_white_cards = Array.from({ length: selected_black_card.numAnswers }, () => randomItemFromArray(white_cards));
 
     await delay(250); // prevent api abuse
@@ -54,11 +54,13 @@ async function updateMessageWithNewContent(discord_client: Discord.Client<true>,
                         value: `${'```'}\n${selected_black_card.text.replace(/([_]+)/gi, '_____')}\n${'```'}`,
                         inline: false,
                     },
-                    ...selected_white_cards.map(white_card => ({
-                        name: 'White Card',
-                        value: `${'```'}\n${white_card.text}\n${'```'}`,
-                        inline: true,
-                    })),
+                    ...selected_white_cards.map(
+                        (white_card) => ({
+                            name: 'White Card',
+                            value: `${'```'}\n${white_card.text}\n${'```'}`,
+                            inline: true,
+                        })
+                    ),
                 ],
                 footer: {
                     text: 'Inspired by Cards Against Humanity',
