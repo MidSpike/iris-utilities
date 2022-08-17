@@ -4,24 +4,34 @@
         "baseUrl": ".",
         "rootDir": "./src",
         "outDir": "./dist",
-        "allowJs": true,
-        "checkJs": false,
         "target": "ESNext",
         "module": "CommonJS",
         "moduleResolution": "Node",
+        "strict": true,
+        "allowJs": true,
+        "checkJs": false,
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "strictNullChecks": true,
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true,
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitOverride": true,
+        "noFallthroughCasesInSwitch": true,
+        "exactOptionalPropertyTypes": true,
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
-        "strict": true,
         "sourceMap": true,
         "declaration": false,
         "typeRoots": [
-            "@types"
+            "./node_modules/@types"
         ],
         "paths": {
-            "@root/*": [ "src/*" ],
+            "@root/*": [ "src/*" ]
         }
     },
     "exclude": [

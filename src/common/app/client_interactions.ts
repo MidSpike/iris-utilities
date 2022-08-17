@@ -480,7 +480,7 @@ export class ClientInteractionManager {
     static async handleUnknownInteraction(
         discord_client: Discord.Client,
         unknown_interaction: Discord.Interaction,
-    ): Promise<unknown> {
+    ): Promise<void> {
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
         let unknown_interaction_identifier: string;

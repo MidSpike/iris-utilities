@@ -188,9 +188,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             title: string;
             author_name: string;
             author_url: string;
-            content?: string;
-            preview_image_url?: string;
-            preview_video_url?: string;
+            content?: string | undefined;
+            preview_image_url?: string | undefined;
+            preview_video_url?: string | undefined;
         };
 
         const mapped_subreddit_posts: MappedSubredditPost[] = subreddit_posts_results.data.children.map((subreddit_post) => ({
