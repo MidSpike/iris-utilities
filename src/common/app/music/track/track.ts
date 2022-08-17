@@ -167,5 +167,5 @@ export interface TextToSpeechTrackMetadata extends TrackMetadata {
 }
 
 export class TextToSpeechTrack extends Track<TextToSpeechTrackMetadata> {
-    public volume_multiplier = 5.0;
+    public override volume_multiplier = 5.0;
 }

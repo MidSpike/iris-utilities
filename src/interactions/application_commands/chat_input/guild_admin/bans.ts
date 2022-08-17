@@ -14,16 +14,20 @@ import { doesMemberHavePermission } from '@root/common/app/permissions';
 
 async function generatePaginator(
     interaction: Discord.ChatInputCommandInteraction<'cached'>,
-    before_id?: string,
-    after_id?: string,
+    before_id?: string | undefined,
+    after_id?: string | undefined,
 ): Promise<{
     first_ban_id: string | undefined;
     last_ban_id: string | undefined;
     message_payload: Discord.WebhookEditMessageOptions;
 }> {
     const guild_bans = await interaction.guild.bans.fetch({
-        before: before_id,
-        after: after_id,
+        ...(before_id ? {
+            before: before_id,
+        } : {}),
+        ...(after_id ? {
+            after: after_id,
+        } : {}),
         limit: 5,
     });
 
