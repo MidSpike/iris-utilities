@@ -100,7 +100,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        let deleted_messages: Discord.Collection<Discord.Snowflake, Discord.Message>;
+        let deleted_messages;
         try {
             deleted_messages = await channel.bulkDelete(number_of_messages, true);
         } catch (error) {

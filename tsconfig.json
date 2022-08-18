@@ -27,18 +27,19 @@
         "forceConsistentCasingInFileNames": true,
         "sourceMap": true,
         "declaration": false,
+        "skipLibCheck": true,
         "typeRoots": [
-            "./node_modules/@types"
+            "@types"
         ],
         "paths": {
             "@root/*": [ "src/*" ]
-        }
+        },
     },
     "exclude": [
         "node_modules",
         "dist"
     ],
     "include": [
-        "src",
+        "src"
     ]
 }
