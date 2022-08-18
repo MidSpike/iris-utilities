@@ -6,7 +6,9 @@ import { GuildId } from '@root/types/index';
 
 import process from 'node:process';
 
-import * as DiscordPlayer from 'discord-player';
+import * as ytdl from 'ytdl-core';
+
+import { YouTube as YoutubeSearch } from 'youtube-sr';
 
 import * as DiscordVoice from '@discordjs/voice';
 
@@ -211,64 +213,9 @@ export type MusicReconnaissanceSearchResult = {
 }
 
 export class MusicReconnaissance {
-    private static _initialized = false;
-
-    private static _client: Discord.Client<true>;
-    private static _discord_player: DiscordPlayer.Player;
-
-    static query_types = DiscordPlayer.QueryType;
-
-    /**
-     * Initializes the MusicReconnaissance singleton.
-     *
-     * @notice
-     * When initializing the MusicReconnaissance singleton, a proxy of the Discord client is created.
-     * This is to trick DiscordPlayer into thinking that it is using a real Discord client.
-     * This is necessary because DiscordPlayer uses an outdated (broken) version of the Discord client,
-     *
-     * @warning
-     * This method must be called before any other MusicReconnaissance methods are called.
-     *
-     * @param discord_client The Discord client to use for the MusicReconnaissance.
-     */
-    static initialize(
-        discord_client: Discord.Client<true>,
-    ): void {
-        if (MusicReconnaissance._initialized) return;
-
-        const discord_client_proxy = new Proxy(discord_client, {});
-
-        discord_client_proxy.options = new Proxy(discord_client_proxy.options, {
-            get(target, key) {
-                if (key === 'intents') return undefined;
-
-                // @ts-ignore
-                return target[key];
-            },
-        });
-
-        MusicReconnaissance._client = discord_client;
-        MusicReconnaissance._discord_player = new DiscordPlayer.Player(discord_client, {
-            ytdlOptions: {
-                requestOptions: {
-                    headers: {
-                        'Accept-Language': 'en-US,en;q=0.5',
-                        'User-Agent': ytdl_user_agent,
-                        'Cookie': ytdl_cookie,
-                        'x-youtube-identity-token': ytdl_x_youtube_identity_token,
-                    },
-                },
-            },
-        });
-
-        MusicReconnaissance._initialized = true;
-    }
-
     static async search(
         query: string,
     ): Promise<MusicReconnaissanceSearchResult[]> {
-        if (!MusicReconnaissance._initialized) throw new Error('MusicReconnaissance must be initialized before use.');
-
         let modified_query = query;
 
         const query_url = parseUrlFromString(query);
@@ -289,19 +236,53 @@ export class MusicReconnaissance {
             });
         }
 
-        const search_result = await MusicReconnaissance._discord_player.search(modified_query, {
-            requestedBy: MusicReconnaissance._client.user.id,
-            searchEngine: DiscordPlayer.QueryType.AUTO,
-        });
+        type VideoInfo = {
+            title: string;
+            url: string;
+        };
 
-        const tracks = (search_result.playlist?.tracks ?? [ search_result.tracks.at(0) ]).filter(
-            (track) => track instanceof DiscordPlayer.Track,
-        ) as DiscordPlayer.Track[];
+        const tracks: VideoInfo[] = [];
 
-        return tracks.map((track) => ({
-            title: track.title,
-            url: track.url,
-        }));
+        let video_info: VideoInfo | undefined;
+        if (
+            ytdl.validateID(modified_query) ||
+            ytdl.validateURL(modified_query)
+        ) {
+            video_info = await ytdl.getInfo(modified_query, {
+                requestOptions: {
+                    headers: {
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'User-Agent': ytdl_user_agent,
+                        'Cookie': ytdl_cookie,
+                        'x-youtube-identity-token': ytdl_x_youtube_identity_token,
+                    },
+                },
+            }).then(
+                (video_info) => ({
+                    title: video_info.videoDetails.title,
+                    url: video_info.videoDetails.video_url,
+                }),
+            ).catch((error) => {
+                console.warn('ytdl.getInfo():', error);
+
+                return undefined;
+            });
+        } else {
+            video_info = await YoutubeSearch.searchOne(modified_query, 'video').then(
+                (video_info) => ({
+                    title: video_info.title || 'Unknown',
+                    url: video_info.url,
+                }),
+            ).catch((error) => {
+                console.warn('YouTubeSearch.searchOne():', error);
+
+                return undefined;
+            });
+        }
+
+        if (video_info) tracks.push(video_info);
+
+        return tracks;
     }
 }
 

@@ -156,18 +156,6 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
             return;
         }
 
-        if (search_results.length === 0) {
-            await interaction.followUp({
-                embeds: [
-                    CustomEmbed.from({
-                        description: `${interaction.user}, I couldn't find anything for **${query}**.`,
-                    }),
-                ],
-            });
-
-            return;
-        }
-
         const search_result = search_results.at(0)!;
 
         const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
