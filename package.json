@@ -60,7 +60,7 @@
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
     "uuid": "8.3.2",
-    "ytdl-core": "4.11.0"
+    "ytdl-core": "4.10.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "2.4.2",
