@@ -1,3 +1,7 @@
+# Hello world, this is iris-utilities!
+
+## Copyright
+
 Copyright (C) Tyler S. Resch (MidSpike), All Rights Reserved.
 
 This program is free software: you can redistribute it and/or  
