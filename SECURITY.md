@@ -1,6 +1,6 @@
 # Hello world, this is iris-utilities!
 
-## Security Policy
+## Security
 
 I welcome everyone to report any security vulnerabilities via the official method below!
 
