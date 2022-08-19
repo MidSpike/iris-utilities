@@ -70,9 +70,11 @@ Any Discord Bot created/modified from this source-code by anyone (other than the
 
 Any Discord Bot created/modified from this source-code by anyone (including the copyright holders) is required to use the included privacy policy located in the [Privacy Notice](#privacy-notice) section below.
 
-Any Discord Bot created/modified from this source-code by anyone (other than the copyright holders) is not permitted to modify the included privacy policy.
+Any Discord Bot created/modified from this source-code by anyone (other than the copyright holders) is not permitted to modify the included privacy policy and/or corresponding information.
 
 Any Discord Bot created/modified from this source-code by anyone (including the copyright holders) must attribute the copyright holder(s) listed in the [Copyright Notice](#copyright-notice) below.
+
+Any Discord Bot created/modified from this source-code by anyone (other than the copyright holders) is not permitted to modify the included copyright notice and/or corresponding information.
 
 The restrictions above, are meant to protect users from potentially malicious copies/modifications of this source-code and uphold the authenticity of I.R.I.S. Utilities.
 
