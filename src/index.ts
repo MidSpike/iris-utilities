@@ -67,7 +67,7 @@ sharding_manager.on('shardCreate', (shard) => {
 
 console.log('<SM> spawning shards...');
 sharding_manager.spawn({
-    timeout: 60_000,
+    timeout: 120_000,
     delay: 5_000,
     amount: 'auto',
 });
