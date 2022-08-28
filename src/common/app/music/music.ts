@@ -210,7 +210,7 @@ export class MusicSubscription {
 export type MusicReconnaissanceSearchResult = {
     title: string;
     url: string;
-}
+};
 
 export class MusicReconnaissance {
     static async search(
@@ -261,7 +261,7 @@ export class MusicReconnaissance {
                 (video_info) => ({
                     title: video_info.videoDetails.title,
                     url: video_info.videoDetails.video_url,
-                }),
+                })
             ).catch((error) => {
                 console.warn('ytdl.getInfo():', error);
 
@@ -269,10 +269,15 @@ export class MusicReconnaissance {
             });
         } else {
             video_info = await YoutubeSearch.searchOne(modified_query, 'video').then(
-                (video_info) => ({
-                    title: video_info.title || 'Unknown',
-                    url: video_info.url,
-                }),
+                (video_info) => {
+                    // video_info is actually nullable, even though it's not documented as such
+                    if (!video_info) throw new Error(`No results found for: ${modified_query};`);
+
+                    return {
+                        title: video_info.title || 'Unknown',
+                        url: video_info.url,
+                    };
+                }
             ).catch((error) => {
                 console.warn('YouTubeSearch.searchOne():', error);
 
