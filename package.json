@@ -52,7 +52,7 @@
     "discord-api-types": "0.37.5",
     "discord.js": "14.3.0",
     "dotenv": "16.0.2",
-    "ffmpeg-static": "5.0.2",
+    "ffmpeg-static": "5.1.0",
     "ffmpeg-stream": "0.7.0",
     "go-mongo-db": "github:Inertia-Lighting/go-mongo-db#v1.2.0-stable",
     "google-translate-tts": "github:MidSpike/google-translate-tts#v2.1.0",
