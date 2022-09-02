@@ -30,6 +30,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 type: Discord.ApplicationCommandOptionType.String,
                 name: 'message',
                 description: 'tell us what you think',
+                minLength: 16,
+                maxLength: 1024,
                 required: true,
             },
         ],
@@ -52,7 +54,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: true });
 
-        const feedback_message = interaction.options.getString('message', true) || 'No feedback provided';
+        const feedback_message = interaction.options.getString('message', true);
 
         try {
             await sendWebhookMessage(
