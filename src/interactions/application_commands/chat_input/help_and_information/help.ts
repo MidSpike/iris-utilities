@@ -45,6 +45,8 @@ async function createHelpEmbed(command_category_id: ClientCommandCategoryId) {
     return CustomEmbed.from({
         title: `${command_category.name}`,
         description: [
+            `${command_category.description}`,
+            '',
             '\`\`\`',
             mapped_commands_in_specified_category.length > 0 ? (
                 `${mapped_commands_in_specified_category.join('\n')}`
