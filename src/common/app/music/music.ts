@@ -238,8 +238,17 @@ export class MusicReconnaissance {
             )
         ) {
             const video_id_from_query_param = query_url.searchParams.get('v');
+            const playlist_id_from_query_param = query_url.searchParams.get('list');
 
-            const new_query_params = video_id_from_query_param ? new URLSearchParams(`v=${video_id_from_query_param}`) : new URLSearchParams();
+            const new_query_params = new URLSearchParams({
+                ...video_id_from_query_param ? {
+                    'v': video_id_from_query_param,
+                } : {},
+                ...playlist_id_from_query_param ? {
+                    'list': playlist_id_from_query_param,
+                } : {},
+            });
+
             modified_query = `${query_url.protocol}//${query_url.hostname}${query_url.pathname}?${new_query_params}`;
 
             console.warn('MusicReconnaissance.search():', {
