@@ -35,6 +35,17 @@ if (!ytdl_x_youtube_identity_token?.length) throw new Error('YTDL_X_YOUTUBE_IDEN
 
 //------------------------------------------------------------//
 
+const youtube_request_options = {
+    headers: {
+        'Accept-Language': 'en-US,en;q=0.5',
+        'User-Agent': ytdl_user_agent,
+        'Cookie': ytdl_cookie,
+        'x-youtube-identity-token': ytdl_x_youtube_identity_token,
+    },
+};
+
+//------------------------------------------------------------//
+
 /**
  * A MusicSubscription exists for each active VoiceConnection. Each subscription has its own audio player and queue,
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
@@ -243,49 +254,59 @@ export class MusicReconnaissance {
 
         const tracks: VideoInfo[] = [];
 
-        let video_info: VideoInfo | undefined;
-        if (
-            ytdl.validateID(modified_query) ||
-            ytdl.validateURL(modified_query)
-        ) {
-            video_info = await ytdl.getInfo(modified_query, {
-                requestOptions: {
-                    headers: {
-                        'Accept-Language': 'en-US,en;q=0.5',
-                        'User-Agent': ytdl_user_agent,
-                        'Cookie': ytdl_cookie,
-                        'x-youtube-identity-token': ytdl_x_youtube_identity_token,
-                    },
-                },
-            }).then(
-                (video_info) => ({
-                    title: video_info.videoDetails.title,
-                    url: video_info.videoDetails.video_url,
-                })
-            ).catch((error) => {
-                console.warn('ytdl.getInfo():', error);
-
-                return undefined;
+        if (YoutubeSearch.isPlaylist(modified_query)) {
+            const playlist = await YoutubeSearch.getPlaylist(modified_query, {
+                requestOptions: youtube_request_options,
             });
+
+            for (const video of playlist.videos) {
+                // video is actually nullable, even though it's not documented as such
+                if (!video) continue;
+
+                tracks.push({
+                    title: video.title || 'Unknown',
+                    url: video.url,
+                });
+            }
         } else {
-            video_info = await YoutubeSearch.searchOne(modified_query, 'video').then(
-                (video_info) => {
-                    // video_info is actually nullable, even though it's not documented as such
-                    if (!video_info) throw new Error(`No results found for: ${modified_query};`);
+            let video_info: VideoInfo | undefined;
 
-                    return {
-                        title: video_info.title || 'Unknown',
-                        url: video_info.url,
-                    };
-                }
-            ).catch((error) => {
-                console.warn('YouTubeSearch.searchOne():', error);
+            if (
+                ytdl.validateID(modified_query) ||
+                ytdl.validateURL(modified_query)
+            ) {
+                video_info = await ytdl.getInfo(modified_query, {
+                    requestOptions: youtube_request_options,
+                }).then(
+                    (video_info) => ({
+                        title: video_info.videoDetails.title,
+                        url: video_info.videoDetails.video_url,
+                    })
+                ).catch((error) => {
+                    console.warn('ytdl.getInfo():', error);
 
-                return undefined;
-            });
+                    return undefined;
+                });
+            } else {
+                video_info = await YoutubeSearch.searchOne(modified_query, 'video', undefined, youtube_request_options).then(
+                    (video_info) => {
+                        // video_info is actually nullable, even though it's not documented as such
+                        if (!video_info) throw new Error(`No results found for: ${modified_query};`);
+
+                        return {
+                            title: video_info.title || 'Unknown',
+                            url: video_info.url,
+                        };
+                    }
+                ).catch((error) => {
+                    console.warn('YouTubeSearch.searchOne():', error);
+
+                    return undefined;
+                });
+            }
+
+            if (video_info) tracks.push(video_info);
         }
-
-        if (video_info) tracks.push(video_info);
 
         return tracks;
     }
