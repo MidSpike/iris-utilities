@@ -229,8 +229,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         required: false,
                     },
                 ],
-            },
-            {
+            }, {
                 type: Discord.ApplicationCommandOptionType.Subcommand,
                 name: 'file',
                 description: 'plays a file',
