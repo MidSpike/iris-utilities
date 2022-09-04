@@ -40,7 +40,7 @@ async function playQuery(
         await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, added ${search_results.length} track(s) to the queue...`,
+                    description: `${interaction.user}, adding ${search_results.length} track(s) to the queue...`,
                 }),
             ],
         });
@@ -121,7 +121,7 @@ async function playQuery(
             });
         }
 
-        await delay(5_000);
+        await delay(10_000); // insert a delay in-between adding tracks to the queue
     }
 }
 
