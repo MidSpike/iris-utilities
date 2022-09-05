@@ -10,11 +10,12 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { delay, randomItemFromArray } from '@root/common/lib/utilities';
+import { escapeHtml, randomItemFromArray } from '@root/common/lib/utilities';
 
-import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '@root/common/app/message';
+import { CustomEmbed, requestPotentialNotSafeForWorkContentConsent } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
+import nodeHtmlToImage from 'node-html-to-image';
 
 //------------------------------------------------------------//
 
@@ -42,26 +43,134 @@ async function updateMessageWithNewContent(discord_client: Discord.Client<true>,
     const selected_black_card = randomItemFromArray(black_cards.filter((card) => card.numAnswers === 2));
     const selected_white_cards = Array.from({ length: selected_black_card.numAnswers }, () => randomItemFromArray(white_cards));
 
-    await delay(250); // prevent api abuse
+    const html_for_image = `
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <style>
+                    * {
+                        box-sizing: border-box;
+                    }
+                    html {
+                        display: flex;
+                        width: auto;
+                        height: auto;
+                    }
+                    body {
+                        width: auto;
+                        height: auto;
+                    }
+                    div {
+                        text-align: left;
+                        font-family: Helvetica, Arial, sans-serif;
+                        font-weight: 900;
+                    }
+                    div.cards-container-parent {
+                        background-image: radial-gradient(circle at center, hsl(20, 100%, 5%), hsl(20, 100%, 22%));
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        max-width: 50rem;
+                        padding: 1rem;
+                    }
+                    div.cards-container {
+                        padding: 1rem;
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        grid-template-rows: 1fr;
+                        gap: 1rem;
+                        width: 100%;
+                    }
+                    div.card-box {
+                        display: flex;
+                        flex-direction: row;
+                        flex-wrap: nowrap;
+                        justify-content: stretch;
+                        align-items: stretch;
+                        flex-grow: 1;
+                        gap: 2rem;
+                        aspect-ratio: 2 / 3;
+                    }
+                    div.card-content {
+                        border-radius: 1rem;
+                        backdrop-filter: blur(0.5rem);
+                        position: relative;
+                        display: block;
+                        width: 100%;
+                        height: 100%;
+                        padding: 1rem;
+                        font-size: 1.25rem;
+                    }
+                    div.card-content::after {
+                        content: "";
+                        background-image: url('https://iris-utilities.com/assets/visual/logo/logo_t_2020-08-30-1_1024x.png');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        display: block;
+                        position: absolute;
+                        bottom: 0.25rem;
+                        right: 0.5rem;
+                        width: 2.5rem;
+                        height: 2.5rem;
+                    }
+                    div.card-box[data-card-type="black-card"] div.card-content {
+                        border: 0.25rem solid #ffffff;
+                        background-color: #000000;
+                        color: #ffffff;
+                    }
+                    div.card-box[data-card-type="white-card"] div.card-content {
+                        border: 0.25rem solid #000000;
+                        background-color: #ffffff;
+                        color: #000000;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="cards-container-parent">
+                    <div class="cards-container">
+                        <div class="card-box" data-card-type="black-card">
+                            <div class="card-content">
+                                ${escapeHtml(selected_black_card.text.replace(/([_]+)/gi, '_____'))}
+                            </div>
+                        </div>
+                        ${selected_white_cards.map((selected_white_card) => `
+                            <div class="card-box" data-card-type="white-card">
+                                <div class="card-content">
+                                    ${escapeHtml(selected_white_card.text)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </body>
+        </html>
+    `;
+
+    const image_base64 = await nodeHtmlToImage({
+        type: 'png',
+        encoding: 'base64',
+        html: html_for_image,
+        waitUntil: 'load',
+    }) as string;
+
+    const image_buffer = Buffer.from(image_base64, 'base64');
+    const attachment_name = `attachment-${Date.now()}.png`;
+    const attachment = new Discord.AttachmentBuilder(image_buffer, { name: attachment_name });
 
     await message.edit({
+        files: [
+            attachment,
+        ],
         embeds: [
             CustomEmbed.from({
                 title: `Cards Against ${discord_client.user.username}`,
-                fields: [
-                    {
-                        name: 'Black Card',
-                        value: `${'```'}\n${selected_black_card.text.replace(/([_]+)/gi, '_____')}\n${'```'}`,
-                        inline: false,
-                    },
-                    ...selected_white_cards.map(
-                        (white_card) => ({
-                            name: 'White Card',
-                            value: `${'```'}\n${white_card.text}\n${'```'}`,
-                            inline: true,
-                        })
-                    ),
-                ],
+                image: {
+                    url: `attachment://${attachment_name}`,
+                },
                 footer: {
                     text: 'Inspired by Cards Against Humanity',
                 },
@@ -146,7 +255,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         });
 
         button_interaction_collector.on('end', async () => {
-            await disableMessageComponents(bot_message);
+            await bot_message.edit({
+                components: [],
+            });
         });
     },
 });
