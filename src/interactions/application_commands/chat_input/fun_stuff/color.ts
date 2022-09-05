@@ -60,9 +60,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const hex = interaction.options.getString('hex', true).replace(/[^0-9a-f]/gi, '');
+        const hex = interaction.options.getString('hex', true);
 
-        const color_decimal = Number.parseInt(hex, 16);
+        let formatted_hex = hex.replace(/[^0-9a-f]/gi, '');
+        if (formatted_hex.length === 3) {
+            formatted_hex = formatted_hex.split('').map((char) => `${char}${char}`).join('');
+        }
+
+        const color_decimal = Number.parseInt(formatted_hex, 16);
 
         if (
             Number.isNaN(color_decimal) ||
