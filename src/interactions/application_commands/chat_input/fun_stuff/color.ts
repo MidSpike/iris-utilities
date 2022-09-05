@@ -8,8 +8,6 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { randomNumberFromInclusiveRange } from '@root/common/lib/utilities';
-
 //------------------------------------------------------------//
 
 /* eslint-disable no-bitwise */
@@ -30,12 +28,21 @@ function decimalColorToRgb(
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
-    identifier: 'random_color',
+    identifier: 'color',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         description: 'n/a',
         type: Discord.ApplicationCommandType.ChatInput,
-        options: [],
+        options: [
+            {
+                name: 'hex',
+                description: 'displays a color from a 6-digit hex code',
+                type: Discord.ApplicationCommandOptionType.String,
+                minLength: 6,
+                maxLength: 6,
+                required: true,
+            },
+        ],
     },
     metadata: {
         allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
@@ -53,33 +60,35 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const random_color_decimal = randomNumberFromInclusiveRange(0x000000, 0xFFFFFF);
-        const random_color_rgb = decimalColorToRgb(random_color_decimal);
+        const hex = interaction.options.getString('hex', true);
+
+        const color_decimal = Number.parseInt(hex, 16);
+        const color_rgb = decimalColorToRgb(color_decimal);
 
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: random_color_decimal,
+                    color: color_decimal,
                     title: 'Random Color',
                     fields: [
                         {
                             name: 'Decimal',
-                            value: `\`${random_color_decimal.toString(10)}\``,
+                            value: `\`${color_decimal.toString(10)}\``,
                             inline: true,
                         }, {
                             name: 'Hexadecimal',
-                            value: `\`#${random_color_decimal.toString(16)}\``,
+                            value: `\`#${color_decimal.toString(16)}\``,
                             inline: true,
                         }, {
                             name: 'Rgb',
-                            value: `\`${random_color_rgb.join(', ')}\``,
+                            value: `\`${color_rgb.join(', ')}\``,
                             inline: true,
                         },
                     ],
                     image: {
                         // documentation: https://singlecolorimage.com/api.html
                         // generate a mono-color image with the dimensions of 1920x540
-                        url: `https://singlecolorimage.com/get/${random_color_decimal.toString(16)}/1920x540`,
+                        url: `https://singlecolorimage.com/get/${color_decimal.toString(16)}/1920x540`,
                     },
                 }),
             ],
