@@ -38,8 +38,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 name: 'hex',
                 description: 'displays a color from a 6-digit hex code',
                 type: Discord.ApplicationCommandOptionType.String,
-                minLength: 6,
-                maxLength: 6,
+                minLength: 1,
+                maxLength: 10,
                 required: true,
             },
         ],
@@ -63,13 +63,32 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const hex = interaction.options.getString('hex', true);
 
         const color_decimal = Number.parseInt(hex, 16);
+
+        if (
+            Number.isNaN(color_decimal) ||
+            color_decimal < 0x000000 ||
+            color_decimal > 0xFFFFFF
+        ) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        title: 'Invalid Hex Code',
+                        description: 'The hex code you provided is invalid.',
+                    }),
+                ],
+            });
+
+            return;
+        }
+
         const color_rgb = decimalColorToRgb(color_decimal);
 
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
                     color: color_decimal,
-                    title: 'Random Color',
+                    title: 'Color',
                     fields: [
                         {
                             name: 'Decimal',
