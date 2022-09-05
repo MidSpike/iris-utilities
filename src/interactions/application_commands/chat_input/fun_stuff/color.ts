@@ -60,7 +60,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const hex = interaction.options.getString('hex', true);
+        const hex = interaction.options.getString('hex', true).replace(/[^0-9a-f]/gi, '');
 
         const color_decimal = Number.parseInt(hex, 16);
 
