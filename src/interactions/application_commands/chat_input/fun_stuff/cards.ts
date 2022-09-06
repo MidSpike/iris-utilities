@@ -104,6 +104,7 @@ async function updateMessageWithNewContent(discord_client: Discord.Client<true>,
                         height: 100%;
                         padding: 1rem;
                         font-size: 1.25rem;
+                        word-break: break-word;
                     }
                     div.card-content::after {
                         content: "";
