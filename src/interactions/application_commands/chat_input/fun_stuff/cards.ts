@@ -20,13 +20,17 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-const cah_card_set: {
+type Card = {
     id: number,
     cardType: 'Q' | 'A',
     text: string,
     numAnswers: number,
-    expansion: string,
-}[] = JSON.parse(
+    expansion: 'Base' | 'ExpansionPack1' | 'ExpansionPack2' | 'ExpansionPack3' | 'Grognards' | 'Weeaboo' | 'Xmas' | 'Indy' | 'NotSafeForHumanity' | 'Image1',
+};
+
+//------------------------------------------------------------//
+
+const cah_card_set: Card[] = JSON.parse(
     fs.readFileSync(
         path.join(process.cwd(), 'misc', 'cards_against_humanity.json'),
         {
