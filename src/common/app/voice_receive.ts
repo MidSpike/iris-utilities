@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { UserConfig } from '@root/types/index';
+import { UserSettings } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 
@@ -23,7 +23,7 @@ async function doesUserHaveVoiceRecognitionEnabled(
 ): Promise<boolean> {
     const [ user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         user_id: user_id,
-    }).catch(() => undefined) as unknown as (UserConfig | undefined)[];
+    }).catch(() => undefined) as unknown as (UserSettings | undefined)[];
 
     return user_config?.voice_recognition_enabled ?? false; // default to false to avoid unwanted data collection
 }

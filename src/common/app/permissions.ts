@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import { UserSettings } from '@root/types';
+
 import process from 'node:process';
 
 import * as Discord from 'discord.js';
@@ -22,7 +24,7 @@ if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_P
 //------------------------------------------------------------//
 
 /**
- * This function will check the database to see if the user is a super person.
+ * Check the database to see if the user is a super person.
  * @param user_id the user's discord id
  */
 export async function doesUserHaveSuperPersonStatus(
@@ -38,7 +40,7 @@ export async function doesUserHaveSuperPersonStatus(
 //------------------------------------------------------------//
 
 /**
- * This function will check the database to see if the user is permitted access to donator features.
+ * Check the database to see if the user is permitted access to donator features.
  * @param user_id the user's discord id
  */
 export async function doesUserHaveDonatorStatus(
@@ -47,11 +49,11 @@ export async function doesUserHaveDonatorStatus(
     const member_is_super_person = await doesUserHaveSuperPersonStatus(user_id);
     if (member_is_super_person) return true;
 
-    const [ db_user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
-    });
+    }) as unknown as (UserSettings | undefined)[];
 
-    return db_user_config?.donator ?? false;
+    return db_user_settings?.donator ?? false;
 }
 
 //------------------------------------------------------------//
@@ -96,10 +98,11 @@ export function isMemberAboveOtherMember(
 //------------------------------------------------------------//
 
 /**
- * This function will always return `true` if the member meets one of the following conditions:
+ * Returns `true` if the member meets one of the following conditions:
  * - the member is the owner of the guild
  * - the member has Administrator permissions
  * - the member is a super person (an admin for this bot)
+ * - the member has the specified permission flag bit
  * @param member the member to check
  * @param permission_flag_bit the permission to check for
  */
