@@ -77,9 +77,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     player: {
                         id: string,
                         username: string,
-                        meta: {
-                            name_history: { name: string, changedToAt: number }[],
-                        },
                     },
                 } | undefined = await axios({
                     method: 'get',
@@ -103,7 +100,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 }
 
                 const mc_user_username = response_data?.player?.username;
-                const mc_user_name_history = response_data?.player?.meta?.name_history;
 
                 const mc_avatar_image = `https://crafatar.com/avatars/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
                 const mc_body_image = `https://crafatar.com/renders/body/${encodeURIComponent(mc_user_uuid)}?overlay=true`;
@@ -117,14 +113,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 {
                                     name: 'UUID',
                                     value: mc_user_uuid,
-                                    inline: false,
-                                }, {
-                                    name: 'Name History',
-                                    value: (mc_user_name_history ? (
-                                        mc_user_name_history.map(({ name, changedToAt }) => `${Discord.escapeMarkdown(name)} ${changedToAt ? `(<t:${`${changedToAt}`.slice(0, -3)}:f>)` : ''}`).join('\n')
-                                    ) : (
-                                        'No name history was found'
-                                    )),
                                     inline: false,
                                 }, {
                                     name: 'Avatar',
