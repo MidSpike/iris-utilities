@@ -25,6 +25,20 @@ function decimalColorToRgb(
     return [ r, g, b ];
 }
 
+function decimalColorToHexString(
+    color: number, // Example: 0xff5500
+): string { // Example: 'ff5500'
+    let hex_string = color.toString(16); // convert to hex string
+
+    // Pad start of string with zeros if necessary
+    // Example: 0x0000ff -> 'ff' -> '0000ff'
+    while (hex_string.length < 6) {
+        hex_string = `0${hex_string}`;
+    }
+
+    return hex_string;
+}
+
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
@@ -88,6 +102,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         const color_rgb = decimalColorToRgb(color_decimal);
+        const color_hex_string = decimalColorToHexString(color_decimal);
 
         await interaction.editReply({
             embeds: [
@@ -101,7 +116,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             inline: true,
                         }, {
                             name: 'Hexadecimal',
-                            value: `\`#${color_decimal.toString(16)}\``,
+                            value: `\`#${color_hex_string}\``,
                             inline: true,
                         }, {
                             name: 'Rgb',
@@ -112,7 +127,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     image: {
                         // documentation: https://singlecolorimage.com/api.html
                         // generate a mono-color image with the dimensions of 1920x540
-                        url: `https://singlecolorimage.com/get/${color_decimal.toString(16)}/1920x540`,
+                        url: `https://singlecolorimage.com/get/${color_hex_string}/1920x540`,
                     },
                 }),
             ],
