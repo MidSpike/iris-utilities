@@ -2,12 +2,6 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
-import * as fs from 'node:fs';
-
-import * as path from 'node:path';
-
 import * as Discord from 'discord.js';
 
 import { compareTwoStrings } from 'string-similarity';
@@ -16,21 +10,22 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-const translateUsingGoogle = require('@midspike/translate-google');
+import * as LibreTranslate from '@root/common/app/libre_translate';
 
 //------------------------------------------------------------//
 
-const google_translate_languages: {
-    code: string,
-    name: string,
-}[] = JSON.parse(
-    fs.readFileSync(
-        path.join(process.cwd(), 'misc', 'google_translate_languages.json'),
-        {
-            encoding: 'utf8',
-        }
-    )
-);
+const fetchSupportedLanguages = (() => {
+    let supported_languages: LibreTranslate.LanguageConfig[];
+
+    return async () => {
+        if (supported_languages) return supported_languages;
+
+        // eslint-disable-next-line require-atomic-updates
+        supported_languages = await fetchSupportedLanguages();
+
+        return supported_languages;
+    };
+})();
 
 //------------------------------------------------------------//
 
@@ -50,6 +45,8 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
     },
     async handler(discord_client, interaction) {
         if (!interaction.isMessageContextMenuCommand()) return;
+
+        const supported_languages = await fetchSupportedLanguages();
 
         const message = interaction.targetMessage;
 
@@ -97,7 +94,7 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
 
         await modal_submit_interaction.deferReply();
 
-        const translate_to_language = google_translate_languages.map(
+        const translate_to_language = supported_languages.map(
             (language) => ({
                 score: Math.max(
                     compareTwoStrings(translate_to_query, language.name),
@@ -113,10 +110,7 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
             (language) => language.code !== 'auto'
         ).at(0)!;
 
-        const translated_text: string = await translateUsingGoogle(text_to_translate, {
-            from: 'auto',
-            to: translate_to_language.code,
-        }, 'translate.google.com');
+        const translated_text = await LibreTranslate.translate(text_to_translate, 'auto', translate_to_language.code);
 
         await modal_submit_interaction.editReply({
             embeds: [
