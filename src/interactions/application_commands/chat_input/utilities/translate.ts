@@ -2,12 +2,6 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
-import * as fs from 'node:fs';
-
-import * as path from 'node:path';
-
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
@@ -16,21 +10,22 @@ import { compareTwoStrings } from 'string-similarity';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-const translateUsingGoogle = require('@midspike/translate-google');
+import * as LibreTranslate from '@root/common/app/libre_translate';
 
 //------------------------------------------------------------//
 
-const google_translate_languages: {
-    code: string,
-    name: string,
-}[] = JSON.parse(
-    fs.readFileSync(
-        path.join(process.cwd(), 'misc', 'google_translate_languages.json'),
-        {
-            encoding: 'utf8',
-        }
-    )
-);
+const fetchSupportedLanguages = (() => {
+    let supported_languages: LibreTranslate.LanguageConfig[];
+
+    return async () => {
+        if (supported_languages) return supported_languages;
+
+        // eslint-disable-next-line require-atomic-updates
+        supported_languages = await fetchSupportedLanguages();
+
+        return supported_languages;
+    };
+})();
 
 //------------------------------------------------------------//
 
@@ -75,10 +70,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     async handler(discord_client, interaction) {
         if (!interaction.inCachedGuild()) return;
 
+        const supported_languages = await fetchSupportedLanguages();
+
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete) {
             const query_option = interaction.options.getFocused(true);
 
-            const matching_languages = google_translate_languages.map(
+            const matching_languages = supported_languages.map(
                 (language) => ({
                     score: Math.max(
                         (query_option.value.length < 10 ? compareTwoStrings(query_option.value, language.code) : 0),
@@ -116,26 +113,23 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const translate_to_code = interaction.options.getString('to', false);
         const translate_from_code = interaction.options.getString('from', false);
 
-        const translated_from_language = google_translate_languages.find(
+        const translated_from_language = supported_languages.find(
             (language) =>
                 language.code === translate_from_code ||
                 language.name === translate_from_code
-        ) ?? google_translate_languages.find(
+        ) ?? supported_languages.find(
             (language) => language.code === 'auto'
         )!;
 
-        const translated_to_language = google_translate_languages.find(
+        const translated_to_language = supported_languages.find(
             (language) =>
                 language.code === translate_to_code ||
                 language.name === translate_to_code
-        ) ?? google_translate_languages.find(
+        ) ?? supported_languages.find(
             (language) => language.code === 'en'
         )!;
 
-        const translated_text: string = await translateUsingGoogle(text_to_translate, {
-            from: translated_from_language.code,
-            to: translated_to_language.code,
-        }, 'translate.google.com');
+        const translated_text = await LibreTranslate.translate(text_to_translate, translated_from_language.code, translated_to_language.code);
 
         await interaction.editReply({
             embeds: [
