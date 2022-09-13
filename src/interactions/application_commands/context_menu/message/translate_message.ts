@@ -21,7 +21,7 @@ const fetchSupportedLanguages = (() => {
         if (supported_languages) return supported_languages;
 
         // eslint-disable-next-line require-atomic-updates
-        supported_languages = await fetchSupportedLanguages();
+        supported_languages = await LibreTranslate.fetchSupportedLanguages();
 
         return supported_languages;
     };
