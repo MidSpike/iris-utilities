@@ -45,12 +45,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'color',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'displays a hexadecimal color',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {
                 name: 'hex',
-                description: 'displays a color from a 6-digit hex code',
+                description: 'a 6-digit hex color (e.g. #ff5500)',
                 type: Discord.ApplicationCommandOptionType.String,
                 minLength: 1,
                 maxLength: 10,
