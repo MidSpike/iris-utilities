@@ -156,7 +156,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         },
                     ],
                     footer: {
-                        text: 'Translated using Google Translate',
+                        text: 'Translated using Libre Translate',
                     },
                 }),
             ],
