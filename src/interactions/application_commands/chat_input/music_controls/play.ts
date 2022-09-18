@@ -101,7 +101,7 @@ async function playQuery(
             // Process the music subscription's queue
             await music_subscription.processQueue(false);
 
-            await interaction.followUp({
+            await interaction.channel!.send({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
@@ -111,7 +111,7 @@ async function playQuery(
         } catch (error) {
             console.warn(error);
 
-            await interaction.followUp({
+            await interaction.channel!.send({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,

@@ -18,9 +18,9 @@ export interface TrackMetadata {
 }
 
 export class Track<
-    MetaData extends TrackMetadata = TrackMetadata,
+    Metadata extends TrackMetadata = TrackMetadata,
 > {
-    private _metadata: MetaData;
+    private _metadata: Metadata;
     private _stream_creator: () => Promise<Readable | undefined>;
     private _events: {
         onStart(track: Track): void;
@@ -28,7 +28,7 @@ export class Track<
         onError(track: Track, error: unknown): void;
     };
 
-    private _resource: DiscordVoice.AudioResource<Track<MetaData>> | undefined = undefined;
+    private _resource: DiscordVoice.AudioResource<Track<Metadata>> | undefined = undefined;
 
     public volume_multiplier = 1.0;
 
@@ -37,7 +37,7 @@ export class Track<
         stream_creator,
         events,
     }: {
-        metadata: MetaData;
+        metadata: Metadata;
         stream_creator: () => Promise<Readable | undefined>;
         events: {
             onStart(track: Track): void;
@@ -50,15 +50,15 @@ export class Track<
         this._events = events;
     }
 
-    get metadata(): MetaData {
+    get metadata(): Metadata {
         return this._metadata;
     }
 
-    get resource(): DiscordVoice.AudioResource<Track<MetaData>> | undefined {
+    get resource(): DiscordVoice.AudioResource<Track<Metadata>> | undefined {
         return this._resource;
     }
 
-    async initializeResource(): Promise<DiscordVoice.AudioResource<Track<MetaData>> | undefined> {
+    async initializeResource(): Promise<DiscordVoice.AudioResource<Track<Metadata>> | undefined> {
         await this.destroyResource(); // destroy any existing resource (useful for when the track is being re-used)
 
         let stream: Readable | undefined;
@@ -89,7 +89,7 @@ export class Track<
         return this._resource;
     }
 
-    async fetchResource(): Promise<DiscordVoice.AudioResource<Track<MetaData>> | undefined> {
+    async fetchResource(): Promise<DiscordVoice.AudioResource<Track<Metadata>> | undefined> {
         return this._resource ?? await this.initializeResource() ?? undefined;
     }
 
