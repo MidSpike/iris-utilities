@@ -10,7 +10,10 @@ import { ClientCommandCategoryId, ClientCommandHelper, ClientInteraction, Client
 
 //------------------------------------------------------------//
 
-async function createHelpEmbed(command_category_id: ClientCommandCategoryId) {
+async function createHelpEmbeds(
+    interaction: Discord.Interaction,
+    command_category_id: ClientCommandCategoryId,
+) {
     const command_category = ClientCommandHelper.categories[command_category_id];
     if (!command_category) throw new Error(`No command category exists with id: ${command_category_id};`);
 
@@ -26,36 +29,61 @@ async function createHelpEmbed(command_category_id: ClientCommandCategoryId) {
         (client_interaction) => {
             const client_command_options = (client_interaction.data as Discord.ChatInputApplicationCommandData).options!;
 
-            const filtered_client_interactions = client_command_options.filter(
+            // remove subcommand groups and subcommands from the options
+            const filtered_command_options = client_command_options.filter(
                 (option) => ![
                     Discord.ApplicationCommandOptionType.SubcommandGroup,
                     Discord.ApplicationCommandOptionType.Subcommand,
                 ].includes(option.type as number)
             ) as (Discord.ApplicationCommandOption & { required?: boolean })[];
 
-            const command_usage = filtered_client_interactions.map(({ required, name, type }) =>
-                `${required ? '<' : '['}${name}${required ? '>' : ']'}`
-                // `${required ? '<' : '['}${name}: ${type}${required ? '>' : ']'}`;
-            ).join(' ');
+            // generate the command usage string.
+            // required options are surrounded by `<>`, optional options are surrounded by `[]`.
+            // after 3 options, the remaining options will be replaced by an ellipsis.
+            // example: `<option_1_required> [option_2_optional] [option_3_optional] ...`.
+            let command_usage: string = '';
 
+            for (let i = 0; i < filtered_command_options.length; i++) {
+                const command_option = filtered_command_options[i];
+
+                command_usage += `${command_option.required ? '<' : '['}${command_option.name}${command_option.required ? '>' : ']'} `;
+
+                if (i === 2) { // 3rd option
+                    command_usage += '...';
+
+                    break;
+                }
+            }
+
+            // example: `/lookup <query> [location] [ephemeral] ...`
             return `/${client_interaction.identifier} ${command_usage}`;
         }
     );
 
-    return CustomEmbed.from({
-        title: `${command_category.name}`,
-        description: [
-            `${command_category.description}`,
-            '',
-            '\`\`\`',
-            mapped_commands_in_specified_category.length > 0 ? (
-                `${mapped_commands_in_specified_category.join('\n')}`
-            ) : (
-                'Nothing to see here yet!'
-            ),
-            '\`\`\`',
-        ].join('\n'),
-    });
+    const info_command_id = interaction.client.application!.commands.cache.find((command) => command.name === 'info')!.id;
+
+    return [
+        CustomEmbed.from({
+            title: `Hello there, I\'m ${interaction.client.user!.username}!`,
+            description: [
+                'Below is a list of commands that you can use to interact with me.',
+                `You can also use the </info:${info_command_id}> command for more information about me.`,
+            ].join('\n'),
+        }),
+        CustomEmbed.from({
+            title: `${command_category.name}`,
+            description: [
+                `${command_category.description}`,
+                '\`\`\`',
+                mapped_commands_in_specified_category.length > 0 ? (
+                    `${mapped_commands_in_specified_category.join('\n')}`
+                ) : (
+                    'Nothing to see here yet!'
+                ),
+                '\`\`\`',
+            ].join('\n'),
+        }),
+    ];
 }
 
 //------------------------------------------------------------//
@@ -103,10 +131,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const help_category_id = category_option_value ?? 'HELP_AND_INFORMATION';
 
         const bot_message = await interaction.editReply({
-            content: `Hello there, I\'m ${discord_client.user!.username}!`,
-            embeds: [
-                await createHelpEmbed(help_category_id),
-            ],
+            embeds: await createHelpEmbeds(interaction, help_category_id),
             components: [
                 {
                     type: Discord.ComponentType.ActionRow,
@@ -117,23 +142,23 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             placeholder: 'Select a page!',
                             minValues: 1,
                             maxValues: 1,
-                            options: Object.values(ClientCommandHelper.categories).map(({ id, name, description }) => ({
-                                label: name,
-                                description: description.slice(0, 100),
-                                value: id,
-                            })),
+                            options: Object.values(ClientCommandHelper.categories).map(
+                                ({ id, name, description }) => ({
+                                    label: name,
+                                    description: description.slice(0, 100),
+                                    value: id,
+                                })
+                            ),
                         },
                     ],
                 },
             ],
         });
 
-        if (!(bot_message instanceof Discord.Message)) return;
-
         const interaction_collector = await bot_message.createMessageComponentCollector({
             filter: (inter) => inter.user.id === interaction.user.id,
             componentType: Discord.ComponentType.SelectMenu,
-            time: 5 * 60_000,
+            time: 5 * 60_000, // 5 minutes
         });
 
         interaction_collector.on('collect', async (interaction) => {
@@ -141,12 +166,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             switch (interaction.customId) {
                 case 'help_menu': {
-                    const category_id = interaction.values[0] as ClientCommandCategoryId;
+                    const help_category_id = interaction.values[0] as ClientCommandCategoryId;
 
                     await interaction.editReply({
-                        embeds: [
-                            await createHelpEmbed(category_id),
-                        ],
+                        embeds: await createHelpEmbeds(interaction, help_category_id),
                     });
 
                     break;
@@ -161,7 +184,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         });
 
         interaction_collector.on('end', async () => {
-            bot_message.delete();
+            await bot_message.edit({
+                components: [],
+            });
         });
     },
 });
