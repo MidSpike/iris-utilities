@@ -60,7 +60,8 @@ async function createHelpEmbeds(
         }
     );
 
-    const info_command_id = interaction.client.application!.commands.cache.find((command) => command.name === 'info')!.id;
+    const application_commands = await interaction.client.application?.commands.fetch({ force: true });
+    const info_command_id = application_commands?.find((command) => command.name === 'info')!.id ?? '0';
 
     return [
         CustomEmbed.from({
