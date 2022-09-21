@@ -97,7 +97,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                         {
                             name: 'Type',
-                            value: `\`${channel.type}\``,
+                            value: `\`${Discord.ChannelType[channel.type]}\``,
                             inline: true,
                         },
                         ...('position' in channel ? [
