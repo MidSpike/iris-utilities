@@ -99,18 +99,24 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             name: 'Type',
                             value: `\`${channel.type}\``,
                             inline: true,
-                        }, {
-                            name: 'Position',
-                            value: `\`${channel.position}\``,
-                            inline: true,
                         },
+                        ...('position' in channel ? [
+                            {
+                                name: 'Position',
+                                value: `\`${channel.position}\``,
+                                inline: true,
+                            },
+                        ] : []),
 
                         ...(channel.parent ? [
+                            ...('permissionsLocked' in channel ? [
+                                {
+                                    name: 'Synced Permissions',
+                                    value: `\`${channel.permissionsLocked}\``,
+                                    inline: true,
+                                },
+                            ] : []),
                             {
-                                name: 'Synced Permissions',
-                                value: `\`${channel.permissionsLocked}\``,
-                                inline: true,
-                            }, {
                                 name: 'Parent Name',
                                 value: `\`${channel.parent.name}\``,
                                 inline: true,
@@ -125,11 +131,15 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             name: 'Viewable',
                             value: `\`${channel.viewable ?? 'n/a'}\``,
                             inline: true,
-                        }, {
-                            name: 'Deletable',
-                            value: `\`${channel.deletable ?? 'n/a'}\``,
-                            inline: true,
-                        }, {
+                        },
+                        ...('deletable' in channel ? [
+                            {
+                                name: 'Deletable',
+                                value: `\`${channel.deletable}\``,
+                                inline: true,
+                            },
+                        ] : []),
+                        {
                             name: 'Manageable',
                             value: `\`${channel.manageable ?? 'n/a'}\``,
                             inline: true,

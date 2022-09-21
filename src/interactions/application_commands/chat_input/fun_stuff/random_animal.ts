@@ -113,7 +113,7 @@ async function fetchRandomAnimalImageUrl(
 
 async function generateMessagePayload(
     animal_type: AnimalType,
-): Promise<Discord.MessageOptions> {
+): Promise<Discord.BaseMessageOptions> {
     const random_animal_image_url = await fetchRandomAnimalImageUrl(animal_type);
 
     if (!random_animal_image_url) {
