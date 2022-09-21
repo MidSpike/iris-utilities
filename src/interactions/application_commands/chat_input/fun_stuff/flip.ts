@@ -20,7 +20,7 @@ const flip_coin_button = new Discord.ButtonBuilder()
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(interaction_author: Discord.User): Promise<Discord.MessageOptions> {
+async function generateMessagePayload(interaction_author: Discord.User): Promise<Discord.BaseMessageOptions> {
     const coin_facing: 'heads' | 'tails' = Math.random() > 0.5 ? 'heads' : 'tails';
 
     return {

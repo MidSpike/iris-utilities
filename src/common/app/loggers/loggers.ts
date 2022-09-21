@@ -16,7 +16,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 export async function guildLogger(
     guild: Discord.Guild,
     logging_location: GuildConfigLoggingChannels,
-    message_options: Discord.MessageOptions,
+    message_options: Discord.BaseMessageOptions,
 ): Promise<boolean> {
     try {
         await guild.fetch();

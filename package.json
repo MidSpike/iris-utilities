@@ -48,7 +48,7 @@
     "aki-api": "6.0.8",
     "axios": "0.27.2",
     "discord-api-types": "0.37.10",
-    "discord.js": "14.3.0",
+    "discord.js": "14.4.0",
     "dotenv": "16.0.2",
     "ffmpeg-static": "5.1.0",
     "ffmpeg-stream": "0.7.0",
