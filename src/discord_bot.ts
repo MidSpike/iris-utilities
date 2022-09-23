@@ -18,11 +18,11 @@ import * as Discord from 'discord.js';
 
 import { attachSpeechEvent } from '@midspike/discord-speech-recognition';
 
+import recursiveReadDirectory from 'recursive-read-directory';
+
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
 import { shouldUserVoiceBeProcessed } from './common/app/voice_receive';
-
-const recursiveReadDirectory = require('recursive-read-directory');
 
 //------------------------------------------------------------//
 

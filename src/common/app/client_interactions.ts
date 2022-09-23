@@ -10,6 +10,8 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
+import recursiveReadDirectory from 'recursive-read-directory';
+
 import { stringEllipses } from '@root/common/lib/utilities';
 
 import { sendWebhookMessage } from '@root/common/app/webhook';
@@ -19,8 +21,6 @@ import { CustomEmbed } from './message';
 import { GuildConfigsManager } from './guild_configs';
 
 import { doesUserHaveDonatorStatus, doesUserHaveSuperPersonStatus } from './permissions';
-
-const recursiveReadDirectory = require('recursive-read-directory');
 
 //------------------------------------------------------------//
 
