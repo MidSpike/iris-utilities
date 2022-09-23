@@ -63,7 +63,7 @@
     "node-gyp": "9.1.0",
     "node-html-to-image": "3.2.4",
     "opusscript": "0.0.8",
-    "recursive-read-directory": "github:MidSpike/recursive-read-directory#v0.0.1-beta",
+    "recursive-read-directory": "github:MidSpike/recursive-read-directory#v0.4.0-beta",
     "sodium": "3.0.2",
     "sodium-native": "3.4.1",
     "string-similarity": "4.0.4",
