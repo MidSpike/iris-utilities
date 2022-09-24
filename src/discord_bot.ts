@@ -10,6 +10,8 @@ require('manakin').global;
 
 //------------------------------------------------------------//
 
+import { DiscordClientWithSharding } from '@root/types';
+
 import process from 'node:process';
 
 import * as path from 'node:path';
@@ -25,10 +27,6 @@ import { ClientInteractionManager } from '@root/common/app/client_interactions';
 import { shouldUserVoiceBeProcessed } from './common/app/voice_receive';
 
 //------------------------------------------------------------//
-
-type DiscordClientWithSharding = Discord.Client<true> & {
-    shard: Discord.ShardClientUtil;
-};
 
 //------------------------------------------------------------//
 

@@ -114,7 +114,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const bot_creation_unix_epoch = Math.floor(discord_client.user.createdTimestamp / 1000);
 
-        const distributed_bot_info = await discord_client.shard!.broadcastEval((client) => {
+        const distributed_bot_info = await discord_client.shard.broadcastEval((client) => {
+            if (!client.isReady()) throw new Error('Client is not ready');
+            if (!client.shard) throw new Error('Client shard is undefined');
+
             const shard_cached_member_ids = new Set(); // using Set to prevent duplicates
 
             for (const guild of client.guilds.cache.values()) {
@@ -130,7 +133,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 num_cached_channels: client.channels.cache.size,
                 num_cached_emojis: client.emojis.cache.size,
                 shard_info: [
-                    `\`[ Shard ${client.shard!.ids.map((shard_id) => shard_id + 1).join(', ')} / ${client.shard!.count} ]:\``,
+                    `\`[ Shard ${client.shard.ids.map((shard_id) => shard_id + 1).join(', ')} / ${client.shard.count} ]:\``,
                     `> - ${client.ws.ping}ms ping`,
                     `> - ${client.guilds.cache.size} guild(s)`,
                     `> - ${client.channels.cache.size} channel(s)`,

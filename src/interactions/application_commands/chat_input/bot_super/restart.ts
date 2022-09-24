@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import { DiscordClientWithSharding } from '@root/types';
+
 import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
@@ -28,7 +30,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
         command_category: ClientCommandHelper.categories.BOT_SUPER,
     },
-    async handler(discord_client, interaction) {
+    async handler(
+        discord_client: DiscordClientWithSharding,
+        interaction
+    ) {
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
@@ -36,12 +41,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.reply({
             embeds: [
                 CustomEmbed.from({
-                    description: `${interaction.user}, restarting ${discord_client.shard!.count} shard(s)...`,
+                    description: `${interaction.user}, restarting ${discord_client.shard.count} shard(s)...`,
                 }),
             ],
         }).catch(() => {});
 
-        await discord_client.shard!.respawnAll({
+        await discord_client.shard.respawnAll({
             timeout: 60_000,
             shardDelay: 60_000,
             respawnDelay: 10_000,

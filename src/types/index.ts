@@ -10,6 +10,12 @@ export type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T,
 
 //------------------------------------------------------------//
 
+export type DiscordClientWithSharding = Discord.Client<true> & {
+    shard: Discord.ShardClientUtil;
+};
+
+//------------------------------------------------------------//
+
 export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
     name: string;
     handler(

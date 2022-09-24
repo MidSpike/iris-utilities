@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { DistributiveOmit } from '@root/types/index';
+import { DiscordClientWithSharding, DistributiveOmit } from '@root/types';
 
 import process from 'node:process';
 
@@ -362,7 +362,7 @@ export type ClientInteractionMetadata = {
     required_user_access_level?: ClientCommandAccessLevels;
 };
 
-export type ClientInteractionHandler = (discord_client: Discord.Client<true>, interaction: Discord.Interaction) => Promise<void>;
+export type ClientInteractionHandler = (discord_client: DiscordClientWithSharding, interaction: Discord.Interaction) => Promise<void>;
 
 //------------------------------------------------------------//
 
@@ -413,7 +413,7 @@ export class ClientInteraction<
     }
 
     async handler(
-        discord_client: Discord.Client<true>,
+        discord_client: DiscordClientWithSharding,
         interaction: Discord.Interaction,
     ) {
         if (this.metadata.allowed_execution_environment) {
@@ -451,7 +451,7 @@ export class ClientInteraction<
 export class ClientInteractionManager {
     static interactions = new Discord.Collection<ClientInteractionIdentifier, ClientInteraction<Discord.ApplicationCommandData>>();
 
-    static async registerClientInteractions(discord_client: Discord.Client<true>) {
+    static async registerClientInteractions(discord_client: DiscordClientWithSharding) {
         ClientInteractionManager.interactions.clear(); // remove all existing interactions
 
         const path_to_interaction_files = path.join(process.cwd(), 'dist', 'interactions');
@@ -462,14 +462,14 @@ export class ClientInteractionManager {
 
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
-            console.info(`<DC S#(${discord_client.shard!.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+            console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
 
             delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
 
             const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
-                console.trace(`<DC S#(${discord_client.shard!.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
+                console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
                 continue;
             }
 
@@ -478,9 +478,15 @@ export class ClientInteractionManager {
     }
 
     static async handleUnknownInteraction(
-        discord_client: Discord.Client,
+        discord_client: DiscordClientWithSharding,
         unknown_interaction: Discord.Interaction,
     ): Promise<void> {
+        /* ensure the discord client is ready */
+        if (!discord_client.isReady()) throw new Error('ClientInteractionManager.handleUnknownInteraction(): discord client is not ready');
+
+        /* ensure the discord client support sharding */
+        if (!discord_client.shard) throw new Error('ClientInteractionManager.handleUnknownInteraction(): discord client does not support sharding');
+
         console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
 
         let unknown_interaction_identifier: string;
