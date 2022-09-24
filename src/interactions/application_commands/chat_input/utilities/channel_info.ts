@@ -166,7 +166,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 inline: true,
                             }, {
                                 name: 'Speakable',
-                                value: `\`${(channel as Discord.BaseGuildVoiceChannel & { speakable?: boolean }).speakable ?? 'n/a'}\``,
+                                value: `\`${'speakable' in channel ? channel.speakable : 'n/a'}\``,
                                 inline: true,
                             }, {
                                 name: '\u200b',
