@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport } from '@root/types/index';
+import { ClientEventExport, DiscordClientWithSharding } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 
@@ -16,7 +16,7 @@ const event_name = Discord.Events.MessageCreate;
 export default {
     name: event_name,
     async handler(
-        discord_client,
+        discord_client: DiscordClientWithSharding,
         message,
     ) {
         if (!discord_client.isReady()) return;
