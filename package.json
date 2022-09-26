@@ -33,7 +33,7 @@
     "@types/string-similarity": "4.0.0",
     "@typescript-eslint/eslint-plugin": "5.38.0",
     "@typescript-eslint/parser": "5.38.0",
-    "eslint": "8.23.1",
+    "eslint": "8.24.0",
     "husky": "8.0.1",
     "is-ci": "3.0.1",
     "run-script-os": "1.1.6",
