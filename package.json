@@ -37,7 +37,7 @@
     "husky": "8.0.1",
     "is-ci": "3.0.1",
     "run-script-os": "1.1.6",
-    "typescript": "4.8.3"
+    "typescript": "4.8.4"
   },
   "dependencies": {
     "@discord-player/extractor": "3.0.2",
@@ -48,7 +48,7 @@
     "aki-api": "6.0.8",
     "axios": "0.27.2",
     "discord.js": "14.5.0",
-    "dotenv": "16.0.2",
+    "dotenv": "16.0.3",
     "ffmpeg-static": "5.1.0",
     "ffmpeg-stream": "0.7.0",
     "go-mongo-db": "github:MidSpike/go-mongo-db#v1.3.0-stable",
