@@ -32,7 +32,7 @@
     "@types/bcryptjs": "2.4.2",
     "@types/string-similarity": "4.0.0",
     "@typescript-eslint/eslint-plugin": "5.38.1",
-    "@typescript-eslint/parser": "5.38.1",
+    "@typescript-eslint/parser": "5.39.0",
     "eslint": "8.24.0",
     "husky": "8.0.1",
     "is-ci": "3.0.1",
