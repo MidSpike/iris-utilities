@@ -95,7 +95,7 @@ export class MusicSubscription {
         });
 
         voice_connection.on('error', (error) => {
-            console.trace(error);
+            console.trace('MusicSubscription: VoiceConnection error', error);
         });
 
         voice_connection.on('stateChange', async (oldState, newState) => {
@@ -252,6 +252,7 @@ export class MusicReconnaissance {
             modified_query = `${query_url.protocol}//${query_url.hostname}${query_url.pathname}?${new_query_params}`;
 
             console.warn('MusicReconnaissance.search():', {
+                query,
                 modified_query,
             });
         }
