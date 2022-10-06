@@ -33,6 +33,9 @@ import { GoogleTranslateTTS } from 'google-translate-tts';
 const ibm_tts_api_url = process.env.IBM_TTS_API_URL as string;
 if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or is empty');
 
+const ibm_tts_api_key = process.env.IBM_TTS_API_KEY as string;
+if (!ibm_tts_api_key?.length) throw new Error('IBM_TTS_API_KEY is not defined or is empty');
+
 //------------------------------------------------------------//
 
 const voices: {
@@ -121,7 +124,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.deferReply({ ephemeral: false });
 
         const text = interaction.options.getString('text', true);
-        const provider_voice = interaction.options.getString('voice', false) ?? 'ibm:en-GB_KateV3Voice';
+        const provider_voice = interaction.options.getString('voice', false) ?? 'google:en-US';
 
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
@@ -193,6 +196,23 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
+        const tts_provider = provider_voice.split(':')[0] as 'ibm' | 'google';
+        if (
+            tts_provider === 'ibm' &&
+            text.length > 128
+        ) {
+            await interaction.followUp({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: `${interaction.user}, sorry but the maximum allowed amount for the IBM voices is set to 128 characters.`,
+                    }),
+                ],
+            });
+
+            return;
+        }
+
         const tts_text_chunks = arrayChunks(text.split(/\s/g), 50).map((chunk) => chunk.join(' '));
 
         if (tts_text_chunks.length > 1) {
@@ -244,9 +264,17 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             case 'ibm': {
                                 const response = await axios({
                                     method: 'get',
-                                    url: `${ibm_tts_api_url}?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
+                                    url: `${ibm_tts_api_url}/v1/synthesize?voice=${encodeURIComponent(voice)}`,
+                                    headers: {
+                                        'Accept': 'audio/wav',
+                                        'Authorization': `Basic ${Buffer.from(`apikey:${ibm_tts_api_key}`).toString('base64')}`,
+                                        'Content-Type': 'application/json',
+                                    },
                                     responseType: 'stream',
                                     timeout: 1 * 30_000,
+                                    data: {
+                                        'text': tts_text,
+                                    },
                                 });
 
                                 stream = response.data;
