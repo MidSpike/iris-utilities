@@ -263,11 +263,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                             case 'ibm': {
                                 const response = await axios({
-                                    method: 'get',
+                                    method: 'post',
                                     url: `${ibm_tts_api_url}/v1/synthesize?voice=${encodeURIComponent(voice)}`,
                                     headers: {
                                         'Accept': 'audio/wav',
-                                        'Authorization': `Basic ${Buffer.from(`apikey:${ibm_tts_api_key}`).toString('base64')}`,
+                                        'Authorization': `Basic ${Buffer.from(`apikey:${ibm_tts_api_key}`, 'utf8').toString('base64')}`,
                                         'Content-Type': 'application/json',
                                     },
                                     responseType: 'stream',
