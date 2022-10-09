@@ -16,6 +16,11 @@
     },
     {
         "provider": "ibm",
+        "name": "IBM Allison Expressive - English (United States)",
+        "code": "en-US_AllisonExpressive"
+    },
+    {
+        "provider": "ibm",
         "name": "IBM Allison - English (United States)",
         "code": "en-US_AllisonV3Voice"
     },
@@ -23,6 +28,11 @@
         "provider": "ibm",
         "name": "IBM Emily - English (United States)",
         "code": "en-US_EmilyV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Emma Expressive - English (United States)",
+        "code": "en-US_EmmaExpressive"
     },
     {
         "provider": "ibm",
@@ -41,8 +51,18 @@
     },
     {
         "provider": "ibm",
+        "name": "IBM Lisa Expressive - English (United States)",
+        "code": "en-US_LisaExpressive"
+    },
+    {
+        "provider": "ibm",
         "name": "IBM Michael - English (United States)",
         "code": "en-US_MichaelV3Voice"
+    },
+    {
+        "provider": "ibm",
+        "name": "IBM Michael Expressive - English (United States)",
+        "code": "en-US_MichaelExpressive"
     },
     {
         "provider": "ibm",
