@@ -94,8 +94,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             const matching_voices = voices.map(
                 (voice) => ({
                     score: Math.max(
-                        (query_option.value.length < 10 ? compareTwoStrings(query_option.value, voice.code) : 0),
-                        (query_option.value.length > 3 ? compareTwoStrings(query_option.value, voice.name) : 0),
+                        (query_option.value.length <= 32 ? compareTwoStrings(query_option.value, voice.code) : 0),
+                        (query_option.value.length >= 4 ? compareTwoStrings(query_option.value, voice.name) : 0),
                         (voice.name.toLowerCase().startsWith(query_option.value.toLowerCase()) ? 1 : 0)
                     ),
                     voice: voice,
@@ -271,7 +271,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         'Content-Type': 'application/json',
                                     },
                                     responseType: 'stream',
-                                    timeout: 1 * 30_000,
+                                    timeout: 30_000, // 30 seconds
                                     data: {
                                         'text': tts_text,
                                     },
@@ -348,7 +348,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 ],
             });
 
-            await delay(5_000);
+            await delay(5_000); // 5 seconds
         }
     },
 });
