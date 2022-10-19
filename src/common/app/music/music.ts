@@ -259,7 +259,7 @@ export class MusicReconnaissance {
 
             modified_query = `${query_url.protocol}//${query_url.hostname}${query_url.pathname}?${new_query_params}`;
 
-            console.warn('MusicReconnaissance.search():', {
+            console.warn('MusicReconnaissance.searchWithYouTube():', {
                 query,
                 modified_query,
             });
@@ -270,7 +270,13 @@ export class MusicReconnaissance {
         if (YoutubeSearch.isPlaylist(modified_query)) {
             const playlist = await YoutubeSearch.getPlaylist(modified_query, {
                 requestOptions: youtube_request_options,
+            }).catch((error) => {
+                console.trace('MusicReconnaissance.searchWithYouTube():', error);
+
+                return undefined;
             });
+
+            if (!playlist?.videos) return [];
 
             for (const video of playlist.videos) {
                 // video is actually nullable, even though it's not documented as such
