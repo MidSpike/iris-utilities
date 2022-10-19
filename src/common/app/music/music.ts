@@ -6,6 +6,8 @@ import { GuildId } from '@root/types/index';
 
 import process from 'node:process';
 
+import * as SoundCloud from 'soundcloud-scraper';
+
 import * as ytdl from 'ytdl-core';
 
 import { YouTube as YoutubeSearch } from 'youtube-sr';
@@ -46,6 +48,10 @@ const youtube_request_options = {
 
 //------------------------------------------------------------//
 
+const sc_client = new SoundCloud.Client();
+
+//------------------------------------------------------------//
+
 /**
  * A MusicSubscription exists for each active VoiceConnection. Each subscription has its own audio player and queue,
  * and it also attaches logic to the audio player and voice connection for error handling and reconnection logic.
@@ -73,7 +79,7 @@ export class MusicSubscription {
         audio_player.on('error', (error) => {
             console.trace(error);
 
-            this.queue.current_track?.onError(error); // notify the track that it has errored
+            this.queue.current_track?.triggerOnError(error); // notify the track that it has errored
 
             this.processQueue(true); // advance the queue to the next track
         });
@@ -85,11 +91,11 @@ export class MusicSubscription {
             ) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
-                this.queue.current_track?.onFinish(); // notify the track that it has finished playing
+                this.queue.current_track?.triggerOnFinish(); // notify the track that it has finished playing
                 this.processQueue(false); // advance the queue to the next track
             } else if (newState.status === DiscordVoice.AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
-                this.queue.current_track?.onStart(); // notify the track that it has started playing
+                this.queue.current_track?.triggerOnStart(); // notify the track that it has started playing
                 this.queue.volume_manager.initialize(); // initialize the volume manager for each track
             }
         });
@@ -218,18 +224,18 @@ export class MusicSubscription {
 
 //------------------------------------------------------------//
 
-export type MusicReconnaissanceSearchResult = {
+type ResourceInfo = {
     title: string;
     url: string;
 };
 
 export class MusicReconnaissance {
-    static async search(
+    private static async searchWithYouTube(
         query: string,
-    ): Promise<MusicReconnaissanceSearchResult[]> {
+    ): Promise<TrackSpace.RemoteTrack[]> {
         let modified_query = query;
 
-        const query_url = parseUrlFromString(query);
+        const query_url = parseUrlFromString(modified_query);
         if (
             query_url && (
                 query_url.hostname === 'www.youtube.com' ||
@@ -237,6 +243,8 @@ export class MusicReconnaissance {
                 query_url.hostname === 'youtu.be'
             )
         ) {
+            // we can assume that the query is a youtube url
+
             const video_id_from_query_param = query_url.searchParams.get('v');
             const playlist_id_from_query_param = query_url.searchParams.get('list');
 
@@ -257,12 +265,7 @@ export class MusicReconnaissance {
             });
         }
 
-        type VideoInfo = {
-            title: string;
-            url: string;
-        };
-
-        const tracks: VideoInfo[] = [];
+        const resources: ResourceInfo[] = [];
 
         if (YoutubeSearch.isPlaylist(modified_query)) {
             const playlist = await YoutubeSearch.getPlaylist(modified_query, {
@@ -273,19 +276,19 @@ export class MusicReconnaissance {
                 // video is actually nullable, even though it's not documented as such
                 if (!video) continue;
 
-                tracks.push({
+                resources.push({
                     title: video.title || 'Unknown',
                     url: video.url,
                 });
             }
         } else {
-            let video_info: VideoInfo | undefined;
+            let resource_info: ResourceInfo | undefined;
 
             if (
                 ytdl.validateID(modified_query) ||
                 ytdl.validateURL(modified_query)
             ) {
-                video_info = await ytdl.getInfo(modified_query, {
+                resource_info = await ytdl.getInfo(modified_query, {
                     requestOptions: youtube_request_options,
                 }).then(
                     (video_info) => ({
@@ -298,7 +301,7 @@ export class MusicReconnaissance {
                     return undefined;
                 });
             } else {
-                video_info = await YoutubeSearch.searchOne(modified_query, 'video', undefined, youtube_request_options).then(
+                resource_info = await YoutubeSearch.searchOne(modified_query, 'video', undefined, youtube_request_options).then(
                     (video_info) => {
                         // video_info is actually nullable, even though it's not documented as such
                         if (!video_info) throw new Error(`No results found for: ${modified_query};`);
@@ -315,10 +318,63 @@ export class MusicReconnaissance {
                 });
             }
 
-            if (video_info) tracks.push(video_info);
+            if (resource_info) resources.push(resource_info);
         }
 
-        return tracks;
+        return resources.map(
+            (resource) => new TrackSpace.YouTubeTrack({
+                metadata: {
+                    title: resource.title,
+                    url: resource.url,
+                },
+                stream_creator: () => StreamerSpace.youtubeStream(resource.url),
+            })
+        );
+    }
+
+    private static async searchWithSoundCloud(
+        query: string,
+    ): Promise<TrackSpace.RemoteTrack[]> {
+        const sc_search_results = await sc_client.search(query, 'track');
+        if (sc_search_results.length < 1) return [];
+
+        const sc_search_first_result = sc_search_results.at(0)!;
+
+        const sc_song_info = await sc_client.getSongInfo(sc_search_first_result.url);
+
+        return [
+            new TrackSpace.RemoteTrack({
+                metadata: {
+                    title: sc_song_info.title,
+                    url: sc_song_info.url,
+                },
+                stream_creator: () => sc_song_info.downloadHLS(),
+            }),
+        ];
+    }
+
+    static async search(
+        query: string,
+    ): Promise<TrackSpace.RemoteTrack[]> {
+        let modified_query = `${query}`.trim();
+
+        // check if the query is intended for soundcloud
+        const sc_triggers = [ 'sc:', 'soundcloud:' ];
+        const query_sc_trigger = sc_triggers.find((trigger) => modified_query.startsWith(trigger));
+        if (query_sc_trigger) {
+            console.warn('MusicReconnaissance.search(): SoundCloud trigger activated:', {
+                query,
+                modified_query,
+                query_sc_trigger,
+            });
+
+            modified_query = modified_query.slice(query_sc_trigger.length).trim();
+
+            return MusicReconnaissance.searchWithSoundCloud(modified_query);
+        }
+
+        // fallback to YouTube if no other trigger was specified
+        return MusicReconnaissance.searchWithYouTube(modified_query);
     }
 }
 

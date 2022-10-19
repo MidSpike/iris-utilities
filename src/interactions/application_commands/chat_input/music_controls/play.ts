@@ -49,77 +49,54 @@ async function playQuery(
     for (let i = 0; i < search_results.length; i++) {
         const insert_index = playnext ? i : music_subscription.queue.future_tracks.length;
 
-        const search_result = search_results[i];
+        const track = search_results[i];
 
-        try {
-            const track_title = search_result.title;
-            const track_url = search_result.url;
-
-            const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
-                metadata: {
-                    title: track_title,
-                    url: track_url,
-                },
-                stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
-                events: {
-                    onStart(track) {
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                    onFinish(track) {
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                    onError(track, error) {
-                        console.trace(error);
-
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    color: CustomEmbed.colors.RED,
-                                    description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                },
-            });
-
-            // Add the track and reply a success message to the user
-            music_subscription.queue.addTrack(track, insert_index);
-
-            // Process the music subscription's queue
-            await music_subscription.processQueue(false);
-
-            await interaction.channel!.send({
+        track.onStart((track) => {
+            interaction.channel!.send({
                 embeds: [
                     CustomEmbed.from({
-                        description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
+                        description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
                     }),
                 ],
-            });
-        } catch (error) {
-            console.warn(error);
+            }).catch(console.warn);
+        });
 
-            await interaction.channel!.send({
+        track.onFinish((track) => {
+            interaction.channel!.send({
+                embeds: [
+                    CustomEmbed.from({
+                        description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                    }),
+                ],
+            }).catch(console.warn);
+        });
+
+        track.onError((track, error) => {
+            console.trace(error);
+
+            interaction.channel!.send({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to add **${search_result.title}** to the queue.`,
+                        description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
                     }),
                 ],
-            });
-        }
+            }).catch(console.warn);
+        });
+
+        // Add the track and reply a success message to the user
+        music_subscription.queue.addTrack(track, insert_index);
+
+        // Process the music subscription's queue
+        await music_subscription.processQueue(false);
+
+        await interaction.channel!.send({
+            embeds: [
+                CustomEmbed.from({
+                    description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
+                }),
+            ],
+        });
 
         await delay(10_000); // insert a delay in-between adding tracks to the queue
     }
@@ -141,38 +118,39 @@ async function playAttachment(
                 url: attachment_url,
             },
             stream_creator: () => StreamerSpace.remoteStream(attachment_url),
-            events: {
-                onStart(track) {
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
-                },
-                onFinish(track) {
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
-                },
-                onError(track, error) {
-                    console.trace(error);
+        });
 
-                    interaction.channel!.send({
-                        embeds: [
-                            CustomEmbed.from({
-                                color: CustomEmbed.colors.RED,
-                                description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
-                            }),
-                        ],
-                    }).catch(console.warn);
-                },
-            },
+        track.onStart((track) => {
+            interaction.channel!.send({
+                embeds: [
+                    CustomEmbed.from({
+                        description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                    }),
+                ],
+            }).catch(console.warn);
+        });
+
+        track.onFinish((track) => {
+            interaction.channel!.send({
+                embeds: [
+                    CustomEmbed.from({
+                        description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                    }),
+                ],
+            }).catch(console.warn);
+        });
+
+        track.onError((track, error) => {
+            console.trace(error);
+
+            interaction.channel!.send({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
+                    }),
+                ],
+            }).catch(console.warn);
         });
 
         // Add the track and reply a success message to the user
