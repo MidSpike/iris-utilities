@@ -215,7 +215,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             {
                 type: Discord.ApplicationCommandOptionType.Subcommand,
                 name: 'music',
-                description: 'play an audio resource',
+                description: 'plays an audio resource',
                 options: [
                     {
                         type: Discord.ApplicationCommandOptionType.String,
