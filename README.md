@@ -4,7 +4,7 @@
 
 ### What is I.R.I.S. Utilities?
 
-I.R.I.S Utilities is a multi-purpose discord bot that allows you to play music, have fun, and perform various other utility-related tasks.
+I.R.I.S Utilities is a multi-purpose discord bot that allows you to play, have fun, and perform various other utility-related tasks.
 
 ### What does I.R.I.S. stand for?
 
