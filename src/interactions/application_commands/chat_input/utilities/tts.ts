@@ -293,45 +293,46 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                     return stream;
                 },
-                events: {
-                    onStart(track) {
-                        if (i > 1) {
-                            interaction.channel!.send({
-                                embeds: [
-                                    CustomEmbed.from({
-                                        description: [
-                                            `${interaction.user}, playing text-to-speech:`,
-                                            `\`\`\`\n${stringEllipses(tts_text, 512)}\n\`\`\``,
-                                        ].join('\n'),
-                                    }),
-                                ],
-                            }).catch(console.warn);
-                        }
-                    },
-                    onFinish(track) {
-                        if (i === tts_text_chunks.length - 1) {
-                            interaction.channel!.send({
-                                embeds: [
-                                    CustomEmbed.from({
-                                        description: `${interaction.user}, finished playing text-to-speech.`,
-                                    }),
-                                ],
-                            }).catch(console.warn);
-                        }
-                    },
-                    onError(track, error) {
-                        console.trace(error);
+            });
 
-                        interaction.channel!.send({
-                            embeds: [
-                                CustomEmbed.from({
-                                    color: CustomEmbed.colors.RED,
-                                    description: `${interaction.user}, failed to play text-to-speech.`,
-                                }),
-                            ],
-                        }).catch(console.warn);
-                    },
-                },
+            track.onStart((track) => {
+                if (i > 1) {
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: [
+                                    `${interaction.user}, playing text-to-speech:`,
+                                    `\`\`\`\n${stringEllipses(tts_text, 512)}\n\`\`\``,
+                                ].join('\n'),
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
+            });
+
+            track.onFinish((track) => {
+                if (i === tts_text_chunks.length - 1) {
+                    interaction.channel!.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                description: `${interaction.user}, finished playing text-to-speech.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
+            });
+
+            track.onError((track, error) => {
+                console.trace(error);
+
+                interaction.channel!.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.colors.RED,
+                            description: `${interaction.user}, failed to play text-to-speech.`,
+                        }),
+                    ],
+                }).catch(console.warn);
             });
 
             // Add the track and reply a success message to the user

@@ -8,7 +8,7 @@ import * as Discord from 'discord.js';
 
 import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
 
-import { MusicReconnaissance, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
+import { MusicReconnaissance, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -103,11 +103,6 @@ export default {
                         responseType: 'stream',
                         timeout: 1 * 30_000,
                     }).then((response) => response.data),
-                    events: {
-                        onStart() {},
-                        onFinish() {},
-                        onError() {},
-                    },
                 });
 
                 // Add the track and reply a success message to the user
@@ -127,50 +122,43 @@ export default {
                 const search_results = await MusicReconnaissance.search(search_query);
                 if (search_results.length === 0) return;
 
-                const search_result = search_results.at(0);
-                if (!search_result) return;
+                const track = search_results.at(0);
+                if (!track) return;
 
-                const track: TrackSpace.YouTubeTrack = new TrackSpace.YouTubeTrack({
-                    metadata: {
-                        title: search_result.title,
-                        url: search_result.url,
-                    },
-                    stream_creator: () => StreamerSpace.youtubeStream(track.metadata.url),
-                    events: {
-                        onStart(track) {
-                            music_subscription.text_channel.send({
-                                embeds: [
-                                    CustomEmbed.from({
-                                        title: 'Voice Command',
-                                        description: `${guild_member.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                                    }),
-                                ],
-                            }).catch(console.warn);
-                        },
-                        onFinish(track) {
-                            music_subscription.text_channel.send({
-                                embeds: [
-                                    CustomEmbed.from({
-                                        title: 'Voice Command',
-                                        description: `${guild_member.user}, finished playing **${track.metadata.title}**.`,
-                                    }),
-                                ],
-                            }).catch(console.warn);
-                        },
-                        onError(track, error) {
-                            console.trace(error);
+                track.onStart((track) => {
+                    music_subscription.text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                });
 
-                            music_subscription.text_channel.send({
-                                embeds: [
-                                    CustomEmbed.from({
-                                        title: 'Voice Command',
-                                        color: CustomEmbed.colors.RED,
-                                        description: `${guild_member.user}, failed to play **${track.metadata.title}**.`,
-                                    }),
-                                ],
-                            }).catch(console.warn);
-                        },
-                    },
+                track.onFinish((track) => {
+                    music_subscription.text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, finished playing **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                });
+
+                track.onError((track, error) => {
+                    console.trace(error);
+
+                    music_subscription.text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                color: CustomEmbed.colors.RED,
+                                description: `${guild_member.user}, failed to play **${track.metadata.title}**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
                 });
 
                 // Add the track and reply a success message to the user
