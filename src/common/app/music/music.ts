@@ -365,11 +365,11 @@ export class MusicReconnaissance {
     ): Promise<TrackSpace.RemoteTrack[]> {
         let modified_query = `${query}`.trim();
 
-        const query_sc_trigger = method ?? modified_query.match(/^.+\:/i)?.at(0)?.toLowerCase() ?? 'youtube';
+        const query_sc_trigger = method ?? modified_query.match(/^.+\:/i)?.at(0)?.replace(':', '')?.toLowerCase() ?? 'youtube';
 
         switch (query_sc_trigger) {
-            case 'sc:':
-            case 'soundcloud:': {
+            case 'sc':
+            case 'soundcloud': {
                 console.warn('MusicReconnaissance.search(): SoundCloud trigger activated:', {
                     query,
                     modified_query,
@@ -381,8 +381,8 @@ export class MusicReconnaissance {
                 return MusicReconnaissance.searchWithSoundCloud(modified_query);
             }
 
-            case 'yt:':
-            case 'youtube:':
+            case 'yt':
+            case 'youtube':
             default: {
                 return MusicReconnaissance.searchWithYouTube(modified_query);
             }
