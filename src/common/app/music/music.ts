@@ -361,26 +361,32 @@ export class MusicReconnaissance {
 
     static async search(
         query: string,
+        method: 'youtube' | 'soundcloud' | undefined = undefined,
     ): Promise<TrackSpace.RemoteTrack[]> {
         let modified_query = `${query}`.trim();
 
-        // check if the query is intended for soundcloud
-        const sc_triggers = [ 'sc:', 'soundcloud:' ];
-        const query_sc_trigger = sc_triggers.find((trigger) => modified_query.startsWith(trigger));
-        if (query_sc_trigger) {
-            console.warn('MusicReconnaissance.search(): SoundCloud trigger activated:', {
-                query,
-                modified_query,
-                query_sc_trigger,
-            });
+        const query_sc_trigger = method ?? modified_query.match(/^.+\:/i)?.at(0)?.toLowerCase() ?? 'youtube';
 
-            modified_query = modified_query.slice(query_sc_trigger.length).trim();
+        switch (query_sc_trigger) {
+            case 'sc:':
+            case 'soundcloud:': {
+                console.warn('MusicReconnaissance.search(): SoundCloud trigger activated:', {
+                    query,
+                    modified_query,
+                    query_sc_trigger,
+                });
 
-            return MusicReconnaissance.searchWithSoundCloud(modified_query);
+                modified_query = modified_query.slice(query_sc_trigger.length).trim();
+
+                return MusicReconnaissance.searchWithSoundCloud(modified_query);
+            }
+
+            case 'yt:':
+            case 'youtube:':
+            default: {
+                return MusicReconnaissance.searchWithYouTube(modified_query);
+            }
         }
-
-        // fallback to YouTube if no other trigger was specified
-        return MusicReconnaissance.searchWithYouTube(modified_query);
     }
 }
 

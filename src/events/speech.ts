@@ -119,7 +119,7 @@ export default {
             case 'play': {
                 const search_query = voice_command_args.join(' ');
 
-                const search_results = await MusicReconnaissance.search(search_query);
+                const search_results = await MusicReconnaissance.search(search_query, 'soundcloud');
                 if (search_results.length === 0) return;
 
                 const track = search_results.at(0);
