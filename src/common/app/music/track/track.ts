@@ -136,6 +136,16 @@ export interface RemoteTrackMetadata extends TrackMetadata {
 
 export class RemoteTrack extends Track<RemoteTrackMetadata> {}
 
+//------------------------------------------------------------//
+
+export interface SoundCloudTrackMetadata extends RemoteTrackMetadata {
+    url: string; // guaranteed to be a soundcloud url
+}
+
+export class SoundCloudTrack extends Track<SoundCloudTrackMetadata> {}
+
+//------------------------------------------------------------//
+
 export interface YouTubeTrackMetadata extends RemoteTrackMetadata {
     url: string; // guaranteed to be a youtube url
 }

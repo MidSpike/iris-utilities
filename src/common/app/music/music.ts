@@ -340,23 +340,34 @@ export class MusicReconnaissance {
 
     private static async searchWithSoundCloud(
         query: string,
-    ): Promise<TrackSpace.RemoteTrack[]> {
+    ): Promise<TrackSpace.SoundCloudTrack[]> {
         const sc_search_results = await sc_client.search(query, 'track');
         if (sc_search_results.length < 1) return [];
 
-        const sc_search_first_result = sc_search_results.at(0)!;
+        const filtered_tracks = [];
 
-        const sc_song_info = await sc_client.getSongInfo(sc_search_first_result.url);
+        for (const sc_search_result of sc_search_results) {
+            const sc_song_info = await sc_client.getSongInfo(sc_search_result.url);
+            if (!sc_song_info) continue;
 
-        return [
-            new TrackSpace.RemoteTrack({
-                metadata: {
-                    title: sc_song_info.title,
-                    url: sc_song_info.url,
-                },
-                stream_creator: () => sc_song_info.downloadHLS(),
-            }),
-        ];
+            // ensure that the track is longer than 60 seconds
+            // it is more likely to be a song than not a song
+            if (sc_song_info.duration < 60_000) continue;
+
+            filtered_tracks.push(
+                new TrackSpace.SoundCloudTrack({
+                    metadata: {
+                        title: sc_song_info.title,
+                        url: sc_song_info.url,
+                    },
+                    stream_creator: () => sc_song_info.downloadHLS(),
+                })
+            );
+
+            break; // only allow one track to be added
+        }
+
+        return filtered_tracks;
     }
 
     static async search(
