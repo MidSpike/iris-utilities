@@ -3,10 +3,10 @@
 //------------------------------------------------------------//
 
 // eslint-disable-next-line no-unused-expressions
-require('module-alias/register');
+require('module-alias/register'); // used for aliased project imports
 
 // eslint-disable-next-line no-unused-expressions
-require('manakin').global;
+require('manakin').global; // used for terminal output formatting
 
 //------------------------------------------------------------//
 
@@ -25,6 +25,8 @@ import recursiveReadDirectory from 'recursive-read-directory';
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
 import { shouldUserVoiceBeProcessed } from './common/app/voice_receive';
+
+import { DiagnosticsLogger } from '@root/common/app/loggers/loggers';
 
 //------------------------------------------------------------//
 
@@ -78,12 +80,6 @@ const discord_client = new Discord.Client({
     },
 }) as DiscordClientWithSharding;
 
-/* adds speech recognition to discord client */
-attachSpeechEvent({
-    client: discord_client as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-    shouldProcessUserId: (user_id) => shouldUserVoiceBeProcessed(discord_client, user_id),
-});
-
 //------------------------------------------------------------//
 
 async function registerClientEvents(discord_client: DiscordClientWithSharding) {
@@ -130,7 +126,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> Logging in...`);
+    console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> logging in...`);
     try {
         discord_client.login(discord_bot_token);
     } catch (error) {
@@ -139,7 +135,28 @@ async function main() {
         process.exit(1);
     }
 
-    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> initialized.`);
+    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing diagnostics logger...`);
+    try {
+        DiagnosticsLogger.initialize();
+    } catch (error) {
+        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to initialize diagnostics logger`, error);
+
+        process.exit(1);
+    }
+
+    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing speech recognition system...`);
+    try {
+        attachSpeechEvent({
+            client: discord_client as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+            shouldProcessUserId: (user_id) => shouldUserVoiceBeProcessed(discord_client, user_id),
+        });
+    } catch (error) {
+        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to initialize speech recognition system`, error);
+
+        process.exit(1);
+    }
+
+    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> fully initialized.`);
 }
 
 main();

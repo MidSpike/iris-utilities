@@ -3,10 +3,10 @@
 //------------------------------------------------------------//
 
 // eslint-disable-next-line no-unused-expressions
-require('module-alias/register');
+require('module-alias/register'); // used for aliased project imports
 
 // eslint-disable-next-line no-unused-expressions
-require('manakin').global;
+require('manakin').global; // used for terminal output formatting
 
 //------------------------------------------------------------//
 
