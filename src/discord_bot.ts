@@ -24,11 +24,9 @@ import recursiveReadDirectory from 'recursive-read-directory';
 
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
-import { shouldUserVoiceBeProcessed } from './common/app/voice_receive';
+import { shouldUserVoiceBeProcessed } from '@root/common/app/voice_receive';
 
 import { DiagnosticsLogger } from '@root/common/app/loggers/loggers';
-
-//------------------------------------------------------------//
 
 //------------------------------------------------------------//
 
