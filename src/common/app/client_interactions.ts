@@ -566,7 +566,7 @@ export class ClientInteractionManager {
                                         '\`\`\`',
                                         [
                                             `/${unknown_interaction.commandName}`,
-                                            stringifyOptions(unknown_interaction.options.data),
+                                            stringEllipses(stringifyOptions(unknown_interaction.options.data), 1024),
                                         ].join(' '),
                                         '\`\`\`',
                                     ].join('\n'),
