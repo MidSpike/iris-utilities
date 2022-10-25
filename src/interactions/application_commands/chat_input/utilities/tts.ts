@@ -213,7 +213,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        const tts_text_chunks = arrayChunks(text.split(/\s/g), 50).map((chunk) => chunk.join(' '));
+        const tts_text_chunks = arrayChunks(
+            text.split(/\s/g),
+            tts_provider === 'ibm' ? 64 : 16
+        ).map((chunk) => chunk.join(' '));
 
         if (tts_text_chunks.length > 1) {
             await interaction.editReply({
