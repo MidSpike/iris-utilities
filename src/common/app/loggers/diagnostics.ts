@@ -15,16 +15,8 @@ import { stringEllipses } from '@root/common/lib/utilities';
  * This is not intended for logging user actions or sensitive information.
  *
  * An example of a diagnostic log would be if an error occurs whilst a command executes.
- *
- * A diagnostic log should be limited to 1024 characters.
  */
 type DiagnosticLog = string;
-
-/**
- * Diagnostic logs are limited to a backlog of 25 logs before removing the oldest log.
- * This is to prevent potential memory leaks and api spam.
- */
-type DiagnosticsLogs = DiagnosticLog[];
 
 //------------------------------------------------------------//
 
@@ -33,45 +25,71 @@ if (!diagnostics_webhook_url?.length) throw new Error('DISCORD_BOT_CENTRAL_LOGGI
 
 //------------------------------------------------------------//
 
+/**
+ * The maximum length of a diagnostic log.
+ * This is to comply with Discord's webhook message length limit.
+ */
+const diagnostic_log_max_characters = 1024;
+
+/**
+ * The maximum number of diagnostic logs that can be stored in the backlog.
+ * This is to prevent potential memory leaks and api spam.
+ */
+const diagnostic_log_max_backlog = 25;
+
+//------------------------------------------------------------//
+
 export class DiagnosticsLogger {
+    /**
+     * Whether the diagnostics logger has been initialized.
+     * When initialized, diagnostic logs will be periodically sent to the diagnostics webhook.
+     */
     public static initialized: boolean = false;
 
-    public static logs: DiagnosticsLogs = [];
+    /**
+     * Diagnostic logs are sorted from oldest to newest.
+     */
+    public static logs: DiagnosticLog[] = [];
 
+    /**
+     * Periodically sends diagnostic logs to the webhook.
+     */
     private static _interval: NodeJS.Timer | undefined;
 
+    /**
+     * Initialize the diagnostics logger.
+     * This should only be called once.
+     */
     public static async initialize(): Promise<void> {
-        if (DiagnosticsLogger.initialized) return;
+        if (DiagnosticsLogger.initialized) throw new Error('DiagnosticsLogger: singleton is already initialized');
         DiagnosticsLogger.initialized = true;
 
         DiagnosticsLogger._interval = setInterval(() => {
-            if (!DiagnosticsLogger.logs) return;
-
             // fetch the newest diagnostic log, and remove it from the array
             const diagnostic_log = DiagnosticsLogger.logs.pop();
             if (!diagnostic_log) return;
 
             axios({
-                method: 'POST',
+                method: 'post',
                 url: diagnostics_webhook_url,
                 data: diagnostic_log,
                 validateStatus: (status_code) => status_code >= 200 && status_code < 300,
             }).then(
                 () => {
-                    console.log('DiagnosticLogger: sent diagnostic log successfully');
+                    console.log('DiagnosticsLogger: sent diagnostic log successfully');
                 }
             ).catch(
                 (error) => {
-                    console.trace('DiagnosticLogger: failed to send diagnostic log;', error);
-
-                    /** @todo remove hyper-aggressive fail-safe after testing */
-                    console.warn('DiagnosticLogger: shutting down process');
-                    process.exit(1); // shutdown the process
+                    console.trace('DiagnosticsLogger: failed to send diagnostic log;', error);
                 }
             );
-        }, 5_000); // every 5 seconds
+        }, 10_000); // every 10 seconds
     }
 
+    /**
+     * Destroys the diagnostics logger instance.
+     * This should only be used for emergency situations.
+     */
     public static async destroy(): Promise<void> {
         if (!DiagnosticsLogger.initialized) return;
 
@@ -80,25 +98,28 @@ export class DiagnosticsLogger {
             DiagnosticsLogger._interval = undefined;
         }
 
-        DiagnosticsLogger.logs = [];
+        DiagnosticsLogger.logs.length = 0; // clear the logs array
 
         DiagnosticsLogger.initialized = false;
 
         return;
     }
 
+    /**
+     * Create and queue a diagnostic log.
+     * Diagnostic logs can be queued before the logger is initialized.
+     */
     public static async log(
         diagnostic_log: DiagnosticLog
     ): Promise<void> {
-        if (!DiagnosticsLogger.logs) return;
-
         // prepare the diagnostic log, then push it to the logs queue
+        // additionally markdown syntax is escaped in the diagnostic log
         DiagnosticsLogger.logs.push(
-            stringEllipses(Discord.escapeMarkdown(diagnostic_log), 1024)
+            stringEllipses(Discord.escapeMarkdown(diagnostic_log), diagnostic_log_max_characters)
         );
 
         // if there are too many diagnostic logs, remove the oldest log
-        if (DiagnosticsLogger.logs.length > 25) {
+        if (DiagnosticsLogger.logs.length > diagnostic_log_max_backlog) {
             DiagnosticsLogger.logs.shift();
         }
 
