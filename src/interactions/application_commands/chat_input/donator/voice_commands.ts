@@ -105,18 +105,97 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     }),
                                 ],
                             }).catch(() => {});
-                        } else {
-                            await setVoiceRecognitionStateForUser(interaction.user.id, true);
 
-                            await interaction.editReply({
+                            return;
+                        }
+
+                        await interaction.editReply({
+                            embeds: [
+                                CustomEmbed.from({
+                                    color: CustomEmbed.colors.VIOLET,
+                                    description: [
+                                        `${interaction.user}, you must agree to the following terms and conditions.`,
+                                        '\`\`\`',
+                                        'By enabling voice recognition, you agree to the following:',
+                                        '',
+                                        'You consent to this discord bot collecting/using your voice data.',
+                                        'You consent to 3rd parties collecting/using your voice data.',
+                                        '',
+                                        'Voice data is only gathered while using a voice channel with this bot connected.',
+                                        '',
+                                        'The following identifiable information is collected/used:',
+                                        '- Your microphone audio input.',
+                                        '',
+                                        'The 3rd parties used for providing voice recognition are:',
+                                        '- Google (United States)',
+                                        '',
+                                        'You may disable voice recognition at any time by using this command again.',
+                                        '',
+                                        'If you do not agree to these terms and conditions, you must disable voice recognition.',
+                                        '\`\`\`',
+                                    ].join('\n'),
+                                }),
+                            ],
+                            components: [
+                                {
+                                    type: Discord.ComponentType.ActionRow,
+                                    components: [
+                                        {
+                                            type: Discord.ComponentType.Button,
+                                            style: Discord.ButtonStyle.Danger,
+                                            customId: 'voice_commands_listen_to_me_toggle_consent_given',
+                                            label: 'I agree',
+                                        }, {
+                                            type: Discord.ComponentType.Button,
+                                            style: Discord.ButtonStyle.Secondary,
+                                            customId: 'voice_commands_listen_to_me_toggle_consent_not_given',
+                                            label: 'Cancel',
+                                        },
+                                    ],
+                                },
+                            ],
+                        });
+
+                        const button_interaction = await interaction.channel.awaitMessageComponent({
+                            componentType: Discord.ComponentType.Button,
+                            filter: (button_interaction) => button_interaction.user.id === interaction.user.id,
+                            time: 5 * 60_000, // 5 minutes
+                        });
+
+                        await button_interaction.deferUpdate();
+
+                        if (
+                            !button_interaction ||
+                            button_interaction.customId === 'voice_commands_listen_to_me_toggle_consent_not_given'
+                        ) {
+                            await button_interaction.editReply({
                                 embeds: [
                                     CustomEmbed.from({
-                                        color: CustomEmbed.colors.GREEN,
-                                        description: `${interaction.user}, I'm now listening to you for voice commands!`,
+                                        color: CustomEmbed.colors.RED,
+                                        description: `${interaction.user}, You must agree to the terms and conditions to enable voice recognition!`,
                                     }),
                                 ],
-                            }).catch(() => {});
+                                components: [],
+                            });
+
+                            return;
                         }
+
+                        await setVoiceRecognitionStateForUser(interaction.user.id, true);
+
+                        await button_interaction.editReply({
+                            embeds: [
+                                CustomEmbed.from({
+                                    color: CustomEmbed.colors.GREEN,
+                                    description: [
+                                        `${interaction.user}, I'm now listening to you for voice commands!`,
+                                        '',
+                                        'You can disable voice recognition at any time by using this command again.',
+                                    ].join('\n'),
+                                }),
+                            ],
+                            components: [],
+                        }).catch(() => {});
 
                         break;
                     }
