@@ -374,28 +374,28 @@ export class MusicReconnaissance {
         query: string,
         method: 'youtube' | 'soundcloud' | undefined = undefined,
     ): Promise<TrackSpace.RemoteTrack[]> {
-        let modified_query = `${query}`.trim();
+        const trimmed_query = `${query}`.trim();
 
-        const query_sc_trigger = method ?? modified_query.match(/^.+\:/i)?.at(0)?.replace(':', '')?.toLowerCase() ?? 'youtube';
+        const matched_trigger = trimmed_query.match(/^.+\:/i)?.at(0)?.replace(':', '')?.toLowerCase();
+        const matched_query = matched_trigger ? trimmed_query.slice(matched_trigger.length).trim() : trimmed_query;
 
-        switch (query_sc_trigger) {
+        const query_trigger = method ?? matched_trigger ?? 'youtube';
+        switch (query_trigger) {
             case 'sc':
             case 'soundcloud': {
                 console.warn('MusicReconnaissance.search(): SoundCloud trigger activated:', {
                     query,
-                    modified_query,
-                    query_sc_trigger,
+                    matched_query,
+                    query_trigger,
                 });
 
-                modified_query = modified_query.slice(query_sc_trigger.length).trim();
-
-                return MusicReconnaissance.searchWithSoundCloud(modified_query);
+                return MusicReconnaissance.searchWithSoundCloud(matched_query);
             }
 
             case 'yt':
             case 'youtube':
             default: {
-                return MusicReconnaissance.searchWithYouTube(modified_query);
+                return MusicReconnaissance.searchWithYouTube(matched_query);
             }
         }
     }
