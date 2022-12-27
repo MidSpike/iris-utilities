@@ -8,6 +8,8 @@ import * as Discord from 'discord.js';
 
 import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
 
+import { GoogleTranslateTTS } from 'google-translate-tts';
+
 import { MusicReconnaissance, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
@@ -86,23 +88,25 @@ export default {
 
         switch (voice_command_name) {
             case 'say': {
-                const tts_provider = 'ibm';
-                const tts_voice = 'en-US_KevinV3Voice';
                 const tts_text = voice_command_args.join(' ');
 
                 const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
                     metadata: {
                         title: 'Voice Command',
-                        tts_provider: tts_provider,
-                        tts_voice: tts_voice,
                         tts_text: tts_text,
+                        tts_provider: 'google',
+                        tts_voice: 'en-US',
                     },
-                    stream_creator: () => axios({
-                        method: 'get',
-                        url: `${ibm_tts_api_url}?voice=${encodeURIComponent(tts_voice)}&text=${encodeURIComponent(tts_text)}&download=true&accept=audio%2Fmp3`,
-                        responseType: 'stream',
-                        timeout: 1 * 30_000,
-                    }).then((response) => response.data),
+                    stream_creator: async () => {
+                        const gt_tts = new GoogleTranslateTTS({
+                            language: track.metadata.tts_voice,
+                            text: track.metadata.tts_text,
+                        });
+
+                        const stream = await gt_tts.stream();
+
+                        return stream;
+                    },
                 });
 
                 // Add the track and reply a success message to the user
