@@ -18,6 +18,8 @@ import { compareTwoStrings } from 'string-similarity';
 
 import * as DiscordVoice from '@discordjs/voice';
 
+import { GoogleTranslateTTS } from 'google-translate-tts';
+
 import { CustomEmbed } from '@root/common/app/message';
 
 import { MusicSubscription, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
@@ -25,8 +27,6 @@ import { MusicSubscription, TrackSpace, music_subscriptions } from '@root/common
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
 import { arrayChunks, delay, stringEllipses } from '@root/common/lib/utilities';
-
-import { GoogleTranslateTTS } from 'google-translate-tts';
 
 //------------------------------------------------------------//
 
