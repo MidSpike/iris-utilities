@@ -2,8 +2,6 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import axios from 'axios';
-
 import * as Discord from 'discord.js';
 
 import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
