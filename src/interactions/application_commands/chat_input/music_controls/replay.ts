@@ -133,7 +133,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         music_subscription.queue.addTrack(most_recent_track, insert_index);
 
         // Process the music subscription's queue
-        await music_subscription.processQueue(false);
+        const current_track_exists = Boolean(music_subscription.queue.current_track);
+        const force_processing = !current_track_exists; // If there is no current track, then the queue needs to be processed
+        await music_subscription.processQueue(force_processing);
 
         await interaction.followUp({
             embeds: [
