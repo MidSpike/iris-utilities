@@ -17,7 +17,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'allows for playing audio resources',
+        description: 'stops the current track',
         options: [],
     },
     metadata: {
@@ -85,7 +85,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        await music_subscription.kill();
+        music_subscription.stop();
 
         await interaction.editReply({
             embeds: [

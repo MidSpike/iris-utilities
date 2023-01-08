@@ -146,7 +146,7 @@ export class MusicSubscription {
                     /**
                      * if the connection is destroyed, kill the music subscription.
                      */
-                    await this.kill();
+                    this.kill();
 
                     break;
                 }
@@ -185,12 +185,19 @@ export class MusicSubscription {
     }
 
     /**
-     * Kills the subscription, clears the queue, stops the audio player.
+     * Stops and resets the queue.
      */
-    async kill() {
-        this.queue.reset();
+    stop() {
         this.audio_player.stop(true);
-        this.voice_connection.disconnect(); // only disconnect, don't destroy the voice connection or an infinite loop might occur
+        this.queue.reset();
+    }
+
+    /**
+     * Stops and resets the queue then disconnects the voice connection.
+     */
+    kill() {
+        this.stop();
+        this.voice_connection.disconnect(); // `disconnect` instead of `destroy` to avoid an infinite loop
     }
 
     /**

@@ -198,6 +198,38 @@ export default {
                 break;
             }
 
+            case 'paws': // fallback for improper recognition
+            case 'pause': {
+                music_subscription.text_channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Voice Command',
+                            description: `${guild_member.user}, paused the current track.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+
+                music_subscription.queue.state_manager.pause();
+
+                break;
+            }
+
+            case 'resumes': // fallback for improper recognition
+            case 'resume': {
+                music_subscription.text_channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Voice Command',
+                            description: `${guild_member.user}, resumed the current track.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+
+                music_subscription.queue.state_manager.resume();
+
+                break;
+            }
+
             case 'skit': // fallback for improper recognition
             case 'skin': // fallback for improper recognition
             case 'skip': {
@@ -227,7 +259,7 @@ export default {
                     ],
                 }).catch(console.warn);
 
-                await music_subscription.kill();
+                await music_subscription.stop();
 
                 break;
             }
