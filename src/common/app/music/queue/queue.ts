@@ -74,6 +74,52 @@ export class QueueVolumeManager {
 
 //------------------------------------------------------------//
 
+type QueueState = 'playing' | 'paused';
+
+export class QueueStateManager {
+    private _queue: Queue;
+
+    private _state: QueueState = 'playing';
+
+    constructor(queue: Queue) {
+        this._queue = queue;
+    }
+
+    pause() {
+        if (this._state === 'paused') return;
+        this._state = 'paused';
+
+        const current_track = this._queue.current_track;
+        if (!current_track) return;
+
+        const active_resource = current_track.resource;
+        if (!active_resource) return;
+
+        const audio_player = active_resource.audioPlayer;
+        if (!audio_player) return;
+
+        audio_player.pause();
+    }
+
+    resume() {
+        if (this._state === 'playing') return;
+        this._state = 'playing';
+
+        const current_track = this._queue.current_track;
+        if (!current_track) return;
+
+        const active_resource = current_track.resource;
+        if (!active_resource) return;
+
+        const audio_player = active_resource.audioPlayer;
+        if (!audio_player) return;
+
+        audio_player.unpause();
+    }
+}
+
+//------------------------------------------------------------//
+
 export type QueueLoopingMode = 'off' | 'track' | 'queue' | 'autoplay';
 
 export class Queue {
@@ -84,6 +130,7 @@ export class Queue {
     public locked: boolean = false;
     public looping_mode: QueueLoopingMode = 'off';
     public readonly volume_manager: QueueVolumeManager = new QueueVolumeManager(this);
+    public readonly state_manager: QueueStateManager = new QueueStateManager(this);
 
     constructor() {}
 
@@ -197,12 +244,6 @@ export class Queue {
             default: {
                 throw new Error(`Unknown looping mode: ${this.looping_mode}`);
             }
-        }
-
-        if (!next_track) {
-            this.reset();
-
-            return undefined;
         }
 
         this._current_track = next_track;
