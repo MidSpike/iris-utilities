@@ -9,6 +9,7 @@
 
 # vscode extensions
 .VSCodeCounter
+.buildt
 
 # node
 node_modules
