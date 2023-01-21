@@ -207,6 +207,9 @@ export class MusicSubscription {
     async processQueue(
         force: boolean = false,
     ) {
+        // Check if the queue is locked, and if so, allow the track to automatically be played.
+        if (this.queue.locked) return;
+
         // Check if the audio player is idle, and if not, don't process the queue without forcing.
         if (!force && this.audio_player.state.status !== DiscordVoice.AudioPlayerStatus.Idle) return;
 
@@ -216,9 +219,6 @@ export class MusicSubscription {
         // Get the next track from the queue
         const next_track = await this.queue.processNextTrack();
         if (!next_track) return;
-
-        // Check if the queue is locked, and if so, allow the track to automatically be played.
-        if (this.queue.locked) return;
 
         // Get the track's audio resource
         const next_track_resource = await next_track.initializeResource();

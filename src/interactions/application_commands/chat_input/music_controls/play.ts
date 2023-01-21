@@ -52,7 +52,7 @@ async function playQuery(
         const track = search_results[i];
 
         track.onStart((track) => {
-            interaction.channel!.send({
+            interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
@@ -62,7 +62,7 @@ async function playQuery(
         });
 
         track.onFinish((track) => {
-            interaction.channel!.send({
+            interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
@@ -74,7 +74,7 @@ async function playQuery(
         track.onError((track, error) => {
             console.trace(error);
 
-            interaction.channel!.send({
+            interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
@@ -90,7 +90,7 @@ async function playQuery(
         // Process the music subscription's queue
         await music_subscription.processQueue(false);
 
-        await interaction.channel!.send({
+        await interaction.channel?.send({
             embeds: [
                 CustomEmbed.from({
                     description: `${interaction.user}, added **[${track.metadata.title}](${track.metadata.url})** to the queue.`,
@@ -121,7 +121,7 @@ async function playAttachment(
         });
 
         track.onStart((track) => {
-            interaction.channel!.send({
+            interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
@@ -131,7 +131,7 @@ async function playAttachment(
         });
 
         track.onFinish((track) => {
-            interaction.channel!.send({
+            interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
@@ -143,7 +143,7 @@ async function playAttachment(
         track.onError((track, error) => {
             console.trace(error);
 
-            interaction.channel!.send({
+            interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
