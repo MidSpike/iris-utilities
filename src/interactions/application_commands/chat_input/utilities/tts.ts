@@ -300,7 +300,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             track.onStart((track) => {
                 if (i > 1) {
-                    interaction.channel!.send({
+                    interaction.channel?.send({
                         embeds: [
                             CustomEmbed.from({
                                 description: [
@@ -315,7 +315,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             track.onFinish((track) => {
                 if (i === tts_text_chunks.length - 1) {
-                    interaction.channel!.send({
+                    interaction.channel?.send({
                         embeds: [
                             CustomEmbed.from({
                                 description: `${interaction.user}, finished playing text-to-speech.`,
@@ -328,7 +328,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             track.onError((track, error) => {
                 console.trace(error);
 
-                interaction.channel!.send({
+                interaction.channel?.send({
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.colors.RED,
