@@ -236,6 +236,13 @@ type ResourceInfo = {
     url: string;
 };
 
+enum SearchTrigger {
+    Youtube = 'youtube',
+    YoutubeShortened = 'yt',
+    SoundCloud = 'soundcloud',
+    SoundCloudShortened = 'sc',
+}
+
 export class MusicReconnaissance {
     private static async searchWithYouTube(
         query: string,
@@ -383,13 +390,15 @@ export class MusicReconnaissance {
     ): Promise<TrackSpace.RemoteTrack[]> {
         const trimmed_query = `${query}`.trim();
 
-        const matched_trigger = trimmed_query.match(/^.+\:/i)?.at(0)?.replace(':', '')?.toLowerCase();
+        const search_trigger_regex = new RegExp(`^(${Object.values(SearchTrigger).join('|')}):`, 'i');
+
+        const matched_trigger = trimmed_query.match(search_trigger_regex)?.at(0)?.replace(':', '')?.toLowerCase();
         const matched_query = matched_trigger ? trimmed_query.slice(matched_trigger.length).trim() : trimmed_query;
 
         const query_trigger = method ?? matched_trigger ?? 'youtube';
         switch (query_trigger) {
-            case 'sc':
-            case 'soundcloud': {
+            case SearchTrigger.SoundCloudShortened:
+            case SearchTrigger.SoundCloud: {
                 console.warn('MusicReconnaissance.search(): SoundCloud trigger activated:', {
                     query,
                     matched_query,
@@ -399,9 +408,15 @@ export class MusicReconnaissance {
                 return MusicReconnaissance.searchWithSoundCloud(matched_query);
             }
 
-            case 'yt':
-            case 'youtube':
+            case SearchTrigger.YoutubeShortened:
+            case SearchTrigger.Youtube:
             default: {
+                console.warn('MusicReconnaissance.search(): YouTube trigger activated:', {
+                    query,
+                    matched_query,
+                    query_trigger,
+                });
+
                 return MusicReconnaissance.searchWithYouTube(matched_query);
             }
         }
