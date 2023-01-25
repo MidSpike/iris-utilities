@@ -58,7 +58,7 @@
     "mathjs": "11.5.0",
     "module-alias": "2.2.2",
     "moment-timezone": "0.5.40",
-    "node-gyp": "9.3.0",
+    "node-gyp": "9.3.1",
     "node-html-to-image": "3.2.4",
     "opusscript": "0.0.8",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory#v0.4.0-beta",
