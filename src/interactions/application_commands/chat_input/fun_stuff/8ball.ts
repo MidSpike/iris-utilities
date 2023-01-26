@@ -41,7 +41,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: '8ball',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'See what the magic 8 ball has to say',
+        description: 'see what the magic 8 ball has to say',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {

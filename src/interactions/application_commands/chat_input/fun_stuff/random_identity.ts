@@ -93,7 +93,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'random_identity',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'generates a random fake identity',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {

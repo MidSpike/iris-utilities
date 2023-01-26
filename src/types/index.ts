@@ -22,7 +22,7 @@ export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
         discord_client: Discord.Client,
         ...args: Discord.ClientEvents[EventName]
     ): Promise<void>;
-}
+};
 
 //------------------------------------------------------------//
 
@@ -79,9 +79,10 @@ export type SettingAction<Setting> = {
         guild_config: GuildConfig,
         command_interaction: Discord.CommandInteraction<'cached'>
     ) => Promise<unknown>;
-}
+};
 
 export type Setting = {
     name: string;
+    description: string;
     actions: SettingAction<Setting>[];
-}
+};

@@ -23,7 +23,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'allows you to view / control the volume',
+        description: 'allows you to view and/or control the volume',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.Integer,

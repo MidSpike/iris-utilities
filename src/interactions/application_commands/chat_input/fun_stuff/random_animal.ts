@@ -160,7 +160,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'random_animal',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'get a random animal image',
         type: Discord.ApplicationCommandType.ChatInput,
         options: Object.values(AnimalType).map((animal_type) => ({
             type: Discord.ApplicationCommandOptionType.Subcommand,

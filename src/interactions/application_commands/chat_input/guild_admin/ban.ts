@@ -134,7 +134,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.guild.members.ban(user, {
                 reason: reason,
                 ...(remove_recent_messages ? {
-                    days: 7, // 7 is the maximum allowed by Discord
+                    days: 7, // `7` is the maximum allowed by Discord
                 } : {}),
             });
         } catch (error) {

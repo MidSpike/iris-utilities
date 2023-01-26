@@ -33,7 +33,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'roll',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'rolls a specified amount of dice with a specified number of sides',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {

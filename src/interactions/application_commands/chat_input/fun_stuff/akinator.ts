@@ -87,7 +87,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'akinator',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'play akinator directly within discord',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },

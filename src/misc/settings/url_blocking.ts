@@ -12,6 +12,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 export default {
     name: 'url_blocking',
+    description: 'manage url blocking in this server',
     actions: [
         {
             name: 'help',

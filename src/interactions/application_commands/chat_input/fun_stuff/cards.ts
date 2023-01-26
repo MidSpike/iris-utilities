@@ -191,7 +191,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'cards',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'play a game of cards against [redacted]',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },

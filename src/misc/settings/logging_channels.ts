@@ -14,6 +14,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 export default {
     name: 'logging_channels',
+    description: 'manage channels that are used for logging',
     actions: [
         {
             name: 'help',
@@ -30,7 +31,7 @@ export default {
                     embeds: [
                         CustomEmbed.from({
                             description: [
-                                `${command_interaction.user}, logging channels is a feature that allows you to assign channels to be used for logging various events that occur in the server.`,
+                                `${command_interaction.user}, logging channels is a feature that allows you to assign channels to be used for logging various events that occur.`,
                                 '',
                                 'Currently, the following event types are supported:',
                                 available_logging_types.map((logging_type) => `- \`${logging_type}\``).join('\n'),

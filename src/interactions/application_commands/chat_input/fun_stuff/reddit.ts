@@ -56,7 +56,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'reddit',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'searches a specified subreddit for posts',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {

@@ -33,7 +33,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'random_color',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'displays a random color and its common values',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },
