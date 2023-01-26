@@ -36,7 +36,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'would_you',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'asks a random question with a dilemma of two choices',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },

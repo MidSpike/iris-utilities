@@ -14,6 +14,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 export default {
     name: 'server_admin_roles',
+    description: 'manage roles that are recognized as server admins by me',
     actions: [
         {
             name: 'help',
@@ -27,7 +28,8 @@ export default {
                                 `${command_interaction.user}, server admin roles is a feature that allows you to assign roles to be recognized as server admins by me.`,
                                 '',
                                 'For example, by default only users with the \`Administrator\` permission can run my server admin commands.',
-                                'If you want to allow another role to have access to my server admin commands, you can add that role using this command.',
+                                'If you want to additionally allow specific roles to have access to my server admin commands, you can add that role.',
+                                'This means that users with the \`Administrator\` permission and/or the specified role will be able to run my server admin commands.',
                                 '',
                                 'By default, the server admin roles list is empty.',
                             ].join('\n'),

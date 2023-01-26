@@ -45,7 +45,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'color',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'displays a hexadecimal color',
+        description: 'displays a specified hexadecimal color',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {

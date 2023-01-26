@@ -82,7 +82,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'displays all bans in the guild',
+        description: 'displays a paginated list of bans in the guild',
         options: [],
     },
     metadata: {

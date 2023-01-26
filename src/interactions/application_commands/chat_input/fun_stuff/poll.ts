@@ -18,7 +18,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'poll',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'creates a poll',
+        description: 'creates a poll with up to 10 choices',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [
             {

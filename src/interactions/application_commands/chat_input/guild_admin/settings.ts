@@ -50,11 +50,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'n/a',
+        description: 'controls various settings for this bot in this server',
         options: settings.map((setting) => ({
             type: Discord.ApplicationCommandOptionType.SubcommandGroup,
             name: setting.name,
-            description: 'n/a',
+            description: setting.description,
             options: setting.actions.map((action) => ({
                 type: Discord.ApplicationCommandOptionType.Subcommand,
                 name: action.name,

@@ -21,7 +21,7 @@ async function rolesAddSubCommandHandler(
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.YELLOW,
-                    description: `${interaction.user}, the member you specified could not be found.`,
+                    description: `${interaction.user}, the member specified could not be found.`,
                 }),
             ],
         });
@@ -35,7 +35,7 @@ async function rolesAddSubCommandHandler(
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.colors.YELLOW,
-                    description: `${interaction.user}, you must specify a valid role to add.`,
+                    description: `${interaction.user}, please specify a valid role.`,
                 }),
             ],
         });
@@ -348,7 +348,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.colors.RED,
-                            description: `${interaction.user}, the subcommand you specified is not valid.`,
+                            description: `${interaction.user}, the subcommand specified is invalid.`,
                         }),
                     ],
                 });

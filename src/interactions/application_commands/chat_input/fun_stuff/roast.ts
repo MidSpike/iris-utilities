@@ -35,7 +35,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 type: Discord.ApplicationCommandOptionType.User,
                 name: 'user',
                 description: 'the user to roast',
-                required: true,
+                required: false,
             },
         ],
     },
@@ -55,20 +55,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         await interaction.deferReply({ ephemeral: false });
 
-        const member = interaction.options.getMember('user');
-
-        if (!member) {
-            await interaction.reply({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
-                        description: 'I couldn\'t find that user.',
-                    }),
-                ],
-            });
-
-            return;
-        }
+        const member = interaction.options.getMember('user') ?? interaction.member;
 
         const insult_api_response_data = await axios({
             method: 'get',

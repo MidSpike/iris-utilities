@@ -52,7 +52,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'flip',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'flips a coin',
+        description: 'flips a 2 sided coin',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },
