@@ -6,16 +6,16 @@ import { Readable } from 'node:stream';
 
 import * as DiscordVoice from '@discordjs/voice';
 
-import { extractVideoIdFromYoutubeUrl, youtubeRelatedVideoId } from '../searcher/youtube';
+import { extractYoutubeVideoId, findRelatedYoutubeVideoId } from '../searcher/youtube';
 
 import { MusicReconnaissance } from '../music';
 
 //------------------------------------------------------------//
 
 type TrackEvents = {
-    onStart: ((track: Track) => void)[];
-    onFinish: ((track: Track) => void)[];
-    onError: ((track: Track, error: unknown) => void)[];
+    onStart: ((track: Track) => Promise<void>)[];
+    onFinish: ((track: Track) => Promise<void>)[];
+    onError: ((track: Track, error: unknown) => Promise<void>)[];
 };
 
 //------------------------------------------------------------//
@@ -95,36 +95,51 @@ export class Track<
     }
 
     async destroyResource(): Promise<void> {
+        const stream = this._resource?.playStream;
+        if (stream) {
+            console.warn('Stream#destroyResource(): Destroying stream for', {
+                track_name: this.metadata.title,
+            });
+
+            stream.destroy();
+        }
+
         this._resource = undefined;
     }
 
-    async onStart(cb: (track: Track) => void) {
+    async onStart(cb: (track: Track) => Promise<void>) {
         this._events.onStart.push(cb);
     }
 
-    async onFinish(cb: (track: Track) => void) {
+    async onFinish(cb: (track: Track) => Promise<void>) {
         this._events.onFinish.push(cb);
     }
 
-    async onError(cb: (track: Track, error: unknown) => void) {
+    async onError(cb: (track: Track, error: unknown) => Promise<void>) {
         this._events.onError.push(cb);
     }
 
     async triggerOnStart() {
-        this._events.onStart.forEach((cb) => cb(this));
+        for (const event of this._events.onStart) {
+            await event(this);
+        }
     }
 
     async triggerOnFinish() {
         await this.destroyResource();
 
-        this._events.onFinish.forEach((cb) => cb(this));
+        for (const event of this._events.onFinish) {
+            await event(this);
+        }
     }
 
     async triggerOnError(error: unknown) {
-        // allows for graceful cleanup of invalid tracks
+        // attempt to perform cleanup
         await this.triggerOnFinish();
 
-        this._events.onError.forEach((cb) => cb(this, error));
+        for (const event of this._events.onError) {
+            await event(this, error);
+        }
     }
 }
 
@@ -151,16 +166,16 @@ export interface YouTubeTrackMetadata extends RemoteTrackMetadata {
 }
 
 export class YouTubeTrack extends Track<YouTubeTrackMetadata> {
-    async generateRelatedTrack() {
-        const video_id = extractVideoIdFromYoutubeUrl(this.metadata.url);
-        console.warn('video_id', { video_id });
+    async generateRelatedTrack(): Promise<YouTubeTrack> {
+        const video_id = extractYoutubeVideoId(this.metadata.url);
+        console.warn('generateRelatedTrack(): video_id', { video_id });
         if (!video_id) throw new Error('Failed to extract video id from url');
 
-        const related_video_id = await youtubeRelatedVideoId(video_id);
-        console.warn('related_video_id', { related_video_id });
+        const related_video_id = await findRelatedYoutubeVideoId(video_id);
+        console.warn('generateRelatedTrack(): related_video_id', { related_video_id });
         if (!related_video_id) throw new Error('Failed to get related video id');
 
-        const related_search_results = await MusicReconnaissance.search(`https://www.youtube.com/watch?v=${related_video_id}`);
+        const related_search_results = await MusicReconnaissance.search(`https://www.youtube.com/watch?v=${related_video_id}`, 'youtube') as YouTubeTrack[];
 
         const related_search_result = related_search_results.at(0);
         if (!related_search_result) throw new Error('Failed to get related search result');
