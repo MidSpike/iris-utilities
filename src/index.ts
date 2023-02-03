@@ -48,9 +48,6 @@ const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path
     execArgv: [
         '--trace-warnings',
     ],
-    shardArgs: [
-        '--trace-warnings',
-    ],
 });
 
 //------------------------------------------------------------//
