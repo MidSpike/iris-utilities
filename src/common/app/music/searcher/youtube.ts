@@ -15,7 +15,7 @@ if (!yt_api_key?.length) throw new TypeError('YOUTUBE_API_KEY is not defined');
 
 //------------------------------------------------------------//
 
-export function extractVideoIdFromYoutubeUrl(
+export function extractYoutubeVideoId(
     youtube_url: string,
 ): string | undefined {
     let youtube_url_instance: URL;
@@ -73,7 +73,7 @@ export function extractVideoIdFromYoutubeUrl(
     return undefined;
 }
 
-export async function youtubeRelatedVideoId(
+export async function findRelatedYoutubeVideoId(
     youtube_video_id: string,
 ): Promise<string | undefined> {
     const url_search_params = new URLSearchParams({

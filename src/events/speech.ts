@@ -127,7 +127,7 @@ export default {
                 const track = search_results.at(0);
                 if (!track) return;
 
-                track.onStart((track) => {
+                track.onStart(async (track) => {
                     music_subscription.text_channel.send({
                         embeds: [
                             CustomEmbed.from({
@@ -138,7 +138,7 @@ export default {
                     }).catch(console.warn);
                 });
 
-                track.onFinish((track) => {
+                track.onFinish(async (track) => {
                     music_subscription.text_channel.send({
                         embeds: [
                             CustomEmbed.from({
@@ -149,7 +149,7 @@ export default {
                     }).catch(console.warn);
                 });
 
-                track.onError((track, error) => {
+                track.onError(async (track, error) => {
                     console.trace(error);
 
                     music_subscription.text_channel.send({

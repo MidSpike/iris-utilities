@@ -298,7 +298,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 },
             });
 
-            track.onStart((track) => {
+            track.onStart(async (track) => {
                 if (i > 1) {
                     interaction.channel?.send({
                         embeds: [
@@ -313,7 +313,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 }
             });
 
-            track.onFinish((track) => {
+            track.onFinish(async (track) => {
                 if (i === tts_text_chunks.length - 1) {
                     interaction.channel?.send({
                         embeds: [
@@ -325,7 +325,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 }
             });
 
-            track.onError((track, error) => {
+            track.onError(async (track, error) => {
                 console.trace(error);
 
                 interaction.channel?.send({

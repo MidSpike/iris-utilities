@@ -51,7 +51,7 @@ async function playQuery(
 
         const track = search_results[i];
 
-        track.onStart((track) => {
+        track.onStart(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -61,7 +61,7 @@ async function playQuery(
             }).catch(console.warn);
         });
 
-        track.onFinish((track) => {
+        track.onFinish(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -71,7 +71,7 @@ async function playQuery(
             }).catch(console.warn);
         });
 
-        track.onError((track, error) => {
+        track.onError(async (track, error) => {
             console.trace(error);
 
             interaction.channel?.send({
@@ -120,7 +120,7 @@ async function playAttachment(
             stream_creator: () => StreamerSpace.remoteStream(attachment_url),
         });
 
-        track.onStart((track) => {
+        track.onStart(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -130,7 +130,7 @@ async function playAttachment(
             }).catch(console.warn);
         });
 
-        track.onFinish((track) => {
+        track.onFinish(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -140,7 +140,7 @@ async function playAttachment(
             }).catch(console.warn);
         });
 
-        track.onError((track, error) => {
+        track.onError(async (track, error) => {
             console.trace(error);
 
             interaction.channel?.send({

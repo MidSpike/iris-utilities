@@ -92,7 +92,7 @@ export class MusicSubscription {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
                 this.queue.current_track?.triggerOnFinish(); // notify the track that it has finished playing
-                this.processQueue(false); // advance the queue to the next track
+                this.processQueue(true); // advance the queue to the next track
             } else if (newState.status === DiscordVoice.AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
                 this.queue.current_track?.triggerOnStart(); // notify the track that it has started playing
@@ -208,13 +208,13 @@ export class MusicSubscription {
         force: boolean = false,
     ) {
         // Check if the queue is locked, and if so, allow the track to automatically be played.
-        if (this.queue.locked) return;
+        if (!force && this.queue.locked) return;
 
         // Check if the audio player is idle, and if not, don't process the queue without forcing.
         if (!force && this.audio_player.state.status !== DiscordVoice.AudioPlayerStatus.Idle) return;
 
         // Pause the audio player if we are forcing the queue to be processed
-        if (force) this.audio_player.pause(true);
+        // if (force) this.audio_player.pause(true); // commented out to determine if necessary
 
         // Get the next track from the queue
         const next_track = await this.queue.processNextTrack();
