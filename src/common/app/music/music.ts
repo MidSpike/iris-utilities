@@ -246,7 +246,7 @@ enum SearchTrigger {
 export class MusicReconnaissance {
     private static async searchWithYouTube(
         query: string,
-    ): Promise<TrackSpace.RemoteTrack[]> {
+    ): Promise<TrackSpace.YouTubeTrack[]> {
         let modified_query = query;
 
         const query_url = parseUrlFromString(modified_query);
@@ -387,7 +387,7 @@ export class MusicReconnaissance {
     static async search(
         query: string,
         method: 'youtube' | 'soundcloud' | undefined = undefined,
-    ): Promise<TrackSpace.RemoteTrack[]> {
+    ): Promise<TrackSpace.YouTubeTrack[] | TrackSpace.SoundCloudTrack[]> {
         const trimmed_query = `${query}`.trim();
 
         const search_trigger_regex = new RegExp(`^(${Object.values(SearchTrigger).join('|')}):`, 'i');
