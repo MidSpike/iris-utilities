@@ -583,7 +583,7 @@ export class ClientInteractionManager {
 
         /* run the interaction handler */
         try {
-            console.log(`ClientInteractionManager.handleUnknownInteraction(): running handler for interaction: ${client_interaction.identifier}`, client_interaction);
+            console.log(`ClientInteractionManager.handleUnknownInteraction(): running handler for interaction: ${client_interaction.identifier}`);
             await client_interaction.handler(discord_client, unknown_interaction);
         } catch (error) {
             console.trace({
