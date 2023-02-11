@@ -32,6 +32,10 @@ export async function doesUserHaveSuperPersonStatus(
 ): Promise<boolean> {
     const [ db_super_person_config ] = await go_mongo_db.find(db_name, db_super_people_collection_name, {
         'discord_user_id': user_id,
+    }, {
+        projection: {
+            '_id': false, // don't return the `_id` field
+        },
     });
 
     return Boolean(db_super_person_config ?? false);
@@ -51,6 +55,10 @@ export async function doesUserHaveDonatorStatus(
 
     const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
+    }, {
+        projection: {
+            '_id': false, // don't return the `_id` field
+        },
     }) as unknown as (UserSettings | undefined)[];
 
     return db_user_settings?.donator ?? false;
