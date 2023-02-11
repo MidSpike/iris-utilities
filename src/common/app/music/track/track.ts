@@ -90,10 +90,6 @@ export class Track<
         return this._resource;
     }
 
-    async fetchResource(): Promise<DiscordVoice.AudioResource<Track<Metadata>> | undefined> {
-        return this._resource ?? await this.initializeResource() ?? undefined;
-    }
-
     async destroyResource(): Promise<void> {
         const stream = this._resource?.playStream;
         if (stream) {

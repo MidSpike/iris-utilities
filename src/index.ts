@@ -46,6 +46,8 @@ const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path
     totalShards: 'auto',
     respawn: true,
     execArgv: [
+        '--inspect',
+        '--expose-gc',
         '--trace-warnings',
     ],
 });
