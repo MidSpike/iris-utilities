@@ -16,7 +16,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'test',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'reserved for authorized staff of this bot',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },
