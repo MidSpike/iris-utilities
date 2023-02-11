@@ -22,7 +22,14 @@ if (!bot_support_url?.length) throw new Error('DISCORD_BOT_SUPPORT_GUILD_INVITE_
 const memory_unit_divisor = 1024;
 const memory_units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
 
-function memoryUsageToSmallestUnit(memory_usage_in_bytes: number): string {
+/**
+ * Returns a string representation of the given number of bytes in the largest sensible unit.
+ * @example
+ * ```ts
+ * bytesToLargestRepresentation(5 * 1024 * 1024) // output: '5 MB'
+ * ```
+ */
+function bytesToLargestRepresentation(memory_usage_in_bytes: number): string {
     let memory_usage_in_bytes_clone = Math.floor(memory_usage_in_bytes);
 
     let memory_unit_index = 0;
@@ -37,15 +44,27 @@ function memoryUsageToSmallestUnit(memory_usage_in_bytes: number): string {
 
 //------------------------------------------------------------//
 
-const uptime_units: [string, number][] = [
-    [ 'Seconds', 60 ],
-    [ 'Minutes', 60 ],
-    [ 'Hours', 24 ],
-    [ 'Days', 365 ],
-    [ 'Years', 10 ],
-    [ 'Decades', 10 ],
+type UptimeUnitTuple = [
+    unit_name: string, // example: `'seconds'`
+    units_per_next_unit: number, // example: `60` (seconds per minute)
 ];
 
+const uptime_units: UptimeUnitTuple[] = [
+    [ 'seconds', 60 ],
+    [ 'minutes', 60 ],
+    [ 'hours', 24 ],
+    [ 'days', 365 ],
+    [ 'years', 10 ],
+    [ 'decades', 10 ],
+];
+
+/**
+ * Returns a string representation of the given number of seconds in the largest sensible unit (up to decades).
+ * @example
+ * ```ts
+ * uptimeToHumanString(1 * 60 * 60 * 24 * 365) // output: '1 year'
+ * ```
+ */
 function uptimeToHumanString(uptime_in_seconds: number): string {
     let uptime_in_seconds_clone = Math.floor(uptime_in_seconds);
 
@@ -57,11 +76,14 @@ function uptimeToHumanString(uptime_in_seconds: number): string {
     }
 
     return `${Math.round(uptime_in_seconds_clone)} ${uptime_units[uptime_unit_index][0]}`;
-
 }
 
 //------------------------------------------------------------//
 
+/**
+ * Formats the given CPU model name string.
+ * Removes most non-alphanumeric characters, common legal affixes, and duplicate whitespace.
+ */
 function formatCpuModelName(
     cpu_model_name: string,
 ): string {
@@ -100,7 +122,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.deferReply({ ephemeral: false });
 
         const bot_application = await discord_client.application.fetch();
-        const bot_application_owner = bot_application.owner instanceof Discord.Team ? bot_application.owner.owner!.user : bot_application.owner!;
+        const bot_application_owner: Discord.User | null | undefined = bot_application.owner instanceof Discord.Team ? bot_application.owner.owner?.user : bot_application.owner;
 
         const bot_invite_url = discord_client.generateInvite({
             scopes: [
@@ -127,24 +149,24 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }
 
             return {
+                identifier: client.shard.ids.map((shard_id) => shard_id + 1).join(', '),
                 ping_ms: client.ws.ping,
+                process_info: {
+                    uptime_in_seconds: process.uptime(),
+                    memory_usage_in_bytes: process.memoryUsage().heapUsed,
+                    memory_allocation_in_bytes: process.memoryUsage().heapTotal,
+                },
                 num_cached_guilds: client.guilds.cache.size,
                 num_cached_users: shard_cached_member_ids.size,
                 num_cached_channels: client.channels.cache.size,
                 num_cached_emojis: client.emojis.cache.size,
-                shard_info: [
-                    `\`[ Shard ${client.shard.ids.map((shard_id) => shard_id + 1).join(', ')} / ${client.shard.count} ]:\``,
-                    `> - ${client.ws.ping}ms ping`,
-                    `> - ${client.guilds.cache.size} guild(s)`,
-                    `> - ${client.channels.cache.size} channel(s)`,
-                    `> - ${shard_cached_member_ids.size} user(s)`,
-                    `> - ${client.emojis.cache.size} emoji(s)`,
-                ].join('\n'),
             };
         });
 
         const combined_bot_info_totals = {
             average_ping_ms: distributed_bot_info.reduce((acc, curr) => acc + curr.ping_ms, 0) / distributed_bot_info.length,
+            total_process_memory_usage_in_bytes: distributed_bot_info.reduce((acc, curr) => acc + curr.process_info.memory_usage_in_bytes, 0),
+            total_process_memory_allocation_in_bytes: distributed_bot_info.reduce((acc, curr) => acc + curr.process_info.memory_allocation_in_bytes, 0),
             num_cached_guilds: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_guilds, 0),
             num_cached_users: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_users, 0),
             num_cached_channels: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_channels, 0),
@@ -154,44 +176,37 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const total_system_free_memory = os.freemem();
         const total_system_memory = os.totalmem();
         const total_system_memory_usage = total_system_memory - total_system_free_memory;
-        const total_process_memory_usage = process.memoryUsage().heapUsed;
-        const total_process_memory = process.memoryUsage().heapTotal;
 
         await interaction.followUp({
             embeds: [
                 CustomEmbed.from({
                     title: `Hello world, I\'m ${discord_client.user.username}`,
                     description: [
-                        `I was created by ${bot_application_owner.username} <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
+                        `I was created by ${bot_application_owner?.username ?? 'Unknown'} <t:${bot_creation_unix_epoch}:R> on <t:${bot_creation_unix_epoch}:D>.`,
                     ].join('\n'),
                     fields: [
                         {
                             name: 'About Me',
                             value: `${bot_application.description}`,
+                            inline: false,
                         }, {
-                            name: 'Process Memory Usage',
+                            name: 'Bot Memory Usage',
                             value: [
-                                `> ${memoryUsageToSmallestUnit(total_process_memory_usage)} / ${memoryUsageToSmallestUnit(total_process_memory)}`,
+                                `> ${bytesToLargestRepresentation(combined_bot_info_totals.total_process_memory_usage_in_bytes)} / ${bytesToLargestRepresentation(combined_bot_info_totals.total_process_memory_allocation_in_bytes)}`,
                             ].join('\n'),
                             inline: true,
                         }, {
                             name: 'System Memory Usage',
                             value: [
-                                `> ${memoryUsageToSmallestUnit(total_system_memory_usage)} / ${memoryUsageToSmallestUnit(total_system_memory)}`,
+                                `> ${bytesToLargestRepresentation(total_system_memory_usage)} / ${bytesToLargestRepresentation(total_system_memory)}`,
                             ].join('\n'),
                             inline: true,
                         }, {
-                            name: 'Process Information',
-                            value: [
-                                `> - ${uptimeToHumanString(process.uptime())} of Uptime`,
-                            ].join('\n'),
-                            inline: false,
-                        }, {
                             name: 'Server Information',
                             value: [
+                                `> - ${uptimeToHumanString(os.uptime())} of uptime`,
                                 `> - ${os.arch()} ${os.version()} (${os.release()})`,
                                 `> - ${formatCpuModelName(os.cpus().at(0)!.model)} (x${os.cpus().length})`,
-                                `> - ${uptimeToHumanString(os.uptime())} of Uptime`,
                             ].join('\n'),
                             inline: false,
                         }, {
@@ -203,11 +218,34 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 `> - ${combined_bot_info_totals.num_cached_channels} total channel(s)`,
                                 `> - ${combined_bot_info_totals.num_cached_emojis} total emoji(s)`,
                             ].join('\n'),
+                            inline: false,
                         }, {
                             name: 'Individual Shard Caches',
                             value: [
-                                distributed_bot_info.map(({ shard_info }) => shard_info).join('\n\n'),
+                                distributed_bot_info.map(
+                                    ({
+                                        identifier,
+                                        ping_ms,
+                                        process_info: {
+                                            memory_usage_in_bytes,
+                                            memory_allocation_in_bytes,
+                                        },
+                                        num_cached_guilds,
+                                        num_cached_channels,
+                                        num_cached_users,
+                                        num_cached_emojis,
+                                    }) => [
+                                        `\`[ Shard ${identifier} / ${discord_client.shard.count} ]:\``,
+                                        `> - ${ping_ms}ms ping`,
+                                        `> - ${bytesToLargestRepresentation(memory_usage_in_bytes)} / ${bytesToLargestRepresentation(memory_allocation_in_bytes)} memory usage`,
+                                        `> - ${num_cached_guilds} guild(s)`,
+                                        `> - ${num_cached_channels} channel(s)`,
+                                        `> - ${num_cached_users} user(s)`,
+                                        `> - ${num_cached_emojis} emoji(s)`,
+                                    ].join('\n')
+                                ).join('\n\n'),
                             ].join('\n'),
+                            inline: false,
                         },
                     ],
                 }),
