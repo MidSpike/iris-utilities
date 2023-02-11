@@ -140,6 +140,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             if (!client.isReady()) throw new Error('Client is not ready');
             if (!client.shard) throw new Error('Client shard is undefined');
 
+            const shard_process = require('node:process')?.default as NodeJS.Process;
+
             const shard_cached_member_ids = new Set(); // using Set to prevent duplicates
 
             for (const guild of client.guilds.cache.values()) {
@@ -152,9 +154,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 identifier: client.shard.ids.map((shard_id) => shard_id + 1).join(', '),
                 ping_ms: client.ws.ping,
                 process_info: {
-                    uptime_in_seconds: process.uptime(),
-                    memory_usage_in_bytes: process.memoryUsage().heapUsed,
-                    memory_allocation_in_bytes: process.memoryUsage().heapTotal,
+                    uptime_in_seconds: shard_process.uptime(),
+                    memory_usage_in_bytes: shard_process.memoryUsage().heapUsed,
+                    memory_allocation_in_bytes: shard_process.memoryUsage().heapTotal,
                 },
                 num_cached_guilds: client.guilds.cache.size,
                 num_cached_users: shard_cached_member_ids.size,
