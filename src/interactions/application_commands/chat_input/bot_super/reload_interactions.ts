@@ -22,7 +22,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     identifier: 'reload_interactions',
     type: Discord.InteractionType.ApplicationCommand,
     data: {
-        description: 'n/a',
+        description: 'reserved for authorized staff of this bot',
         type: Discord.ApplicationCommandType.ChatInput,
         options: [],
     },
@@ -61,7 +61,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.RED,
-                        description: `${interaction.user}, failed to build interaction files.`,
+                        description: `${interaction.user}, failed to build interactions.`,
                     }),
                 ],
             }).catch(() => {});
