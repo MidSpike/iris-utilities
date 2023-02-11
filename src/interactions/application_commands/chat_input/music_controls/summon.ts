@@ -44,7 +44,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const guild_member_voice_channel_id = guild_member.voice.channelId;
         if (!guild_member_voice_channel_id) {
-            interaction.followUp({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.colors.YELLOW,
@@ -57,10 +57,51 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         const bot_member = await interaction.guild.members.fetchMe();
-        const bot_member_voice_channel_id = bot_member.voice.channelId;
+        const bot_voice_channel_id = bot_member.voice.channelId;
+
+        if (
+            bot_voice_channel_id && // check if the bot is in a voice channel
+            bot_voice_channel_id !== guild_member_voice_channel_id // check if the bot is not in the same voice channel as the user
+        ) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.YELLOW,
+                        description: [
+                            `${interaction.user}, I'm currently in a different voice channel.`,
+                            'That means that I might be playing audio for someone else.',
+                            '',
+                            'Do you want to summon me to your voice channel?',
+                        ].join('\n'),
+                    }),
+                ],
+                components: [
+                    new Discord.ActionRowBuilder<Discord.MessageActionRowComponentBuilder>().setComponents([
+                        new Discord.ButtonBuilder()
+                            .setCustomId('chat_input_command:summon:confirm')
+                            .setStyle(Discord.ButtonStyle.Danger)
+                            .setLabel('Yes'),
+                        new Discord.ButtonBuilder()
+                            .setCustomId('chat_input_command:summon:cancel')
+                            .setStyle(Discord.ButtonStyle.Secondary)
+                            .setLabel('No'),
+                    ]),
+                ],
+            });
+
+            const confirm_summon_interaction = await interaction.channel.awaitMessageComponent({
+                componentType: Discord.ComponentType.Button,
+                filter: (button_interaction) => button_interaction.user.id === interaction.user.id,
+            });
+
+            await confirm_summon_interaction.deferReply();
+
+            if (confirm_summon_interaction.customId === 'chat_input_command:summon:cancel') return; // halt execution
+        }
 
         let music_subscription = music_subscriptions.get(interaction.guildId);
-        if (!bot_member_voice_channel_id || !music_subscription) {
+
+        if (!bot_voice_channel_id || !music_subscription) {
             music_subscription = new MusicSubscription({
                 voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
@@ -71,6 +112,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 }),
                 text_channel: interaction.channel,
             });
+
             music_subscriptions.set(interaction.guildId, music_subscription);
         }
 
