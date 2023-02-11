@@ -201,8 +201,9 @@ export class MusicSubscription {
     }
 
     /**
-     * Attempts to play a track from the queue.
-     * @param force Whether to force the queue to be processed, even if not idling.
+     * Processes the queue, playing the next track if the audio player is idle.
+     * If the audio player has been idle for more an extended period of time, the bot will disconnect from the voice channel.
+     * @param force forces the queue to be processed, even when the player is not idle.
      */
     async processQueue(
         force: boolean = false,
@@ -213,12 +214,20 @@ export class MusicSubscription {
         // Check if the audio player is idle, and if not, don't process the queue without forcing.
         if (!force && this.audio_player.state.status !== DiscordVoice.AudioPlayerStatus.Idle) return;
 
-        // Pause the audio player if we are forcing the queue to be processed
-        // if (force) this.audio_player.pause(true); // commented out to determine if necessary
-
-        // Get the next track from the queue
+        // Get the next track from the queue, and auto disconnect if the queue is empty for an extended period of time.
         const next_track = await this.queue.processNextTrack();
-        if (!next_track) return;
+        if (!next_track) {
+            // Force this to run asynchronously to avoid blocking
+            setImmediate(() => {
+                // Wait for up to 10 minutes for the audio player to enter the Playing state.
+                DiscordVoice.entersState(this.audio_player, DiscordVoice.AudioPlayerStatus.Playing, 10 * 60_000).catch(() => {
+                    // If the audio player has not entered the Playing state, the bot will disconnect.
+                    this.kill();
+                });
+            });
+
+            return;
+        }
 
         // Get the track's audio resource
         const next_track_resource = await next_track.initializeResource();
