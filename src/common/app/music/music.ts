@@ -217,14 +217,13 @@ export class MusicSubscription {
         // Get the next track from the queue, and auto disconnect if the queue is empty for an extended period of time.
         const next_track = await this.queue.processNextTrack();
         if (!next_track) {
-            // Run asynchronously to prevent blocking.
-            (async () => {
-                // Wait for up to 10 minutes for the audio player to enter the Playing state.
-                DiscordVoice.entersState(this.audio_player, DiscordVoice.AudioPlayerStatus.Playing, 10 * 60_000).catch(() => {
-                    // If the audio player has not entered the Playing state, the bot will disconnect.
-                    this.kill();
-                });
-            })();
+            this.audio_player.stop(true); // stop the audio player
+
+            // Wait for up to 10 minutes for the audio player to enter the Playing state.
+            DiscordVoice.entersState(this.audio_player, DiscordVoice.AudioPlayerStatus.Playing, 10 * 60_000).catch(() => {
+                // If the audio player has not entered the Playing state, the bot will disconnect.
+                this.voice_connection.disconnect(); // `disconnect` instead of `destroy` to avoid an infinite loop
+            });
 
             return;
         }
