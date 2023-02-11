@@ -86,7 +86,20 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        music_subscription.processQueue(true);
+        try {
+            await music_subscription.processQueue(true);
+        } catch (error) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        description: `${interaction.user}, an error occurred while skipping the current track!`,
+                    }),
+                ],
+            }).catch(() => {});
+
+            return;
+        }
 
         const skipped_track = music_subscription.queue.previous_tracks.at(0);
         await interaction.editReply({
