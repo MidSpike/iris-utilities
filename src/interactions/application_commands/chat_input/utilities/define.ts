@@ -36,7 +36,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'n/a',
+        description: 'define an english word',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.String,
@@ -70,8 +70,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             headers: {
                 'Content-Type': 'application/json',
             },
-            timeout: 1000,
-        }).catch((res) => res);
+            timeout: 5_000, // 5 seconds
+        }).catch((res) => res); // allow errors to propagate
 
         if (api_response.status !== 200) {
             console.log({

@@ -76,11 +76,21 @@ const discord_client = new Discord.Client({
     presence: {
         status: 'online',
     },
+    // attempt to reduce memory usage
+    sweepers: {
+        // every 5 minutes, sweep messages that are older than 1 hour
+        messages: {
+            interval: 5 * 60, // 5 minutes in seconds
+            lifetime: 1 * 60 * 60, // 1 hour in seconds
+        },
+    },
 }) as DiscordClientWithSharding;
 
 //------------------------------------------------------------//
 
-async function registerClientEvents(discord_client: DiscordClientWithSharding) {
+async function registerClientEvents(
+    discord_client: DiscordClientWithSharding,
+) {
     const path_to_event_files = path.join(process.cwd(), 'dist', 'events');
     const client_event_file_names = recursiveReadDirectory(path_to_event_files);
 
@@ -100,6 +110,27 @@ async function registerClientEvents(discord_client: DiscordClientWithSharding) {
 
             continue;
         }
+    }
+}
+
+//------------------------------------------------------------//
+
+function runGarbageCollector(
+    discord_client: DiscordClientWithSharding,
+) {
+    const garbageCollector = globalThis.gc;
+
+    if (typeof garbageCollector !== 'function') {
+        console.trace('Garbage collection is not exposed!');
+        return;
+    }
+
+    console.warn(`<DC S#(${discord_client.shard.ids.join(', ')})> running garbage collector...`);
+
+    try {
+        garbageCollector();
+    } catch (error) {
+        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to run garbage collector`, error);
     }
 }
 
@@ -153,6 +184,9 @@ async function main() {
 
         process.exit(1);
     }
+
+    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing garbage collector...`);
+    setInterval(() => runGarbageCollector(discord_client), 5 * 60_000); // every 5 minutes
 
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> fully initialized.`);
 }
