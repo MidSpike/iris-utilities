@@ -23,6 +23,10 @@ async function doesUserHaveVoiceRecognitionEnabled(
 ): Promise<boolean> {
     const [ user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         user_id: user_id,
+    }, {
+        projection: {
+            '_id': false, // don't return the `_id` field
+        },
     }).catch(() => undefined) as unknown as (UserSettings | undefined)[];
 
     return user_config?.voice_recognition_enabled ?? false; // default to false to avoid unwanted data collection

@@ -83,6 +83,10 @@ export class GuildConfigsManager {
         if (!guild_config || cached_guild_config_has_expired || bypass_cache) {
             const [ db_guild_config ] = await go_mongo_db.find(db_name, db_guild_configs_collection_name, {
                 'guild_id': guild_id,
+            }, {
+                projection: {
+                    '_id': false, // don't return the `_id` field
+                },
             }) as unknown as GuildConfig[];
 
             guild_config = db_guild_config ?? await GuildConfigsManager._create(guild_id);
