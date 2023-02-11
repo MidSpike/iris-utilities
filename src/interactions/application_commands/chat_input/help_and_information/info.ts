@@ -140,9 +140,10 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             if (!client.isReady()) throw new Error('Client is not ready');
             if (!client.shard) throw new Error('Client shard is undefined');
 
+            // import at runtime since the shard's `process` is not accessible otherwise
             const shard_process = require('node:process') as NodeJS.Process;
 
-            const shard_cached_member_ids = new Set(); // using Set to prevent duplicates
+            const shard_cached_member_ids = new Set<string>(); // remove duplicates by using a set
 
             for (const guild of client.guilds.cache.values()) {
                 for (const [ member_id ] of guild.members.cache) {
