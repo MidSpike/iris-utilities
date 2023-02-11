@@ -54,17 +54,17 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
     type: Discord.InteractionType.ApplicationCommand,
     data: {
         type: Discord.ApplicationCommandType.ChatInput,
-        description: 'n/a',
+        description: 'allows donators to configure voice command features',
         options: [
             {
                 type: Discord.ApplicationCommandOptionType.SubcommandGroup,
                 name: 'listen_to_me',
-                description: 'n/a',
+                description: 'allows donators to configure voice recognition',
                 options: [
                     {
                         type: Discord.ApplicationCommandOptionType.Subcommand,
                         name: 'toggle',
-                        description: 'n/a',
+                        description: 'allows donators to toggle voice recognition',
                         options: [],
                     },
                 ],
