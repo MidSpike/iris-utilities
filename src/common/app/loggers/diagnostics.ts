@@ -8,6 +8,8 @@ import * as Discord from 'discord.js';
 
 import { stringEllipses } from '@root/common/lib/utilities';
 
+import { CustomEmbed } from '@root/common/app/message';
+
 //------------------------------------------------------------//
 
 /**
@@ -69,14 +71,24 @@ export class DiagnosticsLogger {
             const diagnostic_log = DiagnosticsLogger.logs.pop();
             if (!diagnostic_log) return;
 
+            const payload_data: Partial<Discord.APIMessage> = {
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.colors.RED,
+                        title: 'Diagnostic Log',
+                        description: diagnostic_log,
+                    }).toJSON(),
+                ],
+            };
+
             axios({
                 method: 'post',
                 url: diagnostics_webhook_url,
-                data: diagnostic_log,
+                data: payload_data,
                 validateStatus: (status_code) => status_code >= 200 && status_code < 300,
             }).then(
                 () => {
-                    console.log('DiagnosticsLogger: sent diagnostic log successfully');
+                    console.info('DiagnosticsLogger: successfully sent diagnostic log;');
                 }
             ).catch(
                 (error) => {
