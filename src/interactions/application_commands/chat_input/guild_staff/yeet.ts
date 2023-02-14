@@ -78,8 +78,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.GuildStaff,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -99,7 +99,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, you do not have permission to yeet!`,
                     }),
                 ],
@@ -119,7 +119,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, you must be in a voice channel to yeet people!`,
                     }),
                 ],
@@ -137,7 +137,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, you must specify a valid member to yeet!`,
                             }),
                         ],
@@ -151,7 +151,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, ${member} is not in a voice channel!`,
                             }),
                         ],
@@ -164,7 +164,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, ${member} is not in the same voice channel as you!`,
                             }),
                         ],
@@ -216,7 +216,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, there are no other voice channels to yeet people to!`,
                     }),
                 ],
@@ -237,7 +237,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, an error occurred while yeeting!`,
                     }),
                 ],
@@ -249,7 +249,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.GREEN,
+                    color: CustomEmbed.Colors.Green,
                     description: `${interaction.user}, successfully yeeted ${members_to_yeet.size} member(s)!`,
                     fields: [
                         {

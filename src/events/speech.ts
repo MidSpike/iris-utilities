@@ -156,7 +156,7 @@ export default {
                         embeds: [
                             CustomEmbed.from({
                                 title: 'Voice Command',
-                                color: CustomEmbed.colors.RED,
+                                color: CustomEmbed.Colors.Red,
                                 description: `${guild_member.user}, failed to play **${track.metadata.title}**.`,
                             }),
                         ],

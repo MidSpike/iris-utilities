@@ -36,7 +36,7 @@ export default {
             await sendWebhookMessage(logging_webhook_url, {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         fields: [
                             {
                                 name: 'Guild',

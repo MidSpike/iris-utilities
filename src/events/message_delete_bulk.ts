@@ -29,11 +29,11 @@ export default {
 
         guildLogger(
             channel.guild,
-            GuildConfigLoggingChannels.MESSAGE_DELETED,
+            GuildConfigLoggingChannels.MessageDeleted,
             {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${messages.size} messages were deleted in ${channel}.`,
                         fields: [
                             {

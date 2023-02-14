@@ -74,7 +74,7 @@ export class DiagnosticsLogger {
             const payload_data: Partial<Discord.APIMessage> = {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Neutral,
                         title: 'Diagnostic Log',
                         description: diagnostic_log,
                     }).toJSON(),

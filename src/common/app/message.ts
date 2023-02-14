@@ -51,20 +51,25 @@ export class CustomEmoji {
 
 //------------------------------------------------------------//
 
+enum CustomEmbedColors {
+    Brand = 0xFF5500,
+    Dark = 0x222222, // avoid absolute black to be compatible with discord's limitations
+    Neutral = 0x555555,
+    Light = 0xEEEEEE, // avoid absolute white to be compatible with discord's limitations
+    Red = 0xFF0000,
+    Orange = 0xFF5500,
+    Yellow = 0xFFFF00,
+    Green = 0x00FF00,
+    Blue = 0x0000FF,
+    Indigo = 0x550088,
+    Violet = 0xAA00FF,
+}
+
 export class CustomEmbed {
-    static colors = {
-        BRAND: 0xFF5500,
-        RED: 0xFF0000,
-        ORANGE: 0xFF5500,
-        YELLOW: 0xFFFF00,
-        GREEN: 0x00FF00,
-        BLUE: 0x0000FF,
-        INDIGO: 0x550088,
-        VIOLET: 0xAA00FF,
-    };
+    static Colors = CustomEmbedColors;
 
     static from(options: Discord.APIEmbed): Discord.EmbedBuilder {
-        options.color ??= this.colors.BRAND;
+        options.color ??= this.Colors.Brand;
 
         return Discord.EmbedBuilder.from(options);
     }

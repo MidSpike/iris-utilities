@@ -35,11 +35,11 @@ export default {
 
         guildLogger(
             message.channel.guild,
-            GuildConfigLoggingChannels.MESSAGE_DELETED,
+            GuildConfigLoggingChannels.MessageDeleted,
             {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         fields: [
                             {
                                 name: 'Snowflake',

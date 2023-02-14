@@ -83,7 +83,7 @@ export default {
                     return interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, <@&${role.id}> is already in the admin roles list.`,
                             }),
                         ],
@@ -129,7 +129,7 @@ export default {
                     return interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, <@&${role_id}> is already in the admin roles list.`,
                             }),
                         ],

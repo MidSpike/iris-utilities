@@ -42,8 +42,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.Everyone,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -90,7 +90,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 title: 'MC User > Error',
                                 description: `${interaction.user}, unable to find a user matching: \`${query_value}\``,
                             }),
@@ -171,7 +171,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await bot_message.edit({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 title: 'MC Server > Error',
                                 description: `${interaction.user}, unable to find a server matching: \`${query_value}\``,
                             }),

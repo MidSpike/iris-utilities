@@ -27,11 +27,11 @@ export default {
 
         guildLogger(
             guild_member.guild,
-            GuildConfigLoggingChannels.MEMBER_JOIN,
+            GuildConfigLoggingChannels.MemberJoin,
             {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.GREEN,
+                        color: CustomEmbed.Colors.Green,
                         fields: [
                             {
                                 name: 'Member',

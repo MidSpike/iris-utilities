@@ -42,11 +42,11 @@ export default {
         if (user_joined_channel) {
             guildLogger(
                 voice_channel.guild,
-                GuildConfigLoggingChannels.MEMBER_CONNECT,
+                GuildConfigLoggingChannels.MemberConnect,
                 {
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.GREEN,
+                            color: CustomEmbed.Colors.Green,
                             description: `${new_voice_state.member} connected to ${new_voice_state.channel}.`,
                             fields: [
                                 {
@@ -75,11 +75,11 @@ export default {
         } else if (user_left_channel) {
             guildLogger(
                 voice_channel.guild,
-                GuildConfigLoggingChannels.MEMBER_DISCONNECT,
+                GuildConfigLoggingChannels.MemberDisconnect,
                 {
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.RED,
+                            color: CustomEmbed.Colors.Red,
                             description: `${old_voice_state.member} disconnected from ${old_voice_state.channel}.`,
                             fields: [
                                 {
@@ -108,11 +108,11 @@ export default {
         } else if (user_moved_channel) {
             guildLogger(
                 voice_channel.guild,
-                GuildConfigLoggingChannels.MEMBER_MOVE,
+                GuildConfigLoggingChannels.MemberMove,
                 {
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.YELLOW,
+                            color: CustomEmbed.Colors.Yellow,
                             description: `${old_voice_state.member} moved from ${old_voice_state.channel} to ${new_voice_state.channel!}.`,
                             fields: [
                                 {

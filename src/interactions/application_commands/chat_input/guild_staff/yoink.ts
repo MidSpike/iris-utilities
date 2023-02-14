@@ -78,8 +78,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.GuildStaff,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -99,7 +99,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, you do not have permission to yoink!`,
                     }),
                 ],
@@ -119,7 +119,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, you must be in a voice channel to yoink people!`,
                     }),
                 ],
@@ -138,7 +138,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, you must specify a valid member to yoink!`,
                             }),
                         ],
@@ -152,7 +152,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, ${member} is not in a voice channel!`,
                             }),
                         ],
@@ -165,7 +165,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, ${member} is already in your voice channel!`,
                             }),
                         ],
@@ -221,7 +221,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, an error occurred while yoinking!`,
                     }),
                 ],
@@ -233,7 +233,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.GREEN,
+                    color: CustomEmbed.Colors.Green,
                     description: `${interaction.user}, successfully yoinked ${members_to_yoink.size} member(s)!`,
                     fields: [
                         {

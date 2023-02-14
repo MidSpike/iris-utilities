@@ -64,8 +64,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         })) as Discord.ApplicationCommandOptionData[],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.GuildAdmin,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -86,7 +86,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `The setting \`${setting_name}\` is unavailable.`,
                     }),
                 ],
@@ -102,7 +102,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `The action \`${setting_action_name}\` is unavailable for setting \`${setting_name}\`.`,
                     }),
                 ],

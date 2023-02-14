@@ -75,8 +75,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.Everyone,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -138,7 +138,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, you need to be in a voice channel.`,
                     }),
                 ],
@@ -151,7 +151,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, you need to summon me or join my voice channel.`,
                     }),
                 ],
@@ -187,7 +187,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, I couldn't connect to the voice channel.`,
                     }),
                 ],
@@ -204,7 +204,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, sorry but the maximum allowed amount for the IBM voices is set to 128 characters.`,
                     }),
                 ],
@@ -331,7 +331,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 interaction.channel?.send({
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.RED,
+                            color: CustomEmbed.Colors.Red,
                             description: `${interaction.user}, failed to play text-to-speech.`,
                         }),
                     ],

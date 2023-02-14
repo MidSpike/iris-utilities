@@ -33,8 +33,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_STAFF,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.GuildStaff,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -54,7 +54,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, you do not have permission to disconnect members`,
                     }),
                 ],
@@ -72,7 +72,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, you must specify a valid user to disconnect!`,
                     }),
                 ],
@@ -86,7 +86,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, I\'m not allowed to disconnect ${member}!`,
                     }),
                 ],
@@ -99,7 +99,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: `${interaction.user}, you are not allowed to disconnect ${member}!`,
                     }),
                 ],
@@ -114,7 +114,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, failed to disconnect ${member}!`,
                         fields: [
                             {
@@ -136,7 +136,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.GREEN,
+                    color: CustomEmbed.Colors.Green,
                     description: `${interaction.user}, successfully disconnected ${member}!`,
                     fields: [
                         {

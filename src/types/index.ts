@@ -29,16 +29,16 @@ export type ClientEventExport<EventName extends keyof Discord.ClientEvents> = {
 export type GuildId = string;
 
 /**
- * Do not alter pre-existing values contained in this enum.
+ * The keys are modifiable, but the values are not as they are used in the database.
  */
 export enum GuildConfigLoggingChannels {
-    MEMBER_JOIN = 'member_join',
-    MEMBER_LEAVE = 'member_leave',
-    MEMBER_CONNECT = 'member_connect',
-    MEMBER_DISCONNECT = 'member_disconnect',
-    MEMBER_MOVE = 'member_move',
-    MESSAGE_DELETED = 'message_deleted',
-    MESSAGE_MODIFIED = 'message_modified',
+    MemberJoin = 'member_join',
+    MemberLeave = 'member_leave',
+    MemberConnect = 'member_connect',
+    MemberDisconnect = 'member_disconnect',
+    MemberMove = 'member_move',
+    MessageDeleted = 'message_deleted',
+    MessageModified = 'message_modified',
 }
 
 export type GuildConfigTemplate = {

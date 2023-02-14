@@ -20,7 +20,7 @@ async function rolesAddSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, the member specified could not be found.`,
                 }),
             ],
@@ -34,7 +34,7 @@ async function rolesAddSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, please specify a valid role.`,
                 }),
             ],
@@ -48,7 +48,7 @@ async function rolesAddSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.RED,
+                    color: CustomEmbed.Colors.Red,
                     description: `${interaction.user}, you aren't allowed to manage <@&${role_to_add.id}>`,
                 }),
             ],
@@ -61,7 +61,7 @@ async function rolesAddSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, ${member} already has <@&${role_to_add.id}>.`,
                 }),
             ],
@@ -78,7 +78,7 @@ async function rolesAddSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.RED,
+                    color: CustomEmbed.Colors.Red,
                     description: `${interaction.user}, failed to add <@&${role_to_add.id}> to ${member}.`,
                 }),
             ],
@@ -90,7 +90,7 @@ async function rolesAddSubCommandHandler(
     await interaction.editReply({
         embeds: [
             CustomEmbed.from({
-                color: CustomEmbed.colors.GREEN,
+                color: CustomEmbed.Colors.Green,
                 description: `${interaction.user}, added <@&${role_to_add.id}> to ${member}.`,
             }),
         ],
@@ -105,7 +105,7 @@ async function rolesRemoveSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, the member you specified could not be found.`,
                 }),
             ],
@@ -119,7 +119,7 @@ async function rolesRemoveSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, you must specify a valid role to remove.`,
                 }),
             ],
@@ -133,7 +133,7 @@ async function rolesRemoveSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.RED,
+                    color: CustomEmbed.Colors.Red,
                     description: `${interaction.user}, you aren't allowed to manage <@&${role_to_remove.id}>`,
                 }),
             ],
@@ -146,7 +146,7 @@ async function rolesRemoveSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, ${member} already does not have <@&${role_to_remove.id}>.`,
                 }),
             ],
@@ -163,7 +163,7 @@ async function rolesRemoveSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.RED,
+                    color: CustomEmbed.Colors.Red,
                     description: `${interaction.user}, failed to remove <@&${role_to_remove.id}> from ${member}.`,
                 }),
             ],
@@ -175,7 +175,7 @@ async function rolesRemoveSubCommandHandler(
     await interaction.editReply({
         embeds: [
             CustomEmbed.from({
-                color: CustomEmbed.colors.GREEN,
+                color: CustomEmbed.Colors.Green,
                 description: `${interaction.user}, removed <@&${role_to_remove.id}> from ${member}.`,
             }),
         ],
@@ -190,7 +190,7 @@ async function rolesRemoveAllSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     description: `${interaction.user}, the member you specified could not be found.`,
                 }),
             ],
@@ -215,7 +215,7 @@ async function rolesRemoveAllSubCommandHandler(
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.RED,
+                    color: CustomEmbed.Colors.Red,
                     description: `${interaction.user}, failed to remove roles from ${member}.`,
                 }),
             ],
@@ -227,7 +227,7 @@ async function rolesRemoveAllSubCommandHandler(
     await interaction.editReply({
         embeds: [
             CustomEmbed.from({
-                color: CustomEmbed.colors.GREEN,
+                color: CustomEmbed.Colors.Green,
                 description: `${interaction.user}, removed ${roles_to_remove.size} roles from ${member}.`,
             }),
         ],
@@ -293,8 +293,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.GUILD_ADMIN,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.GuildAdmin,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -314,7 +314,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, you do not have permission to manage roles.`,
                     }),
                 ],
@@ -347,7 +347,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 await interaction.editReply({
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.RED,
+                            color: CustomEmbed.Colors.Red,
                             description: `${interaction.user}, the subcommand specified is invalid.`,
                         }),
                     ],
