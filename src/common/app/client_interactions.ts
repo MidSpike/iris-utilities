@@ -35,25 +35,25 @@ export type ClientCommandCategoryId =
     | 'GUILD_OWNER'
     | 'BOT_SUPER';
 
-export type ClientCommandCategory = {
+type ClientCommandCategory = {
     id: ClientCommandCategoryId;
     name: string;
     description: string;
 };
 
-export enum ClientCommandAccessLevels {
-    EVERYONE = 1,
-    DONATOR = 25,
-    GUILD_STAFF = 100,
-    GUILD_ADMIN = 500,
-    GUILD_OWNER = 1000,
-    BOT_SUPER = 100_000_000,
+enum ClientCommandAccessLevels {
+    Everyone = 1,
+    Donator = 25,
+    GuildStaff = 100,
+    GuildAdmin = 500,
+    GuildOwner = 1000,
+    BotSuper = 100_000_000,
 }
 
-export enum ClientCommandExecutionEnvironments {
-    GUILD_AND_DMS = 'GUILD_AND_DMS',
-    GUILD_ONLY = 'GUILD_ONLY',
-    DMS_ONLY = 'DMS_ONLY',
+enum ClientCommandExecutionEnvironments {
+    Anywhere,
+    GuildOnly,
+    DirectMessagesOnly,
 }
 
 //------------------------------------------------------------//
@@ -84,9 +84,9 @@ function stringifyOptions(
 //------------------------------------------------------------//
 
 export class ClientCommandHelper {
-    static access_levels = ClientCommandAccessLevels;
+    static AccessLevels = ClientCommandAccessLevels;
 
-    static execution_environments = ClientCommandExecutionEnvironments;
+    static ExecutionEnvironments = ClientCommandExecutionEnvironments;
 
     static categories = Object.fromEntries(
         ([
@@ -149,17 +149,17 @@ export class ClientCommandHelper {
         let is_valid_environment;
 
         switch (required_environment) {
-            case ClientCommandExecutionEnvironments.GUILD_AND_DMS: {
+            case ClientCommandExecutionEnvironments.Anywhere: {
                 is_valid_environment = true;
                 break;
             }
 
-            case ClientCommandExecutionEnvironments.GUILD_ONLY: {
+            case ClientCommandExecutionEnvironments.GuildOnly: {
                 is_valid_environment = Boolean(interaction.guildId);
                 break;
             }
 
-            case ClientCommandExecutionEnvironments.DMS_ONLY: {
+            case ClientCommandExecutionEnvironments.DirectMessagesOnly: {
                 is_valid_environment = !interaction.guildId;
                 break;
             }
@@ -174,7 +174,7 @@ export class ClientCommandHelper {
                 ephemeral: true,
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.VIOLET,
+                        color: CustomEmbed.Colors.Violet,
                         title: 'Invalid Execution Environment',
                         description: `This command can only be executed in ${required_environment}`,
                     }),
@@ -191,12 +191,12 @@ export class ClientCommandHelper {
         required_access_level: ClientCommandAccessLevels,
         reply_to_interaction: boolean = true,
     ): Promise<boolean> {
-        const access_levels_for_user = [ ClientCommandHelper.access_levels.EVERYONE ]; // default access level
+        const access_levels_for_user = [ ClientCommandHelper.AccessLevels.Everyone ]; // default access level
 
         /* check if the user is a donator */
         const is_user_a_donator = await doesUserHaveDonatorStatus(interaction.user.id);
         if (is_user_a_donator) {
-            access_levels_for_user.push(ClientCommandHelper.access_levels.DONATOR);
+            access_levels_for_user.push(ClientCommandHelper.AccessLevels.Donator);
         }
 
         /* determine the user's access levels */
@@ -214,24 +214,24 @@ export class ClientCommandHelper {
 
             /* check for guild staff */
             if (guild_member_roles.hasAny(...guild_staff_role_ids)) {
-                access_levels_for_user.push(ClientCommandHelper.access_levels.GUILD_STAFF);
+                access_levels_for_user.push(ClientCommandHelper.AccessLevels.GuildStaff);
             }
 
             /* check for guild admin */
             if (guild_member_roles.hasAny(...guild_admin_role_ids) || guild_member_is_administrator) {
-                access_levels_for_user.push(ClientCommandHelper.access_levels.GUILD_ADMIN);
+                access_levels_for_user.push(ClientCommandHelper.AccessLevels.GuildAdmin);
             }
 
             /* check for guild owner */
             if (guild_owner_id === interaction.user.id) {
-                access_levels_for_user.push(ClientCommandHelper.access_levels.GUILD_OWNER);
+                access_levels_for_user.push(ClientCommandHelper.AccessLevels.GuildOwner);
             }
         }
 
         /* check if the user is a super person (bot admin) */
         const is_user_a_super_person = await doesUserHaveSuperPersonStatus(interaction.user.id);
         if (is_user_a_super_person) {
-            access_levels_for_user.push(ClientCommandHelper.access_levels.BOT_SUPER);
+            access_levels_for_user.push(ClientCommandHelper.AccessLevels.BotSuper);
         }
 
         /* check the user's access levels */
@@ -242,7 +242,7 @@ export class ClientCommandHelper {
                     ephemeral: true,
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.VIOLET,
+                            color: CustomEmbed.Colors.Violet,
                             title: 'Access Denied',
                             description: 'You aren\'t allowed to do that!',
                             fields: [
@@ -294,7 +294,7 @@ export class ClientCommandHelper {
                     ephemeral: true,
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.VIOLET,
+                            color: CustomEmbed.Colors.Violet,
                             title: 'Missing Permissions',
                             description: `In order to do that, I need you to grant me the following permission(s):\n>>> ${mapped_missing_permission_flags.join('\n')}`,
                         }),
@@ -554,7 +554,7 @@ export class ClientInteractionManager {
                 sendWebhookMessage(anonymous_command_history_webhook_url, {
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.GREEN,
+                            color: CustomEmbed.Colors.Green,
                             fields: [
                                 {
                                     name: 'Executed On',
@@ -596,7 +596,7 @@ export class ClientInteractionManager {
                 unknown_interaction.channel.send({
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.RED,
+                            color: CustomEmbed.Colors.Red,
                             title: 'Interaction Error',
                             description: `An error occurred while handling: \`${unknown_interaction_identifier}\`.`,
                             fields: [

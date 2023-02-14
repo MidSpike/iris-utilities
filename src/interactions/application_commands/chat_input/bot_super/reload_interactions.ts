@@ -27,8 +27,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         options: [],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.BOT_SUPER,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.BotSuper,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -60,7 +60,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.RED,
+                        color: CustomEmbed.Colors.Red,
                         description: `${interaction.user}, failed to build interactions.`,
                     }),
                 ],
@@ -75,7 +75,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.GREEN,
+                    color: CustomEmbed.Colors.Green,
                     description: `${interaction.user}, reloaded all interactions.`,
                 }),
             ],

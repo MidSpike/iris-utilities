@@ -36,7 +36,7 @@ export default {
             sendWebhookMessage(logging_webhook_url, {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.GREEN,
+                        color: CustomEmbed.Colors.Green,
                         fields: [
                             {
                                 name: 'Guild',
@@ -73,7 +73,7 @@ export default {
         const tts_command_id: string = client_application_commands.find((cmd) => cmd.name === 'tts')?.id ?? '0';
 
         const welcome_message_embed = CustomEmbed.from({
-            color: CustomEmbed.colors.BRAND,
+            color: CustomEmbed.Colors.Brand,
             title: 'Hello world, let\'s get started!',
             description: [
                 'Thank you for adding me to this server!',
@@ -147,7 +147,7 @@ export default {
                     embeds: [
                         welcome_message_embed,
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.BRAND,
+                            color: CustomEmbed.Colors.Brand,
                             title: 'Why did I receive this message?',
                             description: [
                                 `You are the owner of the server: ${guild.name}; and I was recently added to it.`,

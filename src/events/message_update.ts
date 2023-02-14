@@ -43,11 +43,11 @@ export default {
 
         guildLogger(
             new_message.channel.guild,
-            GuildConfigLoggingChannels.MESSAGE_MODIFIED,
+            GuildConfigLoggingChannels.MessageModified,
             {
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         fields: [
                             {
                                 name: 'Snowflake',

@@ -102,7 +102,7 @@ export default {
                     await interaction.editReply({
                         embeds: [
                             CustomEmbed.from({
-                                color: CustomEmbed.colors.YELLOW,
+                                color: CustomEmbed.Colors.Yellow,
                                 description: `${interaction.user}, ${channel} is not a text channel.`,
                             }),
                         ],

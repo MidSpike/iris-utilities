@@ -17,8 +17,8 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
         type: Discord.ApplicationCommandType.User,
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_AND_DMS,
-        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.Anywhere,
+        required_user_access_level: ClientCommandHelper.AccessLevels.Everyone,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,

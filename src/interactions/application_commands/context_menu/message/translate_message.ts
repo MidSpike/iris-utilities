@@ -36,8 +36,8 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
         type: Discord.ApplicationCommandType.Message,
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_AND_DMS,
-        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.Anywhere,
+        required_user_access_level: ClientCommandHelper.AccessLevels.Everyone,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -55,7 +55,7 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
             interaction.reply({
                 embeds: [
                     CustomEmbed.from({
-                        color: CustomEmbed.colors.YELLOW,
+                        color: CustomEmbed.Colors.Yellow,
                         description: [
                             `${interaction.user}, you can only use this command on messages that have content.`,
                             'For example: embeds, attachments, and reactions are not supported.',

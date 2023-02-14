@@ -76,8 +76,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         ],
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.DONATOR,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.Donator,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -104,7 +104,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             await interaction.editReply({
                                 embeds: [
                                     CustomEmbed.from({
-                                        color: CustomEmbed.colors.RED,
+                                        color: CustomEmbed.Colors.Red,
                                         description: `${interaction.user}, I'm no longer listening to you for voice commands!`,
                                     }),
                                 ],
@@ -116,7 +116,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         await interaction.editReply({
                             embeds: [
                                 CustomEmbed.from({
-                                    color: CustomEmbed.colors.VIOLET,
+                                    color: CustomEmbed.Colors.Violet,
                                     description: [
                                         `${interaction.user}, you must agree to the following terms and conditions.`,
                                         '\`\`\`',
@@ -175,7 +175,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             await button_interaction.editReply({
                                 embeds: [
                                     CustomEmbed.from({
-                                        color: CustomEmbed.colors.RED,
+                                        color: CustomEmbed.Colors.Red,
                                         description: `${interaction.user}, You must agree to the terms and conditions to enable voice recognition!`,
                                     }),
                                 ],
@@ -190,7 +190,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         await button_interaction.editReply({
                             embeds: [
                                 CustomEmbed.from({
-                                    color: CustomEmbed.colors.GREEN,
+                                    color: CustomEmbed.Colors.Green,
                                     description: [
                                         `${interaction.user}, I'm now listening to you for voice commands!`,
                                         '',

@@ -14,10 +14,10 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 /* enum values must be lowercase */
 enum AnimalType {
-    DOG = 'dog',
-    CAT = 'cat',
-    FOX = 'fox',
-    PANDA = 'panda',
+    Dog = 'dog',
+    Cat = 'cat',
+    Fox = 'fox',
+    Panda = 'panda',
 }
 
 type DogApiResponseData = {
@@ -45,7 +45,7 @@ async function fetchRandomAnimalImageUrl(
     let random_animal_image_url: string | undefined;
 
     switch (animal_type) {
-        case AnimalType.DOG: {
+        case AnimalType.Dog: {
             random_animal_image_url = await axios({
                 method: 'get',
                 url: 'https://dog.ceo/api/breeds/image/random',
@@ -59,7 +59,7 @@ async function fetchRandomAnimalImageUrl(
             break;
         }
 
-        case AnimalType.CAT: {
+        case AnimalType.Cat: {
             random_animal_image_url = await axios({
                 method: 'get',
                 url: 'https://aws.random.cat/meow',
@@ -73,7 +73,7 @@ async function fetchRandomAnimalImageUrl(
             break;
         }
 
-        case AnimalType.FOX: {
+        case AnimalType.Fox: {
             random_animal_image_url = await axios({
                 method: 'get',
                 url: 'https://randomfox.ca/floof/',
@@ -87,7 +87,7 @@ async function fetchRandomAnimalImageUrl(
             break;
         }
 
-        case AnimalType.PANDA: {
+        case AnimalType.Panda: {
             random_animal_image_url = await axios({
                 method: 'get',
                 url: 'https://some-random-api.ml/img/panda',
@@ -120,7 +120,7 @@ async function generateMessagePayload(
         return {
             embeds: [
                 CustomEmbed.from({
-                    color: CustomEmbed.colors.YELLOW,
+                    color: CustomEmbed.Colors.Yellow,
                     title: `Random ${animal_type}`,
                     description: 'Failed to fetch random image.',
                 }),
@@ -170,8 +170,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         })),
     },
     metadata: {
-        allowed_execution_environment: ClientCommandHelper.execution_environments.GUILD_ONLY,
-        required_user_access_level: ClientCommandHelper.access_levels.EVERYONE,
+        allowed_execution_environment: ClientCommandHelper.ExecutionEnvironments.GuildOnly,
+        required_user_access_level: ClientCommandHelper.AccessLevels.Everyone,
         required_bot_permissions: [
             Discord.PermissionFlagsBits.ViewChannel,
             Discord.PermissionFlagsBits.SendMessages,
@@ -210,7 +210,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     ephemeral: true,
                     embeds: [
                         CustomEmbed.from({
-                            color: CustomEmbed.colors.VIOLET,
+                            color: CustomEmbed.Colors.Violet,
                             description: `Please don\`t interfere with ${interaction.user}'s session.`,
                         }),
                     ],
