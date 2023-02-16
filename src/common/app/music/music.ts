@@ -35,6 +35,9 @@ if (!ytdl_cookie?.length) throw new Error('YTDL_COOKIE is not defined or is empt
 const ytdl_x_youtube_identity_token = process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN as string;
 if (!ytdl_x_youtube_identity_token?.length) throw new Error('YTDL_X_YOUTUBE_IDENTITY_TOKEN is not defined or is empty');
 
+const soundcloud_client_id = process.env.SOUNDCLOUD_CLIENT_ID as string;
+if (!soundcloud_client_id?.length) throw new Error('SOUNDCLOUD_CLIENT_ID is not defined or is empty');
+
 //------------------------------------------------------------//
 
 const youtube_request_options = {
@@ -48,7 +51,7 @@ const youtube_request_options = {
 
 //------------------------------------------------------------//
 
-const sc_client = new SoundCloud.Client();
+const sc_client = new SoundCloud.Client(soundcloud_client_id);
 
 //------------------------------------------------------------//
 
@@ -374,7 +377,14 @@ export class MusicReconnaissance {
 
             // ensure that the track is longer than 60 seconds
             // it is more likely to be a song than not a song
-            if (sc_song_info.duration < 60_000) continue;
+            if (sc_song_info.duration < 60_000) {
+                console.warn('MusicReconnaissance.searchWithSoundCloud(): track is too short', {
+                    sc_song_info,
+                    sc_search_result,
+                });
+
+                continue;
+            }
 
             filtered_tracks.push(
                 new TrackSpace.SoundCloudTrack({
