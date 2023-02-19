@@ -52,7 +52,7 @@ export interface GuildConfig extends GuildConfigTemplate {
     staff_role_ids?: string[];
     admin_role_ids?: string[];
     logging_channels?: {
-        [v in GuildConfigLoggingChannels]?: string;
+        [v in GuildConfigLoggingChannels]?: string; // the channel id
     };
     url_blocking_enabled?: boolean;
 }

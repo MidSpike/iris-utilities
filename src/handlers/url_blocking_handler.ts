@@ -22,28 +22,28 @@ export default async function urlBlockingHandler(
 
     /* fetch the guild config */
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
-    if (!guild_config.url_blocking_enabled) return; // url blocking is disabled
+    if (!guild_config.url_blocking_enabled) return;
 
     /* fetch the bot member in the guild */
     const bot_member = await message.guild.members.fetchMe();
-    if (!bot_member) return; // this shouldn't happen, but just in-case
+    if (!bot_member) return;
 
     /* check if the bot is allowed to manage messages */
     const bot_permissions = message.channel.permissionsFor(bot_member, true);
     const bot_can_manage_messages = bot_permissions.has(Discord.PermissionFlagsBits.ManageMessages, true);
-    if (!bot_can_manage_messages) return; // unable to manage messages
+    if (!bot_can_manage_messages) return;
 
-    /* fetch the member's permissions */
+    /* see if the member is allowed to bypass the url blocking feature */
     const member_permissions = message.channel.permissionsFor(message.member);
     const member_has_bypass_permission = member_permissions.has([
         Discord.PermissionFlagsBits.ManageMessages,
     ], true);
-    if (member_has_bypass_permission) return; // member has bypass permission
+    if (member_has_bypass_permission) return;
 
     /* check if the message might contain a URL */
-    const message_might_contain_url_regex = /\S*:.*\/.*\/.+\..+\/?/gi; // this is very sensitive and may incorrectly detect URLs
+    const message_might_contain_url_regex = /\S*:.*\/.*\/.+\..+\/?/gi; // very aggressive filter
     const message_might_contain_url = message_might_contain_url_regex.test(message.content);
-    if (!message_might_contain_url) return; // no URL found
+    if (!message_might_contain_url) return;
 
     /* delay to make the discord api happy */
     await delay(250);
