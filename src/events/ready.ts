@@ -2,17 +2,11 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport } from '@root/types/index';
+import { ClientEventExport, DiscordClientWithSharding } from '@root/types/index';
 
 import * as Discord from 'discord.js';
 
 import { GuildConfigsManager } from '@root/common/app/guild_configs';
-
-//------------------------------------------------------------//
-
-type DiscordClientWithSharding = Discord.Client<true> & {
-    shard: Discord.ShardClientUtil;
-};
 
 //------------------------------------------------------------//
 
