@@ -116,6 +116,7 @@ export class MusicSubscription {
             const old_networking = Reflect.get(old_state, 'networking');
             const new_networking = Reflect.get(new_state, 'networking');
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             function networkStateChangeHandler(old_network_state: any, new_network_state: any) {
                 const new_udp = Reflect.get(new_network_state, 'udp');
                 clearInterval(new_udp?.keepAliveInterval);
