@@ -107,6 +107,24 @@ export class MusicSubscription {
             console.trace('MusicSubscription: VoiceConnection error', error);
         });
 
+        /**
+         * Temporary hotfix.
+         * See https://github.com/discordjs/discord.js/issues/9185#issuecomment-1452514375
+         * @todo remove after the issue is resolved in discord.js voice
+         */
+        voice_connection.on('stateChange', (old_state, new_state) => {
+            const old_networking = Reflect.get(old_state, 'networking');
+            const new_networking = Reflect.get(new_state, 'networking');
+
+            function networkStateChangeHandler(old_network_state: any, new_network_state: any) {
+                const new_udp = Reflect.get(new_network_state, 'udp');
+                clearInterval(new_udp?.keepAliveInterval);
+            }
+
+            old_networking?.off('stateChange', networkStateChangeHandler);
+            new_networking?.on('stateChange', networkStateChangeHandler);
+        });
+
         voice_connection.on('stateChange', async (oldState, newState) => {
             switch (newState.status) {
                 case DiscordVoice.VoiceConnectionStatus.Disconnected: {
