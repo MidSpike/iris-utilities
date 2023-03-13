@@ -19,7 +19,7 @@ async function generatePaginator(
 ): Promise<{
     first_ban_id: string | undefined;
     last_ban_id: string | undefined;
-    message_payload: Discord.WebhookEditMessageOptions;
+    message_payload: Discord.WebhookMessageEditOptions;
 }> {
     const guild_bans = await interaction.guild.bans.fetch({
         ...(before_id ? {
