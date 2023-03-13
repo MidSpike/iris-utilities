@@ -32,7 +32,7 @@ async function editInteractionReplyForQueueItems(
         });
     }
 
-    const payload: Discord.WebhookEditMessageOptions = {
+    const payload: Discord.WebhookMessageEditOptions = {
         embeds: [
             display_mode === 'previous_tracks' ? (
                 CustomEmbed.from({

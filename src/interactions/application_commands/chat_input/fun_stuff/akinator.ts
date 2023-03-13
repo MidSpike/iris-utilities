@@ -38,7 +38,7 @@ const akinator_credit_text = 'Powered by https://akinator.com/';
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(akinator: Akinator): Promise<Discord.WebhookEditMessageOptions> {
+async function generateMessagePayload(akinator: Akinator): Promise<Discord.WebhookMessageEditOptions> {
     return {
         embeds: [
             CustomEmbed.from({

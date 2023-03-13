@@ -207,7 +207,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         async function generateMessagePayload(
             mapped_subreddit_post: MappedSubredditPost,
-        ): Promise<Discord.WebhookEditMessageOptions> {
+        ): Promise<Discord.WebhookMessageEditOptions> {
             return {
                 embeds: [
                     CustomEmbed.from({
