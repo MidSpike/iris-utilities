@@ -63,7 +63,7 @@ export default {
             console.trace(error);
         }
 
-        const client_application = await discord_client.application.fetch();
+        const client_application = await discord_client.application!.fetch();
         const client_application_description = client_application.description ?? 'Failed to fetch application description.';
         const client_application_commands = await client_application.commands.fetch();
 

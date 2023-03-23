@@ -29,7 +29,7 @@ export default {
 
         if (message.author.bot) return; // ignore bots
         if (message.author.system) return; // Ignore system messages
-        if (message.author.id === discord_client.user.id) return; // ignore messages sent by this bot
+        if (message.author.id === discord_client.user!.id) return; // ignore messages sent by this bot
 
         const current_timestamp = `${Date.now()}`.slice(0, -3);
 

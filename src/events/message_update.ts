@@ -36,8 +36,8 @@ export default {
         if (old_message.author.system) return; // Ignore system messages
         if (new_message.author.system) return; // Ignore system messages
 
-        if (old_message.author.id === discord_client.user.id) return; // ignore messages sent by this bot
-        if (new_message.author.id === discord_client.user.id) return; // ignore messages sent by this bot
+        if (old_message.author.id === discord_client.user!.id) return; // ignore messages sent by this bot
+        if (new_message.author.id === discord_client.user!.id) return; // ignore messages sent by this bot
 
         const modified_timestamp = `${new_message.editedTimestamp ?? Date.now()}`.slice(0, -3);
 
