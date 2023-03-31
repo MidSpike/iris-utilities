@@ -417,7 +417,7 @@ export class MusicReconnaissance {
         tracks.push(
             new TrackSpace.RemoteTrack({
                 metadata: {
-                    title: query_url.pathname,
+                    title: `Audio from ${query_url.hostname}`,
                     url: query_url.href,
                 },
                 stream_creator: () => StreamerSpace.remoteStream(query_url.href),
