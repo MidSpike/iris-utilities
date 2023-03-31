@@ -439,7 +439,7 @@ export class MusicReconnaissance {
         const matched_trigger = trimmed_query.match(search_trigger_regex)?.at(0)?.replace(':', '')?.toLowerCase();
 
         // example: 'trigger: query' -> 'query'
-        const matched_query = matched_trigger ? trimmed_query.slice(matched_trigger.length).trim() : trimmed_query;
+        const matched_query = matched_trigger ? trimmed_query.slice(`${matched_trigger}:`.length).trim() : trimmed_query;
 
         const query_trigger = method ?? matched_trigger ?? 'youtube';
         switch (query_trigger) {
