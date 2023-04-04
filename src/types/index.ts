@@ -65,6 +65,7 @@ export interface UserSettings {
     [key: string]: unknown;
     user_id: UserId;
     voice_recognition_enabled?: boolean;
+    gpt_access_enabled?: boolean;
     donator?: boolean;
 }
 
