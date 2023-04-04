@@ -94,6 +94,8 @@ export default {
         }).catch(console.warn);
 
         switch (voice_command_name) {
+            case 'tpt':
+            case 'cpt':
             case 'gpt': {
                 const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(guild_member.user.id);
                 if (!is_user_allowed_to_use_gpt) {
@@ -130,7 +132,7 @@ export default {
                         'messages': [
                             {
                                 'role': 'system',
-                                'content': 'Be polite and extremely concise.',
+                                'content': 'You are Iris, be extremely concise.',
                             },
                             {
                                 'role': 'user',
