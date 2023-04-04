@@ -23,6 +23,9 @@ import { arrayChunks, delay } from '@root/common/lib/utilities';
 const ibm_tts_api_url = process.env.IBM_TTS_API_URL as string;
 if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or is empty');
 
+const ibm_tts_api_key = process.env.IBM_TTS_API_KEY as string;
+if (!ibm_tts_api_key?.length) throw new Error('IBM_TTS_API_KEY is not defined or is empty');
+
 //------------------------------------------------------------//
 
 export default {
@@ -91,7 +94,7 @@ export default {
         }).catch(console.warn);
 
         switch (voice_command_name) {
-            case 'chat': {
+            case 'gpt': {
                 const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(guild_member.user.id);
                 if (!is_user_allowed_to_use_gpt) {
                     await music_subscription.text_channel.send({
@@ -177,7 +180,7 @@ export default {
 
                 const tts_text_chunks = arrayChunks(
                     gpt_response_message.split(/\s/g),
-                    16,
+                    64,
                 ).map((chunk) => chunk.join(' '));
 
                 for (let i = 0; i < tts_text_chunks.length; i++) {
@@ -191,12 +194,24 @@ export default {
                             tts_voice: 'en-US',
                         },
                         stream_creator: async () => {
-                            const gt_tts = new GoogleTranslateTTS({
-                                language: track.metadata.tts_voice,
-                                text: track.metadata.tts_text,
+                            const voice = 'en-US_EmmaExpressive';
+
+                            const response = await axios({
+                                method: 'post',
+                                url: `${ibm_tts_api_url}/v1/synthesize?voice=${encodeURIComponent(voice)}`,
+                                headers: {
+                                    'Accept': 'audio/wav',
+                                    'Authorization': `Basic ${Buffer.from(`apikey:${ibm_tts_api_key}`, 'utf8').toString('base64')}`,
+                                    'Content-Type': 'application/json',
+                                },
+                                responseType: 'stream',
+                                timeout: 10_000, // 10 seconds
+                                data: {
+                                    'text': tts_text,
+                                },
                             });
 
-                            return await gt_tts.stream();
+                            return response.data;
                         },
                     });
 
