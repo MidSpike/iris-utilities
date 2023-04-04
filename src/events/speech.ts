@@ -138,7 +138,8 @@ export default {
 
                 if (gpt_response.status !== 200) {
                     console.warn('Failed to generate a response from GPT:', {
-                        gpt_response,
+                        'response': gpt_response,
+                        'response_data': gpt_response.data,
                     });
 
                     return;
