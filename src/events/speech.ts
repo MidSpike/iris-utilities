@@ -130,14 +130,14 @@ export default {
                         'messages': [
                             {
                                 'role': 'system',
-                                'content': 'Be friendly, polite, and concise.',
+                                'content': 'Be polite and extremely concise.',
                             },
                             {
                                 'role': 'user',
                                 'content': user_prompt,
                             },
                         ],
-                        'max_tokens': 48, // prevent lengthy responses from being generated
+                        'max_tokens': 64, // prevent lengthy responses from being generated
                     },
                     validateStatus: (status) => true,
                 });
@@ -185,20 +185,20 @@ export default {
 
                 for (let i = 0; i < tts_text_chunks.length; i++) {
                     const tts_text = tts_text_chunks[i];
+                    const tts_provider = 'ibm';
+                    const tts_voice = 'en-US_EmmaExpressive';
 
                     const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
                         metadata: {
                             title: 'Voice Command - GPT-3.5-Turbo',
                             tts_text: tts_text,
-                            tts_provider: 'google',
-                            tts_voice: 'en-US',
+                            tts_provider: tts_provider,
+                            tts_voice: tts_voice,
                         },
                         stream_creator: async () => {
-                            const voice = 'en-US_EmmaExpressive';
-
                             const response = await axios({
                                 method: 'post',
-                                url: `${ibm_tts_api_url}/v1/synthesize?voice=${encodeURIComponent(voice)}`,
+                                url: `${ibm_tts_api_url}/v1/synthesize?voice=${encodeURIComponent(tts_voice)}`,
                                 headers: {
                                     'Accept': 'audio/wav',
                                     'Authorization': `Basic ${Buffer.from(`apikey:${ibm_tts_api_key}`, 'utf8').toString('base64')}`,
