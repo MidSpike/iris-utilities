@@ -13,7 +13,10 @@ import { GoogleTranslateTTS } from 'google-translate-tts';
 import { MusicReconnaissance, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
+
 import { doesUserHaveArtificialIntelligenceAccess } from '@root/common/app/permissions';
+
+import { arrayChunks, delay } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -131,7 +134,7 @@ export default {
                                 'content': user_prompt,
                             },
                         ],
-                        'max_tokens': 64, // prevent lengthy responses from being generated
+                        'max_tokens': 48, // prevent lengthy responses from being generated
                     },
                     validateStatus: (status) => true,
                 });
@@ -172,30 +175,39 @@ export default {
                     ],
                 }).catch(console.warn);
 
-                const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
-                    metadata: {
-                        title: 'Voice Command - GPT-3.5-Turbo',
-                        tts_text: gpt_response_message,
-                        tts_provider: 'google',
-                        tts_voice: 'en-US',
-                    },
-                    stream_creator: async () => {
-                        const gt_tts = new GoogleTranslateTTS({
-                            language: track.metadata.tts_voice,
-                            text: track.metadata.tts_text,
-                        });
+                const tts_text_chunks = arrayChunks(
+                    gpt_response_message.split(/\s/g),
+                    16,
+                ).map((chunk) => chunk.join(' '));
 
-                        const stream = await gt_tts.stream();
+                for (let i = 0; i < tts_text_chunks.length; i++) {
+                    const tts_text = tts_text_chunks[i];
 
-                        return stream;
-                    },
-                });
+                    const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
+                        metadata: {
+                            title: 'Voice Command - GPT-3.5-Turbo',
+                            tts_text: tts_text,
+                            tts_provider: 'google',
+                            tts_voice: 'en-US',
+                        },
+                        stream_creator: async () => {
+                            const gt_tts = new GoogleTranslateTTS({
+                                language: track.metadata.tts_voice,
+                                text: track.metadata.tts_text,
+                            });
 
-                // Add the track and reply a success message to the user
-                music_subscription.queue.addTrack(track);
+                            return await gt_tts.stream();
+                        },
+                    });
 
-                // Process the music subscription's queue forcibly
-                await music_subscription.processQueue(true);
+                    // Add the track and reply a success message to the user
+                    music_subscription.queue.addTrack(track);
+
+                    // Process the music subscription's queue forcibly
+                    await music_subscription.processQueue(false);
+
+                    await delay(3_000); // 3 seconds
+                }
 
                 break;
             }
