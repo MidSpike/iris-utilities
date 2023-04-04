@@ -176,8 +176,8 @@ export default {
                     metadata: {
                         title: 'Voice Command - GPT-3.5-Turbo',
                         tts_text: gpt_response_message,
-                        tts_provider: 'google',
-                        tts_voice: 'en-US',
+                        tts_provider: 'ibm',
+                        tts_voice: 'en-US_LisaExpressive',
                     },
                     stream_creator: async () => {
                         const gt_tts = new GoogleTranslateTTS({
