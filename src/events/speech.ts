@@ -173,7 +173,12 @@ export default {
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command - GPT-3.5-Turbo',
-                            description: `${guild_member.user}, interacted with GPT for ${gpt_response_total_tokens} tokens.`,
+                            description: [
+                                `${guild_member.user}, interacted with GPT for ${gpt_response_total_tokens} tokens.`,
+                                '\`\`\`',
+                                gpt_response_message,
+                                '\`\`\`',
+                            ].join('\n'),
                         }),
                     ],
                 }).catch(console.warn);
