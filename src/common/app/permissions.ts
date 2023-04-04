@@ -67,6 +67,52 @@ export async function doesUserHaveDonatorStatus(
 //------------------------------------------------------------//
 
 /**
+ * Check the database to see if the user has voice recognition access available and enabled.
+ * @param user_id the user's discord id
+ */
+export async function doesUserHaveVoiceRecognitionEnabled(
+    user_id: string,
+): Promise<boolean> {
+    const member_is_donator = await doesUserHaveDonatorStatus(user_id);
+    if (!member_is_donator) return false;
+
+    const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+        'user_id': user_id,
+    }, {
+        projection: {
+            '_id': false, // don't return the `_id` field
+        },
+    }) as unknown as (UserSettings | undefined)[];
+
+    return db_user_settings?.voice_recognition_enabled ?? false;
+}
+
+//------------------------------------------------------------//
+
+/**
+ * Check the database to see if the user has artificial intelligence access enabled.
+ * @param user_id the user's discord id
+ */
+export async function doesUserHaveArtificialIntelligenceAccess(
+    user_id: string,
+): Promise<boolean> {
+    const member_is_donator = await doesUserHaveDonatorStatus(user_id);
+    if (!member_is_donator) return false;
+
+    const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+        'user_id': user_id,
+    }, {
+        projection: {
+            '_id': false, // don't return the `_id` field
+        },
+    }) as unknown as (UserSettings | undefined)[];
+
+    return db_user_settings?.gpt_access_enabled ?? false;
+}
+
+//------------------------------------------------------------//
+
+/**
  * @param member the member that should be above the other member
  * @param other_member the other member that should be below the member
  * @param compare_admins when true, if both members have 'Administrator' permission, factor hierarchy into consideration

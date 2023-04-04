@@ -2,6 +2,8 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import axios from 'axios';
+
 import * as Discord from 'discord.js';
 
 import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
@@ -11,6 +13,7 @@ import { GoogleTranslateTTS } from 'google-translate-tts';
 import { MusicReconnaissance, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
+import { doesUserHaveArtificialIntelligenceAccess } from '@root/common/app/permissions';
 
 //------------------------------------------------------------//
 
@@ -85,6 +88,117 @@ export default {
         }).catch(console.warn);
 
         switch (voice_command_name) {
+            case 'chat': {
+                const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(guild_member.user.id);
+                if (!is_user_allowed_to_use_gpt) {
+                    await music_subscription.text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command - GPT-3.5-Turbo',
+                                description: `${guild_member.user}, you do not have permission to use GPT.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+
+                    return;
+                }
+
+                const user_prompt = voice_command_args.join(' ');
+
+                // impose harsh limits on the user prompt
+                // to prevent abuse of the gpt api
+                if (
+                    user_prompt.length < 1 ||
+                    user_prompt.length > 128
+                ) return;
+
+                const gpt_response = await axios({
+                    method: 'POST',
+                    url: 'https://api.openai.com/v1/chat/completions',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    data: {
+                        'model': 'gpt-3.5-turbo',
+                        'messages': [
+                            {
+                                'role': 'system',
+                                'content': 'Be friendly, polite, and concise.',
+                            },
+                            {
+                                'role': 'user',
+                                'content': user_prompt,
+                            },
+                        ],
+                        'max_tokens': 64, // prevent lengthy responses from being generated
+                    },
+                    validateStatus: (status) => true,
+                });
+
+                if (gpt_response.status !== 200) {
+                    console.warn('Failed to generate a response from GPT:', {
+                        gpt_response,
+                    });
+
+                    return;
+                }
+
+                type GPTResponseData = {
+                    choices: {
+                        index: number,
+                        message: {
+                            role: string,
+                            content: string,
+                        },
+                        finish_reason: string,
+                    }[],
+                    usage: {
+                        total_tokens: number,
+                    },
+                };
+
+                const gpt_response_data = gpt_response.data as GPTResponseData;
+                const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
+                const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
+
+                music_subscription.text_channel.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            title: 'Voice Command - GPT-3.5-Turbo',
+                            description: `${guild_member.user}, interacted with GPT for ${gpt_response_total_tokens} tokens.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+
+                const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
+                    metadata: {
+                        title: 'Voice Command - GPT-3.5-Turbo',
+                        tts_text: gpt_response_message,
+                        tts_provider: 'google',
+                        tts_voice: 'en-US',
+                    },
+                    stream_creator: async () => {
+                        const gt_tts = new GoogleTranslateTTS({
+                            language: track.metadata.tts_voice,
+                            text: track.metadata.tts_text,
+                        });
+
+                        const stream = await gt_tts.stream();
+
+                        return stream;
+                    },
+                });
+
+                // Add the track and reply a success message to the user
+                music_subscription.queue.addTrack(track);
+
+                // Process the music subscription's queue forcibly
+                await music_subscription.processQueue(true);
+
+                break;
+            }
+
             case 'say': {
                 const tts_text = voice_command_args.join(' ');
 
