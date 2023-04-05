@@ -71,7 +71,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'You are Iris. Converse like a human.',
+            content: 'You are Iris. Converse like a human. Be very concise.',
         },
         ...formatted_messages,
     ];
