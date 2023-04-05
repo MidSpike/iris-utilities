@@ -37,11 +37,19 @@ export default async function chatArtificialIntelligenceHandler(
 
     await message.channel.sendTyping(); // send typing indicator
 
-    const messages = await message.channel.messages.fetch({
-        limit: 5,
+    const messages_collection = await message.channel.messages.fetch({
+        limit: 4,
         before: message.id,
     });
-    // messages.reverse(); // reverse the messages so that the most recent messages are at the end
+
+    // convert the collection to an array
+    const messages = messages_collection.map((msg) => msg);
+
+    // add the most recent message to the array
+    messages.push(message);
+
+    // reverse the messages so that the most recent messages are at the end
+    messages.reverse();
 
     const filtered_messages = messages.filter((msg) => {
         if (msg.author.bot && msg.author.id !== discord_client.user.id) return false;
