@@ -38,7 +38,7 @@ export default async function chatArtificialIntelligenceHandler(
     await message.channel.sendTyping(); // send typing indicator
 
     const messages_collection = await message.channel.messages.fetch({
-        limit: 9,
+        limit: 10,
         before: message.id,
     });
 
@@ -63,8 +63,6 @@ export default async function chatArtificialIntelligenceHandler(
         (msg) => ({
             role: msg.author.id === discord_client.user.id ? 'assistant' : 'user',
             content: [
-                `[${msg.author.id === discord_client.user.id ? 'You' : msg.author.username}]`,
-                '',
                 msg.content,
             ].join('\n'),
         })
@@ -73,10 +71,14 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'Your name is Iris. Respond informally as if you were a human.',
+            content: 'You are Iris. Converse like a human.',
         },
         ...formatted_messages,
     ];
+
+    console.log({
+        gpt_messages,
+    });
 
     const gpt_response = await axios({
         method: 'POST',
