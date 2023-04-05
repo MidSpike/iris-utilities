@@ -49,7 +49,7 @@ export default async function chatArtificialIntelligenceHandler(
     messages.push(message);
 
     // reverse the messages so that the most recent messages are at the end
-    messages.reverse();
+    // messages.reverse();
 
     const filtered_messages = messages.filter((msg) => {
         if (msg.author.bot && msg.author.id !== discord_client.user.id) return false;
