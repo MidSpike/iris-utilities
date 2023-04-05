@@ -41,7 +41,7 @@ export default async function chatArtificialIntelligenceHandler(
         limit: 5,
         before: message.id,
     });
-    messages.reverse(); // reverse the messages so that the most recent messages are at the end
+    // messages.reverse(); // reverse the messages so that the most recent messages are at the end
 
     const filtered_messages = messages.filter((msg) => {
         if (msg.author.bot && msg.author.id !== discord_client.user.id) return false;
@@ -112,12 +112,10 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
 
     await message.channel.send({
+        content: gpt_response_message,
         embeds: [
             CustomEmbed.from({
-                description: gpt_response_message,
-                footer: {
-                    text: `Total tokens used: ${gpt_response_total_tokens}`,
-                },
+                description: `Total tokens used: ${gpt_response_total_tokens}`,
             }),
         ],
     });
