@@ -14,6 +14,8 @@ import { doesUserHaveArtificialIntelligenceAccess } from '@root/common/app/permi
 
 import { CustomEmbed } from '@root/common/app/message';
 
+import { delay } from '@root/common/lib/utilities';
+
 //------------------------------------------------------------//
 
 export default async function chatArtificialIntelligenceHandler(
@@ -36,6 +38,8 @@ export default async function chatArtificialIntelligenceHandler(
     if (!is_user_allowed_to_use_gpt) return;
 
     await message.channel.sendTyping(); // send typing indicator
+
+    await delay(1000); // wait 1 second to properly load messages
 
     const messages_collection = await message.channel.messages.fetch({
         limit: 5,
