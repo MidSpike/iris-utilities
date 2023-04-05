@@ -68,6 +68,6 @@
     "tweetnacl": "1.0.3",
     "uuid": "9.0.0",
     "youtube-sr": "4.3.4",
-    "ytdl-core": "4.11.3"
+    "ytdl-core": "4.9.1"
   }
 }
