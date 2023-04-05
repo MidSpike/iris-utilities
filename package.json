@@ -31,8 +31,8 @@
   "devDependencies": {
     "@types/bcryptjs": "2.4.2",
     "@types/string-similarity": "4.0.0",
-    "@typescript-eslint/eslint-plugin": "5.57.0",
-    "@typescript-eslint/parser": "5.57.0",
+    "@typescript-eslint/eslint-plugin": "5.57.1",
+    "@typescript-eslint/parser": "5.57.1",
     "eslint": "8.37.0",
     "husky": "8.0.3",
     "is-ci": "3.0.1",
@@ -55,7 +55,7 @@
     "html-entities": "2.3.3",
     "libsodium-wrappers": "0.7.11",
     "manakin": "0.5.2",
-    "mathjs": "11.7.0",
+    "mathjs": "11.8.0",
     "module-alias": "2.2.2",
     "moment-timezone": "0.5.43",
     "node-gyp": "9.3.1",
@@ -68,6 +68,6 @@
     "tweetnacl": "1.0.3",
     "uuid": "9.0.0",
     "youtube-sr": "4.3.4",
-    "ytdl-core": "4.11.2"
+    "ytdl-core": "4.11.3"
   }
 }
