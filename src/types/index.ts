@@ -55,6 +55,7 @@ export interface GuildConfig extends GuildConfigTemplate {
         [v in GuildConfigLoggingChannels]?: string; // the channel id
     };
     url_blocking_enabled?: boolean;
+    chat_ai_channel_ids?: string[];
 }
 
 //------------------------------------------------------------//
