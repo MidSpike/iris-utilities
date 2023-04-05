@@ -10,6 +10,8 @@ import { CustomEmbed } from '@root/common/app/message';
 
 import urlBlockingHandler from '@root/handlers/url_blocking_handler';
 
+import chatArtificialIntelligenceHandler from '@root/handlers/chat_ai_handler';
+
 //------------------------------------------------------------//
 
 const event_name = Discord.Events.MessageCreate;
@@ -63,6 +65,7 @@ export default {
         /* run guild message handlers */
         if (message.inGuild()) {
             urlBlockingHandler(discord_client, message);
+            chatArtificialIntelligenceHandler(discord_client, message);
         }
     },
 } as ClientEventExport<typeof event_name>;
