@@ -63,7 +63,8 @@ export default async function chatArtificialIntelligenceHandler(
         (msg) => ({
             role: msg.author.id === discord_client.user.id ? 'assistant' : 'user',
             content: [
-                `${msg.author.id === discord_client.user.id ? 'You' : msg.author.username} said:`,
+                `[${msg.author.id === discord_client.user.id ? 'You' : msg.author.username}]`,
+                '',
                 msg.content,
             ].join('\n'),
         })
@@ -72,7 +73,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'Your name is Iris. Be extremely polite and concise. Respond to the last message sent.',
+            content: 'Your name is Iris. Respond informally as if you were a human.',
         },
         ...formatted_messages,
     ];
