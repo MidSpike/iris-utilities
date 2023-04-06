@@ -10,8 +10,6 @@ import * as Discord from 'discord.js';
 
 import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
-import { doesUserHaveArtificialIntelligenceAccess } from '@root/common/app/permissions';
-
 import { CustomEmbed } from '@root/common/app/message';
 
 import { delay } from '@root/common/lib/utilities';
@@ -33,17 +31,12 @@ export default async function chatArtificialIntelligenceHandler(
     /* check if the message was sent in the chat ai channel */
     if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return;
 
-    /* check if the user is allowed to use the chat ai feature */
-    /** @todo */
-    // const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(message.author.id);
-    // if (!is_user_allowed_to_use_gpt) return;
-
     await message.channel.sendTyping(); // send typing indicator
 
     await delay(1000); // wait 1 second to properly load messages
 
     const messages_collection = await message.channel.messages.fetch({
-        limit: 3, // increasing this number will increase the accuracy of responses at the cost of api tokens
+        limit: 4, // increasing this number will increase the accuracy of responses at the cost of api tokens
         before: message.id,
     });
 
@@ -59,7 +52,7 @@ export default async function chatArtificialIntelligenceHandler(
     const filtered_messages = messages.filter((msg) => {
         if (msg.author.bot && msg.author.id !== discord_client.user.id) return false;
         if (msg.content.length < 1) return false;
-        if (msg.content.length > 128) return false;
+        if (msg.content.length > 256) return false;
 
         return true;
     });
@@ -76,7 +69,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'You are Iris. Converse like a human. Your response must be very short. Do not use emojis.',
+            content: 'You are Iris. Converse like a human. Your response must be short. Don\'t use emojis.',
         },
         ...formatted_messages,
     ];
@@ -95,7 +88,7 @@ export default async function chatArtificialIntelligenceHandler(
         data: {
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
-            'max_tokens': 192, // prevent lengthy responses from being generated
+            'max_tokens': 256, // prevent lengthy responses from being generated
         },
         validateStatus: (status) => true,
     });
