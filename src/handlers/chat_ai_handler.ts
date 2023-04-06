@@ -76,7 +76,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'You are Iris. Converse like a human. Be very concise.',
+            content: 'You are Iris. Converse like a human. Your response must be very short. Do not use emojis.',
         },
         ...formatted_messages,
     ];
@@ -95,7 +95,7 @@ export default async function chatArtificialIntelligenceHandler(
         data: {
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
-            'max_tokens': 128, // prevent lengthy responses from being generated
+            'max_tokens': 256, // prevent lengthy responses from being generated
         },
         validateStatus: (status) => true,
     });
