@@ -42,7 +42,7 @@ export default async function chatArtificialIntelligenceHandler(
     await delay(1000); // wait 1 second to properly load messages
 
     const messages_collection = await message.channel.messages.fetch({
-        limit: 5,
+        limit: 4, // increasing this number will increase the accuracy of responses at the cost of api tokens
         before: message.id,
     });
 
@@ -94,7 +94,7 @@ export default async function chatArtificialIntelligenceHandler(
         data: {
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
-            'max_tokens': 64, // prevent lengthy responses from being generated
+            'max_tokens': 128, // prevent lengthy responses from being generated
         },
         validateStatus: (status) => true,
     });
