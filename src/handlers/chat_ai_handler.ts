@@ -34,8 +34,9 @@ export default async function chatArtificialIntelligenceHandler(
     if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return;
 
     /* check if the user is allowed to use the chat ai feature */
-    const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(message.author.id);
-    if (!is_user_allowed_to_use_gpt) return;
+    /** @todo */
+    // const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(message.author.id);
+    // if (!is_user_allowed_to_use_gpt) return;
 
     await message.channel.sendTyping(); // send typing indicator
 
