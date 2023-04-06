@@ -4,6 +4,8 @@
 
 import { DiscordClientWithSharding } from '@root/types';
 
+import crypto from 'node:crypto';
+
 import axios from 'axios';
 
 import * as Discord from 'discord.js';
@@ -69,7 +71,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'You are Iris. Converse like a human. Your response must be short. Don\'t use emojis.',
+            content: 'You are I.R.I.S. Utilities, converse like a human, keep your response short and don\'t use emojis.',
         },
         ...formatted_messages,
     ];
@@ -77,6 +79,9 @@ export default async function chatArtificialIntelligenceHandler(
     console.log({
         gpt_messages,
     });
+
+    // apply a simple hash to the user id to mask the raw user id from openai
+    const hashed_user_id = crypto.createHash('sha256').update(message.author.id).digest('hex');
 
     const gpt_response = await axios({
         method: 'POST',
@@ -89,6 +94,7 @@ export default async function chatArtificialIntelligenceHandler(
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
             'max_tokens': 256, // prevent lengthy responses from being generated
+            'user': hashed_user_id,
         },
         validateStatus: (status) => true,
     });
