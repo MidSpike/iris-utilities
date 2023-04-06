@@ -43,7 +43,7 @@ export default async function chatArtificialIntelligenceHandler(
     await delay(1000); // wait 1 second to properly load messages
 
     const messages_collection = await message.channel.messages.fetch({
-        limit: 4, // increasing this number will increase the accuracy of responses at the cost of api tokens
+        limit: 3, // increasing this number will increase the accuracy of responses at the cost of api tokens
         before: message.id,
     });
 
@@ -59,7 +59,7 @@ export default async function chatArtificialIntelligenceHandler(
     const filtered_messages = messages.filter((msg) => {
         if (msg.author.bot && msg.author.id !== discord_client.user.id) return false;
         if (msg.content.length < 1) return false;
-        if (msg.content.length > 256) return false;
+        if (msg.content.length > 128) return false;
 
         return true;
     });
@@ -95,7 +95,7 @@ export default async function chatArtificialIntelligenceHandler(
         data: {
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
-            'max_tokens': 256, // prevent lengthy responses from being generated
+            'max_tokens': 192, // prevent lengthy responses from being generated
         },
         validateStatus: (status) => true,
     });
