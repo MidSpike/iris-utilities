@@ -14,7 +14,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { arrayChunks, delay } from '@root/common/lib/utilities';
+import { delay, stringChunksPreserveWords } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -129,10 +129,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
     const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
 
-    const gpt_response_message_chunks = arrayChunks(
-        gpt_response_message.split(/\s/g),
-        1024, // discord message limit
-    ).map((chunk) => chunk.join(' '));
+    const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 1000);
 
     for (let i = 0; i < gpt_response_message_chunks.length; i++) {
         const gpt_response_message_chunk = gpt_response_message_chunks[i];
