@@ -14,7 +14,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { delay } from '@root/common/lib/utilities';
+import { arrayChunks, delay } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -25,6 +25,9 @@ export default async function chatArtificialIntelligenceHandler(
     if (!message.inGuild()) return; // don't respond to direct messages
     if (!message.deletable) return; // unable to delete this message
     if (!message.member) return; // unable to get the member
+
+    if (message.author.bot) return; // don't respond to bots
+    if (message.author.system) return; // don't respond to system messages
 
     /* fetch the guild config */
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
@@ -93,7 +96,7 @@ export default async function chatArtificialIntelligenceHandler(
         data: {
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
-            'max_tokens': 256, // prevent lengthy responses from being generated
+            'max_tokens': 512, // prevent lengthy responses from being generated
             'user': hashed_user_id,
         },
         validateStatus: (status) => true,
@@ -126,12 +129,26 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
     const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
 
-    await message.channel.send({
-        content: gpt_response_message,
-        embeds: [
-            CustomEmbed.from({
-                description: `Total tokens used: ${gpt_response_total_tokens}`,
-            }),
-        ],
-    });
+    const gpt_response_message_chunks = arrayChunks(
+        gpt_response_message.split(/\s/g),
+        1024, // discord message limit
+    ).map((chunk) => chunk.join(' '));
+
+    for (let i = 0; i < gpt_response_message_chunks.length; i++) {
+        const gpt_response_message_chunk = gpt_response_message_chunks[i];
+
+        await message.channel.send({
+            content: gpt_response_message_chunk,
+            embeds: [
+                // only add the total tokens embed to the last message
+                ...(i === gpt_response_message_chunks.length - 1 ? [
+                    CustomEmbed.from({
+                        description: `Total tokens used: ${gpt_response_total_tokens}`,
+                    }),
+                ] : []),
+            ],
+        });
+
+        await delay(250); // wait a bit to prevent rate limiting
+    }
 }

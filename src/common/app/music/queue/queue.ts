@@ -26,14 +26,16 @@ export class QueueVolumeManager {
         return this._queue.current_track;
     }
 
-    get volume() {
-        const active_resource_volume = this._getCurrentTrack()?.resource?.volume?.volumeLogarithmic;
-        const raw_logarithmic_volume = active_resource_volume ?? this._raw_volume;
+    get volume(): number {
+        const active_resource = this._getCurrentTrack()?.resource;
+
+        const active_resource_volume: number | undefined = active_resource?.volume?.volumeLogarithmic;
+        const raw_logarithmic_volume: number = active_resource_volume ?? this._raw_volume;
 
         return Math.round(raw_logarithmic_volume / this._volume_multiplier * this._human_volume_multiplier);
     }
 
-    set volume(human_volume) {
+    set volume(human_volume: number) {
         this._raw_volume = (human_volume / this._human_volume_multiplier) * this._volume_multiplier;
 
         const active_resource = this._getCurrentTrack()?.resource;
