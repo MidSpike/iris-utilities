@@ -52,6 +52,39 @@ export function stringEllipses(
 }
 
 /**
+ * Returns an array of strings split by a character limit while preserving whole words.
+ *
+ * @todo test this with a string that has a word longer than the chunk length limit
+ */
+export function stringChunksPreserveWords(
+    string_to_split: string,
+    chunk_length_limit: number,
+): string[] {
+    const words = string_to_split.split(' ');
+    const chunks = [];
+
+    let current_chunk = '';
+    for (const word of words) {
+        const new_chunk = `${current_chunk}${current_chunk ? ' ' : ''}${word}`;
+
+        if (new_chunk.length <= chunk_length_limit) {
+            current_chunk = new_chunk;
+            continue;
+        }
+
+        chunks.push(current_chunk.trim()); // trim to remove the trailing space
+
+        current_chunk = word;
+    }
+
+    if (current_chunk.length > 0) {
+        chunks.push(current_chunk.trim()); // trim to remove the trailing space
+    }
+
+    return chunks;
+}
+
+/**
  * Splits an array into a new chunked array containing arrays of a specified size (or less for the last chunk).
  */
 export function arrayChunks<T=unknown>(
