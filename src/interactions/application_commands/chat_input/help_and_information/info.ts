@@ -167,7 +167,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         });
 
         const combined_bot_info_totals = {
-            average_ping_ms: distributed_bot_info.reduce((acc, curr) => acc + curr.ping_ms, 0) / distributed_bot_info.length,
+            average_ping_ms: Math.round(distributed_bot_info.reduce((acc, curr) => acc + curr.ping_ms, 0) / distributed_bot_info.length),
             total_process_memory_usage_in_bytes: distributed_bot_info.reduce((acc, curr) => acc + curr.process_info.memory_usage_in_bytes, 0),
             total_process_memory_allocation_in_bytes: distributed_bot_info.reduce((acc, curr) => acc + curr.process_info.memory_allocation_in_bytes, 0),
             num_cached_guilds: distributed_bot_info.reduce((acc, cur) => acc + cur.num_cached_guilds, 0),
