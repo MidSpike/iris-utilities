@@ -67,6 +67,9 @@ if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_P
 const anonymous_command_history_webhook_url = process.env.DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK as string;
 if (!anonymous_command_history_webhook_url?.length) throw new TypeError('DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK is not defined');
 
+const verbose_interaction_logging = process.env.DISCORD_BOT_VERBOSE_INTERACTION_LOGGING as string;
+if (!verbose_interaction_logging?.length) throw new TypeError('DISCORD_BOT_VERBOSE_INTERACTION_LOGGING is not defined');
+
 //------------------------------------------------------------//
 
 function stringifyOptions(
@@ -487,7 +490,9 @@ export class ClientInteractionManager {
         /* ensure the discord client support sharding */
         if (!discord_client.shard) throw new Error('ClientInteractionManager.handleUnknownInteraction(): discord client does not support sharding');
 
-        console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
+        if (verbose_interaction_logging === 'enabled') {
+            console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
+        }
 
         let unknown_interaction_identifier: string;
 
