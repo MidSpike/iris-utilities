@@ -45,9 +45,22 @@ export enum GuildConfigLoggingChannels {
  * The keys are modifiable, but the values are not as they are used in the database.
  */
 export enum GuildConfigChatAiMode {
+    /**
+     * The bot will not respond with chat ai in any channel.
+     */
     Disabled = 'disabled',
-    AllChannels = 'all_channels',
-    ApprovedChannels = 'approved_channels',
+    /**
+     * All channels are enabled but require the bot to be mentioned.
+     */
+    MentionsOnly = 'mentions_only',
+    /**
+     * All channels are enabled but must be mentioned outside of enhanced channels.
+     */
+    MentionsAndEnhancedChannels = 'mentions_and_enhanced_channels',
+    /**
+     * Only enhanced channels are enabled, but the bot does not need to be mentioned.
+     */
+    EnhancedChannelsOnly = 'enhanced_channels_only',
 }
 
 export type GuildConfigTemplate = {
