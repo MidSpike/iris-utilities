@@ -26,6 +26,12 @@ if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or
 const ibm_tts_api_key = process.env.IBM_TTS_API_KEY as string;
 if (!ibm_tts_api_key?.length) throw new Error('IBM_TTS_API_KEY is not defined or is empty');
 
+const openai_usage = process.env.OPENAI_USAGE;
+if (typeof openai_usage !== 'string') throw new Error('Missing OPENAI_USAGE environment variable.');
+
+const openai_api_key = process.env.OPENAI_API_KEY;
+if (typeof openai_api_key !== 'string') throw new Error('Missing OPENAI_API_KEY environment variable.');
+
 //------------------------------------------------------------//
 
 export default {
@@ -97,6 +103,8 @@ export default {
             case 'tpt':
             case 'cpt':
             case 'gpt': {
+                if (openai_usage !== 'enabled') return; // don't respond if openai is not enabled
+
                 const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(guild_member.user.id);
                 if (!is_user_allowed_to_use_gpt) {
                     await music_subscription.text_channel.send({
@@ -124,7 +132,7 @@ export default {
                     method: 'POST',
                     url: 'https://api.openai.com/v1/chat/completions',
                     headers: {
-                        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                        'Authorization': `Bearer ${openai_api_key}`,
                         'Content-Type': 'application/json',
                     },
                     data: {
