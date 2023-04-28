@@ -41,6 +41,15 @@ export enum GuildConfigLoggingChannels {
     MessageModified = 'message_modified',
 }
 
+/**
+ * The keys are modifiable, but the values are not as they are used in the database.
+ */
+export enum GuildConfigChatAiMode {
+    Disabled = 'disabled',
+    AllChannels = 'all_channels',
+    ApprovedChannels = 'approved_channels',
+}
+
 export type GuildConfigTemplate = {
     _creation_epoch: number;
     _last_modified_epoch: number;
@@ -55,6 +64,7 @@ export interface GuildConfig extends GuildConfigTemplate {
         [v in GuildConfigLoggingChannels]?: string; // the channel id
     };
     url_blocking_enabled?: boolean;
+    chat_ai_mode?: GuildConfigChatAiMode;
     chat_ai_channel_ids?: string[];
 }
 

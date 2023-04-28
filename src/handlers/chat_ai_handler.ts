@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { DiscordClientWithSharding } from '@root/types';
+import { DiscordClientWithSharding, GuildConfigChatAiMode } from '@root/types';
 
 import crypto from 'node:crypto';
 
@@ -18,12 +18,21 @@ import { delay, stringChunksPreserveWords } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
+const openai_usage = process.env.OPENAI_USAGE;
+if (typeof openai_usage !== 'string') throw new Error('Missing OPENAI_USAGE environment variable.');
+
+const openai_api_key = process.env.OPENAI_API_KEY;
+if (typeof openai_api_key !== 'string') throw new Error('Missing OPENAI_API_KEY environment variable.');
+
+//------------------------------------------------------------//
+
 export default async function chatArtificialIntelligenceHandler(
     discord_client: DiscordClientWithSharding,
     message: Discord.Message<true>,
 ): Promise<void> {
+    if (openai_usage !== 'enabled') return; // don't respond if openai is not enabled
+
     if (!message.inGuild()) return; // don't respond to direct messages
-    if (!message.deletable) return; // unable to delete this message
     if (!message.member) return; // unable to get the member
 
     if (message.author.bot) return; // don't respond to bots
@@ -31,10 +40,28 @@ export default async function chatArtificialIntelligenceHandler(
 
     /* fetch the guild config */
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
-    if (!guild_config.chat_ai_channel_ids) return;
 
-    /* check if the message was sent in the chat ai channel */
-    if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return;
+    /* check if the guild has configured chat ai */
+    if (typeof guild_config.chat_ai_mode !== 'string') return;
+
+    /* check if chat ai is enabled for the given context */
+    switch (guild_config.chat_ai_mode) {
+        case GuildConfigChatAiMode.ApprovedChannels: {
+            if (!Array.isArray(guild_config.chat_ai_channel_ids)) return;
+            if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return;
+            break;
+        }
+
+        case GuildConfigChatAiMode.AllChannels: {
+            if (!message.mentions.has(discord_client.user.id)) return;
+            break;
+        }
+
+        case GuildConfigChatAiMode.Disabled:
+        default: {
+            return;
+        }
+    }
 
     await message.channel.sendTyping(); // send typing indicator
 
@@ -55,31 +82,34 @@ export default async function chatArtificialIntelligenceHandler(
     messages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
     const filtered_messages = messages.filter((msg) => {
-        if (msg.author.bot && msg.author.id !== discord_client.user.id) return false;
+        const user_is_this_bot = msg.author.id === discord_client.user.id;
+
+        // only allow messages from users and this bot
+        if (msg.author.bot && !user_is_this_bot) return false;
+
+        // ensure the message is not empty
         if (msg.content.length < 1) return false;
-        if (msg.content.length > 256) return false;
+
+        // only allow messages under a certain size from users (this bot is allowed to exceed the limit)
+        if (!user_is_this_bot && msg.content.length > 1024) return false;
 
         return true;
     });
-
-    const formatted_messages = filtered_messages.map(
-        (msg) => ({
-            role: msg.author.id === discord_client.user.id ? 'assistant' : 'user',
-            content: [
-                msg.content,
-            ].join('\n'),
-        })
-    );
 
     const gpt_messages = [
         {
             role: 'system',
             content: 'You are I.R.I.S. Utilities, converse like a human, keep your response short and don\'t use emojis.',
         },
-        ...formatted_messages,
+        ...filtered_messages.map(
+            (msg) => ({
+                role: msg.author.id === discord_client.user.id ? 'assistant' : 'user',
+                content: msg.content,
+            })
+        ),
     ];
 
-    console.log({
+    console.log('Chat Ai Handler:', {
         gpt_messages,
     });
 
@@ -90,13 +120,13 @@ export default async function chatArtificialIntelligenceHandler(
         method: 'POST',
         url: 'https://api.openai.com/v1/chat/completions',
         headers: {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Authorization': `Bearer ${openai_api_key}`,
             'Content-Type': 'application/json',
         },
         data: {
             'model': 'gpt-3.5-turbo',
             'messages': gpt_messages,
-            'max_tokens': 512, // prevent lengthy responses from being generated
+            'max_tokens': 1024, // prevent lengthy responses from being generated
             'user': hashed_user_id,
         },
         validateStatus: (status) => true,
