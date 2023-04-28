@@ -42,24 +42,24 @@ export default async function chatArtificialIntelligenceHandler(
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
 
     /* check if the guild has configured chat ai */
-    if (typeof guild_config.chat_ai_mode !== 'string') return;
+    if (typeof guild_config.chat_ai_mode !== 'string') return; // don't continue
 
     /* check if chat ai is enabled for the given context */
     switch (guild_config.chat_ai_mode) {
         case GuildConfigChatAiMode.ApprovedChannels: {
-            if (!Array.isArray(guild_config.chat_ai_channel_ids)) return;
-            if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return;
+            if (!Array.isArray(guild_config.chat_ai_channel_ids)) return; // don't continue
+            if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return; // don't continue
             break;
         }
 
         case GuildConfigChatAiMode.AllChannels: {
-            if (!message.mentions.has(discord_client.user.id)) return;
+            if (!message.mentions.has(discord_client.user.id)) return; // don't continue
             break;
         }
 
         case GuildConfigChatAiMode.Disabled:
         default: {
-            return;
+            return; // don't continue
         }
     }
 
