@@ -6,14 +6,6 @@ import axios from 'axios';
 
 //------------------------------------------------------------//
 
-const libre_translate_api_url = process.env.LIBRE_TRANSLATE_API_URL as string;
-if (!libre_translate_api_url?.length) throw new Error('LIBRE_TRANSLATE_API_URL environment variable is not set');
-
-const libre_translate_api_key = process.env.LIBRE_TRANSLATE_API_KEY as string;
-if (!libre_translate_api_key?.length) throw new Error('LIBRE_TRANSLATE_API_KEY environment variable is not set');
-
-//------------------------------------------------------------//
-
 export type LanguageCode = string;
 
 export type LanguageName = string;
@@ -22,6 +14,18 @@ export type LanguageConfig = {
     code: LanguageCode;
     name: LanguageName;
 };
+
+//------------------------------------------------------------//
+
+const libre_translate_api_url = process.env.LIBRE_TRANSLATE_API_URL as string;
+if (!libre_translate_api_url?.length) throw new Error('LIBRE_TRANSLATE_API_URL environment variable is not set');
+
+const libre_translate_api_key = process.env.LIBRE_TRANSLATE_API_KEY as string;
+if (!libre_translate_api_key?.length) throw new Error('LIBRE_TRANSLATE_API_KEY environment variable is not set');
+
+//------------------------------------------------------------//
+
+const string_ends_with_punctuation = /[.!?]$/;
 
 //------------------------------------------------------------//
 
@@ -48,6 +52,15 @@ export async function translate(
     from: 'auto' | LanguageCode,
     to: 'en' | LanguageCode,
 ): Promise<string> {
+    let processed_text = text;
+
+    /**
+     * Adding punctuation to the end of the input text seems to result in better translations.
+     */
+    if (!string_ends_with_punctuation.test(processed_text)) {
+        processed_text = `${processed_text}.`;
+    }
+
     const response = await axios({
         method: 'POST',
         url: `${libre_translate_api_url}/translate`,
@@ -55,7 +68,7 @@ export async function translate(
             'Content-Type': 'application/json',
         },
         data: {
-            'q': `${text}.`, // adding a period seems to result in better translations
+            'q': processed_text,
             'source': from,
             'target': to,
             'format': 'text',
