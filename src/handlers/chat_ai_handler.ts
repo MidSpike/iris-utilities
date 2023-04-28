@@ -46,15 +46,26 @@ export default async function chatArtificialIntelligenceHandler(
 
     /* check if chat ai is enabled for the given context */
     switch (guild_config.chat_ai_mode) {
-        case GuildConfigChatAiMode.ApprovedChannels: {
+        case GuildConfigChatAiMode.EnhancedChannelsOnly: {
             if (!Array.isArray(guild_config.chat_ai_channel_ids)) return; // don't continue
-            if (!guild_config.chat_ai_channel_ids.includes(message.channel.id)) return; // don't continue
-            break;
+            if (guild_config.chat_ai_channel_ids.includes(message.channel.id)) break; // continue
+
+            return; // don't continue
         }
 
-        case GuildConfigChatAiMode.AllChannels: {
-            if (!message.mentions.has(discord_client.user.id)) return; // don't continue
-            break;
+        case GuildConfigChatAiMode.MentionsAndEnhancedChannels: {
+            if (message.mentions.has(discord_client.user.id)) break; // continue
+
+            if (!Array.isArray(guild_config.chat_ai_channel_ids)) return; // don't continue
+            if (guild_config.chat_ai_channel_ids.includes(message.channel.id)) break; // continue
+
+            return; // don't continue
+        }
+
+        case GuildConfigChatAiMode.MentionsOnly: {
+            if (message.mentions.has(discord_client.user.id)) break; // continue
+
+            return; // don't continue
         }
 
         case GuildConfigChatAiMode.Disabled:
