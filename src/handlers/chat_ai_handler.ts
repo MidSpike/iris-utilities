@@ -110,7 +110,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: 'You are I.R.I.S. Utilities, converse like a human, keep your response short and don\'t use emojis.',
+            content: `You are I.R.I.S. Utilities (aka <@${discord_client.user.id}>), converse like a human, keep your response short and don\'t use emojis.`,
         },
         ...filtered_messages.map(
             (msg) => ({
