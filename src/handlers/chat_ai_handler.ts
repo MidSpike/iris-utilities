@@ -18,25 +18,35 @@ import { DelayedTask, DelayedTaskQueue, delay, stringChunksPreserveWords } from 
 
 //------------------------------------------------------------//
 
-const openai_usage = process.env.OPENAI_USAGE;
-if (!openai_usage?.length) throw new Error('OPENAI_USAGE environment variable is not set or is empty');
+const openai_usage = `${process.env.OPENAI_USAGE ?? ''}`;
+if (openai_usage.length < 1) throw new Error('OPENAI_USAGE environment variable is improperly set');
 
-const openai_api_key = process.env.OPENAI_API_KEY;
-if (!openai_api_key?.length) throw new Error('OPENAI_API_KEY environment variable is not set or is empty');
+const openai_api_key = `${process.env.OPENAI_API_KEY ?? ''}`;
+if (openai_api_key.length < 1) throw new Error('OPENAI_API_KEY environment variable is improperly set');
 
-const chat_ai_model = process.env.CHAT_AI_MODEL;
-if (!chat_ai_model?.length) throw new Error('CHAT_AI_MODEL environment variable is not set or is empty');
+const chat_ai_model = `${process.env.CHAT_AI_MODEL ?? ''}`;
+if (chat_ai_model.length < 1) throw new Error('CHAT_AI_MODEL environment variable is improperly set');
 
-const chat_ai_max_tokens = process.env.CHAT_AI_MAX_TOKENS;
-if (!chat_ai_max_tokens?.length) throw new Error('CHAT_AI_MAX_TOKENS environment variable is not set or is empty');
+const chat_ai_max_tokens: number = Number.parseInt(`${process.env.CHAT_AI_MAX_TOKENS}`, 10);
+if (Number.isNaN(chat_ai_max_tokens)) throw new Error('CHAT_AI_MAX_TOKENS environment variable is not a valid number');
 
-const chat_ai_max_user_input_size = Number.parseInt(`${process.env.CHAT_AI_MAX_USER_INPUT_SIZE}`, 10);
+const chat_ai_max_user_input_size: number = Number.parseInt(`${process.env.CHAT_AI_MAX_USER_INPUT_SIZE}`, 10);
 if (Number.isNaN(chat_ai_max_user_input_size)) throw new Error('CHAT_AI_MAX_USER_INPUT_SIZE environment variable is not a valid number');
 
-const chat_ai_previous_messages_amount = Number.parseInt(`${process.env.CHAT_AI_PREVIOUS_MESSAGES_AMOUNT}`, 10);
+const chat_ai_previous_messages_amount: number = Number.parseInt(`${process.env.CHAT_AI_PREVIOUS_MESSAGES_AMOUNT}`, 10);
 if (Number.isNaN(chat_ai_previous_messages_amount)) throw new Error('CHAT_AI_PREVIOUS_MESSAGES_AMOUNT environment variable is not a valid number');
 
 //------------------------------------------------------------//
+
+type GPTRequestData = {
+    model: string,
+    messages: {
+        role: string,
+        content: string,
+    }[],
+    max_tokens: number,
+    user: string,
+};
 
 type GPTResponseData = {
     choices: {
@@ -160,6 +170,13 @@ export default async function chatArtificialIntelligenceHandler(
                 // apply a simple hash to the user id to mask the raw user id from openai
                 const hashed_user_id = crypto.createHash('sha256').update(message.author.id).digest('hex');
 
+                const gpt_request_data: GPTRequestData = {
+                    'model': chat_ai_model,
+                    'messages': gpt_messages,
+                    'max_tokens': chat_ai_max_tokens,
+                    'user': hashed_user_id, // used for tracking abuse on OpenAI's end
+                };
+
                 const gpt_response = await axios({
                     method: 'POST',
                     url: 'https://api.openai.com/v1/chat/completions',
@@ -167,12 +184,7 @@ export default async function chatArtificialIntelligenceHandler(
                         'Authorization': `Bearer ${openai_api_key}`,
                         'Content-Type': 'application/json',
                     },
-                    data: {
-                        'model': chat_ai_model,
-                        'messages': gpt_messages,
-                        'max_tokens': chat_ai_max_tokens,
-                        'user': hashed_user_id, // used for tracking abuse on OpenAI's end
-                    },
+                    data: gpt_request_data,
                     validateStatus: (status) => true,
                 });
 
