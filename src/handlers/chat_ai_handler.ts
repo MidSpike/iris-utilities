@@ -14,27 +14,21 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { DelayedTask, DelayedTaskQueue, delay, stringChunksPreserveWords } from '@root/common/lib/utilities';
+import { DelayedTask, DelayedTaskQueue, delay, parseEnvironmentVariable, stringChunksPreserveWords } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
-const openai_usage = `${process.env.OPENAI_USAGE ?? ''}`;
-if (openai_usage.length < 1) throw new Error('OPENAI_USAGE environment variable is improperly set');
+const openai_usage = parseEnvironmentVariable('OPENAI_USAGE', 'string');
 
-const openai_api_key = `${process.env.OPENAI_API_KEY ?? ''}`;
-if (openai_api_key.length < 1) throw new Error('OPENAI_API_KEY environment variable is improperly set');
+const openai_api_key = parseEnvironmentVariable('OPENAI_API_KEY', 'string');
 
-const chat_ai_model = `${process.env.CHAT_AI_MODEL ?? ''}`;
-if (chat_ai_model.length < 1) throw new Error('CHAT_AI_MODEL environment variable is improperly set');
+const chat_ai_model = parseEnvironmentVariable('CHAT_AI_MODEL', 'string');
 
-const chat_ai_max_tokens: number = Number.parseInt(`${process.env.CHAT_AI_MAX_TOKENS}`, 10);
-if (Number.isNaN(chat_ai_max_tokens)) throw new Error('CHAT_AI_MAX_TOKENS environment variable is not a valid number');
+const chat_ai_max_tokens = parseEnvironmentVariable('CHAT_AI_MAX_TOKENS', 'number');
 
-const chat_ai_max_user_input_size: number = Number.parseInt(`${process.env.CHAT_AI_MAX_USER_INPUT_SIZE}`, 10);
-if (Number.isNaN(chat_ai_max_user_input_size)) throw new Error('CHAT_AI_MAX_USER_INPUT_SIZE environment variable is not a valid number');
+const chat_ai_max_user_input_size = parseEnvironmentVariable('CHAT_AI_MAX_USER_INPUT_SIZE', 'number');
 
-const chat_ai_previous_messages_amount: number = Number.parseInt(`${process.env.CHAT_AI_PREVIOUS_MESSAGES_AMOUNT}`, 10);
-if (Number.isNaN(chat_ai_previous_messages_amount)) throw new Error('CHAT_AI_PREVIOUS_MESSAGES_AMOUNT environment variable is not a valid number');
+const chat_ai_previous_messages_amount = parseEnvironmentVariable('CHAT_AI_PREVIOUS_MESSAGES_AMOUNT', 'number');
 
 //------------------------------------------------------------//
 

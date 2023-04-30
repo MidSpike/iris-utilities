@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { delay } from './helpers';
+import { delay } from '.';
 
 //------------------------------------------------------------//
 
