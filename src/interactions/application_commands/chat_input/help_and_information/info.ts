@@ -193,37 +193,26 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             value: `${bot_application.description}`,
                             inline: false,
                         }, {
-                            name: 'Bot Memory Usage',
-                            value: [
-                                `> ${bytesToLargestRepresentation(combined_bot_info_totals.total_process_memory_usage_in_bytes)} / ${bytesToLargestRepresentation(combined_bot_info_totals.total_process_memory_allocation_in_bytes)}`,
-                            ].join('\n'),
-                            inline: true,
-                        }, {
-                            name: 'System Memory Usage',
-                            value: [
-                                `> ${bytesToLargestRepresentation(total_system_memory_usage)} / ${bytesToLargestRepresentation(total_system_memory)}`,
-                            ].join('\n'),
-                            inline: true,
-                        }, {
                             name: 'Server Information',
                             value: [
-                                `> - ${uptimeToHumanString(os.uptime())} of uptime`,
-                                `> - ${os.arch()} ${os.version()} (${os.release()})`,
-                                `> - ${formatCpuModelName(os.cpus().at(0)!.model)} (x${os.cpus().length})`,
+                                `> Uptime: ${uptimeToHumanString(os.uptime())}`,
+                                `> Operating System: ${os.arch()} ${os.version()}`,
+                                `> Processor: ${formatCpuModelName(os.cpus().at(0)!.model)} (x${os.cpus().length})`,
+                                `> Memory: ${bytesToLargestRepresentation(total_system_memory_usage)} used / ${bytesToLargestRepresentation(total_system_memory)} allocated`,
                             ].join('\n'),
                             inline: false,
                         }, {
-                            name: 'Combined Shard Cache',
+                            name: 'Cluster Information',
                             value: [
-                                `> - ${combined_bot_info_totals.average_ping_ms}ms average ping`,
-                                `> - ${combined_bot_info_totals.num_cached_guilds} total guild(s)`,
-                                `> - ${combined_bot_info_totals.num_cached_users} total user(s)`,
-                                `> - ${combined_bot_info_totals.num_cached_channels} total channel(s)`,
-                                `> - ${combined_bot_info_totals.num_cached_emojis} total emoji(s)`,
+                                `> ${combined_bot_info_totals.average_ping_ms}ms & (${bytesToLargestRepresentation(combined_bot_info_totals.total_process_memory_usage_in_bytes)} / ${bytesToLargestRepresentation(combined_bot_info_totals.total_process_memory_allocation_in_bytes)})`,
+                                `> ${combined_bot_info_totals.num_cached_guilds} guild(s)`,
+                                `> ${combined_bot_info_totals.num_cached_users} user(s)`,
+                                `> ${combined_bot_info_totals.num_cached_channels} channel(s)`,
+                                `> ${combined_bot_info_totals.num_cached_emojis} emoji(s)`,
                             ].join('\n'),
                             inline: false,
                         }, {
-                            name: 'Individual Shard Caches',
+                            name: 'Shard Information',
                             value: [
                                 distributed_bot_info.map(
                                     ({
@@ -239,12 +228,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         num_cached_emojis,
                                     }) => [
                                         `\`[ Shard ${identifier} / ${discord_client.shard.count} ]:\``,
-                                        `> - ${ping_ms}ms ping`,
-                                        `> - ${bytesToLargestRepresentation(memory_usage_in_bytes)} / ${bytesToLargestRepresentation(memory_allocation_in_bytes)} memory usage`,
-                                        `> - ${num_cached_guilds} guild(s)`,
-                                        `> - ${num_cached_channels} channel(s)`,
-                                        `> - ${num_cached_users} user(s)`,
-                                        `> - ${num_cached_emojis} emoji(s)`,
+                                        `> ${ping_ms}ms & (${bytesToLargestRepresentation(memory_usage_in_bytes)} / ${bytesToLargestRepresentation(memory_allocation_in_bytes)})`,
+                                        `> ${num_cached_guilds} guild(s)`,
+                                        `> ${num_cached_channels} channel(s)`,
+                                        `> ${num_cached_users} user(s)`,
+                                        `> ${num_cached_emojis} emoji(s)`,
                                     ].join('\n')
                                 ).join('\n\n'),
                             ].join('\n'),
