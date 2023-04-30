@@ -34,6 +34,10 @@ if (typeof openai_api_key !== 'string') throw new Error('Missing OPENAI_API_KEY 
 
 //------------------------------------------------------------//
 
+const base64_encoded_ibm_tts_api_key = Buffer.from(`apikey:${ibm_tts_api_key}`, 'utf8').toString('base64');
+
+//------------------------------------------------------------//
+
 export default {
     name: DiscordSpeechRecognition.Events.VoiceMessage,
     async handler(
@@ -216,7 +220,7 @@ export default {
                                 url: `${ibm_tts_api_url}/v1/synthesize?voice=${encodeURIComponent(tts_voice)}`,
                                 headers: {
                                     'Accept': 'audio/wav',
-                                    'Authorization': `Basic ${Buffer.from(`apikey:${ibm_tts_api_key}`, 'utf8').toString('base64')}`,
+                                    'Authorization': `Basic ${base64_encoded_ibm_tts_api_key}`,
                                     'Content-Type': 'application/json',
                                 },
                                 responseType: 'stream',
