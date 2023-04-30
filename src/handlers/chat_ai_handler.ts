@@ -14,15 +14,47 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { delay, stringChunksPreserveWords } from '@root/common/lib/utilities';
+import { DelayedTask, DelayedTaskQueue, delay, stringChunksPreserveWords } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
 const openai_usage = process.env.OPENAI_USAGE;
-if (typeof openai_usage !== 'string') throw new Error('Missing OPENAI_USAGE environment variable.');
+if (!openai_usage?.length) throw new Error('OPENAI_USAGE environment variable is not set or is empty');
 
 const openai_api_key = process.env.OPENAI_API_KEY;
-if (typeof openai_api_key !== 'string') throw new Error('Missing OPENAI_API_KEY environment variable.');
+if (!openai_api_key?.length) throw new Error('OPENAI_API_KEY environment variable is not set or is empty');
+
+const chat_ai_model = process.env.CHAT_AI_MODEL;
+if (!chat_ai_model?.length) throw new Error('CHAT_AI_MODEL environment variable is not set or is empty');
+
+const chat_ai_max_tokens = process.env.CHAT_AI_MAX_TOKENS;
+if (!chat_ai_max_tokens?.length) throw new Error('CHAT_AI_MAX_TOKENS environment variable is not set or is empty');
+
+const chat_ai_max_user_input_size = Number.parseInt(`${process.env.CHAT_AI_MAX_USER_INPUT_SIZE}`, 10);
+if (Number.isNaN(chat_ai_max_user_input_size)) throw new Error('CHAT_AI_MAX_USER_INPUT_SIZE environment variable is not a valid number');
+
+const chat_ai_previous_messages_amount = Number.parseInt(`${process.env.CHAT_AI_PREVIOUS_MESSAGES_AMOUNT}`, 10);
+if (Number.isNaN(chat_ai_previous_messages_amount)) throw new Error('CHAT_AI_PREVIOUS_MESSAGES_AMOUNT environment variable is not a valid number');
+
+//------------------------------------------------------------//
+
+type GPTResponseData = {
+    choices: {
+        index: number,
+        message: {
+            role: string,
+            content: string,
+        },
+        finish_reason: string,
+    }[],
+    usage: {
+        total_tokens: number,
+    },
+};
+
+//------------------------------------------------------------//
+
+const chat_ai_handler_queue = new DelayedTaskQueue();
 
 //------------------------------------------------------------//
 
@@ -74,16 +106,16 @@ export default async function chatArtificialIntelligenceHandler(
         }
     }
 
-    await message.channel.sendTyping(); // send typing indicator
+    /* send a typing indicator to the channel, since this may take a while */
+    await message.channel.sendTyping();
 
-    await delay(1000); // wait 1 second to properly load messages
-
+    /* fetch the last few messages in the channel */
     const messages_collection = await message.channel.messages.fetch({
-        limit: 4, // increasing this number will increase the accuracy of responses at the cost of api tokens
+        limit: chat_ai_previous_messages_amount,
         before: message.id,
     });
 
-    // convert the collection to an array
+    // convert the collection into an array for easier manipulation and less overhead
     const messages = messages_collection.map((msg) => msg);
 
     // add the most recent message to the array
@@ -102,7 +134,7 @@ export default async function chatArtificialIntelligenceHandler(
         if (msg.content.length < 1) return false;
 
         // only allow messages under a certain size from users (this bot is allowed to exceed the limit)
-        if (!user_is_this_bot && msg.content.length > 1024) return false;
+        if (!user_is_this_bot && msg.content.length > chat_ai_max_user_input_size) return false;
 
         return true;
     });
@@ -110,7 +142,7 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: `You are I.R.I.S. Utilities (aka <@${discord_client.user.id}>), converse like a human, keep your response short and don\'t use emojis.`,
+            content: `You are ${discord_client.user.username} (aka <@${discord_client.user.id}>), converse like a human, keep your response short and don\'t use emojis.`,
         },
         ...filtered_messages.map(
             (msg) => ({
@@ -120,73 +152,73 @@ export default async function chatArtificialIntelligenceHandler(
         ),
     ];
 
-    console.log('Chat Ai Handler:', {
-        gpt_messages,
-    });
+    /* enqueue the task to be processed */
+    chat_ai_handler_queue.enqueue(
+        new DelayedTask(
+            5_000, // wait a bit to throttle the requests
+            async () => {
+                // apply a simple hash to the user id to mask the raw user id from openai
+                const hashed_user_id = crypto.createHash('sha256').update(message.author.id).digest('hex');
 
-    // apply a simple hash to the user id to mask the raw user id from openai
-    const hashed_user_id = crypto.createHash('sha256').update(message.author.id).digest('hex');
+                const gpt_response = await axios({
+                    method: 'POST',
+                    url: 'https://api.openai.com/v1/chat/completions',
+                    headers: {
+                        'Authorization': `Bearer ${openai_api_key}`,
+                        'Content-Type': 'application/json',
+                    },
+                    data: {
+                        'model': chat_ai_model,
+                        'messages': gpt_messages,
+                        'max_tokens': chat_ai_max_tokens,
+                        'user': hashed_user_id, // used for tracking abuse on OpenAI's end
+                    },
+                    validateStatus: (status) => true,
+                });
 
-    const gpt_response = await axios({
-        method: 'POST',
-        url: 'https://api.openai.com/v1/chat/completions',
-        headers: {
-            'Authorization': `Bearer ${openai_api_key}`,
-            'Content-Type': 'application/json',
-        },
-        data: {
-            'model': 'gpt-3.5-turbo',
-            'messages': gpt_messages,
-            'max_tokens': 1024, // prevent lengthy responses from being generated
-            'user': hashed_user_id,
-        },
-        validateStatus: (status) => true,
-    });
+                if (gpt_response.status !== 200) {
+                    console.warn('Failed to generate a response from GPT:', {
+                        'response': gpt_response,
+                        'response_data': gpt_response.data,
+                    });
 
-    if (gpt_response.status !== 200) {
-        console.warn('Failed to generate a response from GPT:', {
-            'response': gpt_response,
-            'response_data': gpt_response.data,
-        });
+                    return;
+                }
 
-        return;
-    }
+                const gpt_response_data = gpt_response.data as GPTResponseData;
+                const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
+                const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
 
-    type GPTResponseData = {
-        choices: {
-            index: number,
-            message: {
-                role: string,
-                content: string,
+                const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 1000);
+
+                for (let i = 0; i < gpt_response_message_chunks.length; i++) {
+                    const gpt_response_message_chunk = gpt_response_message_chunks[i];
+
+                    await message.channel.send({
+                        // only reply to the original message with the first message that is sent
+                        ...(i === 0 ? [
+                            {
+                                reply: {
+                                    messageReference: message,
+                                },
+                            },
+                        ] : []),
+                        content: gpt_response_message_chunk,
+                        embeds: [
+                            // only add the total tokens embed to the last message
+                            ...(i === gpt_response_message_chunks.length - 1 ? [
+                                CustomEmbed.from({
+                                    description: `Total tokens used: ${gpt_response_total_tokens}`,
+                                }),
+                            ] : []),
+                        ],
+                    });
+
+                    if (i === gpt_response_message_chunks.length - 1) break; // don't delay if this is the last message to send
+                    await message.channel.sendTyping(); // send a typing indicator to the channel for the next message to be sent
+                    await delay(gpt_response_message_chunks.length < 3 ? 250 : 500); // delay for a bit longer if there are a lot of messages
+                }
             },
-            finish_reason: string,
-        }[],
-        usage: {
-            total_tokens: number,
-        },
-    };
-
-    const gpt_response_data = gpt_response.data as GPTResponseData;
-    const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
-    const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
-
-    const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 1000);
-
-    for (let i = 0; i < gpt_response_message_chunks.length; i++) {
-        const gpt_response_message_chunk = gpt_response_message_chunks[i];
-
-        await message.channel.send({
-            content: gpt_response_message_chunk,
-            embeds: [
-                // only add the total tokens embed to the last message
-                ...(i === gpt_response_message_chunks.length - 1 ? [
-                    CustomEmbed.from({
-                        description: `Total tokens used: ${gpt_response_total_tokens}`,
-                    }),
-                ] : []),
-            ],
-        });
-
-        await delay(250); // wait a bit to prevent rate limiting
-    }
+        ),
+    );
 }
