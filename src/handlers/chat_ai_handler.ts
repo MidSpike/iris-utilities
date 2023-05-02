@@ -113,19 +113,26 @@ export default async function chatArtificialIntelligenceHandler(
     /* send a typing indicator to the channel, since this may take a while */
     await message.channel.sendTyping();
 
+    /* fetch the referenced message if it exists */
+    const referenced_message_id = message.reference?.messageId;
+    const referenced_message = referenced_message_id ? await message.channel.messages.fetch(referenced_message_id) : undefined;
+
     /* fetch the last few messages in the channel */
     const messages_collection = await message.channel.messages.fetch({
         limit: chat_ai_previous_messages_amount,
-        before: message.id,
+        before: referenced_message_id ?? message.id,
     });
 
-    // convert the collection into an array for easier manipulation and less overhead
+    /* convert the collection into an array for easier manipulation and less overhead */
     const messages = messages_collection.map((msg) => msg);
 
-    // add the most recent message to the array
+    /* add the referenced message to the array if it exists */
+    if (referenced_message) messages.push(referenced_message);
+
+    /* add the most recent message to the array */
     messages.push(message);
 
-    // sort the messages from oldest to newest
+    /* sort the messages from oldest to newest */
     messages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
     const filtered_messages = messages.filter((msg) => {
