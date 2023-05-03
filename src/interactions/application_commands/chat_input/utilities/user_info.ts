@@ -81,7 +81,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 fields: [
                                     {
                                         name: 'Username',
-                                        value: `${'```'}\n${member.user.tag}\n${'```'}`,
+                                        value: `${'```'}\n${member.user.username}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Snowflake',
@@ -114,7 +114,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 fields: [
                                     {
                                         name: 'Username',
-                                        value: `${'```'}\n${member.user.tag}\n${'```'}`,
+                                        value: `${'```'}\n${member.user.username}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Snowflake',
@@ -154,7 +154,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 fields: [
                                     {
                                         name: 'Username',
-                                        value: `${'```'}\n${member.user.tag}\n${'```'}`,
+                                        value: `${'```'}\n${member.user.username}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Snowflake',
@@ -187,7 +187,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 fields: [
                                     {
                                         name: 'Username',
-                                        value: `${'```'}\n${member.user.tag}\n${'```'}`,
+                                        value: `${'```'}\n${member.user.username}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Snowflake',
@@ -220,7 +220,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 fields: [
                                     {
                                         name: 'Username',
-                                        value: `${'```'}\n${member.user.tag}\n${'```'}`,
+                                        value: `${'```'}\n${member.user.username}\n${'```'}`,
                                         inline: false,
                                     }, {
                                         name: 'Snowflake',
