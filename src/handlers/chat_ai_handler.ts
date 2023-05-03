@@ -112,6 +112,26 @@ export default async function chatArtificialIntelligenceHandler(
         }
     }
 
+    const message_has_attachments = message.attachments.size > 0;
+    const message_has_stickers = message.stickers.size > 0;
+    if (
+        message_has_attachments ||
+        message_has_stickers
+    ) {
+        await message.reply({
+            content: [
+                'Sorry, but I can\'t do the following yet:',
+                '- View attachments',
+                '- View stickers',
+                '- Listen to voice messages',
+                '',
+                'Try again without any of the above.',
+            ].join('\n'),
+        });
+
+        return; // don't continue
+    }
+
     /* send a typing indicator to the channel, since this may take a while */
     await message.channel.sendTyping();
 
