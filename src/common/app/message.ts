@@ -71,7 +71,10 @@ export class CustomEmbed {
     static from(options: Discord.APIEmbed): Discord.EmbedBuilder {
         options.color ??= this.Colors.Brand;
 
-        return Discord.EmbedBuilder.from(options);
+        return new Discord.EmbedBuilder(options);
+
+        /** @todo re-implement this when discord.js v14.11.x is released */
+        // return Discord.EmbedBuilder.from(options);
     }
 }
 
