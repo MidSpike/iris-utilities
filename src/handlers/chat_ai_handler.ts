@@ -74,6 +74,8 @@ export default async function chatArtificialIntelligenceHandler(
     if (message.author.bot) return; // don't respond to bots
     if (message.author.system) return; // don't respond to system messages
 
+    if (message.content.length < 1) return; // don't respond to empty messages
+
     /* fetch the guild config */
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
 
