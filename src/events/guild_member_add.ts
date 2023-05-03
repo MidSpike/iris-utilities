@@ -35,7 +35,7 @@ export default {
                         fields: [
                             {
                                 name: 'Member',
-                                value: `\`${guild_member.user.tag}\``,
+                                value: `\`${guild_member.user.username}\``,
                                 inline: true,
                             }, {
                                 name: 'Snowflake',

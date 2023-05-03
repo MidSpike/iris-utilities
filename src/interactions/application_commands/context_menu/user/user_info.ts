@@ -46,7 +46,7 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
                     fields: [
                         {
                             name: 'Username',
-                            value: `\`\`\`\n${user.tag}\n\`\`\``,
+                            value: `\`\`\`\n${user.username}\n\`\`\``,
                             inline: false,
                         }, {
                             name: 'Snowflake',

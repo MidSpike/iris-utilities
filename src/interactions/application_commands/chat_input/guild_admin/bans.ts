@@ -46,7 +46,7 @@ async function generatePaginator(
                         name: 'Ban Record',
                         value: [
                             '\`\`\`',
-                            `User: @${ban.user.tag} (${ban.user.id})`,
+                            `User: @${ban.user.username} (${ban.user.id})`,
                             `Reason: ${Discord.escapeMarkdown(ban.reason || 'No reason provided.')}`,
                             '\`\`\`',
                         ].join('\n'),

@@ -64,7 +64,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                         CustomEmbed.from({
                             author: {
                                 icon_url: interaction.user.displayAvatarURL({ forceStatic: false, size: 4096 }),
-                                name: `@${interaction.user.tag} (${interaction.user.id})`,
+                                name: `@${interaction.user.username} (${interaction.user.id})`,
                             },
                             description: [
                                 '\`\`\`',

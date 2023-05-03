@@ -50,8 +50,8 @@ export default async function urlBlockingHandler(
 
     /* delete the message */
     message.delete().then(() => {
-        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> deleted message sent by ${message.author.tag} that contained a potential URL.`);
+        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> deleted message sent by ${message.author.username} that contained a potential URL.`);
     }).catch((error) => {
-        console.error(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to delete message sent by ${message.author.tag} that contained a potential URL.`, error);
+        console.error(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to delete message sent by ${message.author.username} that contained a potential URL.`, error);
     });
 }

@@ -11,8 +11,6 @@
 - [snowflake](https://discord.com/developers/docs/reference#snowflakes) = a unique identifier.
 - id = a snowflake (or other unique identifier) used for identification and classification.
 - name = the (global/guild)(user/nick)name of an individual.
-- tag = the global username of an individual appended by a discriminator.
-- discriminator = the sequence of numbers after a Discord username joined by a '#'.
 - guild(s) = Discord guild(s) (also known as "Server(s)") that this bot has access to.
 - user(s) = users residing in a guild that use this bot and/or other users that use this bot.
 - bot(s) = an [application](https://discord.com/developers/docs/intro) on the Discord platform.
@@ -40,7 +38,7 @@ Certain aspects of this document are broadened to address potential privacy conc
 - direct messages sent to this bot.
 - interaction_history includes the following information:
     - application command context (command, content, embeds, attachments, etc).
-    - user information attached: id, name, tag.
+    - user information attached: id, name.
     - guild information attached: id, name.
 
 #### If you wish to have your interaction_history removed then you can do any of the following:
