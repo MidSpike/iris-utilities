@@ -172,30 +172,42 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         {
                                             name: 'AFK Channel',
                                             value: `${guild.afkChannel}`,
+                                            inline: false,
                                         },
                                     ] : []),
                                     ...(guild.rulesChannel ? [
                                         {
                                             name: 'Rules Channel',
                                             value: `${guild.rulesChannel}`,
+                                            inline: false,
                                         },
                                     ] : []),
                                     ...(guild.systemChannel ? [
                                         {
                                             name: 'System Channel',
                                             value: `${guild.systemChannel}`,
+                                            inline: false,
                                         },
                                     ] : []),
                                     ...(guild.publicUpdatesChannel ? [
                                         {
                                             name: 'Public Updates Channel',
                                             value: `${guild.publicUpdatesChannel}`,
+                                            inline: false,
+                                        },
+                                    ] : []),
+                                    ...(guild.safetyAlertsChannel ? [
+                                        {
+                                            name: 'Safety Alerts Channel',
+                                            value: `${guild.safetyAlertsChannel}`,
+                                            inline: false,
                                         },
                                     ] : []),
                                     ...(guild.widgetChannel ? [
                                         {
                                             name: 'Widget Channel',
                                             value: `${guild.widgetChannel}`,
+                                            inline: false,
                                         },
                                     ] : []),
                                 ],
