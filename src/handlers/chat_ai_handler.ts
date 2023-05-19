@@ -224,7 +224,7 @@ export default async function chatArtificialIntelligenceHandler(
                 const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
                 const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
 
-                const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 1000);
+                const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 500);
 
                 for (let i = 0; i < gpt_response_message_chunks.length; i++) {
                     const gpt_response_message_chunk = gpt_response_message_chunks[i];
@@ -251,7 +251,7 @@ export default async function chatArtificialIntelligenceHandler(
 
                     if (i === gpt_response_message_chunks.length - 1) break; // don't delay if this is the last message to send
                     await message.channel.sendTyping(); // send a typing indicator to the channel for the next message to be sent
-                    await delay(gpt_response_message_chunks.length < 3 ? 250 : 500); // delay for a bit longer if there are a lot of messages
+                    await delay(gpt_response_message_chunks.length < 3 ? 250 : 1000); // delay for a bit longer if there are a lot of messages
                 }
             },
         ),
