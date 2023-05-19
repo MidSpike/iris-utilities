@@ -14,7 +14,7 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { DelayedTask, DelayedTaskQueue, delay, parseEnvironmentVariable, stringChunksPreserveWords } from '@root/common/lib/utilities';
+import { DelayedTask, DelayedTaskQueue, delay, parseEnvironmentVariable, stringChunksPreserveWords, stringEllipses } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -238,7 +238,7 @@ export default async function chatArtificialIntelligenceHandler(
                                 },
                             },
                         ] : []),
-                        content: gpt_response_message_chunk,
+                        content: stringEllipses(gpt_response_message_chunk, 2000), // truncate the message to 2000 characters
                         embeds: [
                             // only add the total tokens embed to the last message
                             ...(i === gpt_response_message_chunks.length - 1 ? [
