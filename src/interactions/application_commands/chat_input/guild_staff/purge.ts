@@ -10,6 +10,8 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 import { doesMemberHavePermission } from '@root/common/app/permissions';
 
+import { delay } from '@root/common/lib/utilities';
+
 //------------------------------------------------------------//
 
 export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
@@ -87,6 +89,19 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
+        if (number_of_messages > 1000) {
+            await interaction.editReply({
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.Colors.Yellow,
+                        description: `${interaction.user}, you cannot purge more than 1000 messages at a time!`,
+                    }),
+                ],
+            });
+
+            return;
+        }
+
         if (!channel || !channel.isTextBased()) {
             await interaction.editReply({
                 embeds: [
@@ -100,37 +115,51 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        let deleted_messages;
-        try {
-            deleted_messages = await channel.bulkDelete(number_of_messages, true);
-        } catch (error) {
-            await interaction.editReply({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.Colors.Red,
-                        description: `${interaction.user}, failed to purge messages!`,
-                        fields: [
-                            {
-                                name: 'Error Message',
-                                value: [
-                                    '\`\`\`',
-                                    `${error}`,
-                                    '\`\`\`',
-                                ].join('\n'),
-                            },
-                        ],
-                    }),
-                ],
-            });
+        let num_messages_removed_total = 0;
+        let num_messages_remaining_to_remove = number_of_messages;
 
-            return;
+        while (num_messages_remaining_to_remove > 0) {
+            let num_messages_removed = 0;
+            try {
+                num_messages_removed = await channel.bulkDelete(number_of_messages, true).then(
+                    (deleted_messages) => deleted_messages.size
+                );
+            } catch (error) {
+                await interaction.editReply({
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.Colors.Red,
+                            description: `${interaction.user}, failed to purge messages!`,
+                            fields: [
+                                {
+                                    name: 'Error Message',
+                                    value: [
+                                        '\`\`\`',
+                                        `${error}`,
+                                        '\`\`\`',
+                                    ].join('\n'),
+                                },
+                            ],
+                        }),
+                    ],
+                });
+
+                break;
+            }
+
+            if (num_messages_removed < 1) break;
+
+            num_messages_removed_total += num_messages_removed;
+            num_messages_remaining_to_remove -= num_messages_removed;
+
+            if (num_messages_remaining_to_remove > 0) await delay(1_000); // delay to prevent rate limiting
         }
 
         await interaction.editReply({
             embeds: [
                 CustomEmbed.from({
                     color: CustomEmbed.Colors.Green,
-                    description: `${interaction.user}, successfully purged ${deleted_messages.size} messages from ${channel}.`,
+                    description: `${interaction.user}, purged ${num_messages_removed_total} messages from ${channel}.`,
                     fields: [
                         {
                             name: 'Reason',
