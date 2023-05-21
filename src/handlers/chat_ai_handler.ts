@@ -146,7 +146,7 @@ export default async function chatArtificialIntelligenceHandler(
     });
 
     /* convert the collection into an array for easier manipulation and less overhead */
-    const messages = messages_collection.map((msg) => msg);
+    const messages = messages_collection.map((msg) => msg).slice(0, chat_ai_previous_messages_amount); // slice to ensure the array is the correct size
 
     /* add the referenced message to the array if it exists */
     if (referenced_message) messages.push(referenced_message);
@@ -188,7 +188,7 @@ export default async function chatArtificialIntelligenceHandler(
     /* enqueue the task to be processed */
     chat_ai_handler_queue.enqueue(
         new DelayedTask(
-            5_000, // wait a bit to throttle the requests
+            3_000, // wait a bit to throttle the requests
             async () => {
                 // apply a simple hash to the user id to mask the raw user id from openai
                 const hashed_user_id = crypto.createHash('sha256').update(message.author.id).digest('hex');
@@ -212,17 +212,57 @@ export default async function chatArtificialIntelligenceHandler(
                 });
 
                 if (gpt_response.status !== 200) {
-                    console.warn('Failed to generate a response from GPT:', {
-                        'response': gpt_response,
-                        'response_data': gpt_response.data,
+                    console.warn('Failed to generate a response from GPT:', gpt_response);
+
+                    const error_message_from_response = gpt_response.data?.error?.message as string | undefined;
+                    const error_message = error_message_from_response ? [
+                        'Unable to process your request at this time.',
+                        'Please try again later.',
+                        '',
+                        'Error message received from OpenAI:',
+                        '\`\`\`',
+                        stringEllipses(error_message_from_response, 1_000), // truncate the error message
+                        '\`\`\`',
+                    ].join('\n') : 'An unknown error has occurred.';
+
+                    await message.channel.send({
+                        reply: {
+                            messageReference: message,
+                        },
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.Colors.Red,
+                                title: 'Error',
+                                description: error_message,
+                            }),
+                        ],
                     });
 
                     return;
                 }
 
                 const gpt_response_data = gpt_response.data as GPTResponseData;
-                const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
+                const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content;
                 const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
+
+                if (!gpt_response_message) {
+                    console.warn('Failed to retrieve response message content from GPT:', gpt_response);
+
+                    await message.channel.send({
+                        reply: {
+                            messageReference: message,
+                        },
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.Colors.Red,
+                                title: 'Error',
+                                description: 'Failed to retrieve response message content from OpenAI.',
+                            }),
+                        ],
+                    });
+
+                    return;
+                }
 
                 const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 500);
 
@@ -238,7 +278,7 @@ export default async function chatArtificialIntelligenceHandler(
                                 },
                             },
                         ] : []),
-                        content: stringEllipses(gpt_response_message_chunk, 2000), // truncate the message to 2000 characters
+                        content: stringEllipses(gpt_response_message_chunk, 2_000), // truncate the message to abide by Discord's message length limit
                         embeds: [
                             // only add the total tokens embed to the last message
                             ...(i === gpt_response_message_chunks.length - 1 ? [
@@ -249,9 +289,17 @@ export default async function chatArtificialIntelligenceHandler(
                         ],
                     });
 
-                    if (i === gpt_response_message_chunks.length - 1) break; // don't delay if this is the last message to send
-                    await message.channel.sendTyping(); // send a typing indicator to the channel for the next message to be sent
-                    await delay(gpt_response_message_chunks.length < 3 ? 250 : 1000); // delay for a bit longer if there are a lot of messages
+                    // don't delay if this is the last message to send
+                    if (i === gpt_response_message_chunks.length - 1) break;
+
+                    // delay a bit before sending the typing indicator (this is required so Discord doesn't ignore the typing indicator)
+                    await delay(500);
+
+                    // send a typing indicator to the channel for the next message to be sent
+                    await message.channel.sendTyping();
+
+                    // delay for a bit longer if there are a lot of messages left to send
+                    await delay(gpt_response_message_chunks.length > 2 ? 1_000 : 250);
                 }
             },
         ),
