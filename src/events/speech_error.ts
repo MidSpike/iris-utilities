@@ -20,6 +20,9 @@ export default {
         if (error.code === DiscordSpeechRecognition.SpeechErrorCode.NetworkRequest) return;
         if (error.code === DiscordSpeechRecognition.SpeechErrorCode.NetworkResponse) return;
 
+        // Ignore voice connection status timeouts as they aren't really errors and happen way too often
+        if (error.code === DiscordSpeechRecognition.SpeechErrorCode.VoiceConnectionStatusTimeout) return;
+
         console.trace({
             error,
         });
