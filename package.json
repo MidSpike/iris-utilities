@@ -62,7 +62,7 @@
     "node-html-to-image": "3.3.0",
     "opusscript": "0.1.0",
     "recursive-read-directory": "github:MidSpike/recursive-read-directory#v0.4.0-beta",
-    "sodium-native": "4.0.1",
+    "sodium-native": "4.0.2",
     "soundcloud-scraper": "5.0.3",
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
