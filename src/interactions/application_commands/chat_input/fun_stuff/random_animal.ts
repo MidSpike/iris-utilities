@@ -62,7 +62,7 @@ async function fetchRandomAnimalImageUrl(
         case AnimalType.Cat: {
             random_animal_image_url = await axios({
                 method: 'get',
-                url: 'https://aws.random.cat/meow',
+                url: 'https://cataas.com/cat',
                 validateStatus: (status_code) => status_code === 200,
             }).then(
                 (response) => response.data as Partial<CatApiResponseData>
