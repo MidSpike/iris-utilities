@@ -138,7 +138,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                     type: Discord.ComponentType.ActionRow,
                     components: [
                         {
-                            type: 3,
+                            type: Discord.ComponentType.StringSelect,
                             customId: 'help_menu',
                             placeholder: 'Select a page!',
                             minValues: 1,
@@ -158,7 +158,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const interaction_collector = await bot_message.createMessageComponentCollector({
             filter: (inter) => inter.user.id === interaction.user.id,
-            componentType: Discord.ComponentType.SelectMenu,
+            componentType: Discord.ComponentType.StringSelect,
             time: 5 * 60_000, // 5 minutes
         });
 

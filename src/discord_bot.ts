@@ -54,7 +54,7 @@ process.on('uncaughtException', (error) => {
 const discord_client = new Discord.Client({
     intents: [
         Discord.GatewayIntentBits.Guilds,
-        Discord.GatewayIntentBits.GuildBans,
+        Discord.GatewayIntentBits.GuildModeration,
         Discord.GatewayIntentBits.GuildMembers,
         Discord.GatewayIntentBits.GuildVoiceStates,
         Discord.GatewayIntentBits.GuildInvites,
