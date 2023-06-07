@@ -7,10 +7,13 @@
     },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": "latest"
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "project": "./tsconfig.json"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "deprecation"
     ],
     "extends": [
         "eslint:recommended",
@@ -414,6 +417,7 @@
             {
                 "ignoreTypeReferences": true
             }
-        ]
+        ],
+        "deprecation/deprecation": "warn"
     }
 }
