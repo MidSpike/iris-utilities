@@ -48,7 +48,7 @@
     "aki-api": "6.0.8",
     "axios": "1.4.0",
     "discord.js": "14.11.0",
-    "dotenv": "16.1.4",
+    "dotenv": "16.3.1",
     "ffmpeg-static": "5.1.0",
     "ffmpeg-stream": "0.7.0",
     "go-mongo-db": "github:MidSpike/go-mongo-db#v1.4.0-stable",
