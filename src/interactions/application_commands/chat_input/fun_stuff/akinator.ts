@@ -208,7 +208,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                     const answer_id = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''), 10) as AkinatorAnswers;
 
-                    await akinator.step(answer_id);
+                    const akinator_step_question = await akinator.step(answer_id);
 
                     const akinator_has_a_guess = akinator.progress >= 80 || akinator.currentStep >= 78;
                     if (akinator_has_a_guess) {
@@ -250,7 +250,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             ],
                             components: [], // remove all components
                         });
+
+                        return;
                     }
+
+                    await button_interaction.editReply(
+                        await generateMessagePayload(akinator.currentStep, akinator_step_question.question)
+                    );
 
                     break;
                 }
