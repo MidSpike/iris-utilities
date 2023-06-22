@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { Aki as Akinator } from 'aki-api';
+import { Aki as Akinator, answers as AkinatorAnswers } from 'aki-api';
 
 import { CustomEmbed, disableMessageComponents, requestPotentialNotSafeForWorkContentConsent } from '@root/common/app/message';
 
@@ -12,8 +12,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-type AkinatorAnswerId = 0 | 1 | 2 | 3 | 4;
-
+// define our own type for the guess object since aki-api doesn't export one
 // some of the properties we're not interested in are excluded
 type AkinatorGuess = {
     id: string;
@@ -38,12 +37,15 @@ const akinator_credit_text = 'Powered by https://akinator.com/';
 
 //------------------------------------------------------------//
 
-async function generateMessagePayload(akinator: Akinator): Promise<Discord.WebhookMessageEditOptions> {
+async function generateMessagePayload(
+    current_step: number,
+    question: string,
+): Promise<Discord.WebhookMessageEditOptions> {
     return {
         embeds: [
             CustomEmbed.from({
-                title: `Akinator > Question #${akinator.currentStep + 1}`,
-                description: `${akinator.question}`,
+                title: `Akinator > Question #${current_step + 1}`,
+                description: `${question}`,
                 footer: {
                     text: akinator_credit_text,
                 },
@@ -55,12 +57,34 @@ async function generateMessagePayload(akinator: Akinator): Promise<Discord.Webho
         components: [
             {
                 type: Discord.ComponentType.ActionRow,
-                components: akinator.answers.map((answer, index) => ({
-                    type: Discord.ComponentType.Button,
-                    style: Discord.ButtonStyle.Secondary,
-                    customId: `akinator_button__step_${index}`,
-                    label: `${answer}`,
-                })),
+                components: [
+                    {
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
+                        customId: `akinator_button__step_${AkinatorAnswers.Yes}`,
+                        label: 'Yes',
+                    }, {
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
+                        customId: `akinator_button__step_${AkinatorAnswers.No}`,
+                        label: 'No',
+                    }, {
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
+                        customId: `akinator_button__step_${AkinatorAnswers.DontKnow}`,
+                        label: 'Don\'t Know',
+                    }, {
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
+                        customId: `akinator_button__step_${AkinatorAnswers.Probably}`,
+                        label: 'Probably',
+                    }, {
+                        type: Discord.ComponentType.Button,
+                        style: Discord.ButtonStyle.Secondary,
+                        customId: `akinator_button__step_${AkinatorAnswers.ProbablyNot}`,
+                        label: 'Probably Not',
+                    },
+                ],
             }, {
                 type: Discord.ComponentType.ActionRow,
                 components: [
@@ -126,9 +150,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             childMode: false,
         });
 
-        await akinator.start();
+        const akinator_start_question = await akinator.start();
 
-        interaction.editReply(await generateMessagePayload(akinator));
+        await interaction.editReply(
+            await generateMessagePayload(akinator.currentStep, akinator_start_question.question)
+        );
 
         const button_interaction_collector = bot_initial_message.createMessageComponentCollector({
             time: 5 * 60_000, // 5 minutes
@@ -156,12 +182,15 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             switch (button_interaction.customId) {
                 case 'akinator_button__previous': {
                     if (akinator.currentStep <= 0) return;
+                    button_interaction_collector.resetTimer();
 
                     await disableMessageComponents(button_interaction.message);
 
-                    await akinator.back();
+                    const akinator_previous_question = await akinator.back();
 
-                    await button_interaction.editReply(await generateMessagePayload(akinator));
+                    await button_interaction.editReply(
+                        await generateMessagePayload(akinator.currentStep, akinator_previous_question.question)
+                    );
 
                     break;
                 }
@@ -177,15 +206,16 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                     await disableMessageComponents(button_interaction.message);
 
-                    const step_number = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''), 10) as AkinatorAnswerId;
+                    const answer_id = Number.parseInt(button_interaction.customId.replace('akinator_button__step_', ''), 10) as AkinatorAnswers;
 
-                    await akinator.step(step_number);
+                    await akinator.step(answer_id);
 
                     const akinator_has_a_guess = akinator.progress >= 80 || akinator.currentStep >= 78;
                     if (akinator_has_a_guess) {
-                        await akinator.win();
+                        button_interaction_collector.stop();
 
-                        const akinator_guess = akinator.answers.at(0) as AkinatorGuess;
+                        const akinator_win_result = await akinator.win();
+                        const akinator_guess = akinator_win_result.guesses.at(0)! as AkinatorGuess;
 
                         await button_interaction.editReply({
                             embeds: [
@@ -220,19 +250,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                             ],
                             components: [], // remove all components
                         });
-
-                        button_interaction_collector.stop();
-
-                        return;
                     }
 
                     break;
                 }
             }
-
-            await button_interaction.editReply(await generateMessagePayload(akinator));
-
-            button_interaction_collector.resetTimer();
         });
 
         button_interaction_collector.on('end', async (collected_interactions, reason) => {
