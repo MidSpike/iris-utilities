@@ -53,7 +53,7 @@
     "ffmpeg-stream": "0.7.0",
     "go-mongo-db": "github:MidSpike/go-mongo-db#v1.4.0-stable",
     "google-translate-tts": "github:MidSpike/google-translate-tts#v2.1.0",
-    "html-entities": "2.3.6",
+    "html-entities": "2.4.0",
     "libsodium-wrappers": "0.7.11",
     "manakin": "0.5.2",
     "mathjs": "11.8.2",
@@ -69,6 +69,6 @@
     "tweetnacl": "1.0.3",
     "uuid": "9.0.0",
     "youtube-sr": "4.3.4",
-    "ytdl-core": "4.9.1"
+    "ytdl-core": "github:@khlevon/node-ytdl-core#v4.11.4-patch.2"
   }
 }
