@@ -16,6 +16,10 @@ if (!db_user_configs_collection_name?.length) throw new TypeError('MONGO_USER_CO
 
 //------------------------------------------------------------//
 
+/**
+ * This function determines whether or not a user's voice should be processed.
+ * The user has to have opted-in to voice recognition, and they cannot be a bot.
+ */
 export async function shouldUserVoiceBeProcessed(
     discord_client: Discord.Client<true>,
     user_id: string,

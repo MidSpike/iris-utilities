@@ -84,7 +84,9 @@ export async function doesUserHaveVoiceRecognitionEnabled(
         },
     }) as unknown as (UserSettings | undefined)[];
 
-    return db_user_settings?.voice_recognition_enabled ?? false;
+    if (!db_user_settings) return false; // opt-in is required, default to disabled
+
+    return db_user_settings.voice_recognition_enabled ?? false; // opt-in is required, default to disabled
 }
 
 //------------------------------------------------------------//
