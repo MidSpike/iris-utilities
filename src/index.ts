@@ -43,11 +43,9 @@ const discord_bot_entry_file_path = path.join(process.cwd(), 'dist', 'discord_bo
 const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path, {
     mode: 'process',
     token: discord_bot_token,
-    totalShards: 'auto',
-    respawn: true,
+    totalShards: 'auto', // how many shards to spawn in total
+    respawn: true, // whether to respawn a shard when it dies
     execArgv: [
-        '--inspect',
-        '--expose-gc',
         '--trace-warnings',
     ],
 });
@@ -66,7 +64,18 @@ sharding_manager.on('shardCreate', (shard) => {
 
 console.log('<SM> spawning shards...');
 sharding_manager.spawn({
-    timeout: 120_000,
-    delay: 5_000,
-    amount: 'auto',
+    amount: 'auto', // how many shards to spawn
+    delay: 5_000, // how long to wait between shards spawning
+    timeout: 120_000, // how long to wait for a shard to become ready before continuing to the next shard
 });
+
+//------------------------------------------------------------//
+
+setInterval(() => {
+    console.log('<SM> respawning all shards...');
+    sharding_manager.respawnAll({
+        shardDelay: 5_000, // how long to wait between shards spawning
+        respawnDelay: 1 * 60_000, // how long to wait between killing a shard and restarting it
+        timeout: 2 * 60_000, // how long to wait for a shard to become ready before continuing to the next shard
+    });
+}, 24 * 60 * 60_000); // restart all shards every interval

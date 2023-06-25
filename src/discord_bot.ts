@@ -115,27 +115,6 @@ async function registerClientEvents(
 
 //------------------------------------------------------------//
 
-function runGarbageCollector(
-    discord_client: DiscordClientWithSharding,
-) {
-    const garbageCollector = globalThis.gc;
-
-    if (typeof garbageCollector !== 'function') {
-        console.trace('Garbage collection is not exposed!');
-        return;
-    }
-
-    console.warn(`<DC S#(${discord_client.shard.ids.join(', ')})> running garbage collector...`);
-
-    try {
-        garbageCollector();
-    } catch (error) {
-        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to run garbage collector`, error);
-    }
-}
-
-//------------------------------------------------------------//
-
 async function main() {
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering events...`);
     try {
@@ -184,9 +163,6 @@ async function main() {
 
         process.exit(1);
     }
-
-    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing garbage collector...`);
-    setInterval(() => runGarbageCollector(discord_client), 5 * 60_000); // every 5 minutes
 
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> fully initialized.`);
 }
