@@ -69,6 +69,6 @@
     "tweetnacl": "1.0.3",
     "uuid": "9.0.0",
     "youtube-sr": "4.3.4",
-    "ytdl-core": "github:@khlevon/node-ytdl-core#v4.11.4-patch.2"
+    "ytdl-core": "github:@khlevon/node-ytdl-core#v4.10.1"
   }
 }
