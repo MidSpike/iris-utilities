@@ -25,15 +25,18 @@ if (!db_user_configs_collection_name?.length) throw new TypeError('MONGO_USER_CO
 async function hasUserAllowedVoiceRecognition(
     user_id: string
 ): Promise<boolean> {
-    const [ user_config ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
-        user_id: user_id,
+    const db_find_cursor_user_config = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+        'user_id': user_id,
     }, {
         projection: {
             '_id': false, // don't return the `_id` field
         },
-    }).catch(() => undefined) as unknown as (UserSettings | undefined)[];
+    });
 
-    return user_config?.voice_recognition_enabled ?? false; // default to false to avoid unwanted data collection
+    const user_config = await db_find_cursor_user_config.next() as UserSettings | null;
+    if (!user_config) return false; // opt-in is required, default to disabled when non-existent
+
+    return user_config.voice_recognition_enabled ?? false; // opt-in is required, default to disabled when non-existent
 }
 
 async function setVoiceRecognitionStateForUser(
@@ -41,11 +44,11 @@ async function setVoiceRecognitionStateForUser(
     voice_recognition_enabled: boolean,
 ) {
     await go_mongo_db.update(db_name, db_user_configs_collection_name, {
-        user_id: user_id,
+        'user_id': user_id,
     }, {
         $set: {
-            voice_recognition_enabled: voice_recognition_enabled,
-        } as UserSettings,
+            'voice_recognition_enabled': voice_recognition_enabled,
+        } as Partial<UserSettings>,
     }, {
         upsert: true,
     });

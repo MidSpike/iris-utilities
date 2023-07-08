@@ -30,13 +30,15 @@ if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_P
 export async function doesUserHaveSuperPersonStatus(
     user_id: string,
 ): Promise<boolean> {
-    const [ db_super_person_config ] = await go_mongo_db.find(db_name, db_super_people_collection_name, {
+    const db_find_cursor_super_person_config = await go_mongo_db.find(db_name, db_super_people_collection_name, {
         'discord_user_id': user_id,
     }, {
         projection: {
             '_id': false, // don't return the `_id` field
         },
     });
+
+    const db_super_person_config = await db_find_cursor_super_person_config.next() as { discord_user_id: string } | null;
 
     return Boolean(db_super_person_config ?? false);
 }
@@ -53,13 +55,15 @@ export async function doesUserHaveDonatorStatus(
     const member_is_super_person = await doesUserHaveSuperPersonStatus(user_id);
     if (member_is_super_person) return true;
 
-    const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const db_find_cursor_user_settings = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
     }, {
         projection: {
             '_id': false, // don't return the `_id` field
         },
-    }) as unknown as (UserSettings | undefined)[];
+    });
+
+    const db_user_settings = await db_find_cursor_user_settings.next() as UserSettings | null;
 
     return db_user_settings?.donator ?? false;
 }
@@ -76,15 +80,16 @@ export async function doesUserHaveVoiceRecognitionEnabled(
     const member_is_donator = await doesUserHaveDonatorStatus(user_id);
     if (!member_is_donator) return false;
 
-    const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const db_find_cursor_user_settings = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
     }, {
         projection: {
             '_id': false, // don't return the `_id` field
         },
-    }) as unknown as (UserSettings | undefined)[];
+    });
 
-    if (!db_user_settings) return false; // opt-in is required, default to disabled
+    const db_user_settings = await db_find_cursor_user_settings.next() as UserSettings | null;
+    if (!db_user_settings) return false; // opt-in is required, default to disabled when non-existent
 
     return db_user_settings.voice_recognition_enabled ?? false; // opt-in is required, default to disabled
 }
@@ -101,15 +106,18 @@ export async function doesUserHaveArtificialIntelligenceAccess(
     const member_is_donator = await doesUserHaveDonatorStatus(user_id);
     if (!member_is_donator) return false;
 
-    const [ db_user_settings ] = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const db_find_cursor_user_settings = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
     }, {
         projection: {
             '_id': false, // don't return the `_id` field
         },
-    }) as unknown as (UserSettings | undefined)[];
+    });
 
-    return db_user_settings?.gpt_access_enabled ?? false;
+    const db_user_settings = await db_find_cursor_user_settings.next() as UserSettings | null;
+    if (!db_user_settings) return false; // default to disabled when non-existent
+
+    return db_user_settings.gpt_access_enabled ?? false; // default to disabled
 }
 
 //------------------------------------------------------------//
@@ -170,7 +178,7 @@ export async function doesMemberHavePermission(
 
     if (member.permissions.has(Discord.PermissionFlagsBits.Administrator)) return true;
 
-    const member_is_super_person = (await go_mongo_db.count(db_name, db_super_people_collection_name, { 'discord_user_id': member.id })) > 0;
+    const member_is_super_person = await doesUserHaveSuperPersonStatus(member.id);
     if (member_is_super_person) return true;
 
     return member.permissions.has(permission_flag_bit, true);
