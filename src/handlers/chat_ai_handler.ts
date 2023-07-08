@@ -14,21 +14,21 @@ import { GuildConfigsManager } from '@root/common/app/guild_configs';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { DelayedTask, DelayedTaskQueue, delay, parseEnvironmentVariable, stringChunksPreserveWords, stringEllipses } from '@root/common/lib/utilities';
+import { DelayedTask, DelayedTaskQueue, EnvironmentVariableName, delay, parseEnvironmentVariable, stringChunksPreserveWords, stringEllipses } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
-const openai_usage = parseEnvironmentVariable('OPENAI_USAGE', 'string');
+const openai_usage = parseEnvironmentVariable(EnvironmentVariableName.OpenAiUsage, 'string');
 
-const openai_api_key = parseEnvironmentVariable('OPENAI_API_KEY', 'string');
+const openai_api_key = parseEnvironmentVariable(EnvironmentVariableName.OpenAiApiKey, 'string');
 
-const chat_ai_model = parseEnvironmentVariable('CHAT_AI_MODEL', 'string');
+const chat_ai_model = parseEnvironmentVariable(EnvironmentVariableName.ChatAiModel, 'string');
 
-const chat_ai_max_tokens = parseEnvironmentVariable('CHAT_AI_MAX_TOKENS', 'number');
+const chat_ai_max_tokens = parseEnvironmentVariable(EnvironmentVariableName.ChatAiMaxTokens, 'integer');
 
-const chat_ai_max_user_input_size = parseEnvironmentVariable('CHAT_AI_MAX_USER_INPUT_SIZE', 'number');
+const chat_ai_max_user_input_size = parseEnvironmentVariable(EnvironmentVariableName.ChatAiMaxUserInputSize, 'integer');
 
-const chat_ai_previous_messages_amount = parseEnvironmentVariable('CHAT_AI_PREVIOUS_MESSAGES_AMOUNT', 'number');
+const chat_ai_previous_messages_amount = parseEnvironmentVariable(EnvironmentVariableName.ChatAiPreviousMessagesAmount, 'integer');
 
 //------------------------------------------------------------//
 

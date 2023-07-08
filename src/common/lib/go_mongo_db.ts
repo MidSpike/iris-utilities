@@ -4,7 +4,7 @@
 
 import process from 'node:process';
 
-import { GoMongoDB } from 'go-mongo-db';
+import { GoMongoDb } from 'go-mongo-db';
 
 //------------------------------------------------------------//
 
@@ -13,4 +13,4 @@ if (!mongo_connection_url?.length) throw new Error('\'process.env.MONGO_CONNECTI
 
 //------------------------------------------------------------//
 
-export const go_mongo_db = new GoMongoDB(mongo_connection_url);
+export const go_mongo_db = new GoMongoDb(mongo_connection_url);

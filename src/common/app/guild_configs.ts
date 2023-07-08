@@ -80,14 +80,20 @@ export class GuildConfigsManager {
         const current_epoch = Date.now();
         const cached_guild_config_has_expired = current_epoch >= ((guild_config_cache_item?.last_synced_epoch ?? current_epoch) + GuildConfigsManager.cache_lifespan);
 
-        if (!guild_config || cached_guild_config_has_expired || bypass_cache) {
-            const [ db_guild_config ] = await go_mongo_db.find(db_name, db_guild_configs_collection_name, {
+        if (
+            !guild_config ||
+            cached_guild_config_has_expired ||
+            bypass_cache
+        ) {
+            const db_find_cursor_guild_config = await go_mongo_db.find(db_name, db_guild_configs_collection_name, {
                 'guild_id': guild_id,
             }, {
                 projection: {
                     '_id': false, // don't return the `_id` field
                 },
-            }) as unknown as GuildConfig[];
+            });
+
+            const db_guild_config = await db_find_cursor_guild_config.next() as GuildConfig | null;
 
             guild_config = db_guild_config ?? await GuildConfigsManager._create(guild_id);
         }
