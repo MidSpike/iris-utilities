@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport } from '@root/types/index';
+import { ClientEventExport } from '@root/types';
 
 import process from 'node:process';
 

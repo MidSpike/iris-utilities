@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { GuildId } from '@root/types/index';
+import { GuildId } from '@root/types';
 
 import process from 'node:process';
 

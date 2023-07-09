@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { Setting } from '@root/types/index';
+import { Setting } from '@root/types';
 
 import process from 'node:process';
 

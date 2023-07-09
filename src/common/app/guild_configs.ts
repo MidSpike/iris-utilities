@@ -4,7 +4,7 @@
 
 import process from 'node:process';
 
-import { GuildConfig, GuildConfigTemplate, GuildId } from '@root/types/index';
+import { GuildConfig, GuildConfigTemplate, GuildId } from '@root/types';
 
 import * as Discord from 'discord.js';
 

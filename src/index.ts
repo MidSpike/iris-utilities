@@ -16,10 +16,15 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
+
 //------------------------------------------------------------//
 
-const discord_bot_token = process.env.DISCORD_BOT_API_TOKEN as string;
-if (!discord_bot_token?.length) throw new Error('DISCORD_BOT_API_TOKEN is not defined or is empty');
+const discord_bot_api_token = parseEnvironmentVariable(
+    EnvironmentVariableName.DiscordBotApiToken,
+    'string',
+    (value) => value.length > 0,
+);
 
 //------------------------------------------------------------//
 
@@ -42,7 +47,7 @@ process.on('uncaughtException', (error) => {
 const discord_bot_entry_file_path = path.join(process.cwd(), 'dist', 'discord_bot.js');
 const sharding_manager = new Discord.ShardingManager(discord_bot_entry_file_path, {
     mode: 'process',
-    token: discord_bot_token,
+    token: discord_bot_api_token,
     totalShards: 'auto', // how many shards to spawn in total
     respawn: true, // whether to respawn a shard when it dies
     execArgv: [

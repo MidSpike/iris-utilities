@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport, GuildConfigLoggingChannels } from '@root/types/index';
+import { ClientEventExport, GuildConfigLoggingChannels } from '@root/types';
 
 import * as Discord from 'discord.js';
 
