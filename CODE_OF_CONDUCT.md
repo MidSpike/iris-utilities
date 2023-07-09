@@ -2,5 +2,6 @@
 
 ## Code of Conduct
 
-- Be civil and respectful.
-- Do no harm.
+- Be civil, respectful, and kind.
+- Do no harm, commit no evil.
+- Be honest and transparent.

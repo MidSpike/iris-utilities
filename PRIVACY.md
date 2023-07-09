@@ -10,7 +10,7 @@
 
 - [snowflake](https://discord.com/developers/docs/reference#snowflakes) = a unique identifier.
 - id = a snowflake (or other unique identifier) used for identification and classification.
-- name = the (global/guild)(user/nick)name of an individual.
+- name = the (global/guild)(user/nick/display)name of an individual.
 - guild(s) = Discord guild(s) (also known as "Server(s)") that this bot has access to.
 - user(s) = users residing in a guild that use this bot and/or other users that use this bot.
 - bot(s) = an [application](https://discord.com/developers/docs/intro) on the Discord platform.
@@ -28,23 +28,23 @@
 
 Many features of this bot have changed over time to adapt to how Discord has changed over time.
 
-Some of these changes, wether intentional or not, have resulted in a reduction of data collection.
+Some of these changes, whether intentional or not, have resulted in a reduction of data collection.
 
 Certain aspects of this document are broadened to address potential privacy concerns.
 
-#### This bot collects, processes, and stores the following information known as interaction_history:
+#### This bot collects, processes, and stores the following information known as `interaction_history`:
 
 - messages including an `@mention` of this bot.
 - direct messages sent to this bot.
-- interaction_history includes the following information:
+- `interaction_history` includes the following information:
     - application command context (command, content, embeds, attachments, etc).
     - user information attached: id, name.
     - guild information attached: id, name.
 
-#### If you wish to have your interaction_history removed then you can do any of the following:
+#### If you wish to have your `interaction_history` removed then you can do any of the following:
 
 1. Contact this bot's support staff (using appropriate channels).
-2. Request for your interaction_history be removed.
+2. Request for your `interaction_history` be removed.
 
 </details>
 
@@ -105,9 +105,12 @@ Usage of collected data is **not** intended for any of the following:
 
 Certain data submitted to this bot may be sent to external services for processing.
 
-For example, the `weather_info` command sends anonymized data to [https://open-meteo.com/](https://open-meteo.com/) for processing.
+For example, the `weather_info` command sends anonymized data to third parties for processing.
 
-In return for this data, Open Meteo provides user-requested weather information to this bot.
+This anonymized data includes (but is not limited to):
+- The location entered by the user (example: "New York").
+
+In return for this data, user-requested weather information is returned to this bot to be displayed to the user.
 
 ---
 
@@ -136,7 +139,7 @@ In return for this data, Open Meteo provides user-requested weather information 
 #### I have more questions, who can I contact?
 
 1. Join this bot's support guild.
-2. Contact the support staff (using appropriate channels).
+2. Contact the support staff (using appropriate methods).
 
 ---
 
