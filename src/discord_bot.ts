@@ -10,8 +10,6 @@ require('manakin').global; // used for terminal output formatting
 
 //------------------------------------------------------------//
 
-import { DiscordClientWithSharding } from '@root/types';
-
 import process from 'node:process';
 
 import * as path from 'node:path';
@@ -22,16 +20,23 @@ import { attachSpeechEvent } from '@midspike/discord-speech-recognition';
 
 import recursiveReadDirectory from 'recursive-read-directory';
 
+import { DiscordClientWithSharding } from '@root/types';
+
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
 import { shouldUserVoiceBeProcessed } from '@root/common/app/voice_receive';
 
 import { DiagnosticsLogger } from '@root/common/app/loggers/loggers';
 
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
+
 //------------------------------------------------------------//
 
-const discord_bot_token = process.env.DISCORD_BOT_API_TOKEN as string;
-if (!discord_bot_token?.length) throw new Error('DISCORD_BOT_API_TOKEN is not defined or is empty');
+const discord_bot_api_token = parseEnvironmentVariable(
+    EnvironmentVariableName.DiscordBotApiToken,
+    'string',
+    (value) => value.length > 0,
+);
 
 //------------------------------------------------------------//
 
@@ -136,7 +141,7 @@ async function main() {
 
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> logging in...`);
     try {
-        discord_client.login(discord_bot_token);
+        discord_client.login(discord_bot_api_token);
     } catch (error) {
         console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to login`, error);
 

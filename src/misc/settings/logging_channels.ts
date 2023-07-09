@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { GuildConfigLoggingChannels, Setting } from '@root/types/index';
+import { GuildConfigLoggingChannels, Setting } from '@root/types';
 
 import * as Discord from 'discord.js';
 

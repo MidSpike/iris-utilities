@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { UserSettings } from '@root/types';
+import { UserConfig } from '@root/types';
 
 import process from 'node:process';
 
@@ -55,7 +55,7 @@ export async function doesUserHaveDonatorStatus(
     const member_is_super_person = await doesUserHaveSuperPersonStatus(user_id);
     if (member_is_super_person) return true;
 
-    const db_find_cursor_user_settings = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const db_find_cursor_user_config = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
     }, {
         projection: {
@@ -63,9 +63,10 @@ export async function doesUserHaveDonatorStatus(
         },
     });
 
-    const db_user_settings = await db_find_cursor_user_settings.next() as UserSettings | null;
+    const db_user_config = await db_find_cursor_user_config.next() as UserConfig | null;
+    if (!db_user_config) return false; // assume the user is not a donator if they don't have a config
 
-    return db_user_settings?.donator ?? false;
+    return db_user_config.donator ?? false;
 }
 
 //------------------------------------------------------------//
@@ -80,7 +81,7 @@ export async function doesUserHaveVoiceRecognitionEnabled(
     const member_is_donator = await doesUserHaveDonatorStatus(user_id);
     if (!member_is_donator) return false;
 
-    const db_find_cursor_user_settings = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const db_find_cursor_user_config = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
     }, {
         projection: {
@@ -88,10 +89,10 @@ export async function doesUserHaveVoiceRecognitionEnabled(
         },
     });
 
-    const db_user_settings = await db_find_cursor_user_settings.next() as UserSettings | null;
-    if (!db_user_settings) return false; // opt-in is required, default to disabled when non-existent
+    const db_user_config = await db_find_cursor_user_config.next() as UserConfig | null;
+    if (!db_user_config) return false; // opt-in is required, default to disabled when non-existent
 
-    return db_user_settings.voice_recognition_enabled ?? false; // opt-in is required, default to disabled
+    return db_user_config.voice_recognition_enabled ?? false; // opt-in is required, default to disabled
 }
 
 //------------------------------------------------------------//
@@ -106,7 +107,7 @@ export async function doesUserHaveArtificialIntelligenceAccess(
     const member_is_donator = await doesUserHaveDonatorStatus(user_id);
     if (!member_is_donator) return false;
 
-    const db_find_cursor_user_settings = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
+    const db_find_cursor_user_config = await go_mongo_db.find(db_name, db_user_configs_collection_name, {
         'user_id': user_id,
     }, {
         projection: {
@@ -114,10 +115,10 @@ export async function doesUserHaveArtificialIntelligenceAccess(
         },
     });
 
-    const db_user_settings = await db_find_cursor_user_settings.next() as UserSettings | null;
-    if (!db_user_settings) return false; // default to disabled when non-existent
+    const db_user_config = await db_find_cursor_user_config.next() as UserConfig | null;
+    if (!db_user_config) return false; // default to disabled when non-existent
 
-    return db_user_settings.gpt_access_enabled ?? false; // default to disabled
+    return db_user_config.gpt_access_enabled ?? false; // default to disabled
 }
 
 //------------------------------------------------------------//

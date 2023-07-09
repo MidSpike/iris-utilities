@@ -2,9 +2,9 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { UserSettings } from '@root/types/index';
-
 import * as Discord from 'discord.js';
+
+import { UserConfig } from '@root/types';
 
 import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 
@@ -33,7 +33,7 @@ async function hasUserAllowedVoiceRecognition(
         },
     });
 
-    const user_config = await db_find_cursor_user_config.next() as UserSettings | null;
+    const user_config = await db_find_cursor_user_config.next() as UserConfig | null;
     if (!user_config) return false; // opt-in is required, default to disabled when non-existent
 
     return user_config.voice_recognition_enabled ?? false; // opt-in is required, default to disabled when non-existent
@@ -48,7 +48,7 @@ async function setVoiceRecognitionStateForUser(
     }, {
         $set: {
             'voice_recognition_enabled': voice_recognition_enabled,
-        } as Partial<UserSettings>,
+        } as Partial<UserConfig>,
     }, {
         upsert: true,
     });

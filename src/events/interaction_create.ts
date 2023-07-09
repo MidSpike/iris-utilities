@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { ClientEventExport, DiscordClientWithSharding } from '@root/types/index';
+import { ClientEventExport, DiscordClientWithSharding } from '@root/types';
 
 import * as Discord from 'discord.js';
 
