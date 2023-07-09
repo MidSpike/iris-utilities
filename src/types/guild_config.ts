@@ -43,6 +43,17 @@ export enum GuildConfigChatAiMode {
     EnhancedChannelsOnly = 'enhanced_channels_only',
 }
 
+export enum GuildConfigChatAiVariant {
+    /**
+     * The bot will use the default variant.
+     */
+    Default = 'default',
+    /**
+     * The bot will use the advanced variant.
+     */
+    Advanced = 'advanced',
+}
+
 //------------------------------------------------------------//
 
 export type GuildConfigTemplate = {
@@ -60,5 +71,7 @@ export interface GuildConfig extends GuildConfigTemplate {
     };
     url_blocking_enabled?: boolean;
     chat_ai_mode?: GuildConfigChatAiMode;
+    chat_ai_variant?: GuildConfigChatAiVariant;
     chat_ai_channel_ids?: string[];
+    chat_ai_token_usage_shown?: boolean;
 }

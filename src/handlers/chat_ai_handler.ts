@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import { DiscordClientWithSharding, GuildConfigChatAiMode } from '@root/types';
+import { DiscordClientWithSharding, GuildConfigChatAiMode, GuildConfigChatAiVariant } from '@root/types';
 
 import crypto from 'node:crypto';
 
@@ -22,7 +22,9 @@ const openai_usage = parseEnvironmentVariable(EnvironmentVariableName.OpenAiUsag
 
 const openai_api_key = parseEnvironmentVariable(EnvironmentVariableName.OpenAiApiKey, 'string');
 
-const chat_ai_model = parseEnvironmentVariable(EnvironmentVariableName.ChatAiModel, 'string');
+const chat_ai_default_model = parseEnvironmentVariable(EnvironmentVariableName.ChatAiDefaultModel, 'string');
+
+const chat_ai_advanced_model = parseEnvironmentVariable(EnvironmentVariableName.ChatAiAdvancedModel, 'string');
 
 const chat_ai_max_tokens = parseEnvironmentVariable(EnvironmentVariableName.ChatAiMaxTokens, 'integer');
 
@@ -79,14 +81,13 @@ export default async function chatArtificialIntelligenceHandler(
     /* fetch the guild config */
     const guild_config = await GuildConfigsManager.fetch(message.guild.id);
 
-    /* check if the guild has configured chat ai */
-    if (typeof guild_config.chat_ai_mode !== 'string') return; // don't continue
+    const guild_chat_ai_mode: GuildConfigChatAiMode = guild_config.chat_ai_mode ?? GuildConfigChatAiMode.Disabled; // default to disabled
+    const guild_chat_ai_channel_ids: string[] = guild_config.chat_ai_channel_ids ?? []; // default to empty array
 
     /* check if chat ai is enabled for the given context */
-    switch (guild_config.chat_ai_mode) {
+    switch (guild_chat_ai_mode) {
         case GuildConfigChatAiMode.EnhancedChannelsOnly: {
-            if (!Array.isArray(guild_config.chat_ai_channel_ids)) return; // don't continue
-            if (guild_config.chat_ai_channel_ids.includes(message.channel.id)) break; // continue
+            if (guild_chat_ai_channel_ids.includes(message.channel.id)) break; // continue
 
             return; // don't continue
         }
@@ -94,8 +95,7 @@ export default async function chatArtificialIntelligenceHandler(
         case GuildConfigChatAiMode.MentionsAndEnhancedChannels: {
             if (message.mentions.users.has(discord_client.user.id)) break; // continue
 
-            if (!Array.isArray(guild_config.chat_ai_channel_ids)) return; // don't continue
-            if (guild_config.chat_ai_channel_ids.includes(message.channel.id)) break; // continue
+            if (guild_chat_ai_channel_ids.includes(message.channel.id)) break; // continue
 
             return; // don't continue
         }
@@ -132,6 +132,23 @@ export default async function chatArtificialIntelligenceHandler(
         return; // don't continue
     }
 
+    const guild_chat_ai_variant: GuildConfigChatAiVariant = guild_config.chat_ai_variant ?? GuildConfigChatAiVariant.Default; // default to default
+    const guild_chat_ai_token_usage_shown: boolean = guild_config.chat_ai_token_usage_shown ?? false; // default to false
+
+    let guild_chat_ai_model: string;
+    switch (guild_chat_ai_variant) {
+        case GuildConfigChatAiVariant.Advanced: {
+            guild_chat_ai_model = chat_ai_advanced_model;
+            break;
+        }
+
+        case GuildConfigChatAiVariant.Default:
+        default: {
+            guild_chat_ai_model = chat_ai_default_model;
+            break;
+        }
+    }
+
     /* send a typing indicator to the channel, since this may take a while */
     await message.channel.sendTyping();
 
@@ -157,6 +174,13 @@ export default async function chatArtificialIntelligenceHandler(
     /* sort the messages from oldest to newest */
     messages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
+    /**
+     * Filter the messages to ensure they are valid for the AI to process.
+     * This includes:
+     * - Not being empty (specifically message content)
+     * - Not being from a bot (except this bot)
+     * - Not being too long (except this bot)
+     */
     const filtered_messages = messages.filter((msg) => {
         const user_is_this_bot = msg.author.id === discord_client.user.id;
 
@@ -175,7 +199,13 @@ export default async function chatArtificialIntelligenceHandler(
     const gpt_messages = [
         {
             role: 'system',
-            content: `You are ${discord_client.user.username} (aka <@${discord_client.user.id}>), converse like a human, keep your response short and don\'t use emojis.`,
+            content: [
+                `You are ${discord_client.user.username} (aka ${Discord.userMention(discord_client.user.id)}), a discord bot on Discord.`,
+                'Converse like a human,',
+                'pretend to not be an ai,',
+                'keep your responses very short,',
+                'and refrain from using emojis.',
+            ].join('\n'),
         },
         ...filtered_messages.map(
             (msg) => ({
@@ -188,16 +218,16 @@ export default async function chatArtificialIntelligenceHandler(
     /* enqueue the task to be processed */
     chat_ai_handler_queue.enqueue(
         new DelayedTask(
-            3_000, // wait a bit to throttle the requests
+            2_500, // wait a bit to throttle the requests
             async () => {
                 // apply a simple hash to the user id to mask the raw user id from openai
                 const hashed_user_id = crypto.createHash('sha256').update(message.author.id).digest('hex');
 
                 const gpt_request_data: GPTRequestData = {
-                    'model': chat_ai_model,
+                    'model': guild_chat_ai_model,
                     'messages': gpt_messages,
                     'max_tokens': chat_ai_max_tokens,
-                    'user': hashed_user_id, // used for tracking abuse on OpenAI's end
+                    'user': hashed_user_id, // used for tracking potential abuse on OpenAI's end
                 };
 
                 const gpt_response = await axios({
@@ -269,6 +299,10 @@ export default async function chatArtificialIntelligenceHandler(
                 for (let i = 0; i < gpt_response_message_chunks.length; i++) {
                     const gpt_response_message_chunk = gpt_response_message_chunks[i];
 
+                    const is_last_message = i === gpt_response_message_chunks.length - 1;
+
+                    const escaped_gpt_response_message_chunk = Discord.escapeMarkdown(gpt_response_message_chunk);
+
                     await message.channel.send({
                         // only reply to the original message with the first message that is sent
                         ...(i === 0 ? [
@@ -278,14 +312,20 @@ export default async function chatArtificialIntelligenceHandler(
                                 },
                             },
                         ] : []),
-                        content: stringEllipses(gpt_response_message_chunk, 2_000), // truncate the message to abide by Discord's message length limit
+                        content: stringEllipses(escaped_gpt_response_message_chunk, 2_000), // truncate the message to abide by Discord's message length limit
                         embeds: [
-                            // only add the total tokens embed to the last message
-                            ...(i === gpt_response_message_chunks.length - 1 ? [
-                                CustomEmbed.from({
-                                    description: `Total tokens used: ${gpt_response_total_tokens}`,
-                                }),
-                            ] : []),
+                            ...(
+                                (
+                                    guild_chat_ai_token_usage_shown && // only show if the guild has it enabled in the config
+                                    is_last_message // only show on the last message sent
+                                ) ? [
+                                    CustomEmbed.from({
+                                        description: `Total tokens used: ${gpt_response_total_tokens}`,
+                                    }),
+                                ] : [
+                                    // no embeds
+                                ]
+                            ),
                         ],
                     });
 
