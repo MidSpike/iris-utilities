@@ -18,7 +18,8 @@ export enum EnvironmentVariableName {
     DiscordBotCentralLoggingHistoryDeletionRequestsWebhook = 'DISCORD_BOT_CENTRAL_LOGGING_HISTORY_DELETION_REQUESTS_WEBHOOK',
     DiscordBotVerboseInteractionLogging = 'DISCORD_BOT_VERBOSE_INTERACTION_LOGGING',
 
-    ChatAiModel = 'CHAT_AI_MODEL',
+    ChatAiDefaultModel = 'CHAT_AI_DEFAULT_MODEL',
+    ChatAiAdvancedModel = 'CHAT_AI_ADVANCED_MODEL',
     ChatAiMaxTokens = 'CHAT_AI_MAX_TOKENS',
     ChatAiMaxUserInputSize = 'CHAT_AI_MAX_USER_INPUT_SIZE',
     ChatAiPreviousMessagesAmount = 'CHAT_AI_PREVIOUS_MESSAGES_AMOUNT',
