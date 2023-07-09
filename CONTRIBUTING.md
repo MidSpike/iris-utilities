@@ -4,11 +4,11 @@
 
 When contributing to I.R.I.S. Utilities, please follow these guidelines:
 
-0. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
-1. Preferably open an issue before opening a pull request (unless for bug fixes, security patches, grammatical corrections, or simple changes).
-2. Keep your pull request short and to the point. Try not to include unrelated or biased changes.
-3. Maintain compatibility with the current [License](LICENSE.md).
-4. Please follow the [Code Style Guide](#code-style-guide).
+0. Demonstrate the [Code of Conduct](CODE_OF_CONDUCT.md).
+1. Open an issue before opening a pull request (unless for bug fixes, security patches, grammatical corrections, or simple changes).
+2. Keep your pull request short and simple. Try not to include unrelated or biased changes.
+3. Maintain compatibility with the [License](LICENSE.md).
+4. Follow the [Code Style Guide](#code-style-guide).
 
 ### Code Style Guide
 

@@ -2,13 +2,15 @@
 
 ## I.R.I.S. Utilities License
 
-This license was modified on 2022-08-19.
+This license was modified on 2023-07-08.
 
 Copyright (c) Tyler S. Resch (MidSpike)
 
 ### Preamble
 
 The I.R.I.S. Utilities License is a semi-permissive license derived from the GNU General Public License that contains additional binding terms and conditions designed to override terms of the derived GNU General Public License.
+
+Sections 17 and onwards take precedence over all preceding sections.
 
 ### Terms & Conditions
 
@@ -19,7 +21,7 @@ The I.R.I.S. Utilities License is a semi-permissive license derived from the GNU
 "Copyright" also means copyright-like laws that apply to other kinds of works.
 
 "The Program" refers to any copyrightable work licensed under this License.
-Each licensee wether individual or organization is referred to as "you" or "licensee".
+Each licensee whether individual or organization is referred to as "you" or "licensee".
 
 To "modify" a work means to copy from or adapt all or part of the work in a fashion requiring copyright permission, other than the making of an exact copy. The resulting work is called a "modified version" of the original work or a work "based on" the original work.
 

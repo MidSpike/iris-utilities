@@ -36,11 +36,25 @@ There are a few reasons for this:
 
 ---
 
-## Am I allowed to make a Discord Bot from I.R.I.S. Utilities source-code?
+## Open-Source F.A.Q.
 
-Short answer: yes, I encourage you to do so.
+### Am I allowed to use I.R.I.S. Utilities source-code?
 
-Long answer: there are several restrictions on the usage of I.R.I.S. Utilities source-code. ([see restrictions below](#legal)).
+To contribute, yes, you are allowed to fork I.R.I.S. Utilities.
+
+To re-brand I.R.I.S. Utilities, no, you are not allowed.
+
+To take credit for or claim ownership of I.R.I.S. Utilities, no, you are not allowed.
+
+Remember to check up on the [restrictions below](#legal) for more information.
+
+### Am I allowed to self-host I.R.I.S. Utilities?
+
+Yes, but there are restrictions on the usage of I.R.I.S. Utilities source-code. ([see restrictions below](#legal)).
+
+Always remember to be kind and to never be malicious.
+
+Users expect integrity and honesty from all Discord bots on the platform.
 
 ---
 
