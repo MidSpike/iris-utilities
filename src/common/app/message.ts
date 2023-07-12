@@ -78,48 +78,60 @@ export class CustomEmbed {
 
 //------------------------------------------------------------//
 
-export function disableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
-    return message.fetch(true).then((message) => message.edit({
-        embeds: message.embeds,
-        components: message.components.map((component_row) => ({
-            ...component_row.toJSON(),
-            components: component_row.components.map((component) =>
-                component.type === Discord.ComponentType.Button ? (
-                    Discord.ButtonBuilder.from(component).setDisabled(true)
-                ) : (
-                    component.type === Discord.ComponentType.MentionableSelect ||
-                    component.type === Discord.ComponentType.ChannelSelect ||
-                    component.type === Discord.ComponentType.RoleSelect ||
-                    component.type === Discord.ComponentType.UserSelect ||
-                    component.type === Discord.ComponentType.StringSelect
-                ) ? (
-                    Discord.SelectMenuBuilder.from(component).setDisabled(true)
-                ) : component
+export async function disableMessageComponents(
+    message: Discord.Message,
+): Promise<Discord.Message> {
+    return message.fetch(true).then(
+        async (message) => message.edit({
+            embeds: message.embeds,
+            components: message.components.map(
+                (component_row) => ({
+                    ...component_row.toJSON(),
+                    components: component_row.components.map((component) =>
+                        component.type === Discord.ComponentType.Button ? (
+                            Discord.ButtonBuilder.from(component).setDisabled(true)
+                        ) : (
+                            component.type === Discord.ComponentType.MentionableSelect ||
+                            component.type === Discord.ComponentType.ChannelSelect ||
+                            component.type === Discord.ComponentType.RoleSelect ||
+                            component.type === Discord.ComponentType.UserSelect ||
+                            component.type === Discord.ComponentType.StringSelect
+                        ) ? (
+                            Discord.SelectMenuBuilder.from(component).setDisabled(true)
+                        ) : component
+                    ),
+                })
             ),
-        })),
-    }));
+        })
+    );
 }
 
-export function enableMessageComponents(message: Discord.Message): Promise<Discord.Message> {
-    return message.fetch(true).then((message) => message.edit({
-        embeds: message.embeds,
-        components: message.components.map((component_row) => ({
-            ...component_row.toJSON(),
-            components: component_row.components.map((component) =>
-                component.type === Discord.ComponentType.Button ? (
-                    Discord.ButtonBuilder.from(component).setDisabled(false)
-                ) : (
-                    component.type === Discord.ComponentType.MentionableSelect ||
-                    component.type === Discord.ComponentType.ChannelSelect ||
-                    component.type === Discord.ComponentType.RoleSelect ||
-                    component.type === Discord.ComponentType.UserSelect ||
-                    component.type === Discord.ComponentType.StringSelect
-                ) ? (
-                    Discord.SelectMenuBuilder.from(component).setDisabled(false)
-                ) : component
+export async function enableMessageComponents(
+    message: Discord.Message,
+): Promise<Discord.Message> {
+    return message.fetch(true).then(
+        async (message) => message.edit({
+            embeds: message.embeds,
+            components: message.components.map(
+                (component_row) => ({
+                    ...component_row.toJSON(),
+                    components: component_row.components.map((component) =>
+                        component.type === Discord.ComponentType.Button ? (
+                            Discord.ButtonBuilder.from(component).setDisabled(false)
+                        ) : (
+                            component.type === Discord.ComponentType.MentionableSelect ||
+                            component.type === Discord.ComponentType.ChannelSelect ||
+                            component.type === Discord.ComponentType.RoleSelect ||
+                            component.type === Discord.ComponentType.UserSelect ||
+                            component.type === Discord.ComponentType.StringSelect
+                        ) ? (
+                            Discord.SelectMenuBuilder.from(component).setDisabled(false)
+                        ) : component
+                    ),
+                })
             ),
-        })),
-    }));
+        })
+    );
 }
 
 //------------------------------------------------------------//
@@ -175,7 +187,7 @@ export async function requestPotentialNotSafeForWorkContentConsent(
     if (!collected_consent_interaction) return false;
 
     try {
-        channel.messages.delete(collected_consent_interaction.message.id);
+        await channel.messages.delete(collected_consent_interaction.message.id);
     } catch {}
 
     return collected_consent_interaction.customId === 'user_consents_to_potential_nsfw_content';

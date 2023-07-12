@@ -343,8 +343,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             await updateBotMessage(button_interaction.customId as MemberInfoSectionName);
         });
 
-        message_button_collector.on('end', async () => {
-            disableMessageComponents(bot_message);
+        message_button_collector.on('end', () => {
+            void disableMessageComponents(bot_message);
         });
     },
 });

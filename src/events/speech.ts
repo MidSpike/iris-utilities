@@ -198,8 +198,7 @@ export default {
                     64,
                 ).map((chunk) => chunk.join(' '));
 
-                for (let i = 0; i < tts_text_chunks.length; i++) {
-                    const tts_text = tts_text_chunks[i]!;
+                for (const tts_text of tts_text_chunks) {
                     const tts_provider = 'ibm';
                     const tts_voice = 'en-US_EmmaExpressive';
 
@@ -284,7 +283,7 @@ export default {
                 const track = search_results.at(0);
                 if (!track) return;
 
-                track.onStart(async (track) => {
+                void track.onStart(async (track) => {
                     music_subscription.text_channel.send({
                         embeds: [
                             CustomEmbed.from({
@@ -295,7 +294,7 @@ export default {
                     }).catch(console.warn);
                 });
 
-                track.onFinish(async (track) => {
+                void track.onFinish(async (track) => {
                     music_subscription.text_channel.send({
                         embeds: [
                             CustomEmbed.from({
@@ -306,7 +305,7 @@ export default {
                     }).catch(console.warn);
                 });
 
-                track.onError(async (track, error) => {
+                void track.onError(async (track, error) => {
                     console.trace(error);
 
                     music_subscription.text_channel.send({
@@ -400,7 +399,7 @@ export default {
                     ],
                 }).catch(console.warn);
 
-                music_subscription.processQueue(true);
+                await music_subscription.processQueue(true);
 
                 break;
             }
@@ -417,7 +416,7 @@ export default {
                     ],
                 }).catch(console.warn);
 
-                await music_subscription.stop();
+                music_subscription.stop();
 
                 break;
             }

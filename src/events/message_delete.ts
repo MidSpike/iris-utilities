@@ -33,7 +33,7 @@ export default {
 
         const current_timestamp = `${Date.now()}`.slice(0, -3);
 
-        guildLogger(
+        void guildLogger(
             message.channel.guild,
             GuildConfigLoggingChannels.MessageDeleted,
             {

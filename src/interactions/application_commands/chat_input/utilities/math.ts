@@ -2,7 +2,7 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-// @ts-ignore, we can safely ignore the error thrown by typescript here.
+// @ts-expect-error, we can safely ignore the error thrown by typescript here.
 //
 // > The current file is a CommonJS module whose imports will produce 'require' calls;
 // > however, the referenced file is an ECMAScript module and cannot be imported with 'require'."
@@ -76,7 +76,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 evaluated_math = 'Failed to evaluate expression.';
             }
 
-            interaction.respond([
+            await interaction.respond([
                 {
                     name: `${autocomplete_expression} = ${evaluated_math}`,
                     value: `${evaluated_math}`,

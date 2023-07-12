@@ -104,7 +104,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 (item) => item.voice
             );
 
-            interaction.respond(
+            await interaction.respond(
                 matching_voices.map(
                     (voice) => ({
                         name: voice.name,
@@ -133,7 +133,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
-            interaction.followUp({
+            await interaction.followUp({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Yellow,
@@ -146,7 +146,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
-            interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Yellow,
@@ -167,7 +167,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 }),
@@ -296,7 +295,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 },
             });
 
-            track.onStart(async (track) => {
+            void track.onStart(async (track) => {
                 if (i > 1) {
                     interaction.channel?.send({
                         embeds: [
@@ -311,7 +310,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 }
             });
 
-            track.onFinish(async (track) => {
+            void track.onFinish(async (track) => {
                 if (i === tts_text_chunks.length - 1) {
                     interaction.channel?.send({
                         embeds: [
@@ -323,7 +322,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 }
             });
 
-            track.onError(async (track, error) => {
+            void track.onError(async (track, error) => {
                 console.trace(error);
 
                 interaction.channel?.send({

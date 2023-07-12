@@ -41,7 +41,7 @@ export default {
 
         const modified_timestamp = `${new_message.editedTimestamp ?? Date.now()}`.slice(0, -3);
 
-        guildLogger(
+        void guildLogger(
             new_message.channel.guild,
             GuildConfigLoggingChannels.MessageModified,
             {

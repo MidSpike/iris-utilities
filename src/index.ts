@@ -68,7 +68,7 @@ sharding_manager.on('shardCreate', (shard) => {
 //------------------------------------------------------------//
 
 console.log('<SM> spawning shards...');
-sharding_manager.spawn({
+void sharding_manager.spawn({
     amount: 'auto', // how many shards to spawn
     delay: 5_000, // how long to wait between shards spawning
     timeout: 2 * 60_000, // how long to wait for a shard to become ready before continuing to the next shard
@@ -78,7 +78,7 @@ sharding_manager.spawn({
 
 setInterval(() => {
     console.log('<SM> respawning all shards...');
-    sharding_manager.respawnAll({
+    void sharding_manager.respawnAll({
         shardDelay: 5_000, // how long to wait between shards spawning
         respawnDelay: 5_000, // how long to wait between killing a shard and restarting it
         timeout: 2 * 60_000, // how long to wait for a shard to become ready before continuing to the next shard

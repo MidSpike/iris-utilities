@@ -283,7 +283,12 @@
         "no-useless-escape": "off",
         "no-useless-return": "off",
         "no-var": "error",
-        "no-void": "error",
+        "no-void": [
+            "error",
+            {
+                "allowAsStatement": true
+            }
+        ],
         "no-warning-comments": "error",
         "no-whitespace-before-property": "error",
         "nonblock-statement-body-position": "error",
@@ -419,6 +424,28 @@
             }
         ],
         "@typescript-eslint/restrict-plus-operands": "error",
+        "@typescript-eslint/no-for-in-array": "error",
+        "@typescript-eslint/no-mixed-enums": "error",
+        "@typescript-eslint/no-invalid-void-type": "error",
+        "@typescript-eslint/no-floating-promises": [
+            "error",
+            {
+                "ignoreVoid": true
+            }
+        ],
+        "@typescript-eslint/no-misused-new": "error",
+        "@typescript-eslint/no-misused-promises": [
+            "error",
+            {
+                "checksVoidReturn": false
+            }
+        ],
+        "@typescript-eslint/prefer-for-of": "error",
+        "@typescript-eslint/prefer-ts-expect-error": "error",
+        "@typescript-eslint/prefer-reduce-type-parameter": "error",
+        "@typescript-eslint/prefer-enum-initializers": "error",
+        "@typescript-eslint/promise-function-async": "off",
+        "@typescript-eslint/require-array-sort-compare": "error",
         "deprecation/deprecation": "warn"
     }
 }

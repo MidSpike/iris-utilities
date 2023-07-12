@@ -51,7 +51,7 @@ async function playQuery(
 
         const track = search_results[i]!;
 
-        track.onStart(async (track) => {
+        void track.onStart(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -61,7 +61,7 @@ async function playQuery(
             }).catch(console.warn);
         });
 
-        track.onFinish(async (track) => {
+        void track.onFinish(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -71,7 +71,7 @@ async function playQuery(
             }).catch(console.warn);
         });
 
-        track.onError(async (track, error) => {
+        void track.onError(async (track, error) => {
             console.trace(error);
 
             interaction.channel?.send({
@@ -120,7 +120,7 @@ async function playAttachment(
             stream_creator: () => StreamerSpace.remoteStream(attachment_url),
         });
 
-        track.onStart(async (track) => {
+        void track.onStart(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -130,7 +130,7 @@ async function playAttachment(
             }).catch(console.warn);
         });
 
-        track.onFinish(async (track) => {
+        void track.onFinish(async (track) => {
             interaction.channel?.send({
                 embeds: [
                     CustomEmbed.from({
@@ -140,7 +140,7 @@ async function playAttachment(
             }).catch(console.warn);
         });
 
-        track.onError(async (track, error) => {
+        void track.onError(async (track, error) => {
             console.trace(error);
 
             interaction.channel?.send({
@@ -254,7 +254,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const bot_voice_channel_id = bot_member.voice.channelId;
 
         if (!guild_member_voice_channel_id) {
-            interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Yellow,
@@ -267,7 +267,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         if (bot_voice_channel_id && (guild_member_voice_channel_id !== bot_voice_channel_id)) {
-            interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Yellow,
@@ -285,7 +285,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 voice_connection: DiscordVoice.joinVoiceChannel({
                     channelId: guild_member_voice_channel_id,
                     guildId: interaction.guildId,
-                    // @ts-ignore
                     adapterCreator: interaction.guild.voiceAdapterCreator,
                     selfDeaf: false,
                 }),

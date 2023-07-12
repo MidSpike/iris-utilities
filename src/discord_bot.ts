@@ -141,7 +141,7 @@ async function main() {
 
     console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> logging in...`);
     try {
-        discord_client.login(discord_bot_api_token);
+        await discord_client.login(discord_bot_api_token);
     } catch (error) {
         console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to login`, error);
 
@@ -150,7 +150,7 @@ async function main() {
 
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing diagnostics logger...`);
     try {
-        DiagnosticsLogger.initialize();
+        await DiagnosticsLogger.initialize();
     } catch (error) {
         console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to initialize diagnostics logger`, error);
 
@@ -172,4 +172,4 @@ async function main() {
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> fully initialized.`);
 }
 
-main();
+void main();

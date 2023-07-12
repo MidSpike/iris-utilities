@@ -178,7 +178,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             ],
         });
 
-        const emoji_options = [
+        const emojis = [
             CustomEmoji.Identifiers.Zero,
             CustomEmoji.Identifiers.One,
             CustomEmoji.Identifiers.Two,
@@ -191,8 +191,8 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             CustomEmoji.Identifiers.Nine,
         ].slice(0, poll_options.length);
 
-        for (let i = 0; i < emoji_options.length; i++) {
-            await bot_message.react(emoji_options[i]!);
+        for (const emoji of emojis) {
+            await bot_message.react(emoji);
         }
     },
 });

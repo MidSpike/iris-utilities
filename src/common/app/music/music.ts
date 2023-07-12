@@ -76,9 +76,11 @@ export class MusicSubscription {
         audio_player.on('error', (error) => {
             console.trace(error);
 
-            this.queue.current_track?.triggerOnError(error); // notify the track that it has errored
+            // notify the track that it has errored
+            void this.queue.current_track?.triggerOnError(error);
 
-            this.processQueue(true); // advance the queue to the next track
+            // advance the queue to the next track
+            void this.processQueue(true);
         });
 
         audio_player.on('stateChange', async (oldState, newState) => {
@@ -88,11 +90,11 @@ export class MusicSubscription {
             ) {
                 // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
                 // The queue is then processed to start playing the next track, if one is available.
-                this.queue.current_track?.triggerOnFinish(); // notify the track that it has finished playing
-                this.processQueue(true); // advance the queue to the next track
+                void this.queue.current_track?.triggerOnFinish(); // notify the track that it has finished playing
+                void this.processQueue(true); // advance the queue to the next track
             } else if (newState.status === DiscordVoice.AudioPlayerStatus.Playing) {
                 // If the Playing state has been entered, then a new track has started playback.
-                this.queue.current_track?.triggerOnStart(); // notify the track that it has started playing
+                void this.queue.current_track?.triggerOnStart(); // notify the track that it has started playing
                 this.queue.volume_manager.initialize(); // initialize the volume manager for each track
             }
         });
