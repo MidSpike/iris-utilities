@@ -40,7 +40,7 @@ export default {
         const user_display_avatar_url = guild_member.user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
         if (user_joined_channel) {
-            guildLogger(
+            void guildLogger(
                 voice_channel.guild,
                 GuildConfigLoggingChannels.MemberConnect,
                 {
@@ -73,7 +73,7 @@ export default {
                 }
             );
         } else if (user_left_channel) {
-            guildLogger(
+            void guildLogger(
                 voice_channel.guild,
                 GuildConfigLoggingChannels.MemberDisconnect,
                 {
@@ -106,7 +106,7 @@ export default {
                 }
             );
         } else if (user_moved_channel) {
-            guildLogger(
+            void guildLogger(
                 voice_channel.guild,
                 GuildConfigLoggingChannels.MemberMove,
                 {

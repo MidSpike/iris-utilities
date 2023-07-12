@@ -26,8 +26,8 @@ export default {
 
         /* run guild message handlers */
         if (message.inGuild()) {
-            urlBlockingHandler(discord_client, message);
-            chatArtificialIntelligenceHandler(discord_client, message);
+            void urlBlockingHandler(discord_client, message);
+            void chatArtificialIntelligenceHandler(discord_client, message);
         }
     },
 } as ClientEventExport<typeof event_name>;

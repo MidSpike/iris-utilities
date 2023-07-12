@@ -71,7 +71,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         const question = interaction.options.getString('question', true);
 
         if (question.length < 1) {
-            interaction.editReply({
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Yellow,

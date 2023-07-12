@@ -25,7 +25,7 @@ export default {
 
         const user_display_avatar_url = guild_member.user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
-        guildLogger(
+        void guildLogger(
             guild_member.guild,
             GuildConfigLoggingChannels.MemberJoin,
             {

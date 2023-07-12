@@ -32,7 +32,7 @@ export default {
         const guild_icon_url = guild.iconURL({ forceStatic: false, size: 4096 });
 
         try {
-            sendWebhookMessage(logging_webhook_url, {
+            await sendWebhookMessage(logging_webhook_url, {
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Green,

@@ -42,7 +42,7 @@ export default {
 
         /* update all guild configs */
         setTimeout(() => {
-            updateAllGuildConfigs(discord_client);
-        }, 60_000); // 60 seconds
+            void updateAllGuildConfigs(discord_client);
+        }, 60_000); // after 60 seconds
     },
 } as ClientEventExport<typeof event_name>;

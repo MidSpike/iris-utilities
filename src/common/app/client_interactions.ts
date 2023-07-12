@@ -51,9 +51,9 @@ enum ClientCommandAccessLevels {
 }
 
 enum ClientCommandExecutionEnvironments {
-    Anywhere,
-    GuildOnly,
-    DirectMessagesOnly,
+    Anywhere = 0,
+    GuildOnly = 1,
+    DirectMessagesOnly = 2,
 }
 
 //------------------------------------------------------------//
@@ -547,8 +547,7 @@ export class ClientInteractionManager {
         if (unknown_interaction.isChatInputCommand()) {
             const current_timestamp = `${Date.now()}`.slice(0, -3);
             try {
-
-                sendWebhookMessage(anonymous_command_history_webhook_url, {
+                await sendWebhookMessage(anonymous_command_history_webhook_url, {
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.Colors.Green,

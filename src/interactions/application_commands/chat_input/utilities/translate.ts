@@ -93,7 +93,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 (language) => (query_option.name === 'to' ? language.code !== 'auto' : true)
             );
 
-            interaction.respond(
+            await interaction.respond(
                 matching_languages.map(
                     (language) => ({
                         name: language.name,

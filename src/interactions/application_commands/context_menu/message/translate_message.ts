@@ -52,7 +52,7 @@ export default new ClientInteraction<Discord.MessageApplicationCommandData>({
 
         const text_to_translate = message.cleanContent;
         if (!text_to_translate.length) {
-            interaction.reply({
+            await interaction.reply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Yellow,

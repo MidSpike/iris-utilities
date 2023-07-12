@@ -106,7 +106,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             if (query_option.name !== 'subreddit') return;
 
             if (query_option.value.length < 1) {
-                interaction.respond([]);
+                await interaction.respond([]);
 
                 return;
             }
@@ -125,12 +125,12 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }).then((response) => response.data) as PartialRedditSubredditAutocompleteApiResponse ?? {};
 
             if (subreddit_results.data.children.length < 1) {
-                interaction.respond([]);
+                await interaction.respond([]);
 
                 return;
             }
 
-            interaction.respond(
+            await interaction.respond(
                 subreddit_results.data.children.sort(
                     (a, b) => (b.data.subscribers ?? 0) - (a.data.subscribers ?? 0),
                 ).map((subreddit_result) => ({

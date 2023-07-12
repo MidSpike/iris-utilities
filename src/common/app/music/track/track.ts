@@ -84,7 +84,7 @@ export class Track<
 
             if (!this._resource) throw new Error('Failed to create audio resource');
         } catch (error: unknown) {
-            this.triggerOnError(error);
+            void this.triggerOnError(error);
 
             return undefined;
         }
@@ -138,7 +138,11 @@ export class Track<
         await this.triggerOnFinish();
 
         for (const event of this._events.onError) {
-            await event(this, error);
+            try {
+                await event(this, error);
+            } catch (error: unknown) {
+                console.error('Track#triggerOnError(): Error while triggering event', error);
+            }
         }
     }
 }

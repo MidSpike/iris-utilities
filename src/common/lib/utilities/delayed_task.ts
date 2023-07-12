@@ -68,6 +68,6 @@ export class DelayedTaskQueue {
         if (next) this.stack.unshift(task);
         else this.stack.push(task);
 
-        if (!this.active) this._process();
+        if (!this.active) void this._process();
     }
 }

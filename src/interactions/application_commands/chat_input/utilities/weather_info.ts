@@ -260,7 +260,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             if (query_option.name !== 'location') return;
 
             if (query_option.value.length < 1) {
-                interaction.respond([]);
+                await interaction.respond([]);
 
                 return;
             }
@@ -278,7 +278,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             }).then((response) => response.data.results) as WeatherLocationInfo[] ?? [];
 
             if (matching_locations.length < 1) {
-                interaction.respond([]);
+                await interaction.respond([]);
 
                 return;
             }
@@ -287,7 +287,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 command_autocomplete_cache.set(`${matching_location.id}`, matching_location);
             }
 
-            interaction.respond(
+            await interaction.respond(
                 matching_locations.map((matching_location) => {
                     const location_string = [ matching_location.admin1, matching_location.admin2, matching_location.admin3, matching_location.admin4 ].filter((item) => Boolean(item)).join(', ');
 
