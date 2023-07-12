@@ -58,7 +58,7 @@ enum CustomEmbedColors {
     Neutral = 0x555555,
     Light = 0xEEEEEE, // avoid absolute white to be compatible with discord's limitations
     Red = 0xFF0000,
-    Orange = 0xFF5500,
+    Orange = 0xFF5500, // eslint-disable-line @typescript-eslint/no-duplicate-enum-values
     Yellow = 0xFFFF00,
     Green = 0x00FF00,
     Blue = 0x0000FF,
