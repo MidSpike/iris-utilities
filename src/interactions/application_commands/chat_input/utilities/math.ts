@@ -2,6 +2,12 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+// @ts-ignore, we can safely ignore the error thrown by typescript here.
+//
+// > The current file is a CommonJS module whose imports will produce 'require' calls;
+// > however, the referenced file is an ECMAScript module and cannot be imported with 'require'."
+//
+// mathjs does actually export as commonjs, but typescript seems to think it doesn't.
 import * as MathJs from 'mathjs';
 
 import * as Discord from 'discord.js';
