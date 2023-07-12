@@ -2,9 +2,9 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
 import * as Discord from 'discord.js';
+
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -14,8 +14,7 @@ import { sendWebhookMessage } from '@root/common/app/webhook';
 
 //------------------------------------------------------------//
 
-const feedback_webhook_url = process.env.DISCORD_BOT_CENTRAL_LOGGING_FEEDBACK_WEBHOOK as string;
-if (!feedback_webhook_url?.length) throw new Error('DISCORD_BOT_CENTRAL_LOGGING_FEEDBACK_WEBHOOK is undefined or empty');
+const feedback_webhook_url = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotCentralLoggingFeedbackWebhook, 'string');
 
 //------------------------------------------------------------//
 

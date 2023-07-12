@@ -10,14 +10,6 @@ import { CachedMap } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
-const db_name = process.env.MONGO_DATABASE_NAME as string;
-if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
-
-const db_user_configs_collection_name = process.env.MONGO_USER_CONFIGS_COLLECTION_NAME as string;
-if (!db_user_configs_collection_name?.length) throw new TypeError('MONGO_USER_CONFIGS_COLLECTION_NAME is not defined');
-
-//------------------------------------------------------------//
-
 type ShouldProcessUserVoiceCachedMapData = {
     expiration_epoch: number;
     data: boolean;

@@ -2,11 +2,11 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
 import os from 'node:os';
 
 import * as Discord from 'discord.js';
+
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -14,8 +14,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-const bot_support_url = process.env.DISCORD_BOT_SUPPORT_GUILD_INVITE_URL as string;
-if (!bot_support_url?.length) throw new Error('DISCORD_BOT_SUPPORT_GUILD_INVITE_URL is undefined or empty');
+const bot_support_url = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotSupportGuildInviteUrl, 'string');
 
 //------------------------------------------------------------//
 
@@ -70,12 +69,12 @@ function uptimeToHumanString(uptime_in_seconds: number): string {
 
     let uptime_unit_index = 0;
 
-    while (uptime_in_seconds_clone > uptime_units[uptime_unit_index][1]) {
-        uptime_in_seconds_clone /= uptime_units[uptime_unit_index][1];
+    while (uptime_in_seconds_clone > uptime_units[uptime_unit_index]![1]) {
+        uptime_in_seconds_clone /= uptime_units[uptime_unit_index]![1];
         uptime_unit_index += 1;
     }
 
-    return `${Math.round(uptime_in_seconds_clone)} ${uptime_units[uptime_unit_index][0]}`;
+    return `${Math.round(uptime_in_seconds_clone)} ${uptime_units[uptime_unit_index]![0]}`;
 }
 
 //------------------------------------------------------------//

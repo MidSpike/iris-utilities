@@ -4,8 +4,6 @@
 
 import { GuildId } from '@root/types';
 
-import process from 'node:process';
-
 import * as SoundCloud from 'soundcloud-scraper';
 
 import * as ytdl from 'ytdl-core';
@@ -22,21 +20,17 @@ import * as TrackSpace from './track/track';
 
 import * as StreamerSpace from './streamer/streamer';
 
-import { delay, parseUrlFromString } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, delay, parseEnvironmentVariable, parseUrlFromString } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
-const ytdl_user_agent = process.env.YTDL_USER_AGENT as string;
-if (!ytdl_user_agent?.length) throw new Error('YTDL_USER_AGENT is not defined or is empty');
+const ytdl_user_agent = parseEnvironmentVariable(EnvironmentVariableName.YoutubeUserAgent, 'string');
 
-const ytdl_cookie = process.env.YTDL_COOKIE as string;
-if (!ytdl_cookie?.length) throw new Error('YTDL_COOKIE is not defined or is empty');
+const ytdl_cookie = parseEnvironmentVariable(EnvironmentVariableName.YoutubeCookie, 'string');
 
-const ytdl_x_youtube_identity_token = process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN as string;
-if (!ytdl_x_youtube_identity_token?.length) throw new Error('YTDL_X_YOUTUBE_IDENTITY_TOKEN is not defined or is empty');
+const ytdl_x_youtube_identity_token = parseEnvironmentVariable(EnvironmentVariableName.YoutubeIdentityToken, 'string');
 
-const soundcloud_client_id = process.env.SOUNDCLOUD_CLIENT_ID as string;
-if (!soundcloud_client_id?.length) throw new Error('SOUNDCLOUD_CLIENT_ID is not defined or is empty');
+const soundcloud_client_id = parseEnvironmentVariable(EnvironmentVariableName.SoundcloudClientId, 'string');
 
 //------------------------------------------------------------//
 

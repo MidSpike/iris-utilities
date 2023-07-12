@@ -2,21 +2,19 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
 import { GuildConfig, GuildConfigTemplate, GuildId } from '@root/types';
 
 import * as Discord from 'discord.js';
+
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
 import { go_mongo_db } from '@root/common/lib/go_mongo_db';
 
 //------------------------------------------------------------//
 
-const db_name = process.env.MONGO_DATABASE_NAME as string;
-if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
+const db_name = parseEnvironmentVariable(EnvironmentVariableName.MongoDatabaseName, 'string');
 
-const db_guild_configs_collection_name = process.env.MONGO_GUILD_CONFIGS_COLLECTION_NAME as string;
-if (!db_guild_configs_collection_name?.length) throw new TypeError('MONGO_GUILD_CONFIGS_COLLECTION_NAME is not defined');
+const db_guild_configs_collection_name = parseEnvironmentVariable(EnvironmentVariableName.MongoGuildConfigsCollectionName, 'string');
 
 //------------------------------------------------------------//
 

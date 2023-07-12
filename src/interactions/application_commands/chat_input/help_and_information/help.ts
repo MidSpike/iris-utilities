@@ -44,7 +44,7 @@ async function createHelpEmbeds(
             let command_usage: string = '';
 
             for (let i = 0; i < filtered_command_options.length; i++) {
-                const command_option = filtered_command_options[i];
+                const command_option = filtered_command_options[i]!;
 
                 command_usage += `${command_option.required ? '<' : '['}${command_option.name}${command_option.required ? '>' : ']'} `;
 

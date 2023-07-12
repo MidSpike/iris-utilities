@@ -297,7 +297,7 @@ export default async function chatArtificialIntelligenceHandler(
                 const gpt_response_message_chunks = stringChunksPreserveWords(gpt_response_message, 500);
 
                 for (let i = 0; i < gpt_response_message_chunks.length; i++) {
-                    const gpt_response_message_chunk = gpt_response_message_chunks[i];
+                    const gpt_response_message_chunk = gpt_response_message_chunks[i]!;
 
                     const is_last_message = i === gpt_response_message_chunks.length - 1;
 

@@ -4,9 +4,9 @@
 
 import { ClientEventExport } from '@root/types';
 
-import process from 'node:process';
-
 import * as Discord from 'discord.js';
+
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -14,8 +14,7 @@ import { sendWebhookMessage } from '@root/common/app/webhook';
 
 //------------------------------------------------------------//
 
-const logging_webhook_url = process.env.DISCORD_BOT_CENTRAL_LOGGING_GUILD_RETENTION_WEBHOOK as string;
-if (!logging_webhook_url?.length) throw new TypeError('DISCORD_BOT_CENTRAL_LOGGING_GUILD_RETENTION_WEBHOOK is not defined');
+const logging_webhook_url = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotCentralLoggingGuildRetentionWebhook, 'string');
 
 //------------------------------------------------------------//
 

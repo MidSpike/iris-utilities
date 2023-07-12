@@ -12,11 +12,11 @@ import { MusicReconnaissance } from '../music';
 
 //------------------------------------------------------------//
 
-type TrackEvents = {
-    onStart: ((track: Track) => Promise<void>)[];
-    onFinish: ((track: Track) => Promise<void>)[];
-    onError: ((track: Track, error: unknown) => Promise<void>)[];
-};
+type TrackEventOnStart = (track: Track) => Promise<void>;
+
+type TrackEventOnFinish = (track: Track) => Promise<void>;
+
+type TrackEventOnError = (track: Track, error: unknown) => Promise<void>;
 
 //------------------------------------------------------------//
 
@@ -30,7 +30,11 @@ export class Track<
 > {
     private _metadata: Metadata;
     private _stream_creator: () => Promise<Readable | undefined>;
-    private _events: TrackEvents = {
+    private _events: {
+        onStart: TrackEventOnStart[];
+        onFinish: TrackEventOnFinish[];
+        onError: TrackEventOnError[];
+    } = {
         onStart: [],
         onFinish: [],
         onError: [],
@@ -103,16 +107,16 @@ export class Track<
         this._resource = undefined;
     }
 
-    async onStart(cb: (track: Track) => Promise<void>) {
-        this._events.onStart.push(cb);
+    async onStart(cb: (track: this) => Promise<void>) {
+        this._events.onStart.push(cb as TrackEventOnStart);
     }
 
-    async onFinish(cb: (track: Track) => Promise<void>) {
-        this._events.onFinish.push(cb);
+    async onFinish(cb: (track: this) => Promise<void>) {
+        this._events.onFinish.push(cb as TrackEventOnFinish);
     }
 
-    async onError(cb: (track: Track, error: unknown) => Promise<void>) {
-        this._events.onError.push(cb);
+    async onError(cb: (track: this, error: unknown) => Promise<void>) {
+        this._events.onError.push(cb as TrackEventOnError);
     }
 
     async triggerOnStart() {
@@ -142,7 +146,7 @@ export class Track<
 //------------------------------------------------------------//
 
 export interface RemoteTrackMetadata extends TrackMetadata {
-    url: string;
+    url: string; // guaranteed to be a url
 }
 
 export class RemoteTrack extends Track<RemoteTrackMetadata> {}

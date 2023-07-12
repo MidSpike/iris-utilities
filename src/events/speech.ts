@@ -10,27 +10,23 @@ import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition'
 
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
+import { EnvironmentVariableName, arrayChunks, delay, parseEnvironmentVariable } from '@root/common/lib/utilities';
+
 import { MusicReconnaissance, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { CustomEmbed } from '@root/common/app/message';
 
 import { doesUserHaveArtificialIntelligenceAccess } from '@root/common/app/permissions';
 
-import { arrayChunks, delay } from '@root/common/lib/utilities';
-
 //------------------------------------------------------------//
 
-const ibm_tts_api_url = process.env.IBM_TTS_API_URL as string;
-if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or is empty');
+const ibm_tts_api_url = parseEnvironmentVariable(EnvironmentVariableName.IbmTextToSpeechApiUrl, 'string');
 
-const ibm_tts_api_key = process.env.IBM_TTS_API_KEY as string;
-if (!ibm_tts_api_key?.length) throw new Error('IBM_TTS_API_KEY is not defined or is empty');
+const ibm_tts_api_key = parseEnvironmentVariable(EnvironmentVariableName.IbmTextToSpeechApiKey, 'string');
 
-const openai_usage = process.env.OPENAI_USAGE;
-if (typeof openai_usage !== 'string') throw new Error('Missing OPENAI_USAGE environment variable.');
+const openai_usage = parseEnvironmentVariable(EnvironmentVariableName.OpenAiUsage, 'string');
 
-const openai_api_key = process.env.OPENAI_API_KEY;
-if (typeof openai_api_key !== 'string') throw new Error('Missing OPENAI_API_KEY environment variable.');
+const openai_api_key = parseEnvironmentVariable(EnvironmentVariableName.OpenAiApiKey, 'string');
 
 //------------------------------------------------------------//
 
@@ -203,7 +199,7 @@ export default {
                 ).map((chunk) => chunk.join(' '));
 
                 for (let i = 0; i < tts_text_chunks.length; i++) {
-                    const tts_text = tts_text_chunks[i];
+                    const tts_text = tts_text_chunks[i]!;
                     const tts_provider = 'ibm';
                     const tts_voice = 'en-US_EmmaExpressive';
 
@@ -335,13 +331,14 @@ export default {
 
             case 'vol': // fallback for improper recognition
             case 'volume': {
-                const volume_input = Number.parseInt(voice_command_args[0], 10);
+                const volume_input = voice_command_args.join(' ');
 
-                if (Number.isNaN(volume_input)) return;
+                const parsed_volume_input = parseInt(volume_input, 10);
+                if (Number.isNaN(parsed_volume_input)) return;
 
                 const minimum_allowed_volume = 0;
                 const maximum_allowed_volume = 100;
-                const volume_level = Math.max(minimum_allowed_volume, Math.min(volume_input, maximum_allowed_volume));
+                const volume_level = Math.max(minimum_allowed_volume, Math.min(parsed_volume_input, maximum_allowed_volume));
 
                 music_subscription.text_channel.send({
                     embeds: [

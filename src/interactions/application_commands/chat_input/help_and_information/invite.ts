@@ -2,9 +2,9 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
 import * as Discord from 'discord.js';
+
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -12,8 +12,7 @@ import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_
 
 //------------------------------------------------------------//
 
-const bot_support_url = process.env.DISCORD_BOT_SUPPORT_GUILD_INVITE_URL as string;
-if (!bot_support_url?.length) throw new Error('DISCORD_BOT_SUPPORT_GUILD_INVITE_URL is undefined or empty');
+const bot_support_url = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotSupportGuildInviteUrl, 'string');
 
 //------------------------------------------------------------//
 
