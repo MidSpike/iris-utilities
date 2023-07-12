@@ -6,41 +6,42 @@ import * as Discord from 'discord.js';
 
 //------------------------------------------------------------//
 
-type CustomEmojiIdentifierName = string;
-type CustomEmojiIdentifier = string;
+enum CustomEmojiIdentifier {
+    Speaker = '<:bot_emoji_speaker:971821916392423494>',
+    Mute = '<:bot_emoji_mute:971821789594411078>',
+    VolumeDown = '<:bot_emoji_volume_down:971821711509041242>',
+    VolumeUp = '<:bot_emoji_volume_up:971821558735724614>',
+    Bot = '<:bot_emoji_bot:878350454021554215>',
+    Midspike = '<:bot_emoji_midspike:878349649675690024>',
+    Zero = '<:bot_emoji_zero:678691063178985480>',
+    One = '<:bot_emoji_one:678691126357655572>',
+    Two = '<:bot_emoji_two:678691155738624011>',
+    Three = '<:bot_emoji_three:678691184603824128>',
+    Four = '<:bot_emoji_four:678691214102364181>',
+    Five = '<:bot_emoji_five:678691239348011018>',
+    Six = '<:bot_emoji_six:678691272986329102>',
+    Seven = '<:bot_emoji_seven:678691301276778526>',
+    Eight = '<:bot_emoji_eight:678691330783969290>',
+    Nine = '<:bot_emoji_nine:678691358415781915>',
+}
 
 export class CustomEmoji {
-    static identifiers: {
-        [key: CustomEmojiIdentifierName]: CustomEmojiIdentifier;
-    } = {
-        SPEAKER: '<:bot_emoji_speaker:971821916392423494>',
-        MUTE: '<:bot_emoji_mute:971821789594411078>',
-        VOLUME_DOWN: '<:bot_emoji_volume_down:971821711509041242>',
-        VOLUME_UP: '<:bot_emoji_volume_up:971821558735724614>',
-        BOT: '<:bot_emoji_bot:878350454021554215>',
-        MIDSPIKE: '<:bot_emoji_midspike:878349649675690024>',
-        ZERO: '<:bot_emoji_zero:678691063178985480>',
-        ONE: '<:bot_emoji_one:678691126357655572>',
-        TWO: '<:bot_emoji_two:678691155738624011>',
-        THREE: '<:bot_emoji_three:678691184603824128>',
-        FOUR: '<:bot_emoji_four:678691214102364181>',
-        FIVE: '<:bot_emoji_five:678691239348011018>',
-        SIX: '<:bot_emoji_six:678691272986329102>',
-        SEVEN: '<:bot_emoji_seven:678691301276778526>',
-        EIGHT: '<:bot_emoji_eight:678691330783969290>',
-        NINE: '<:bot_emoji_nine:678691358415781915>',
-    };
+    static Identifiers = CustomEmojiIdentifier;
 
     static convertToObject(
         custom_emoji_identifier: CustomEmojiIdentifier,
     ): {
-        id?: string;
-        name?: string;
+        id: string;
+        name: string;
     } {
-        const [
-            emoji_name,
-            emoji_id,
-        ] = custom_emoji_identifier.replace(/[\<\>]/gi, '').split(':').slice(1);
+        // slice from 2 to -1 to remove the starting `<:` and ending `>` characters
+        const stripped_custom_emoji_identifier = custom_emoji_identifier.slice(2, -1);
+
+        // split by `:` to get the emoji name and id
+        const split_custom_emoji_identifier = stripped_custom_emoji_identifier.split(':') as [ string, string ];
+
+        // destructure the split array into the emoji name and id
+        const [ emoji_name, emoji_id ] = split_custom_emoji_identifier;
 
         return {
             id: emoji_id,

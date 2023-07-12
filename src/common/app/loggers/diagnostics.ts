@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import * as Discord from 'discord.js';
 
-import { stringEllipses } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
@@ -22,8 +22,7 @@ type DiagnosticLog = string;
 
 //------------------------------------------------------------//
 
-const diagnostics_webhook_url = process.env.DISCORD_BOT_CENTRAL_LOGGING_DIAGNOSTICS_WEBHOOK as string;
-if (!diagnostics_webhook_url?.length) throw new Error('DISCORD_BOT_CENTRAL_LOGGING_DIAGNOSTICS_WEBHOOK is undefined or empty');
+const diagnostics_webhook_url = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotCentralLoggingDiagnosticsWebhook, 'string');
 
 //------------------------------------------------------------//
 

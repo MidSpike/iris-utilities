@@ -4,6 +4,8 @@
 
 import axios from 'axios';
 
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
+
 //------------------------------------------------------------//
 
 export type LanguageCode = string;
@@ -17,11 +19,9 @@ export type LanguageConfig = {
 
 //------------------------------------------------------------//
 
-const libre_translate_api_url = process.env.LIBRE_TRANSLATE_API_URL as string;
-if (!libre_translate_api_url?.length) throw new Error('LIBRE_TRANSLATE_API_URL environment variable is not set');
+const libre_translate_api_url = parseEnvironmentVariable(EnvironmentVariableName.LibreTranslateApiUrl, 'string');
 
-const libre_translate_api_key = process.env.LIBRE_TRANSLATE_API_KEY as string;
-if (!libre_translate_api_key?.length) throw new Error('LIBRE_TRANSLATE_API_KEY environment variable is not set');
+const libre_translate_api_key = parseEnvironmentVariable(EnvironmentVariableName.LibreTranslateApiKey, 'string');
 
 //------------------------------------------------------------//
 

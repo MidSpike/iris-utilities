@@ -2,16 +2,13 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
 import axios from 'axios';
 
-import { randomItemFromArray } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, parseEnvironmentVariable, randomItemFromArray } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
-const yt_api_key = process.env.YOUTUBE_API_KEY as string;
-if (!yt_api_key?.length) throw new TypeError('YOUTUBE_API_KEY is not defined');
+const yt_api_key = parseEnvironmentVariable(EnvironmentVariableName.YoutubeApiKey, 'string');
 
 //------------------------------------------------------------//
 

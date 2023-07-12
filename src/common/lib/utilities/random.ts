@@ -18,5 +18,7 @@ export function randomNumberFromInclusiveRange(
 export function randomItemFromArray<T=unknown>(
     array_of_things: T[],
 ): T {
-    return array_of_things[randomNumberFromInclusiveRange(0, array_of_things.length - 1)];
+    const random_index = randomNumberFromInclusiveRange(0, array_of_things.length - 1);
+
+    return array_of_things[random_index]!;
 }

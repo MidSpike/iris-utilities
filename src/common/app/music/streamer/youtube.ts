@@ -2,22 +2,19 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
-import process from 'node:process';
-
 import { Readable } from 'node:stream';
 
 import ytdl from 'ytdl-core';
 
+import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
+
 //------------------------------------------------------------//
 
-const ytdl_user_agent = process.env.YTDL_USER_AGENT as string;
-if (!ytdl_user_agent?.length) throw new Error('YTDL_USER_AGENT is not defined or is empty');
+const ytdl_user_agent = parseEnvironmentVariable(EnvironmentVariableName.YoutubeUserAgent, 'string');
 
-const ytdl_cookie = process.env.YTDL_COOKIE as string;
-if (!ytdl_cookie?.length) throw new Error('YTDL_COOKIE is not defined or is empty');
+const ytdl_cookie = parseEnvironmentVariable(EnvironmentVariableName.YoutubeCookie, 'string');
 
-const ytdl_x_youtube_identity_token = process.env.YTDL_X_YOUTUBE_IDENTITY_TOKEN as string;
-if (!ytdl_x_youtube_identity_token?.length) throw new Error('YTDL_X_YOUTUBE_IDENTITY_TOKEN is not defined or is empty');
+const ytdl_x_youtube_identity_token = parseEnvironmentVariable(EnvironmentVariableName.YoutubeIdentityToken, 'string');
 
 //------------------------------------------------------------//
 

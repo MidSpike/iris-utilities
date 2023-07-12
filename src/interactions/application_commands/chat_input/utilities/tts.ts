@@ -20,21 +20,19 @@ import * as DiscordVoice from '@discordjs/voice';
 
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
+import { EnvironmentVariableName, arrayChunks, delay, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
+
 import { CustomEmbed } from '@root/common/app/message';
 
 import { MusicSubscription, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { arrayChunks, delay, stringEllipses } from '@root/common/lib/utilities';
-
 //------------------------------------------------------------//
 
-const ibm_tts_api_url = process.env.IBM_TTS_API_URL as string;
-if (!ibm_tts_api_url?.length) throw new Error('IBM_TTS_API_URL is not defined or is empty');
+const ibm_tts_api_url = parseEnvironmentVariable(EnvironmentVariableName.IbmTextToSpeechApiUrl, 'string');
 
-const ibm_tts_api_key = process.env.IBM_TTS_API_KEY as string;
-if (!ibm_tts_api_key?.length) throw new Error('IBM_TTS_API_KEY is not defined or is empty');
+const ibm_tts_api_key = parseEnvironmentVariable(EnvironmentVariableName.IbmTextToSpeechApiKey, 'string');
 
 //------------------------------------------------------------//
 
@@ -237,9 +235,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         }
 
         for (let i = 0; i < tts_text_chunks.length; i++) {
-            const tts_text = tts_text_chunks[i];
+            const tts_text = tts_text_chunks[i]!;
 
-            const [ provider, voice ] = provider_voice.split(':');
+            const [ provider, voice ] = provider_voice.split(':') as [ string, string ];
 
             const track: TrackSpace.TextToSpeechTrack = new TrackSpace.TextToSpeechTrack({
                 metadata: {

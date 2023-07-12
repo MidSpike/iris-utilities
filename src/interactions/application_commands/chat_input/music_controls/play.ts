@@ -49,7 +49,7 @@ async function playQuery(
     for (let i = 0; i < search_results.length; i++) {
         const insert_index = playnext ? i : music_subscription.queue.future_tracks.length;
 
-        const track = search_results[i];
+        const track = search_results[i]!;
 
         track.onStart(async (track) => {
             interaction.channel?.send({

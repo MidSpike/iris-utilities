@@ -179,20 +179,20 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         });
 
         const emoji_options = [
-            CustomEmoji.identifiers.ZERO,
-            CustomEmoji.identifiers.ONE,
-            CustomEmoji.identifiers.TWO,
-            CustomEmoji.identifiers.THREE,
-            CustomEmoji.identifiers.FOUR,
-            CustomEmoji.identifiers.FIVE,
-            CustomEmoji.identifiers.SIX,
-            CustomEmoji.identifiers.SEVEN,
-            CustomEmoji.identifiers.EIGHT,
-            CustomEmoji.identifiers.NINE,
+            CustomEmoji.Identifiers.Zero,
+            CustomEmoji.Identifiers.One,
+            CustomEmoji.Identifiers.Two,
+            CustomEmoji.Identifiers.Three,
+            CustomEmoji.Identifiers.Four,
+            CustomEmoji.Identifiers.Five,
+            CustomEmoji.Identifiers.Six,
+            CustomEmoji.Identifiers.Seven,
+            CustomEmoji.Identifiers.Eight,
+            CustomEmoji.Identifiers.Nine,
         ].slice(0, poll_options.length);
 
         for (let i = 0; i < emoji_options.length; i++) {
-            await bot_message.react(emoji_options[i]);
+            await bot_message.react(emoji_options[i]!);
         }
     },
 });

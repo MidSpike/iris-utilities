@@ -12,7 +12,7 @@ import * as Discord from 'discord.js';
 
 import recursiveReadDirectory from 'recursive-read-directory';
 
-import { stringEllipses } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
 
 import { sendWebhookMessage } from '@root/common/app/webhook';
 
@@ -58,17 +58,9 @@ enum ClientCommandExecutionEnvironments {
 
 //------------------------------------------------------------//
 
-const db_name = process.env.MONGO_DATABASE_NAME as string;
-if (!db_name?.length) throw new TypeError('MONGO_DATABASE_NAME is not defined');
+const anonymous_command_history_webhook_url = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotCentralLoggingAnonymousCommandHistoryWebhook, 'string');
 
-const db_super_people_collection_name = process.env.MONGO_SUPER_PEOPLE_COLLECTION_NAME as string;
-if (!db_super_people_collection_name?.length) throw new TypeError('MONGO_SUPER_PEOPLE_COLLECTION_NAME is not defined');
-
-const anonymous_command_history_webhook_url = process.env.DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK as string;
-if (!anonymous_command_history_webhook_url?.length) throw new TypeError('DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK is not defined');
-
-const verbose_interaction_logging = process.env.DISCORD_BOT_VERBOSE_INTERACTION_LOGGING as string;
-if (!verbose_interaction_logging?.length) throw new TypeError('DISCORD_BOT_VERBOSE_INTERACTION_LOGGING is not defined');
+const verbose_interaction_logging = parseEnvironmentVariable(EnvironmentVariableName.DiscordBotVerboseInteractionLogging, 'string');
 
 //------------------------------------------------------------//
 

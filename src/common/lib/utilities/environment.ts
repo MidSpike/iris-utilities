@@ -2,6 +2,10 @@
 //        Copyright (c) MidSpike. All rights reserved.        //
 //------------------------------------------------------------//
 
+import process from 'node:process';
+
+//------------------------------------------------------------//
+
 export enum EnvironmentVariableName {
     MongoConnectionUrl = 'MONGO_CONNECTION_URL',
     MongoDatabaseName = 'MONGO_DATABASE_NAME',
