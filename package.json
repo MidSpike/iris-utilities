@@ -43,7 +43,7 @@
   "dependencies": {
     "@discordjs/opus": "0.9.0",
     "@discordjs/voice": "0.16.0",
-    "@mapbox/node-pre-gyp": "1.0.10",
+    "@mapbox/node-pre-gyp": "1.0.11",
     "@midspike/discord-speech-recognition": "github:MidSpike/discord-speech-recognition#v3.3.0",
     "aki-api": "6.0.9",
     "axios": "1.4.0",
