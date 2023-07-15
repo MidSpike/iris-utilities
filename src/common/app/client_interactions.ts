@@ -461,7 +461,7 @@ export class ClientInteractionManager {
 
             delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
 
-            const { default: client_interaction } = await import(client_interaction_file_path) as { default: unknown };
+            const { default: client_interaction } = require(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
                 console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
