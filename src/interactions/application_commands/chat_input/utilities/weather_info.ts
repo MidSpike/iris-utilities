@@ -353,6 +353,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const weather_status: string = weather_codes_mapping.find(
             ([ code_range ]) =>
+                // check if weather code is in range of known weather codes
                 weather_info.current_weather.weathercode >= code_range[0] &&
                 weather_info.current_weather.weathercode <= code_range[1]
         )?.[1] ?? 'Unknown';
