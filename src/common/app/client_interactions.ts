@@ -461,6 +461,9 @@ export class ClientInteractionManager {
 
             delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
 
+            /**
+             * IMPORTANT: use commonjs require instead of esm import here
+             */
             const { default: client_interaction } = require(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
