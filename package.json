@@ -31,9 +31,9 @@
   "devDependencies": {
     "@types/bcryptjs": "2.4.2",
     "@types/string-similarity": "4.0.0",
-    "@typescript-eslint/eslint-plugin": "6.0.0",
-    "@typescript-eslint/parser": "6.0.0",
-    "eslint": "8.44.0",
+    "@typescript-eslint/eslint-plugin": "6.1.0",
+    "@typescript-eslint/parser": "6.1.0",
+    "eslint": "8.45.0",
     "eslint-plugin-deprecation": "1.4.1",
     "husky": "8.0.3",
     "is-ci": "3.0.1",
@@ -43,7 +43,8 @@
   "dependencies": {
     "@discordjs/opus": "0.9.0",
     "@discordjs/voice": "0.16.0",
-    "@mapbox/node-pre-gyp": "1.0.10",
+    "@distube/ytdl-core": "4.11.12",
+    "@mapbox/node-pre-gyp": "1.0.11",
     "@midspike/discord-speech-recognition": "github:MidSpike/discord-speech-recognition#v3.3.0",
     "aki-api": "6.0.9",
     "axios": "1.4.0",
@@ -56,7 +57,7 @@
     "html-entities": "2.4.0",
     "libsodium-wrappers": "0.7.11",
     "manakin": "0.5.2",
-    "mathjs": "11.8.2",
+    "mathjs": "11.9.0",
     "module-alias": "2.2.3",
     "moment-timezone": "0.5.43",
     "node-gyp": "9.4.0",
@@ -68,7 +69,6 @@
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
     "uuid": "9.0.0",
-    "youtube-sr": "4.3.4",
-    "ytdl-core": "github:@khlevon/node-ytdl-core#v4.11.4-patch.2"
+    "youtube-sr": "4.3.4"
   }
 }
