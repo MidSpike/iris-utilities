@@ -6,7 +6,7 @@ import { GuildId } from '@root/types';
 
 import * as SoundCloud from 'soundcloud-scraper';
 
-import * as ytdl from 'ytdl-core';
+import * as ytdl from '@distube/ytdl-core';
 
 import { YouTube as YoutubeSearch } from 'youtube-sr';
 

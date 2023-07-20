@@ -4,7 +4,7 @@
 
 import { Readable } from 'node:stream';
 
-import ytdl from 'ytdl-core';
+import ytdl from '@distube/ytdl-core';
 
 import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
