@@ -33,7 +33,7 @@
     "@types/string-similarity": "4.0.0",
     "@typescript-eslint/eslint-plugin": "6.2.0",
     "@typescript-eslint/parser": "6.2.0",
-    "eslint": "8.45.0",
+    "eslint": "8.46.0",
     "eslint-plugin-deprecation": "1.4.1",
     "husky": "8.0.3",
     "is-ci": "3.0.1",
