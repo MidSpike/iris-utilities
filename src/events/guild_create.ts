@@ -68,8 +68,12 @@ export default {
 
         const help_command_id: string = client_application_commands.find((cmd) => cmd.name === 'help')?.id ?? '0';
         const info_command_id: string = client_application_commands.find((cmd) => cmd.name === 'info')?.id ?? '0';
-        const play_command_id: string = client_application_commands.find((cmd) => cmd.name === 'play')?.id ?? '0';
         const tts_command_id: string = client_application_commands.find((cmd) => cmd.name === 'tts')?.id ?? '0';
+        const play_music_command_id: string = client_application_commands.find(
+            (cmd) => cmd.name === 'play' && cmd.options.find(
+                (opt) => opt.name === 'music'
+            )
+        )?.id ?? '0';
 
         const welcome_message_embed = CustomEmbed.from({
             color: CustomEmbed.Colors.Brand,
@@ -85,8 +89,8 @@ export default {
                 '**Check out some of my commands:**',
                 `- </help:${help_command_id}> - view a list of all of my commands`,
                 `- </info:${info_command_id}> - find out some nerdy info about me`,
-                `- </play:${play_command_id}> - play audio from the internet`,
-                `- </tts:${tts_command_id}> - listen to text to speech`,
+                `- </tts:${tts_command_id}> - listen to text-to-speech`,
+                `- </play music:${play_music_command_id}> - play audio from the internet`,
             ].join('\n'),
         });
 
