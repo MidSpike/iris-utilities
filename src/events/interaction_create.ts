@@ -20,6 +20,6 @@ export default {
         if (!discord_client.isReady()) return;
         if (!discord_client.shard) return;
 
-        await ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
+        void ClientInteractionManager.handleUnknownInteraction(discord_client, unknown_interaction);
     },
 } as ClientEventExport<typeof event_name>;

@@ -334,10 +334,10 @@ class ClientInteractionCooldownManager {
         return false;
     }
 
-    public static async setUserOnCooldown(
+    public static setUserOnCooldown(
         user_id: ClientInteractionCooldownUserId,
         duration_ms: number,
-    ): Promise<void> {
+    ): void {
         ClientInteractionCooldownManager._cooldowns.set(user_id, {
             last_execution_epoch: Date.now(),
             cooldown_duration_ms: duration_ms,
@@ -479,12 +479,6 @@ export class ClientInteractionManager {
         discord_client: DiscordClientWithSharding,
         unknown_interaction: Discord.Interaction,
     ): Promise<void> {
-        /* ensure the discord client is ready */
-        if (!discord_client.isReady()) throw new Error('ClientInteractionManager.handleUnknownInteraction(): discord client is not ready');
-
-        /* ensure the discord client support sharding */
-        if (!discord_client.shard) throw new Error('ClientInteractionManager.handleUnknownInteraction(): discord client does not support sharding');
-
         if (verbose_interaction_logging === 'enabled') {
             console.log('ClientInteractionManager.handleUnknownInteraction(): received interaction from discord:', unknown_interaction);
         }
@@ -543,75 +537,74 @@ export class ClientInteractionManager {
             unknown_interaction.type === Discord.InteractionType.MessageComponent ||
             unknown_interaction.type === Discord.InteractionType.ModalSubmit
         ) {
-            await ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, client_interaction.cooldown_duration_ms);
+            ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, client_interaction.cooldown_duration_ms);
         }
 
         /* log the interaction */
         if (unknown_interaction.isChatInputCommand()) {
             const current_timestamp = `${Date.now()}`.slice(0, -3);
-            try {
-                await sendWebhookMessage(anonymous_command_history_webhook_url, {
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.Colors.Green,
-                            fields: [
-                                {
-                                    name: 'Executed On',
-                                    value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
-                                    inline: false,
-                                }, {
-                                    name: 'Command Run',
-                                    value: [
-                                        '\`\`\`',
-                                        [
-                                            `/${unknown_interaction.commandName}`,
-                                            stringEllipses(stringifyOptions(unknown_interaction.options.data), 1024),
-                                        ].join(' '),
-                                        '\`\`\`',
-                                    ].join('\n'),
-                                    inline: false,
-                                },
-                            ],
-                        }).toJSON(),
-                    ],
-                });
-            } catch (error) {
-                console.trace(error);
-            }
+
+            void sendWebhookMessage(anonymous_command_history_webhook_url, {
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.Colors.Brand,
+                        fields: [
+                            {
+                                name: 'Executed On',
+                                value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
+                                inline: false,
+                            }, {
+                                name: 'Command Run',
+                                value: [
+                                    '\`\`\`',
+                                    [
+                                        `/${unknown_interaction.commandName}`,
+                                        stringEllipses(stringifyOptions(unknown_interaction.options.data), 1024),
+                                    ].join(' '),
+                                    '\`\`\`',
+                                ].join('\n'),
+                                inline: false,
+                            },
+                        ],
+                    }).toJSON(),
+                ],
+            }).catch(
+                (error) => console.trace(error)
+            );
         }
 
         /* run the interaction handler */
-        try {
-            console.log(`ClientInteractionManager.handleUnknownInteraction(): running handler for interaction: ${client_interaction.identifier}`);
-            await client_interaction.handler(discord_client, unknown_interaction);
-        } catch (error) {
-            console.trace({
-                unknown_interaction: unknown_interaction,
-                client_interaction: client_interaction,
-                error_message: error,
-            });
+        console.log(`ClientInteractionManager.handleUnknownInteraction(): running handler for interaction: ${client_interaction.identifier}`);
+        void client_interaction.handler(discord_client, unknown_interaction).catch(
+            (error) => {
+                console.trace({
+                    unknown_interaction: unknown_interaction,
+                    client_interaction: client_interaction,
+                    error_message: error,
+                });
 
-            if (unknown_interaction.channel?.isTextBased()) {
-                unknown_interaction.channel.send({
-                    embeds: [
-                        CustomEmbed.from({
-                            color: CustomEmbed.Colors.Red,
-                            title: 'Interaction Error',
-                            description: `An error occurred while handling: \`${unknown_interaction_identifier}\`.`,
-                            fields: [
-                                {
-                                    name: 'Error Message',
-                                    value: [
-                                        '\`\`\`',
-                                        stringEllipses(Discord.escapeMarkdown(`${error}`), 1000),
-                                        '\`\`\`',
-                                    ].join('\n'),
-                                },
-                            ],
-                        }),
-                    ],
-                }).catch(console.warn);
+                if (unknown_interaction.channel?.isTextBased()) {
+                    void unknown_interaction.channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.Colors.Red,
+                                title: 'Interaction Error',
+                                description: `An error occurred while handling: \`${unknown_interaction_identifier}\`.`,
+                                fields: [
+                                    {
+                                        name: 'Error Message',
+                                        value: [
+                                            '\`\`\`',
+                                            stringEllipses(Discord.escapeMarkdown(`${error}`), 1000),
+                                            '\`\`\`',
+                                        ].join('\n'),
+                                    },
+                                ],
+                            }),
+                        ],
+                    });
+                }
             }
-        }
+        );
     }
 }
