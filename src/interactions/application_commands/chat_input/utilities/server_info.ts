@@ -4,11 +4,25 @@
 
 import * as Discord from 'discord.js';
 
-import { arrayChunks } from '@root/common/lib/utilities';
+import { CachedMap, CachedMapData, arrayChunks } from '@root/common/lib/utilities';
 
 import { CustomEmbed, disableMessageComponents } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
+
+//------------------------------------------------------------//
+
+type GuildInfoCacheData = {
+    members_count: number;
+    bots_count: number;
+    roles_count: number;
+    channels_count: number;
+    invites_count: number;
+    emojis_count: number;
+    bans_count: number;
+};
+
+const guild_info_cache = new CachedMap<string, CachedMapData<GuildInfoCacheData>>();
 
 //------------------------------------------------------------//
 
@@ -47,15 +61,72 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             ],
         });
 
-        const guild_members = await guild.members.fetch(); // cache all members
+        const guild_info_cache_data = await guild_info_cache.ensure(guild.id, async () => {
+            const guild_members = await guild.members.fetch(); // fetch all members
+            const guild_non_bots_count: number = guild_members.filter((member) => !member.user.bot).size;
+            const guild_bots_count: number = guild_members.filter((member) => member.user.bot).size;
 
-        const guild_roles = guild.roles.cache.sort((a, b) => a.position - b.position).map((role) => `${role}`);
+            const guild_roles_count: number = await guild.roles.fetch().then(
+                (guild_roles) => guild_roles.size
+            ).catch(
+                // this should never happen, but just in-case
+                () => 0
+            );
+
+            const guild_channels_count: number = await guild.channels.fetch().then(
+                // filter out threads
+                (guild_channels) => guild_channels.filter((channel) => channel && !channel.isThread()).size
+            ).catch(
+                // this should never happen, but just in-case
+                () => 0
+            );
+
+            const guild_invites_count: number = await guild.invites.fetch().then(
+                (guild_invites) => guild_invites.size
+            ).catch(
+                // the most likely reason for this to fail is if the bot is missing access to the guild's invites
+                () => 0
+            );
+
+            const guild_emojis_count: number = await guild.emojis.fetch().then(
+                (guild_emojis) => guild_emojis.size
+            ).catch(
+                // the most likely reason for this to fail is if the bot is missing access to the guild's emojis
+                () => 0
+            );
+
+            const guild_bans_count: number = await guild.bans.fetch().then(
+                (guild_bans) => guild_bans.size
+            ).catch(
+                // the most likely reason for this to fail is if the bot is missing access to the guild's bans
+                () => 0
+            );
+
+            return {
+                expiration_epoch: Date.now() + (5 * 60_000), // 5 minutes from now in milliseconds
+                data: {
+                    members_count: guild_non_bots_count,
+                    bots_count: guild_bots_count,
+                    roles_count: guild_roles_count,
+                    channels_count: guild_channels_count,
+                    invites_count: guild_invites_count,
+                    emojis_count: guild_emojis_count,
+                    bans_count: guild_bans_count,
+                },
+            };
+        });
+
+        const guild_roles = guild.roles.cache.sort(
+            // sort by position (ascending from `0` to `infinity`)
+            (a, b) => a.position - b.position
+        ).map((role) => `${role}`);
         const guild_role_chunks = arrayChunks(guild_roles, 25);
 
-        const guild_emojis = guild.emojis.cache.sort((a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1).map((guild_emoji) => `${guild_emoji}`);
+        const guild_emojis = guild.emojis.cache.sort(
+            // sort by name alphabetically (ascending from `a` to `z`)
+            (a, b) => a.name!.toLowerCase() > b.name!.toLowerCase() ? 1 : -1
+        ).map((guild_emoji) => `${guild_emoji}`);
         const guild_emoji_chunks = arrayChunks(guild_emojis, 25);
-
-        const guild_bans = await guild.bans.fetch().catch(() => undefined);
 
         type GuildInfoSectionName = (
             | 'serverinfo_btn_default'
@@ -220,8 +291,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
                 case 'serverinfo_btn_media': {
                     const guild_icon_url = guild.iconURL({ forceStatic: false, size: 4096 });
-
                     const guild_banner_url = guild.bannerURL({ forceStatic: false, size: 4096 });
+                    const guild_splash_url = guild.splashURL({ forceStatic: false, size: 4096 });
+                    const guild_discovery_splash_url = guild.discoverySplashURL({ forceStatic: false, size: 4096 });
 
                     await bot_message.edit({
                         embeds: [
@@ -245,6 +317,14 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                     }, {
                                         name: 'Banner',
                                         value: `${guild_banner_url ? `[Image](${guild_banner_url})` : '\`n/a\`'}`,
+                                        inline: false,
+                                    }, {
+                                        name: 'Splash',
+                                        value: `${guild_splash_url ? `[Image](${guild_splash_url})` : '\`n/a\`'}`,
+                                        inline: false,
+                                    }, {
+                                        name: 'Discovery Splash',
+                                        value: `${guild_discovery_splash_url ? `[Image](${guild_discovery_splash_url})` : '\`n/a\`'}`,
                                         inline: false,
                                     },
                                 ],
@@ -330,27 +410,27 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                         inline: true,
                                     }, {
                                         name: 'Invites',
-                                        value: `\`${guild.invites.cache.size ?? 'n/a'}\``,
+                                        value: `\`${guild_info_cache_data.data.invites_count ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Roles',
-                                        value: `\`${guild.roles.cache.size ?? 'n/a'}\``,
+                                        value: `\`${guild_info_cache_data.data.roles_count ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Channels',
-                                        value: `\`${guild.channels.cache.size ?? 'n/a'}\``,
+                                        value: `\`${guild_info_cache_data.data.channels_count ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Bots',
-                                        value: `\`${guild_members.filter((member) => member.user.bot).size ?? 'n/a'}\``,
+                                        value: `\`${guild_info_cache_data.data.bots_count ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Members',
-                                        value: `\`${guild_members.filter((member) => !member.user.bot).size ?? 'n/a'}\``,
+                                        value: `\`${guild_info_cache_data.data.members_count ?? 'n/a'}\``,
                                         inline: true,
                                     }, {
                                         name: 'Bans',
-                                        value: `\`${guild_bans ? guild_bans.size : 'n/a'}\``,
+                                        value: `\`${guild_info_cache_data.data.bans_count ?? 'n/a'}\``,
                                         inline: true,
                                     },
                                 ],
