@@ -160,7 +160,13 @@ export default async function chatArtificialIntelligenceHandler(
     const messages_collection = await message.channel.messages.fetch({
         limit: chat_ai_previous_messages_amount,
         before: referenced_message_id ?? message.id,
-    });
+    }).catch(() => undefined); // default to undefined if the fetch fails
+
+    if (!messages_collection) {
+        console.warn('[Chat Ai Handler] Failed to fetch messages collection.');
+
+        return; // don't continue
+    }
 
     /* convert the collection into an array for easier manipulation and less overhead */
     const messages = messages_collection.map((msg) => msg).slice(0, chat_ai_previous_messages_amount); // slice to ensure the array is the correct size
@@ -239,7 +245,27 @@ export default async function chatArtificialIntelligenceHandler(
                     },
                     data: gpt_request_data,
                     validateStatus: (status) => true,
-                });
+                    timeout: 15_000, // wait up to 15 seconds for a response
+                }).catch(() => undefined); // default to undefined if the request fails
+
+                if (!gpt_response) {
+                    console.warn('Failed to generate a response from GPT.');
+
+                    await message.channel.send({
+                        reply: {
+                            messageReference: message,
+                        },
+                        embeds: [
+                            CustomEmbed.from({
+                                color: CustomEmbed.Colors.Red,
+                                title: 'Error',
+                                description: 'Failed to generate a response from OpenAI.',
+                            }),
+                        ],
+                    });
+
+                    return;
+                }
 
                 if (gpt_response.status !== 200) {
                     console.warn('Failed to generate a response from GPT:', gpt_response);
@@ -303,7 +329,10 @@ export default async function chatArtificialIntelligenceHandler(
 
                     const escaped_gpt_response_message_chunk = Discord.escapeMarkdown(gpt_response_message_chunk);
 
-                    await message.reply({
+                    await message.channel.send({
+                        reply: {
+                            messageReference: message,
+                        },
                         allowedMentions: {
                             parse: [],
                             roles: [],
