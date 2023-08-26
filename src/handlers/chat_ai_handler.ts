@@ -303,7 +303,13 @@ export default async function chatArtificialIntelligenceHandler(
 
                     const escaped_gpt_response_message_chunk = Discord.escapeMarkdown(gpt_response_message_chunk);
 
-                    await message.channel.send({
+                    await message.reply({
+                        allowedMentions: {
+                            parse: [],
+                            roles: [],
+                            users: [],
+                            repliedUser: true,
+                        },
                         // only reply to the original message with the first message that is sent
                         ...(i === 0 ? [
                             {
@@ -332,11 +338,11 @@ export default async function chatArtificialIntelligenceHandler(
                     // don't delay if this is the last message to send
                     if (i === gpt_response_message_chunks.length - 1) break;
 
-                    // delay a bit before sending the typing indicator (this is required so Discord doesn't ignore the typing indicator)
-                    await delay(500);
-
                     // send a typing indicator to the channel for the next message to be sent
                     await message.channel.sendTyping();
+
+                    // delay a bit before sending the typing indicator (this is required so Discord doesn't ignore the typing indicator)
+                    await delay(500);
 
                     // delay for a bit longer if there are a lot of messages left to send
                     await delay(gpt_response_message_chunks.length > 2 ? 1_000 : 250);
