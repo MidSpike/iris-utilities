@@ -85,9 +85,9 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             },
         };
 
-        const dilemma_id: string = response_data.link;
-        const dilemma_situation: string = htmlEntitiesParser.decode(response_data.upside);
-        const dilemma_exception: string = htmlEntitiesParser.decode(response_data.downside);
+        const dilemma_id: string = `${response_data.link}`;
+        const dilemma_situation: string = htmlEntitiesParser.decode(`${response_data.upside}`);
+        const dilemma_exception: string = htmlEntitiesParser.decode(`${response_data.downside}`);
         const dilemma_yes_votes_count: number = response_data.yes;
         const dilemma_no_votes_count: number = response_data.no;
 

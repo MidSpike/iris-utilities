@@ -38,7 +38,7 @@ export function parseUrlFromString(
 export function escapeHtml(
     input_string: string,
 ): string {
-    let output_string = input_string; // prevent mutation of the original string
+    let output_string = `${input_string}`; // prevent mutation of the original string
 
     const regex_replacements: [ RegExp, string ][] = [
         [ /\&/gi, '&amp;' ],
