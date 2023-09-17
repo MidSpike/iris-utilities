@@ -68,12 +68,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         });
 
         const { data: response_data } = await axios({
-            method: 'post',
+            method: 'get',
             url: 'https://v4.willyoupressthebutton.com/api/dilemma/random',
             headers: {
                 'Content-Type': 'application/json',
             },
-            data: {},
             validateStatus: (status) => status === 200,
         }) as {
             data: {
