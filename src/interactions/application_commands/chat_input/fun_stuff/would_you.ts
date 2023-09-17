@@ -69,7 +69,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const { data: response_data } = await axios({
             method: 'post',
-            url: 'https://api2.willyoupressthebutton.com/api/v2/dilemma/',
+            url: 'https://v4.willyoupressthebutton.com/api/dilemma/random',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -77,21 +77,19 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             validateStatus: (status) => status === 200,
         }) as {
             data: {
-                dilemma: {
-                    id: string,
-                    txt1: string,
-                    txt2: string,
-                    yes: string,
-                    no: string,
-                },
+                link: string, // `${number}`
+                upside: string,
+                downside: string,
+                yes: number,
+                no: number,
             },
         };
 
-        const dilemma_id = `${response_data.dilemma.id}`;
-        const dilemma_situation = htmlEntitiesParser.decode(response_data.dilemma.txt1);
-        const dilemma_exception = htmlEntitiesParser.decode(response_data.dilemma.txt2);
-        const dilemma_yes_votes_count = Number.parseInt(response_data.dilemma.yes, 10);
-        const dilemma_no_votes_count = Number.parseInt(response_data.dilemma.no, 10);
+        const dilemma_id: string = response_data.link;
+        const dilemma_situation: string = htmlEntitiesParser.decode(response_data.upside);
+        const dilemma_exception: string = htmlEntitiesParser.decode(response_data.downside);
+        const dilemma_yes_votes_count: number = response_data.yes;
+        const dilemma_no_votes_count: number = response_data.no;
 
         const dilemma_total_votes = dilemma_yes_votes_count + dilemma_no_votes_count;
         const dilemma_yes_votes_percentage = Math.round(dilemma_yes_votes_count / dilemma_total_votes * 100);
