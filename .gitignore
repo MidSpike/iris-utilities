@@ -16,3 +16,6 @@ node_modules
 
 # TypeScript generated
 /dist
+
+# Docker Persisted Data Storage
+/docker-data
