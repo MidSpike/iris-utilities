@@ -29,7 +29,7 @@
     "start": "npm run prepare && npm run title && node --trace-warnings --enable-source-maps --require dotenv/config ."
   },
   "devDependencies": {
-    "@types/bcryptjs": "2.4.2",
+    "@types/bcryptjs": "2.4.4",
     "@types/string-similarity": "4.0.0",
     "@typescript-eslint/eslint-plugin": "6.5.0",
     "@typescript-eslint/parser": "6.5.0",
