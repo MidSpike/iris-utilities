@@ -11,8 +11,8 @@
     "@root": "./dist"
   },
   "engines": {
-    "node": ">=16.17.0",
-    "npm": ">=8.15.0"
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "scripts": {
     "husky": "is-ci || husky install",
@@ -29,12 +29,12 @@
     "start": "npm run prepare && npm run title && node --trace-warnings --enable-source-maps --require dotenv/config ."
   },
   "devDependencies": {
-    "@types/bcryptjs": "2.4.2",
+    "@types/bcryptjs": "2.4.4",
     "@types/string-similarity": "4.0.0",
-    "@typescript-eslint/eslint-plugin": "6.5.0",
-    "@typescript-eslint/parser": "6.5.0",
-    "eslint": "8.48.0",
-    "eslint-plugin-deprecation": "1.5.0",
+    "@typescript-eslint/eslint-plugin": "6.7.0",
+    "@typescript-eslint/parser": "6.7.0",
+    "eslint": "8.49.0",
+    "eslint-plugin-deprecation": "2.0.0",
     "husky": "8.0.3",
     "is-ci": "3.0.1",
     "run-script-os": "1.1.6",
@@ -43,7 +43,7 @@
   "dependencies": {
     "@discordjs/opus": "0.9.0",
     "@discordjs/voice": "0.16.0",
-    "@distube/ytdl-core": "4.11.17",
+    "@distube/ytdl-core": "4.13.0",
     "@mapbox/node-pre-gyp": "1.0.11",
     "@midspike/discord-speech-recognition": "github:MidSpike/discord-speech-recognition#v3.4.0",
     "aki-api": "6.0.9",
@@ -55,9 +55,9 @@
     "go-mongo-db": "github:MidSpike/go-mongo-db#v2.0.2",
     "google-translate-tts": "github:MidSpike/google-translate-tts#v2.1.0",
     "html-entities": "2.4.0",
-    "libsodium-wrappers": "0.7.11",
+    "libsodium-wrappers": "0.7.13",
     "manakin": "0.5.2",
-    "mathjs": "11.10.0",
+    "mathjs": "11.11.0",
     "module-alias": "2.2.3",
     "moment-timezone": "0.5.43",
     "node-gyp": "9.4.0",
@@ -68,7 +68,7 @@
     "soundcloud-scraper": "5.0.3",
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
-    "uuid": "9.0.0",
+    "uuid": "9.0.1",
     "youtube-sr": "4.3.4"
   }
 }
