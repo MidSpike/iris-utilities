@@ -34,7 +34,7 @@ const soundcloud_client_id = parseEnvironmentVariable(EnvironmentVariableName.So
 
 //------------------------------------------------------------//
 
-const youtube_request_options = {
+const ytdl_request_options = {
     headers: {
         'Accept-Language': 'en-US,en;q=0.5',
         'User-Agent': ytdl_user_agent,
@@ -42,6 +42,15 @@ const youtube_request_options = {
         'x-youtube-identity-token': ytdl_x_youtube_identity_token,
     },
 };
+
+//------------------------------------------------------------//
+
+const ytdl_agent = ytdl.createAgent([
+    {
+        name: 'cookie',
+        value: ytdl_cookie,
+    },
+]);
 
 //------------------------------------------------------------//
 
@@ -291,7 +300,7 @@ export class MusicReconnaissance {
 
         if (YoutubeSearch.isPlaylist(modified_query)) {
             const playlist = await YoutubeSearch.getPlaylist(modified_query, {
-                requestOptions: youtube_request_options,
+                requestOptions: ytdl_request_options,
             }).catch((error) => {
                 console.trace('MusicReconnaissance.searchWithYouTube():', error);
 
@@ -317,7 +326,7 @@ export class MusicReconnaissance {
                 ytdl.validateURL(modified_query)
             ) {
                 resource_info = await ytdl.getInfo(modified_query, {
-                    requestOptions: youtube_request_options,
+                    agent: ytdl_agent,
                 }).then(
                     (video_info) => ({
                         title: video_info.videoDetails.title,
@@ -329,7 +338,7 @@ export class MusicReconnaissance {
                     return undefined;
                 });
             } else {
-                resource_info = await YoutubeSearch.searchOne(modified_query, 'video', undefined, youtube_request_options).then(
+                resource_info = await YoutubeSearch.searchOne(modified_query, 'video', undefined, ytdl_request_options).then(
                     (video_info) => {
                         // video_info is actually nullable, even though it's not documented as such
                         if (!video_info) throw new Error(`No results found for: ${modified_query};`);

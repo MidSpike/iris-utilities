@@ -10,11 +10,16 @@ import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/
 
 //------------------------------------------------------------//
 
-const ytdl_user_agent = parseEnvironmentVariable(EnvironmentVariableName.YoutubeUserAgent, 'string');
-
 const ytdl_cookie = parseEnvironmentVariable(EnvironmentVariableName.YoutubeCookie, 'string');
 
-const ytdl_x_youtube_identity_token = parseEnvironmentVariable(EnvironmentVariableName.YoutubeIdentityToken, 'string');
+//------------------------------------------------------------//
+
+const ytdl_agent = ytdl.createAgent([
+    {
+        name: 'cookie',
+        value: ytdl_cookie,
+    },
+]);
 
 //------------------------------------------------------------//
 
@@ -28,13 +33,6 @@ export async function youtubeStream(
         filter: 'audioonly',
         quality: 'highestaudio',
         highWaterMark: 32 * (1024 ** 2), // 32 Megabytes
-        requestOptions: {
-            headers: {
-                'Accept-Language': 'en-US,en;q=0.5',
-                'User-Agent': ytdl_user_agent,
-                'Cookie': ytdl_cookie,
-                'x-youtube-identity-token': ytdl_x_youtube_identity_token,
-            },
-        },
+        agent: ytdl_agent,
     });
 }
