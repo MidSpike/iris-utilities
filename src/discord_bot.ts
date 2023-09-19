@@ -20,7 +20,7 @@ import { attachSpeechEvent } from '@midspike/discord-speech-recognition';
 
 import recursiveReadDirectory from 'recursive-read-directory';
 
-import { DiscordClientWithSharding } from '@root/types';
+import { ClientEventExport, DiscordClientWithSharding } from '@root/types';
 
 import { ClientInteractionManager } from '@root/common/app/client_interactions';
 
@@ -34,6 +34,12 @@ import { EnvironmentVariableName, LineLogger, parseEnvironmentVariable } from '@
 
 const discord_bot_api_token = parseEnvironmentVariable(
     EnvironmentVariableName.DiscordBotApiToken,
+    'string',
+    (value) => value.length > 0,
+);
+
+const discord_bot_voice_commands = parseEnvironmentVariable(
+    EnvironmentVariableName.DiscordBotVoiceCommands,
     'string',
     (value) => value.length > 0,
 );
@@ -112,9 +118,11 @@ async function registerClientEvents(
             /**
              * IMPORTANT: use commonjs require instead of esm import here
              */
-            const { default: client_event } = require(client_event_file_path);
+            const { default: client_event } = require(client_event_file_path) as {
+                default: ClientEventExport<keyof Discord.ClientEvents>,
+            };
 
-            discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
+            discord_client.on(client_event.name, async (...args: unknown[]) => client_event.handler(discord_client, ...args as Discord.ClientEvents[keyof Discord.ClientEvents]));
         } catch (error) {
             // console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client event: ${client_event_file_path}`, error);
             LineLogger.log(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client event: ${client_event_file_path}:\n${error}`, true);
@@ -164,16 +172,18 @@ async function main() {
         process.exit(1);
     }
 
-    console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing speech recognition system...`);
-    try {
-        attachSpeechEvent({
-            client: discord_client as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-            shouldProcessUserId: (user_id) => shouldUserVoiceBeProcessed(discord_client, user_id),
-        });
-    } catch (error) {
-        console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to initialize speech recognition system`, error);
+    if (discord_bot_voice_commands === 'enabled') {
+        console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> preparing speech recognition system...`);
+        try {
+            attachSpeechEvent({
+                client: discord_client as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                shouldProcessUserId: (user_id) => shouldUserVoiceBeProcessed(discord_client, user_id),
+            });
+        } catch (error) {
+            console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to initialize speech recognition system`, error);
 
-        process.exit(1);
+            process.exit(1);
+        }
     }
 
     console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> fully initialized.`);
