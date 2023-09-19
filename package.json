@@ -52,7 +52,7 @@
     "dotenv": "16.3.1",
     "ffmpeg-static": "5.2.0",
     "ffmpeg-stream": "0.7.0",
-    "go-mongo-db": "github:MidSpike/go-mongo-db#v2.0.2",
+    "go-mongo-db": "github:MidSpike/go-mongo-db#v2.1.0",
     "google-translate-tts": "github:MidSpike/google-translate-tts#v2.1.0",
     "html-entities": "2.4.0",
     "libsodium-wrappers": "0.7.13",
