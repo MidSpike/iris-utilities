@@ -459,7 +459,7 @@ export class ClientInteractionManager {
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
             // console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
-            LineLogger.log(`DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+            LineLogger.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
 
             delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
 
@@ -470,7 +470,7 @@ export class ClientInteractionManager {
 
             if (!(client_interaction instanceof ClientInteraction)) {
                 // console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
-                LineLogger.log(`DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`, true);
+                LineLogger.log(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`, true);
                 continue;
             }
 
