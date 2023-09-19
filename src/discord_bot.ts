@@ -28,7 +28,7 @@ import { shouldUserVoiceBeProcessed } from '@root/common/app/voice_receive';
 
 import { DiagnosticsLogger } from '@root/common/app/loggers/loggers';
 
-import { EnvironmentVariableName, parseEnvironmentVariable } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, LineLogger, parseEnvironmentVariable } from '@root/common/lib/utilities';
 
 //------------------------------------------------------------//
 
@@ -99,12 +99,14 @@ async function registerClientEvents(
     const path_to_event_files = path.join(process.cwd(), 'dist', 'events');
     const client_event_file_names = recursiveReadDirectory(path_to_event_files);
 
+    LineLogger.start();
     for (const client_event_file_name of client_event_file_names) {
         if (!client_event_file_name.endsWith('.js')) continue;
 
         const client_event_file_path = path.join(path_to_event_files, client_event_file_name);
 
-        console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client event... ${client_event_file_path}`);
+        // console.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client event... ${client_event_file_path}`);
+        LineLogger.log(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client event... ${client_event_file_path}`);
 
         try {
             /**
@@ -114,11 +116,13 @@ async function registerClientEvents(
 
             discord_client.on(client_event.name, (...args) => client_event.handler(discord_client, ...args));
         } catch (error) {
-            console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client event: ${client_event_file_path}`, error);
+            // console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client event: ${client_event_file_path}`, error);
+            LineLogger.log(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to register client event: ${client_event_file_path}:\n${error}`, true);
 
             continue;
         }
     }
+    LineLogger.stop();
 }
 
 //------------------------------------------------------------//
