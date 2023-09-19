@@ -12,7 +12,7 @@ import * as Discord from 'discord.js';
 
 import recursiveReadDirectory from 'recursive-read-directory';
 
-import { EnvironmentVariableName, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, LineLogger, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
 
 import { sendWebhookMessage } from '@root/common/app/webhook';
 
@@ -452,12 +452,14 @@ export class ClientInteractionManager {
         const path_to_interaction_files = path.join(process.cwd(), 'dist', 'interactions');
         const client_interaction_file_names: string[] = recursiveReadDirectory(path_to_interaction_files);
 
+        LineLogger.start();
         for (const client_interaction_file_name of client_interaction_file_names) {
             if (!client_interaction_file_name.endsWith('.js')) continue;
 
             const client_interaction_file_path = path.join(path_to_interaction_files, client_interaction_file_name);
 
-            console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+            // console.info(`<DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
+            LineLogger.log(`DC S#(${discord_client.shard.ids.join(', ')})> registering client interaction... ${client_interaction_file_path}`);
 
             delete require.cache[require.resolve(client_interaction_file_path)]; // this is necessary to ensure that the file is reloaded every time
 
@@ -467,12 +469,14 @@ export class ClientInteractionManager {
             const { default: client_interaction } = require(client_interaction_file_path) as { default: unknown };
 
             if (!(client_interaction instanceof ClientInteraction)) {
-                console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
+                // console.trace(`<DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`);
+                LineLogger.log(`DC S#(${discord_client.shard.ids.join(', ')})> failed to load client interaction: ${client_interaction_file_path};`, true);
                 continue;
             }
 
             ClientInteractionManager.interactions.set(client_interaction.identifier, client_interaction);
         }
+        LineLogger.stop();
     }
 
     static async handleUnknownInteraction(
