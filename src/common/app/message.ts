@@ -192,3 +192,68 @@ export async function requestPotentialNotSafeForWorkContentConsent(
 
     return collected_consent_interaction.customId === 'user_consents_to_potential_nsfw_content';
 }
+
+//------------------------------------------------------------//
+
+export async function requestConfirmation(
+    channel: Discord.TextBasedChannel,
+    user: Discord.User,
+    {
+        title,
+        description,
+        confirm_button_label,
+        cancel_button_label,
+    }: {
+        title: string;
+        description: string;
+        confirm_button_label: string;
+        cancel_button_label: string;
+    },
+): Promise<boolean> {
+    try {
+        await channel.send({
+            content: Discord.userMention(user.id),
+            embeds: [
+                CustomEmbed.from({
+                    title: title,
+                    description: description,
+                }),
+            ],
+            components: [
+                {
+                    type: Discord.ComponentType.ActionRow,
+                    components: [
+                        {
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Primary,
+                            customId: 'user_confirmed',
+                            label: confirm_button_label,
+                        }, {
+                            type: Discord.ComponentType.Button,
+                            style: Discord.ButtonStyle.Secondary,
+                            customId: 'user_cancelled',
+                            label: cancel_button_label,
+                        },
+                    ],
+                },
+            ],
+        });
+    } catch {
+        return false;
+    }
+
+    const collected_confirmation_interaction = await channel.awaitMessageComponent({
+        componentType: Discord.ComponentType.Button,
+        filter: (component_interaction) => component_interaction.user.id === user.id,
+    });
+
+    if (!collected_confirmation_interaction) return false;
+
+    try {
+        await channel.messages.delete(collected_confirmation_interaction.message.id);
+    } catch {
+        // ignore any errors that occur when deleting the message
+    }
+
+    return collected_confirmation_interaction.customId === 'user_confirmed';
+}

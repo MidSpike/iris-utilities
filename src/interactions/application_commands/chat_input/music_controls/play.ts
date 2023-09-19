@@ -8,7 +8,7 @@ import * as DiscordVoice from '@discordjs/voice';
 
 import { delay } from '@root/common/lib/utilities';
 
-import { CustomEmbed } from '@root/common/app/message';
+import { CustomEmbed, requestConfirmation } from '@root/common/app/message';
 
 import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
 
@@ -22,6 +22,9 @@ async function playQuery(
     query: string,
     playnext: boolean,
 ) {
+    if (!interaction.inCachedGuild()) return;
+    if (!interaction.channel) return;
+
     const search_results = await MusicReconnaissance.search(query);
 
     if (search_results.length === 0) {
@@ -37,6 +40,20 @@ async function playQuery(
     }
 
     if (search_results.length > 1) {
+        const user_wants_to_add_all_tracks = await requestConfirmation(interaction.channel!, interaction.user, {
+            title: 'Woah there!',
+            description: [
+                `I found ${search_results.length} tracks for:`,
+                '\`\`\`',
+                `${query}`,
+                '\`\`\`',
+                'Would you like to add all of them to the queue?',
+            ].join('\n'),
+            confirm_button_label: 'Add all tracks',
+            cancel_button_label: 'Cancel',
+        });
+        if (!user_wants_to_add_all_tracks) return await interaction.deleteReply();
+
         await interaction.followUp({
             embeds: [
                 CustomEmbed.from({

@@ -21,6 +21,7 @@ export enum EnvironmentVariableName {
     DiscordBotCentralLoggingAnonymousCommandHistoryWebhook = 'DISCORD_BOT_CENTRAL_LOGGING_ANONYMOUS_COMMAND_HISTORY_WEBHOOK',
     DiscordBotCentralLoggingHistoryDeletionRequestsWebhook = 'DISCORD_BOT_CENTRAL_LOGGING_HISTORY_DELETION_REQUESTS_WEBHOOK',
     DiscordBotVerboseInteractionLogging = 'DISCORD_BOT_VERBOSE_INTERACTION_LOGGING',
+    DiscordBotVoiceCommands = 'DISCORD_BOT_VOICE_COMMANDS',
 
     ChatAiDefaultModel = 'CHAT_AI_DEFAULT_MODEL',
     ChatAiAdvancedModel = 'CHAT_AI_ADVANCED_MODEL',
