@@ -4,13 +4,11 @@
 
 import * as Discord from 'discord.js';
 
-import * as DiscordVoice from '@discordjs/voice';
-
 import { delay } from '@root/common/lib/utilities';
 
 import { CustomEmbed, requestConfirmation } from '@root/common/app/message';
 
-import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
+import { MusicReconnaissance, MusicSubscription, StreamerSpace, TrackSpace, joinVoiceChannelAndEnsureMusicSubscription } from '@root/common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
@@ -296,25 +294,15 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        let music_subscription = music_subscriptions.get(interaction.guildId);
-        if (!music_subscription || !bot_voice_channel_id) {
-            music_subscription = new MusicSubscription({
-                voice_connection: DiscordVoice.joinVoiceChannel({
-                    channelId: guild_member_voice_channel_id,
-                    guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
-                    selfDeaf: false,
-                }),
-                text_channel: interaction.channel,
-            });
-            music_subscriptions.set(interaction.guildId, music_subscription);
-        }
-
+        let music_subscription;
         try {
-            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
-        } catch (error) {
-            console.warn(error);
-
+            music_subscription = await joinVoiceChannelAndEnsureMusicSubscription(
+                interaction.guildId,
+                guild_member_voice_channel_id,
+                interaction.channelId,
+                interaction.guild.voiceAdapterCreator
+            );
+        } catch {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({

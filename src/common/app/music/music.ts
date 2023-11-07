@@ -65,7 +65,7 @@ const sc_client = new SoundCloud.Client(soundcloud_client_id);
 export class MusicSubscription {
     private _locked = false;
 
-    readonly text_channel: Discord.TextBasedChannel;
+    readonly text_channel_id: Discord.Snowflake;
 
     readonly voice_connection: DiscordVoice.VoiceConnection;
 
@@ -75,10 +75,10 @@ export class MusicSubscription {
 
     constructor({
         voice_connection,
-        text_channel,
+        text_channel_id,
     }: {
         voice_connection: DiscordVoice.VoiceConnection,
-        text_channel: Discord.TextBasedChannel,
+        text_channel_id: Discord.Snowflake,
     }) {
         const audio_player = DiscordVoice.createAudioPlayer();
 
@@ -188,7 +188,7 @@ export class MusicSubscription {
         voice_connection.subscribe(audio_player);
 
         this.audio_player = audio_player;
-        this.text_channel = text_channel;
+        this.text_channel_id = text_channel_id;
         this.voice_connection = voice_connection;
     }
 
@@ -487,6 +487,41 @@ export class MusicReconnaissance {
 //------------------------------------------------------------//
 
 const music_subscriptions = new Map<GuildId, MusicSubscription>();
+
+//------------------------------------------------------------//
+
+export async function joinVoiceChannelAndEnsureMusicSubscription(
+    guild_id: Discord.Snowflake,
+    voice_channel_id: Discord.Snowflake,
+    text_channel_id: Discord.Snowflake,
+    voice_adapter_creator: unknown,
+): Promise<MusicSubscription> {
+    let music_subscription = music_subscriptions.get(guild_id);
+    if (music_subscription) return music_subscription;
+
+    music_subscription = new MusicSubscription({
+        voice_connection: DiscordVoice.joinVoiceChannel({
+            channelId: voice_channel_id,
+            guildId: guild_id,
+            // @ts-expect-error - voice adapter creator is not typed conveniently
+            adapterCreator: voice_adapter_creator,
+            selfDeaf: false,
+        }),
+        text_channel_id: text_channel_id,
+    });
+
+    music_subscriptions.set(guild_id, music_subscription);
+
+    try {
+        await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
+    } catch (error) {
+        console.warn(error);
+
+        throw error;
+    }
+
+    return music_subscription;
+}
 
 //------------------------------------------------------------//
 

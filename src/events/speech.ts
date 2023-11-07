@@ -90,7 +90,11 @@ export default {
         const music_subscription = music_subscriptions.get(guild.id);
         if (!music_subscription) return;
 
-        await music_subscription.text_channel.send({
+        const text_channel = await discord_client.channels.fetch(music_subscription.text_channel_id);
+        if (!text_channel) return;
+        if (!text_channel.isTextBased()) return;
+
+        await text_channel.send({
             embeds: [
                 CustomEmbed.from({
                     title: 'Voice Command',
@@ -107,7 +111,7 @@ export default {
 
                 const is_user_allowed_to_use_gpt = await doesUserHaveArtificialIntelligenceAccess(guild_member.user.id);
                 if (!is_user_allowed_to_use_gpt) {
-                    await music_subscription.text_channel.send({
+                    await text_channel.send({
                         embeds: [
                             CustomEmbed.from({
                                 title: 'Voice Command - GPT-3.5-Turbo',
@@ -179,7 +183,7 @@ export default {
                 const gpt_response_message = gpt_response_data?.choices?.[0]?.message?.content ?? 'Failed to generate a response.';
                 const gpt_response_total_tokens = gpt_response_data?.usage?.total_tokens ?? 0;
 
-                music_subscription.text_channel.send({
+                text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command - GPT-3.5-Turbo',
@@ -284,7 +288,7 @@ export default {
                 if (!track) return;
 
                 void track.onStart(async (track) => {
-                    music_subscription.text_channel.send({
+                    text_channel.send({
                         embeds: [
                             CustomEmbed.from({
                                 title: 'Voice Command',
@@ -295,7 +299,7 @@ export default {
                 });
 
                 void track.onFinish(async (track) => {
-                    music_subscription.text_channel.send({
+                    text_channel.send({
                         embeds: [
                             CustomEmbed.from({
                                 title: 'Voice Command',
@@ -308,7 +312,7 @@ export default {
                 void track.onError(async (track, error) => {
                     console.trace(error);
 
-                    music_subscription.text_channel.send({
+                    text_channel.send({
                         embeds: [
                             CustomEmbed.from({
                                 title: 'Voice Command',
@@ -339,7 +343,7 @@ export default {
                 const maximum_allowed_volume = 100;
                 const volume_level = Math.max(minimum_allowed_volume, Math.min(parsed_volume_input, maximum_allowed_volume));
 
-                music_subscription.text_channel.send({
+                text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
@@ -357,7 +361,7 @@ export default {
 
             case 'paws': // fallback for improper recognition
             case 'pause': {
-                music_subscription.text_channel.send({
+                text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
@@ -373,7 +377,7 @@ export default {
 
             case 'resumes': // fallback for improper recognition
             case 'resume': {
-                music_subscription.text_channel.send({
+                text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
@@ -390,7 +394,7 @@ export default {
             case 'skit': // fallback for improper recognition
             case 'skin': // fallback for improper recognition
             case 'skip': {
-                music_subscription.text_channel.send({
+                text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',
@@ -407,7 +411,7 @@ export default {
             case 'disconnect':
             case 'star': // fallback for improper recognition
             case 'stop': {
-                music_subscription.text_channel.send({
+                text_channel.send({
                     embeds: [
                         CustomEmbed.from({
                             title: 'Voice Command',

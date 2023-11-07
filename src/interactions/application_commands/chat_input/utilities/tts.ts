@@ -16,15 +16,13 @@ import * as Discord from 'discord.js';
 
 import { compareTwoStrings } from 'string-similarity';
 
-import * as DiscordVoice from '@discordjs/voice';
-
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
 import { EnvironmentVariableName, arrayChunks, delay, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { MusicSubscription, TrackSpace, music_subscriptions } from '@root/common/app/music/music';
+import { TrackSpace, joinVoiceChannelAndEnsureMusicSubscription } from '@root/common/app/music/music';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
@@ -158,34 +156,20 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        let music_subscription: MusicSubscription | undefined = music_subscriptions.get(interaction.guildId);
-
-        // If a connection to the guild doesn't already exist and the user is in a voice channel,
-        // join that channel and create a subscription.
-        if (!bot_voice_channel_id || !music_subscription) {
-            music_subscription = new MusicSubscription({
-                voice_connection: DiscordVoice.joinVoiceChannel({
-                    channelId: guild_member_voice_channel_id,
-                    guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
-                    selfDeaf: false,
-                }),
-                text_channel: interaction.channel,
-            });
-            music_subscriptions.set(interaction.guildId, music_subscription);
-        }
-
-        // Make sure the connection is ready before processing the user's request
+        let music_subscription;
         try {
-            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
-        } catch (error) {
-            console.warn(error);
-
-            await interaction.followUp({
+            music_subscription = await joinVoiceChannelAndEnsureMusicSubscription(
+                interaction.guildId,
+                guild_member_voice_channel_id,
+                interaction.channelId,
+                interaction.guild.voiceAdapterCreator
+            );
+        } catch {
+            await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Red,
-                        description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                        description: `${interaction.user}, I couldn't properly connect to that voice channel.`,
                     }),
                 ],
             });

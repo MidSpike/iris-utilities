@@ -183,7 +183,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                 const mc_server_info_ip = response_data?.ip;
                 const mc_server_info_raw_icon = response_data?.icon;
                 const mc_server_info_hostname = response_data?.hostname;
-                const mc_server_info_software = response_data?.software;
                 const mc_server_info_version = response_data?.version;
                 const mc_server_info_online = response_data?.online;
                 const mc_server_info_motd_clean = response_data?.motd?.clean;
@@ -223,10 +222,6 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
                                 }, {
                                     name: 'Players',
                                     value: `${mc_server_info_players} / ${mc_server_info_max_players}`,
-                                    inline: true,
-                                }, {
-                                    name: 'Flavour',
-                                    value: mc_server_info_software ?? 'Vanilla (unknown)',
                                     inline: true,
                                 },
                             ],
