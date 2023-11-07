@@ -4,13 +4,11 @@
 
 import * as Discord from 'discord.js';
 
-import * as DiscordVoice from '@discordjs/voice';
-
 import { CustomEmbed } from '@root/common/app/message';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
-import { MusicSubscription, music_subscriptions } from '@root/common/app/music/music';
+import { joinVoiceChannelAndEnsureMusicSubscription } from '@root/common/app/music/music';
 
 //------------------------------------------------------------//
 
@@ -83,30 +81,20 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             return;
         }
 
-        let music_subscription = music_subscriptions.get(interaction.guildId);
-        if (!bot_voice_channel_id || !music_subscription) {
-            music_subscription = new MusicSubscription({
-                voice_connection: DiscordVoice.joinVoiceChannel({
-                    channelId: guild_member_voice_channel_id,
-                    guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
-                    selfDeaf: false,
-                }),
-                text_channel: interaction.channel,
-            });
-            music_subscriptions.set(interaction.guildId, music_subscription);
-        }
-
+        let music_subscription;
         try {
-            await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
-        } catch (error) {
-            console.warn(error);
-
+            music_subscription = await joinVoiceChannelAndEnsureMusicSubscription(
+                interaction.guildId,
+                guild_member_voice_channel_id,
+                interaction.channelId,
+                interaction.guild.voiceAdapterCreator
+            );
+        } catch {
             await interaction.editReply({
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Red,
-                        description: `${interaction.user}, I couldn't connect to the voice channel.`,
+                        description: `${interaction.user}, I couldn't properly connect to that voice channel.`,
                     }),
                 ],
             });
