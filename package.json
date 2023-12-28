@@ -30,25 +30,25 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "2.4.6",
-    "@types/string-similarity": "4.0.1",
-    "@typescript-eslint/eslint-plugin": "6.10.0",
-    "@typescript-eslint/parser": "6.10.0",
-    "eslint": "8.53.0",
+    "@types/string-similarity": "4.0.2",
+    "@typescript-eslint/eslint-plugin": "6.16.0",
+    "@typescript-eslint/parser": "6.16.0",
+    "eslint": "8.56.0",
     "eslint-plugin-deprecation": "2.0.0",
     "husky": "8.0.3",
     "is-ci": "3.0.1",
     "run-script-os": "1.1.6",
-    "typescript": "5.2.2"
+    "typescript": "5.3.3"
   },
   "dependencies": {
     "@discordjs/opus": "0.9.0",
-    "@discordjs/voice": "0.16.0",
-    "@distube/ytdl-core": "4.13.2",
+    "@discordjs/voice": "0.16.1",
+    "@distube/ytdl-core": "4.13.3",
     "@mapbox/node-pre-gyp": "1.0.11",
     "@midspike/discord-speech-recognition": "github:MidSpike/discord-speech-recognition#v3.4.0",
     "aki-api": "6.0.9",
-    "axios": "1.6.0",
-    "discord.js": "14.13.0",
+    "axios": "1.6.3",
+    "discord.js": "14.14.1",
     "dotenv": "16.3.1",
     "ffmpeg-static": "5.2.0",
     "ffmpeg-stream": "0.7.0",
@@ -57,7 +57,7 @@
     "html-entities": "2.4.0",
     "libsodium-wrappers": "0.7.13",
     "manakin": "0.5.2",
-    "mathjs": "12.0.0",
+    "mathjs": "12.2.1",
     "module-alias": "2.2.3",
     "moment-timezone": "0.5.43",
     "node-gyp": "10.0.1",
@@ -69,6 +69,6 @@
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
     "uuid": "9.0.1",
-    "youtube-sr": "4.3.9"
+    "youtube-sr": "4.3.10"
   }
 }
