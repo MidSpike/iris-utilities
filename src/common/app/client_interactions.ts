@@ -544,39 +544,6 @@ export class ClientInteractionManager {
             ClientInteractionCooldownManager.setUserOnCooldown(unknown_interaction.user.id, client_interaction.cooldown_duration_ms);
         }
 
-        /* log the interaction */
-        if (unknown_interaction.isChatInputCommand()) {
-            const current_timestamp = `${Date.now()}`.slice(0, -3);
-
-            void sendWebhookMessage(anonymous_command_history_webhook_url, {
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.Colors.Brand,
-                        fields: [
-                            {
-                                name: 'Executed On',
-                                value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
-                                inline: false,
-                            }, {
-                                name: 'Command Run',
-                                value: [
-                                    '\`\`\`',
-                                    [
-                                        `/${unknown_interaction.commandName}`,
-                                        stringEllipses(stringifyOptions(unknown_interaction.options.data), 1024),
-                                    ].join(' '),
-                                    '\`\`\`',
-                                ].join('\n'),
-                                inline: false,
-                            },
-                        ],
-                    }).toJSON(),
-                ],
-            }).catch(
-                (error) => console.trace(error)
-            );
-        }
-
         /* run the interaction handler */
         console.log(`ClientInteractionManager.handleUnknownInteraction(): running handler for interaction: ${client_interaction.identifier}`);
         void client_interaction.handler(discord_client, unknown_interaction).catch(
@@ -610,5 +577,38 @@ export class ClientInteractionManager {
                 }
             }
         );
+
+        /* log the interaction */
+        if (unknown_interaction.isChatInputCommand()) {
+            const current_timestamp = `${Date.now()}`.slice(0, -3);
+
+            void sendWebhookMessage(anonymous_command_history_webhook_url, {
+                embeds: [
+                    CustomEmbed.from({
+                        color: CustomEmbed.Colors.Brand,
+                        fields: [
+                            {
+                                name: 'Executed On',
+                                value: `<t:${current_timestamp}:f> (<t:${current_timestamp}:R>)`,
+                                inline: false,
+                            }, {
+                                name: 'Command Run',
+                                value: [
+                                    '\`\`\`',
+                                    [
+                                        `/${unknown_interaction.commandName}`,
+                                        stringEllipses(stringifyOptions(unknown_interaction.options.data), 1024),
+                                    ].join(' '),
+                                    '\`\`\`',
+                                ].join('\n'),
+                                inline: false,
+                            },
+                        ],
+                    }).toJSON(),
+                ],
+            }).catch(
+                (error) => console.trace(error)
+            );
+        }
     }
 }
