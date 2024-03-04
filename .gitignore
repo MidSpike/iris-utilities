@@ -1,21 +1,15 @@
-# environment variables
-*.env
+# Visual Studio Code
+/.vscode
 
-# git
-.git
+# Visual Studio Code Extensions
+/.VSCodeCounter
 
-# vscode configs
-.vscode
+# Environment Variables and Secrets
+**/*.env
+**/mongod.conf
 
-# vscode extensions
-.VSCodeCounter
-.buildt
+# Rust Build Artifacts
+/target
 
-# node
-node_modules
-
-# TypeScript generated
-/dist
-
-# Docker Persisted Data Storage
-/docker-data
+# Docker Compose Storage Locations
+/docker/*/storage

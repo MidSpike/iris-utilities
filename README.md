@@ -20,19 +20,19 @@ Yes, check out [iris-utilities.com](https://iris-utilities.com/)!
 
 ### Who was I.R.I.S. Utilities created by?
 
-I.R.I.S. Utilities was created by Tyler S. Resch from [MidSpike.Com](https://midspike.com/).
+I.R.I.S. Utilities was created by Tyler S. Resch (aka MidSpike) from [MidSpike.Com](https://midspike.com/).
 
 ### Why is I.R.I.S. Utilities on GitHub?
 
 There are a few reasons for this:
 
-1) I decided that I.R.I.S. Utilities is a Discord Bot for the people; therefore, it's source-code should be viewable by the public.
+1) I.R.I.S. Utilities is a Discord Bot for the people; therefore, it's source-code should be viewable by the public.
 
-2) Open-source software is good for the end-user: bug fixes, security patches, and general improvements can be made faster.
+2) Open-source is beneficial: bug fixes, security patches, and general improvements can be made faster.
 
-3) By making the source-code public, I hope to allow people to scrutinize my work to make I.R.I.S. Utilities even better.
+3) By having public source-code, people can scrutinize the I.R.I.S. Utilities codebase to make it even better.
 
-4) Additionally, by being open-source, this provides new Discord bot developers with an educational resource.
+4) This repository provides new Discord bot developers with an educational resource to reference.
 
 ---
 
@@ -52,15 +52,41 @@ Remember to check up on the [restrictions below](#legal) for more information.
 
 Yes, but there are restrictions on the usage of I.R.I.S. Utilities source-code. ([see restrictions below](#legal)).
 
-Always remember to be kind and to never be malicious.
+Always be kind and never be malicious, your self-hosted instance must reflect that.
 
 Users expect integrity and honesty from all Discord bots on the platform.
 
 ---
 
-## Installation
+## Installation and Usage
 
-Not available yet.
+### 0. Prerequisites
+
+- Docker
+
+### 1. Environment Variables
+
+Copy and rename any `.env.example` file to `.env` and fill in the required fields.
+
+### 2. Mongo
+
+Copy and rename the `mongod.conf.example` file to `mongod.conf` and configure it to your needs.
+
+### 3.a Running in Docker (Recommended)
+
+Simply spin up docker via:
+```
+docker compose up --build
+```
+
+Alternatively there are platform specific start scripts:
+
+- `start.sh` for Linux
+- `start.cmd` for Windows
+
+### 3.b Running without Docker (Not Recommended)
+
+Feel free to open a Pull Request to help fill out this section.
 
 ---
 
@@ -94,17 +120,22 @@ The restrictions above, are meant to protect users from potentially malicious co
 
 ### License Notice
 
-We have a license for the creators and end-users of any Discord Bot created from this source-code:  
-Notice: The included license can and will be updated in the future!  
+We have a license for the creators and end-users of any Discord Bot created from this source-code:
+
+Notice: The included license can and will be updated in the future!
+
 **[Linked copy of the License Policy](LICENSE.md)**
 
 ### Privacy Notice
 
-We have a privacy policy for the creators and end-users of any Discord Bot created from this source-code:  
-Notice: The included Privacy Policy can and will be updated in the future!  
+We have a privacy policy for the creators and end-users of any Discord Bot created from this source-code:
+
+Notice: The included Privacy Policy can and will be updated in the future!
+
 **[Linked copy of the Privacy Policy](PRIVACY.md)**
 
 ### Copyright Notice
 
-This repository is copyrighted and protected under law.  
+This repository is copyrighted and protected under law.
+
 **[Linked copy of the Copyright Policy](COPYRIGHT.md)**

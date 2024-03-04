@@ -41,7 +41,7 @@ Certain aspects of this document are broadened to address potential privacy conc
     - user information attached: id, name.
     - guild information attached: id, name.
 
-#### If you wish to have your `interaction_history` removed then you can do any of the following:
+#### If you wish to have your `interaction_history` removed then you can do the following:
 
 1. Contact this bot's support staff (using appropriate channels).
 2. Request for your `interaction_history` be removed.
@@ -52,16 +52,16 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 <summary>User Configuration</summary>
 
-#### This bot collects, processes, and stores the following information known as user_configuration:
+#### This bot collects, processes, and stores the following information known as user_config:
 
-- user_configuration includes the following information:
+- user_config includes the following information:
     - user information attached: id.
     - various settings used to customize the bot's behavior for the user.
 
-#### If you wish to have your user_configuration removed then you can do any of the following:
+#### If you wish to have your user_config removed then you can do the following:
 
 1. Contact this bot's support staff (using appropriate channels).
-2. Request for your user_configuration be removed.
+2. Request for your user_config be removed.
 
 </details>
 
