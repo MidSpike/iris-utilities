@@ -18,7 +18,11 @@ pub mod magic_ball;
 
 pub mod poll;
 
+pub mod random_animal;
+
 pub mod random_color;
+
+pub mod random_furry;
 
 pub mod roast;
 
