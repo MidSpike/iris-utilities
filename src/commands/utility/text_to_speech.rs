@@ -106,7 +106,7 @@ pub async fn text_to_speech(
         return Ok(());
     };
 
-    // Force the query to be treated as text to speech using the `speak:` prefix.
+    // Prefix the query with `speak:` to make Lavalink use the TTS feature.
     let query = format!("speak: {}", text);
 
     query_and_enqueue_track(

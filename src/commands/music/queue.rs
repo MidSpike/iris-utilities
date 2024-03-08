@@ -67,7 +67,8 @@ pub async fn items(
     let player_data = player.get_player().await?;
 
     let max = queue.len().min(9);
-    let queue_message = queue
+    let queue_message =
+        queue
         .range(0..max)
         .enumerate()
         .map(|(idx, x)| {
