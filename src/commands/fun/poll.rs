@@ -69,6 +69,7 @@ fn generate_poll_html(
     poise::command(
         slash_command,
         category = "Fun",
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn poll(

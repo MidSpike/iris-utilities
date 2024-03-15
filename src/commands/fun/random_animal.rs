@@ -99,6 +99,7 @@ impl AnimalKind {
     poise::command(
         slash_command,
         category = "Fun",
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn random_animal(

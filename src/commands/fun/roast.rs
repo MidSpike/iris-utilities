@@ -25,6 +25,7 @@ use crate::common::ai;
     poise::command(
         slash_command,
         category = "Fun",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn roast(
