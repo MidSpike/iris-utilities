@@ -12,6 +12,8 @@ use crate::Error;
 
 use crate::events::handlers::guild_ai_chat_handler::guild_ai_chat_handler;
 
+use crate::common::telemetry;
+
 //------------------------------------------------------------//
 
 async fn component_interaction_handler(
@@ -50,6 +52,23 @@ pub async fn event_handler(
             // println!("{}: {}", new_message.author.name, new_message.content);
 
             guild_ai_chat_handler(ctx, new_message).await.expect("Failed to handle AI chat");
+        },
+
+        serenity::FullEvent::GuildCreate { guild, is_new } => {
+            // assume that the guild is new
+            let is_new = is_new.unwrap_or(true);
+
+            if is_new {
+                let kind = telemetry::guild_retention::GuildRetentionTelemetryKind::BotAdded;
+                telemetry::guild_retention::telemetry_guild_retention(&ctx, &guild, kind).await;
+            }
+        },
+
+        serenity::FullEvent::GuildDelete { incomplete: _, full: guild } => {
+            if let Some(guild) = guild {
+                let kind = telemetry::guild_retention::GuildRetentionTelemetryKind::BotRemoved;
+                telemetry::guild_retention::telemetry_guild_retention(&ctx, &guild, kind).await;
+            }
         },
 
         _ => {}, // ignore other events

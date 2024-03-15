@@ -26,42 +26,6 @@ use crate::common::helpers::bot::create_escaped_code_block;
 //     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
 // }
 
-fn find_suitable_voice_channel(
-    ctx: &Context<'_>,
-    _guild: &serenity::Guild, // reserved for future use
-    _member: &serenity::Member, // reserved for future use
-    current_voice_channel: serenity::Channel,
-) -> Result<Option<serenity::ChannelId>, Error> {
-    let current_voice_channel =
-        current_voice_channel.guild()
-        .expect("There should be a guild channel in this context.");
-
-    let guild =
-        current_voice_channel.guild(&ctx)
-        .expect("There should be a guild in this context.");
-
-    let afk_metadata = guild.afk_metadata.clone();
-
-    let afk_channel_id_option = afk_metadata.map(|metadata| metadata.afk_channel_id);
-
-    let fallback_channel_id_option =
-        guild.channels
-        .values()
-        .filter(
-            |channel| {
-                channel.kind == serenity::ChannelType::Voice &&
-                channel.id != current_voice_channel.id
-            }
-        )
-        .map(|channel| channel.id)
-        .next();
-
-    let suitable_voice_channel_id_option =
-        afk_channel_id_option.or(fallback_channel_id_option);
-
-    Ok(suitable_voice_channel_id_option)
-}
-
 async fn relocate_member_in_voice_channel(
     ctx: &Context<'_>,
     member: &mut serenity::Member,
@@ -137,28 +101,24 @@ pub async fn someone(
         guild_voice_states = guild.voice_states.clone();
     }
 
+    let executing_member_voice_channel_id_option =
+        guild_voice_states
+        .get(&executing_member.user.id)
+        .and_then(|voice_state| voice_state.channel_id);
+
+    let Some(executing_member_voice_channel_id) = executing_member_voice_channel_id_option else {
+        ctx.say("You must be in a voice channel to use this command.").await?;
+
+        return Ok(());
+    };
+
     let target_member_voice_channel_id_option =
         guild_voice_states
         .get(&ctx.author().id)
         .and_then(|voice_state| voice_state.channel_id);
 
-    let Some(target_member_voice_channel_id) = target_member_voice_channel_id_option else {
+    let Some(_) = target_member_voice_channel_id_option else {
         ctx.say("The specified member is not in a voice channel.").await?;
-
-        return Ok(());
-    };
-
-    let target_member_voice_channel =
-        target_member_voice_channel_id
-        .to_channel(&ctx)
-        .await
-        .expect("There should be a voice channel in this context.");
-
-    let suitable_voice_channel_option =
-        find_suitable_voice_channel(&ctx, &guild, &target_member, target_member_voice_channel)?;
-
-    let Some(suitable_voice_channel) = suitable_voice_channel_option else {
-        ctx.say("Could not find a suitable voice channel to move the specified member to.").await?;
 
         return Ok(());
     };
@@ -172,7 +132,7 @@ pub async fn someone(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were yeeted in {} by {} for:\n```{}```",
+                    "You were yoinked in {} by {} for:\n```{}```",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -184,8 +144,8 @@ pub async fn someone(
     relocate_member_in_voice_channel(
         &ctx,
         &mut target_member,
-        suitable_voice_channel,
-        &format!("Yeeted by {} for: {}", executing_member.user.mention(), reason),
+        executing_member_voice_channel_id,
+        &format!("Yoinked by {} for: {}", executing_member.user.mention(), reason),
     ).await?;
 
     ctx.send(
@@ -196,7 +156,7 @@ pub async fn someone(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was yeeted by {} for:\n```{}```",
+                    "{} was yoinked by {} for:\n```{}```",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -218,7 +178,7 @@ pub async fn someone(
         category = "Moderation",
     )
 ]
-pub async fn yeet(
+pub async fn yoink(
     _ctx: Context<'_>,
 ) -> Result<(), Error> {
     Ok(())

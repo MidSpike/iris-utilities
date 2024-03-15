@@ -23,3 +23,5 @@ pub mod untimeout;
 pub mod warn;
 
 pub mod yeet;
+
+pub mod yoink;

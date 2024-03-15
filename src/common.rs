@@ -13,3 +13,5 @@ pub mod moderation;
 pub mod music;
 
 pub mod database;
+
+pub mod telemetry;

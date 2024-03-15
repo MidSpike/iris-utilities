@@ -2,12 +2,8 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-pub mod help;
+pub mod anonymous_command_log;
 
-pub mod feedback;
+pub mod guild_retention;
 
-pub mod info;
-
-pub mod invite;
-
-pub mod ping;
+pub mod user_feedback;

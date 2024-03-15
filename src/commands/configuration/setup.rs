@@ -60,8 +60,10 @@ impl AiChatMode {
         match self {
             AiChatMode::Disabled =>
                 GuildConfigAiChatMode::Disabled,
+
             AiChatMode::AiChatChannelsRequireMention =>
                 GuildConfigAiChatMode::AiChatChannelsRequireMention,
+
             AiChatMode::AiChatChannelsAlwaysRespond =>
                 GuildConfigAiChatMode::AiChatChannelsAlwaysRespond,
         }
