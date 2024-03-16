@@ -23,22 +23,20 @@ pub async fn list(
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
-    // check if executing member has discord permission to perform this action at all
-    moderation::assert_guild_member_permitted_by_discord(
-        &ctx,
-        |_guild, _executing_member, permissions| {
-            permissions.ban_members()
-        },
-        "You do not have permission to perform this action.",
-    ).await?;
+    let executing_member =
+        ctx
+        .author_member().await
+        .expect("There should be a member in this context.")
+        .clone();
 
     // check if executing member has discord permission to perform this action at all
     moderation::assert_guild_member_permitted_by_discord(
         &ctx,
+        &executing_member,
         |_guild, _executing_member, permissions| {
             permissions.ban_members()
         },
-        "You do not have permission to perform this action.",
+        None,
     ).await?;
 
     let guild_bans = guild.bans(

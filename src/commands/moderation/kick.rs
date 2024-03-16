@@ -53,10 +53,11 @@ pub async fn kick(
     // check if executing member has discord permission to perform this action at all
     moderation::assert_guild_member_permitted_by_discord(
         &ctx,
+        &executing_member,
         |_guild, _executing_member, permissions| {
             permissions.kick_members()
         },
-        "You do not have permission to perform this action.",
+        None,
     ).await?;
 
     // check if executing member is above target member in the role hierarchy

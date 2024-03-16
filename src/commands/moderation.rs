@@ -17,6 +17,8 @@ pub mod kick;
 pub mod mute;
 pub mod unmute;
 
+pub mod purge;
+
 pub mod timeout;
 pub mod untimeout;
 

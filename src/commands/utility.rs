@@ -6,6 +6,8 @@ pub mod channel_info;
 
 pub mod guild_info;
 
+pub mod ip_info;
+
 pub mod member_info;
 
 pub mod minecraft_info;

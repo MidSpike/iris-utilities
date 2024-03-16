@@ -2,8 +2,6 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use std::borrow::Cow;
-
 use poise::serenity_prelude::RoleId;
 use poise::serenity_prelude::{self as serenity};
 
@@ -12,6 +10,10 @@ use poise::serenity_prelude::{self as serenity};
 use crate::Error;
 
 use crate::Context;
+
+//------------------------------------------------------------//
+
+pub const LACKING_PERMISSIONS_MESSAGE: &str = "You do not have permission to perform this action.";
 
 //------------------------------------------------------------//
 
@@ -24,18 +26,15 @@ pub fn is_guild_member_owner_of_guild(
 }
 
 type GuildMemberPermissionsChecker =
-    fn(serenity::Guild, Cow<'_, serenity::Member>, serenity::Permissions) -> bool;
+    fn(&serenity::Guild, &serenity::Member, serenity::Permissions) -> bool;
 
 pub async fn assert_guild_member_permitted_by_discord(
     ctx: &Context<'_>,
+    member: &serenity::Member,
     check_permissions: GuildMemberPermissionsChecker,
-    lacking_permissions_message: &str,
+    lacking_permissions_message: Option<&str>,
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild.").clone();
-
-    let Some(member) = ctx.author_member().await else {
-        Err("Failed to get guild member.")?
-    };
 
     let Ok(permissions) = member.permissions(ctx) else {
         Err("Failed to get guild member permissions.")?
@@ -52,12 +51,12 @@ pub async fn assert_guild_member_permitted_by_discord(
     }
 
     // check if the user has the required permissions
-    if check_permissions(guild.to_owned(), member, permissions) {
+    if check_permissions(&guild, &member, permissions) {
         return Ok(());
     }
 
     // the user does not have the required permissions
-    Err(lacking_permissions_message)?
+    Err(lacking_permissions_message.unwrap_or(LACKING_PERMISSIONS_MESSAGE))?
 }
 
 pub async fn assert_member_above_other_member(
