@@ -42,5 +42,5 @@ pub fn format_duration(
         formatted_duration.push_str(&format!("{}ms ", milliseconds));
     }
 
-    return formatted_duration.trim().to_owned();
+    formatted_duration.trim().into()
 }

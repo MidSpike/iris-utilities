@@ -8,9 +8,9 @@ use serenity::utils::{FormattedTimestamp,FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
-use crate::Error;
-
 use crate::Context;
+
+use crate::Error;
 
 use crate::common::brand::BrandColor;
 

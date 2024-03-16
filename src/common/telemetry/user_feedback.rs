@@ -4,6 +4,8 @@
 
 use poise::serenity_prelude::{self as serenity};
 
+//------------------------------------------------------------//
+
 use crate::common::brand::BrandColor;
 
 use crate::Context;

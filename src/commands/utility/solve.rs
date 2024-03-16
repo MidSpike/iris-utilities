@@ -2,10 +2,6 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-// use poise::serenity_prelude::{self as serenity};
-
-//------------------------------------------------------------//
-
 use crate::Context;
 
 use crate::Error;

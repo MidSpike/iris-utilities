@@ -4,9 +4,11 @@
 
 use tokio_stream::StreamExt;
 
-use crate::common::database::interfaces::guild_config::GuildConfig;
+//------------------------------------------------------------//
 
 use crate::Error;
+
+use crate::common::database::interfaces::guild_config::GuildConfig;
 
 //------------------------------------------------------------//
 

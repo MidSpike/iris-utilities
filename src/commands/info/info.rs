@@ -16,10 +16,8 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
-use crate::common::helpers::{
-    bot::{fetch_my_guild_invite_url, generate_bot_invite_url},
-    time::format_duration,
-};
+use crate::common::helpers::time::format_duration;
+use crate::common::helpers::bot::{fetch_my_guild_invite_url, generate_bot_invite_url};
 
 //------------------------------------------------------------//
 

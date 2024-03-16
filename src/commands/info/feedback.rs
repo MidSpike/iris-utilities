@@ -2,10 +2,11 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use crate::common::telemetry;
-
 use crate::Context;
+
 use crate::Error;
+
+use crate::common::telemetry;
 
 //------------------------------------------------------------//
 

@@ -3,8 +3,8 @@
 //------------------------------------------------------------//
 
 use itertools::Itertools;
-use poise::ChoiceParameter;
 
+use poise::ChoiceParameter;
 use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//

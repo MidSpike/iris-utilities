@@ -10,9 +10,9 @@ use crate::Data;
 
 use crate::Error;
 
-use crate::events::handlers::guild_ai_chat_handler::guild_ai_chat_handler;
-
 use crate::common::telemetry;
+
+use crate::events::handlers::guild_ai_chat_handler::guild_ai_chat_handler;
 
 //------------------------------------------------------------//
 

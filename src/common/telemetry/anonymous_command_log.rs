@@ -5,9 +5,11 @@
 use poise::serenity_prelude::{FormattedTimestamp, FormattedTimestampStyle};
 use poise::serenity_prelude::{self as serenity};
 
-use crate::common::brand::BrandColor;
+//------------------------------------------------------------//
 
 use crate::Context;
+
+use crate::common::brand::BrandColor;
 
 //------------------------------------------------------------//
 

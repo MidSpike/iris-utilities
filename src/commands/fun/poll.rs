@@ -12,9 +12,9 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandEmojis;
-
 use crate::common::brand::BrandColor;
+
+use crate::common::brand::BrandEmojis;
 
 use crate::common::helpers::chromium_oxide::{escape_html, html_to_png};
 

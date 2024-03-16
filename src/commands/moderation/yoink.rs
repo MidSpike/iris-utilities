@@ -4,6 +4,8 @@
 
 use std::collections::HashMap;
 
+//------------------------------------------------------------//
+
 use poise::serenity_prelude::Mentionable;
 use poise::serenity_prelude::{self as serenity};
 
@@ -20,11 +22,6 @@ use crate::common::moderation;
 use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
-
-// for member in members {
-//     // wait a bit to avoid discord rate limits
-//     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-// }
 
 async fn relocate_member_in_voice_channel(
     ctx: &Context<'_>,

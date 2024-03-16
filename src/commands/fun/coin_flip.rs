@@ -6,11 +6,10 @@ use derive_more::Display;
 
 use rand::Rng;
 
-// use poise::serenity_prelude::{self as serenity};
-
 //------------------------------------------------------------//
 
 use crate::Context;
+
 use crate::Error;
 
 //------------------------------------------------------------//
