@@ -85,11 +85,12 @@ pub async fn timeout(
 
     let chrono_now = chrono::Utc::now();
 
-    let chrono_min_duration = chrono::Duration::minutes(1);
-    let chrono_max_duration = chrono::Duration::hours(max_hours);
+    let chrono_min_duration = chrono::Duration::try_minutes(1).expect("this should not fail");
+    let chrono_max_duration = chrono::Duration::try_hours(max_hours).expect("this should not fail");
 
     let chrono_duration =
-        chrono::Duration::hours(hours)
+        chrono::Duration::try_hours(hours)
+        .expect("this should not fail")
         .min(chrono_max_duration)
         .max(chrono_min_duration);
 
