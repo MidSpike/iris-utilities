@@ -43,7 +43,7 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 #### If you wish to have your `interaction_history` removed then you can do the following:
 
-1. Contact this bot's support staff (using appropriate channels).
+1. Contact this bot's support staff (using appropriate methods).
 2. Request for your `interaction_history` be removed.
 
 </details>
@@ -60,7 +60,7 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 #### If you wish to have your user_config removed then you can do the following:
 
-1. Contact this bot's support staff (using appropriate channels).
+1. Contact this bot's support staff (using appropriate methods).
 2. Request for your user_config be removed.
 
 </details>
@@ -81,12 +81,12 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 #### A guild owner may request their guild_config by:
 
-1. Contact this bot's support staff (using appropriate channels).
+1. Contact this bot's support staff (using appropriate methods).
 2. Request for their guild_config to be sent to them.
 
 #### A guild owner may request for their guild_config to be removed by:
 
-1. Contact this bot's support staff (using appropriate channels).
+1. Contact this bot's support staff (using appropriate methods).
 2. Request for their guild_config to be removed.
 
 </details>
