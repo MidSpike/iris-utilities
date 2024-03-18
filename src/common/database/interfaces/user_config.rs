@@ -127,7 +127,6 @@ impl UserConfig {
     }
 
     /// Increments the number of GPT tokens used by this user.
-    /// Passing a negative value will result in an error being returned.
     pub async fn increment_gpt_tokens_used(
         &self,
         increment_by: u32,

@@ -13,6 +13,8 @@ use crate::common::ai;
 
 use crate::common::database::interfaces::guild_config::GuildConfig;
 
+use crate::common::ai::user_ai_usage::is_user_above_gpt_token_limit;
+
 //------------------------------------------------------------//
 
 pub async fn guild_ai_chat_handler(
@@ -59,7 +61,7 @@ pub async fn guild_ai_chat_handler(
     let user_id = member.user.id;
     let user_id_string = user_id.get().to_string();
 
-    if ai::user_ai_usage::is_user_above_gpt_token_limit(user_id).await? {
+    if is_user_above_gpt_token_limit(user_id).await? {
         return Ok(()); // don't continue if the user is above the token limit
     }
 

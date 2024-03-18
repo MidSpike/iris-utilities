@@ -228,7 +228,6 @@ impl GuildConfig {
     }
 
     /// Increments the number of GPT tokens used by this guild.
-    /// Passing a negative value will result in an error being returned.
     pub async fn increment_gpt_tokens_used(
         &self,
         increment_by: i32,
