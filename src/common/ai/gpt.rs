@@ -166,18 +166,24 @@ pub async fn prompt(
     // println!("OpenAI API response JSON: {:#?}", response_json);
 
     if response_status_code != 200 {
-        let response_error = response_json.error.expect("OpenAI API response JSON is missing \"error\" object in response to non-200 status code");
+        let response_error =
+            response_json.error
+            .expect("OpenAI API response missing \"error\" object in response for non-200 status code");
 
         let response_error_message = response_error.message;
 
         return Err(format!("OpenAI API error: {}", response_error_message).into());
     }
 
-    let usage = response_json.usage.expect("OpenAI API response JSON is missing \"usage\" object in response to 200 status code");
+    let usage =
+        response_json.usage
+        .expect("OpenAI API response missing \"usage\" object in response for 200 status code");
 
     let total_tokens = usage.total_tokens;
 
-    let response_choices = response_json.choices.expect("OpenAI API response JSON is missing \"choices\" array in response to 200 status code");
+    let response_choices =
+        response_json.choices
+        .expect("OpenAI API response missing \"choices\" array in response for 200 status code");
 
     let first_response_choice = response_choices.first().expect("OpenAI API response JSON \"choices\" array is empty");
 
