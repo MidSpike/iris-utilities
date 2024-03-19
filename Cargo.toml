@@ -26,7 +26,7 @@ indoc = "2.0.4"
 itertools = "0.11.0"
 lavalink-rs = { git = "https://gitlab.com/vicky5124/lavalink-rs/", branch = "main" }
 mongodb = { version = "2.7.1", features = ["tokio-runtime"] }
-poise = { git = "https://github.com/serenity-rs/poise/", branch = "current" }
+poise = { git = "https://github.com/serenity-rs/poise/", branch = "next" }
 rand = "0.8.5"
 regex = "1.10.2"
 reqwest = { version = "0.11.22", features = ["json", "rustls-tls"] }

@@ -122,9 +122,9 @@ async fn main() {
             commands::utility::text_to_speech::text_to_speech(),
             commands::utility::unicode_info::unicode_info(),
         ],
-        event_handler: |ctx, event, framework, data| {
+        event_handler: |framework, event| {
             Box::pin(
-                event_handler(ctx, event, framework, data)
+                event_handler(framework, event)
             )
         },
         pre_command: |ctx| {

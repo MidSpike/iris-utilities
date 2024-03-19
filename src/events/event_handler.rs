@@ -25,11 +25,11 @@ async fn component_interaction_handler(
 //------------------------------------------------------------//
 
 pub async fn event_handler(
-    ctx: &serenity::Context,
+    framework: poise::FrameworkContext<'_, Data, Error>,
     event: &serenity::FullEvent,
-    _framework: poise::FrameworkContext<'_, Data, Error>,
-    _data: &Data,
 ) -> Result<(), Error> {
+    let ctx = framework.serenity_context;
+
     match event {
         serenity::FullEvent::Ready { data_about_bot } => {
             let my_name = &data_about_bot.user.name;
