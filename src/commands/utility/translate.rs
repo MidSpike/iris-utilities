@@ -83,11 +83,14 @@ async fn autocomplete_language_code_from<'a>(
     poise::command(
         context_menu_command = "Translate",
         category = "Context Commands",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn translate_message_context_menu(
     ctx: Context<'_>,
-    #[description = "Message to translate"] message: serenity::Message,
+
+    #[description = "Message to translate"]
+    message: serenity::Message,
 ) -> Result<(), Error> {
     let from_input_field_id = String::from("from_language");
     let to_input_field_id = String::from("to_language");
@@ -201,7 +204,8 @@ pub async fn translate_message_context_menu(
 #[
     poise::command(
         slash_command,
-        category = "Utility"
+        category = "Utility",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn translate(
@@ -210,12 +214,16 @@ pub async fn translate(
     #[description = "The text to translate"]
     text: String,
 
-    #[description = "The language to translate to"]
+    #[min_length = 2]
+    #[max_length = 32]
     #[autocomplete = "autocomplete_language_code_to"]
+    #[description = "The language to translate to"]
     to: Option<String>,
 
-    #[description = "The language to translate from"]
+    #[min_length = 2]
+    #[max_length = 32]
     #[autocomplete = "autocomplete_language_code_from"]
+    #[description = "The language to translate from"]
     from: Option<String>,
 ) -> Result<(), Error> {
     ctx.defer().await?;

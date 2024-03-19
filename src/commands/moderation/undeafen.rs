@@ -25,12 +25,17 @@ use crate::common::moderation;
         slash_command,
         guild_only,
         category = "Moderation",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn undeafen(
     ctx: Context<'_>,
-    #[description = "The member to undeafen"] member: serenity::Member,
-    #[description = "Why this action was performed"] reason: Option<String>,
+
+    #[description = "The member to undeafen"]
+    member: serenity::Member,
+
+    #[description = "Why this action was performed"]
+    reason: Option<String>,
 ) -> Result<(), Error> {
     let mut target_member = member; // renamed to avoid confusion
 

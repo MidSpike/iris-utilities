@@ -106,7 +106,9 @@ impl AnimalKind {
 ]
 pub async fn random_animal(
     ctx: Context<'_>,
-    #[description = "The kind of animal to fetch"] kind: AnimalKind,
+
+    #[description = "The kind of animal to fetch"]
+    kind: AnimalKind,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

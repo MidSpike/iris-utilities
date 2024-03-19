@@ -21,11 +21,14 @@ use crate::common::ai;
     poise::command(
         slash_command,
         category = "Fun",
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn gpt(
     ctx: Context<'_>,
-    #[description = "The prompt to send to GPT"] prompt: String,
+
+    #[description = "The prompt to send to GPT"]
+    prompt: String,
 ) -> Result<(), Error> {
     if ai::user_ai_usage::is_user_above_gpt_token_limit(ctx.author().id).await? {
         ai::user_ai_usage::send_gpt_token_limit_exceeded_message(&ctx).await?;

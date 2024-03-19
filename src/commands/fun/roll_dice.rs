@@ -21,8 +21,16 @@ use crate::Error;
 ]
 pub async fn roll_dice(
     ctx: Context<'_>,
-    #[description = "The number of dice to roll"] amount: Option<u32>,
-    #[description = "The number of sides on each die"] sides: Option<u32>,
+
+    #[min = 1]
+    #[max = 1024]
+    #[description = "The number of dice to roll"]
+    amount: Option<u32>,
+
+    #[min = 1]
+    #[max = 1024]
+    #[description = "The number of sides on each die"]
+    sides: Option<u32>,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

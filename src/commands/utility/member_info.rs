@@ -171,7 +171,9 @@ async fn create_member_info_embed(
 ]
 pub async fn member_info_user_context_menu(
     ctx: Context<'_>,
-    #[description = "The member to display information about."] user: serenity::User,
+
+    #[description = "The member to display information about."]
+    user: serenity::User,
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
 
@@ -204,7 +206,9 @@ pub async fn member_info_user_context_menu(
 ]
 pub async fn member_info(
     ctx: Context<'_>,
-    #[description = "The member to display information about."] member: serenity::Member,
+
+    #[description = "The member to display information about."]
+    member: serenity::Member,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

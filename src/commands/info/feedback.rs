@@ -20,6 +20,10 @@ use crate::common::telemetry;
 ]
 pub async fn feedback(
     ctx: Context<'_>,
+
+    #[min_length = 16]
+    #[max_length = 2048]
+    #[description = "What do you want to tell the developers?"]
     feedback: String,
 ) -> Result<(), Error> {
     let user = &ctx.interaction.user;

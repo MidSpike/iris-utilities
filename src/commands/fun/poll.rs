@@ -69,23 +69,59 @@ fn generate_poll_html(
     poise::command(
         slash_command,
         category = "Fun",
-        user_cooldown = "5", // in seconds
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn poll(
     ctx: Context<'_>,
-    #[description = "What is the short title of this poll?"] title: String,
-    #[description = "What is the long description of this poll?"] description: String,
-    #[description = "What is option #0?"] option_0: String,
-    #[description = "What is option #1?"] option_1: String,
-    #[description = "What is option #2?"] option_2: Option<String>,
-    #[description = "What is option #3?"] option_3: Option<String>,
-    #[description = "What is option #4?"] option_4: Option<String>,
-    #[description = "What is option #5?"] option_5: Option<String>,
-    #[description = "What is option #6?"] option_6: Option<String>,
-    #[description = "What is option #7?"] option_7: Option<String>,
-    #[description = "What is option #8?"] option_8: Option<String>,
-    #[description = "What is option #9?"] option_9: Option<String>,
+
+    #[max_length = 128]
+    #[description = "What is the short title of this poll?"]
+    title: String,
+
+    #[max_length = 1024]
+    #[description = "What is the long description of this poll?"]
+    description: String,
+
+    #[max_length = 256]
+    #[description = "What is option #0?"]
+    option_0: String,
+
+    #[max_length = 256]
+    #[description = "What is option #1?"]
+    option_1: String,
+
+    #[max_length = 256]
+    #[description = "What is option #2?"]
+    option_2: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #3?"]
+    option_3: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #4?"]
+    option_4: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #5?"]
+    option_5: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #6?"]
+    option_6: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #7?"]
+    option_7: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #8?"]
+    option_8: Option<String>,
+
+    #[max_length = 256]
+    #[description = "What is option #9?"]
+    option_9: Option<String>,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

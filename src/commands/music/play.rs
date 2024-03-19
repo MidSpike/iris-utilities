@@ -166,11 +166,14 @@ pub async fn query_and_enqueue_track(
         slash_command,
         guild_only,
         category = "Music",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn play(
     ctx: Context<'_>,
-    #[description = "Search term or URL"] query: String,
+
+    #[description = "Search query or url to play"]
+    query: String,
 ) -> Result<(), Error> {
     let Some(guild_id) = ctx.guild_id() else {
         ctx.say("This command can only be used in a server.").await?;
@@ -251,4 +254,3 @@ pub async fn play(
 
     Ok(())
 }
-

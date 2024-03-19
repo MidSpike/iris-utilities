@@ -80,6 +80,7 @@ pub async fn list(
         guild_only,
         category = "Moderation",
         subcommands("list"),
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn bans(

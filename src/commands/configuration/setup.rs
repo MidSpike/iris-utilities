@@ -74,7 +74,9 @@ impl AiChatMode {
 #[poise::command(slash_command)]
 async fn ai_chat_mode(
     ctx: Context<'_>,
-    #[description = "The ai chat mode to use."] ai_chat_mode: AiChatMode,
+
+    #[description = "The ai chat mode to use."]
+    ai_chat_mode: AiChatMode,
 ) -> Result<(), Error> {
     let executing_member =
         ctx
@@ -187,7 +189,9 @@ async fn list_ai_chat_channels(
 ]
 async fn enable_ai_chat_channel(
     ctx: Context<'_>,
-    #[description = "A channel to use for ai chat."] channel: serenity::GuildChannel,
+
+    #[description = "A channel to use for ai chat."]
+    channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
     let executing_member =
         ctx
@@ -244,7 +248,9 @@ async fn enable_ai_chat_channel(
 ]
 async fn disable_ai_chat_channel(
     ctx: Context<'_>,
-    #[description = "A channel to use for ai chat."] channel: serenity::GuildChannel,
+
+    #[description = "A channel to use for ai chat."]
+    channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
     let executing_member =
         ctx
@@ -271,7 +277,8 @@ async fn disable_ai_chat_channel(
 
     // don't remove a channel that isn't already an ai chat channel
     if current_ai_chat_channels.contains(&channel_id_string) {
-        let new_ai_chat_channels = current_ai_chat_channels
+        let new_ai_chat_channels =
+            current_ai_chat_channels
             .into_iter()
             .filter(|s| s != &channel_id_string)
             .collect::<Vec<String>>();

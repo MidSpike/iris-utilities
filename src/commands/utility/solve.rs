@@ -15,11 +15,14 @@ use crate::common::ai;
     poise::command(
         slash_command,
         category = "Utility",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn solve(
     ctx: Context<'_>,
-    #[description = "The math problem to solve"] problem: String,
+
+    #[description = "The math problem to solve"]
+    problem: String,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

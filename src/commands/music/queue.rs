@@ -114,7 +114,9 @@ pub async fn items(
 #[poise::command(slash_command)]
 pub async fn remove(
     ctx: Context<'_>,
-    #[description = "Position of the song to remove (1-indexed)"] position: usize,
+
+    #[description = "Position of the song to remove (1-indexed)"]
+    position: usize,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

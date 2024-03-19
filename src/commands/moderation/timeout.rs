@@ -25,13 +25,22 @@ use crate::common::helpers::bot::create_escaped_code_block;
         slash_command,
         guild_only,
         category = "Moderation",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn timeout(
     ctx: Context<'_>,
-    #[description = "The member to timeout"] member: serenity::Member,
-    #[description = "How many hours (max 28 days) to timeout"] hours: i64,
-    #[description = "Why this action was performed"] reason: Option<String>,
+
+    #[description = "The member to timeout"]
+    member: serenity::Member,
+
+    #[min = 1]
+    #[max = 672]
+    #[description = "How many hours (max 28 days) to timeout"]
+    hours: i64,
+
+    #[description = "Why this action was performed"]
+    reason: Option<String>,
 ) -> Result<(), Error> {
     let mut target_member = member; // renamed to avoid confusion
 

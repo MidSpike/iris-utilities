@@ -26,6 +26,7 @@ use crate::common::music;
         slash_command,
         guild_only,
         category = "Music",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn summon(

@@ -21,10 +21,12 @@ use crate::common::ai;
     poise::command(
         slash_command,
         category = "Fun",
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn fact_check(
     ctx: Context<'_>,
+    #[max_length = 256]
     #[description = "The statement to fact check"] statement: String,
 ) -> Result<(), Error> {
     ctx.defer().await?;

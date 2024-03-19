@@ -31,11 +31,14 @@ type GuildVoiceStates = HashMap::<poise::serenity_prelude::UserId, serenity::Voi
     poise::command(
         slash_command,
         category = "Utility",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn text_to_speech(
     ctx: Context<'_>,
-    #[description = "Text to speak"] text: String,
+
+    #[description = "Text to speak"]
+    text: String,
 ) -> Result<(), Error> {
     let Some(guild_id) = ctx.guild_id() else {
         ctx.say("This command can only be used in a server.").await?;

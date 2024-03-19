@@ -101,7 +101,11 @@ async fn set_new_volume(
 ]
 pub async fn volume(
     ctx: Context<'_>,
-    #[description = "The volume to set the player to (0-100)"] volume: Option<u16>,
+
+    #[min = 0]
+    #[max = 100]
+    #[description = "The volume to set the player to (0-100)"]
+    volume: Option<u16>,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

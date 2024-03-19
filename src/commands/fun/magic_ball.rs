@@ -67,7 +67,9 @@ fn shake_magic_ball() -> String {
 ]
 pub async fn magic_ball(
     ctx: Context<'_>,
-    #[description = "The question to ask the magic 8 ball."] question: String,
+
+    #[description = "The question to ask the magic 8 ball."]
+    question: String,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

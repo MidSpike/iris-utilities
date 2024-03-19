@@ -25,13 +25,17 @@ use crate::common::ai;
     poise::command(
         slash_command,
         category = "Fun",
-        user_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn roast(
     ctx: Context<'_>,
-    #[description = "The user to roast."] target_user: serenity::User,
+
+    #[description = "Who's getting roasted?"]
+    target: serenity::User,
 ) -> Result<(), Error> {
+    let target_user = target; // rename for clarity
+
     ctx.defer().await?;
 
     if ai::user_ai_usage::is_user_above_gpt_token_limit(ctx.author().id).await? {

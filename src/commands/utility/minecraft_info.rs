@@ -143,7 +143,9 @@ async fn fetch_player_info(
 #[poise::command(slash_command)]
 pub async fn server(
     ctx: Context<'_>,
-    #[description = "The server address to lookup"] server_address: String,
+
+    #[description = "The server address to lookup"]
+    server_address: String,
 ) -> Result<(), Error> {
     let server_info = match fetch_server_info(&server_address).await {
         Ok(s) => s,
@@ -250,7 +252,9 @@ pub async fn server(
 #[poise::command(slash_command)]
 pub async fn player(
     ctx: Context<'_>,
-    #[description = "The player name to lookup"] player_name: String,
+
+    #[description = "The player name to lookup"]
+    player_name: String,
 ) -> Result<(), Error> {
     let player_info = match fetch_player_info(&player_name).await {
         Ok(p) => p,
@@ -336,7 +340,8 @@ pub async fn player(
     poise::command(
         slash_command,
         subcommands("server", "player"),
-        category = "Utility"
+        category = "Utility",
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn minecraft_info(

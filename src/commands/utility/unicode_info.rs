@@ -41,7 +41,11 @@ fn get_unicode_character_info(
 ]
 pub async fn unicode_info(
     ctx: Context<'_>,
-    #[description = "The unicode to get information about"] unicode: String,
+
+    #[min_length = 1]
+    #[max_length = 16]
+    #[description = "The unicode to get information about"]
+    unicode: String,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

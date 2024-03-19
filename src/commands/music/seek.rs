@@ -18,7 +18,10 @@ use crate::Error;
 ]
 pub async fn seek(
     ctx: Context<'_>,
-    #[description = "Time to jump to (in seconds)"] time: u64,
+
+    #[min = 0]
+    #[description = "Time to jump to (in seconds)"]
+    to: u64,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 
@@ -39,9 +42,9 @@ pub async fn seek(
     let now_playing = player.get_player().await?.track;
 
     if now_playing.is_some() {
-        player.set_position(std::time::Duration::from_secs(time)).await?;
+        player.set_position(std::time::Duration::from_secs(to)).await?;
 
-        ctx.say(format!("Jumped to {}s", time)).await?;
+        ctx.say(format!("Jumped to {}s", to)).await?;
     } else {
         ctx.say("Nothing is playing").await?;
     }

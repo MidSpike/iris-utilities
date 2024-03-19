@@ -25,7 +25,11 @@ use crate::Error;
 ]
 pub async fn color(
     ctx: Context<'_>,
-    #[description = "The hex color to display"] color: String,
+
+    #[min_length = 6]
+    #[max_length = 7]
+    #[description = "The hex color to display"]
+    color: String,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 
@@ -33,6 +37,7 @@ pub async fn color(
 
     if color.len() != 6 {
         ctx.reply("Hex color must be 6 characters long").await?;
+
         return Ok(());
     }
 

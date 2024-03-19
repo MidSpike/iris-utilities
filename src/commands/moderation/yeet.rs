@@ -81,8 +81,12 @@ async fn relocate_member_in_voice_channel(
 #[poise::command(slash_command)]
 pub async fn someone(
     ctx: Context<'_>,
-    #[description = "The member to yeet"] member: serenity::Member,
-    #[description = "Why this action was performed"] reason: Option<String>,
+
+    #[description = "The member to yeet"]
+    member: serenity::Member,
+
+    #[description = "Why this action was performed"]
+    reason: Option<String>,
 ) -> Result<(), Error> {
     let mut target_member = member; // renamed to avoid confusion
 
@@ -214,6 +218,7 @@ pub async fn someone(
         guild_only,
         subcommands("someone"),
         category = "Moderation",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn yeet(

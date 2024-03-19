@@ -25,12 +25,17 @@ use crate::common::helpers::bot::create_escaped_code_block;
         slash_command,
         guild_only,
         category = "Moderation",
+        user_cooldown = "3", // in seconds
     )
 ]
 pub async fn warn(
     ctx: Context<'_>,
-    #[description = "The member to warn"] member: serenity::Member,
-    #[description = "Why this action was performed"] reason: Option<String>,
+
+    #[description = "The member to warn"]
+    member: serenity::Member,
+
+    #[description = "Why this action was performed"]
+    reason: Option<String>,
 ) -> Result<(), Error> {
     let target_member = member; // renamed to avoid confusion
 

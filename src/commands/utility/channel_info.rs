@@ -27,7 +27,9 @@ use crate::common::brand::BrandColor;
 ]
 pub async fn channel_info(
     ctx: Context<'_>,
-    #[description = "The channel to display information about."] channel: serenity::GuildChannel,
+
+    #[description = "The channel to display information about."]
+    channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

@@ -26,7 +26,9 @@ use crate::common::brand::BrandColor;
 ]
 pub async fn role_info(
     ctx: Context<'_>,
-    #[description = "The role to display information about."] role: serenity::Role,
+
+    #[description = "The role to display information about."]
+    role: serenity::Role,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 

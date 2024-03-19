@@ -122,12 +122,15 @@ async fn fetch_ip_address_info(
 #[
     poise::command(
         slash_command,
-        category = "Utility"
+        category = "Utility",
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn ip_info(
     ctx: Context<'_>,
-    #[description = "The address to lookup"] ip_address: String,
+
+    #[description = "The address to lookup"]
+    ip_address: String,
 ) -> Result<(), Error> {
     if ip_address.is_empty() {
         ctx.say("You need to provide an address to lookup.").await?;

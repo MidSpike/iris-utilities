@@ -84,14 +84,15 @@ async fn remove_messages_from_channel(
         slash_command,
         guild_only,
         category = "Moderation",
+        user_cooldown = "10", // in seconds
     )
 ]
 pub async fn purge(
     ctx: Context<'_>,
 
-    #[description = "Amount of messages to remove (1-1000)"]
     #[min = 1]
     #[max = 1000]
+    #[description = "Amount of messages to remove (1-1000)"]
     amount_of_messages: u32,
 
     #[description = "Why this action was performed"]
