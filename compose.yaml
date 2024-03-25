@@ -1,0 +1,110 @@
+################################################################
+##                   Copyright (c) MidSpike                   ##
+################################################################
+
+# https://docs.docker.com/compose/compose-file/
+
+################################################################
+
+services:
+  iris-utilities:
+    container_name: iris-utilities
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    env_file:
+      - ./docker/iris-utilities/.env
+    depends_on:
+      database:
+        condition: service_healthy
+      lavalink:
+        condition: service_healthy
+      libre-translate:
+        condition: service_started
+    networks:
+      - database
+      - lavalink
+      - libre-translate
+
+  # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
+  database:
+    container_name: database
+    image: mongodb/mongodb-community-server:6.0.14-ubi8
+    restart: unless-stopped
+    env_file:
+      - ./docker/database/.env
+    volumes:
+      - type: bind
+        source: ./docker/database/storage
+        target: /var/lib/mongo
+      - type: bind
+        source: ./docker/database/mongod.conf
+        target: /etc/mongod.conf
+    networks:
+      - database
+    expose: # for other containers
+      - 27017
+    ports: # for the host (optional, safe to disable if not needed)
+      - 27017:27017 # container:host ports
+    healthcheck:
+      # check if mongodb is listening on port 27017
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 1
+      start_period: 15s
+
+  # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
+  lavalink:
+    container_name: lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4.0.4-alpine
+    restart: unless-stopped
+    env_file:
+      - ./docker/lavalink/.env
+    # volumes:
+    #   - ./application.yml:/opt/Lavalink/application.yml # alternative to using environment variables
+    #   - ./plugins/:/opt/Lavalink/plugins/ # persist plugins between restarts, requires permissions (user: 322, group: 322)
+    networks:
+      - lavalink
+    expose: # for other containers
+      - 2333
+    # ports: # for the host
+    #   - 2333:2333 # container:host ports
+    healthcheck:
+      # check if anything is listening on port 2333 (hopefully lavalink)
+      test: '[ "$(netstat -ltn | grep -c ":2333")" -ne 1 ] && exit 1 || exit 0'
+      interval: 10s
+      timeout: 5s
+      retries: 1
+      start_period: 15s
+
+  # https://hub.docker.com/r/libretranslate/libretranslate
+  libre-translate:
+    container_name: libre-translate
+    image: libretranslate/libretranslate:latest
+    restart: unless-stopped
+    env_file:
+      - ./docker/libre-translate/.env
+    volumes:
+      - type: bind
+        source: ./docker/libre-translate/storage
+        target: /home/libretranslate
+    networks:
+      - libre-translate
+    expose: # for other containers
+      - 7681
+    # ports: # for the host
+    #   - 7681:7681 # container:host ports
+
+################################################################
+
+networks:
+  database:
+    name: database
+
+  lavalink:
+    name: lavalink
+
+  libre-translate:
+    name: libre-translate

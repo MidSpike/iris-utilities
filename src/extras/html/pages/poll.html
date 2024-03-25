@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+            :root {
+                --width: 1200px;
+                --height: 800px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html {
+                display: flex;
+                min-width: var(--width);
+                min-height: var(--height);
+                margin: 0px;
+                padding: 0px;
+            }
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0px;
+                padding: 0px;
+            }
+            div {
+                color: #ff5500;
+                font-size: 2rem;
+                text-align: left;
+                font-family: 'Oswald', Helvetica, Arial, sans-serif;
+                font-weight: 500;
+                text-shadow: 0.1em 0.1em 0.1em #000000;
+            }
+            div.parent {
+                background-image: radial-gradient(circle at center, hsl(20, 100%, 5%), hsl(20, 100%, 22%));
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                justify-content: stretch;
+                align-items: stretch;
+                min-height: var(--height);
+                padding: 3rem;
+            }
+            div.options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 3rem;
+                flex-grow: 1;
+            }
+            div.option {
+                border: 0.25rem solid #000000;
+                border-radius: 1rem;
+                backdrop-filter: blur(0.5rem);
+                background-color: hsla(20, 100%, 5%, 0.5);
+                display: flex;
+                justify-content: start;
+                align-items: center;
+                width: 100%;
+                height: auto;
+                padding: 3rem;
+                font-size: 4rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="parent">
+            <div class="options">
+                {poll_options}
+            </div>
+        </div>
+    </body>
+</html>

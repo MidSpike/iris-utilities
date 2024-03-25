@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            :root {
+                --width: 1600px;
+                --height: 800px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html {
+                margin: 0px;
+                padding: 0px;
+            }
+            body {
+                position: relative;
+                width: var(--width);
+                min-height: var(--height);
+                margin: 0px;
+                padding: 0px;
+            }
+            div {
+                text-align: left;
+                font-family: Helvetica, Arial, sans-serif;
+                font-weight: 900;
+            }
+            div.cards-container-parent {
+                background-image: radial-gradient(circle at center, hsl(20, 100%, 5%), hsl(20, 100%, 22%));
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+            }
+            div.cards-container {
+                padding: 1rem;
+                display: flex;
+                place-items: stretch;
+                place-content: space-evenly;
+                /* grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: 1fr; */
+                gap: 2.5rem;
+                width: 100%;
+                height: 100%;
+                padding: 3rem;
+            }
+            div.card-box {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                justify-content: stretch;
+                align-items: stretch;
+                flex-grow: 1;
+                gap: 2rem;
+                max-width: 30rem;
+                min-height: 45rem;
+            }
+            div.card-content {
+                border-radius: 1rem;
+                backdrop-filter: blur(0.5rem);
+                position: relative;
+                display: block;
+                width: 100%;
+                height: 100%;
+                padding: 2rem;
+                font-size: 2.75rem;
+                word-break: break-word;
+            }
+            div.card-content::after {
+                content: "";
+                background-image: url('https://iris-utilities.com/assets/visual/logo/logo_t_2020-08-30-1_1024x.png');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                display: block;
+                position: absolute;
+                bottom: 0rem;
+                right: 0.5rem;
+                width: 5rem;
+                height: 5rem;
+            }
+            div.card-box[data-card-type="black-card"] div.card-content {
+                border: 0.25rem solid #ffffff;
+                background-color: #000000;
+                color: #ffffff;
+            }
+            div.card-box[data-card-type="white-card"] div.card-content {
+                border: 0.25rem solid #000000;
+                background-color: #ffffff;
+                color: #000000;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="cards-container-parent">
+            <div class="cards-container">
+                {question_card}
+                {answer_cards}
+            </div>
+        </div>
+    </body>
+</html>
