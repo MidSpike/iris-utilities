@@ -14,6 +14,8 @@ use lavalink_rs::prelude::*;
 
 use poise::serenity_prelude::{self as serenity};
 
+use songbird::SerenityInit; // used by `register_songbird_from_config`
+
 //------------------------------------------------------------//
 
 pub mod commands;
@@ -56,72 +58,84 @@ pub type Context<'a> = poise::ApplicationContext<'a, Data, Error>;
 
 //------------------------------------------------------------//
 
-#[tokio::main]
-async fn main() {
-    dotenv().ok(); // Load environment variables from .env file
+fn create_gateway_intents() -> serenity::GatewayIntents {
+    // serenity::GatewayIntents::non_privileged() |
+    serenity::GatewayIntents::GUILDS |
+    serenity::GatewayIntents::GUILD_MESSAGES |
+    serenity::GatewayIntents::DIRECT_MESSAGES |
+    serenity::GatewayIntents::GUILD_MESSAGE_REACTIONS |
+    serenity::GatewayIntents::GUILD_VOICE_STATES |
+    serenity::GatewayIntents::GUILD_MEMBERS | // privileged intent
+    serenity::GatewayIntents::MESSAGE_CONTENT // privileged intent
+}
 
-    common::database::db::test_database().await.unwrap();
+//------------------------------------------------------------//
 
-    let songbird_arc = songbird::Songbird::serenity();
+fn create_commands() -> Vec<poise::Command<Data, Error>> {
+    vec![
+        commands::configuration::setup::setup(),
+        commands::fun::cards::cards(),
+        commands::fun::coin_flip::coin_flip(),
+        commands::fun::color::color(),
+        commands::fun::dad_joke::dad_joke(),
+        commands::fun::fact_check::fact_check(),
+        commands::fun::gpt::gpt(),
+        commands::fun::magic_ball::magic_ball(),
+        commands::fun::poll::poll(),
+        commands::fun::random_animal::random_animal(),
+        commands::fun::random_color::random_color(),
+        commands::fun::random_furry::random_furry(),
+        commands::fun::roast::roast(),
+        commands::fun::roll_dice::roll_dice(),
+        commands::fun::would_you::would_you(),
+        commands::info::help::help(),
+        commands::info::feedback::feedback(),
+        commands::info::info::info(),
+        commands::info::invite::invite(),
+        commands::info::ping::ping(),
+        commands::moderation::ban::ban(),
+        commands::moderation::bans::bans(),
+        commands::moderation::deafen::deafen(),
+        commands::moderation::disconnect::disconnect(),
+        commands::moderation::kick::kick(),
+        commands::moderation::mute::mute(),
+        commands::moderation::purge::purge(),
+        commands::moderation::timeout::timeout(),
+        commands::moderation::unban::unban(),
+        commands::moderation::undeafen::undeafen(),
+        commands::moderation::unmute::unmute(),
+        commands::moderation::untimeout::untimeout(),
+        commands::moderation::warn::warn(),
+        commands::moderation::yeet::yeet(),
+        commands::moderation::yoink::yoink(),
+        commands::music::play::play(),
+        commands::music::queue::queue(),
+        commands::music::seek::seek(),
+        commands::music::skip::skip(),
+        commands::music::stop::stop(),
+        commands::music::summon::summon(),
+        commands::music::volume::volume(),
+        commands::utility::channel_info::channel_info(),
+        commands::utility::guild_info::guild_info(),
+        commands::utility::ip_info::ip_info(),
+        commands::utility::member_info::member_info(),
+        commands::utility::member_info::member_info_user_context_menu(),
+        commands::utility::minecraft_info::minecraft_info(),
+        commands::utility::role_info::role_info(),
+        commands::utility::solve::solve(),
+        commands::utility::translate::translate(),
+        commands::utility::translate::translate_message_context_menu(),
+        commands::utility::text_to_speech::text_to_speech(),
+        commands::utility::unicode_info::unicode_info(),
+    ]
+}
 
+//------------------------------------------------------------//
+
+async fn create_client_builder() -> serenity::ClientBuilder {
     let framework_options = poise::FrameworkOptions {
         allowed_mentions: Some(DefaultAllowedMentions::new()),
-        commands: vec![
-            commands::configuration::setup::setup(),
-            commands::fun::cards::cards(),
-            commands::fun::coin_flip::coin_flip(),
-            commands::fun::color::color(),
-            commands::fun::dad_joke::dad_joke(),
-            commands::fun::fact_check::fact_check(),
-            commands::fun::gpt::gpt(),
-            commands::fun::magic_ball::magic_ball(),
-            commands::fun::poll::poll(),
-            commands::fun::random_animal::random_animal(),
-            commands::fun::random_color::random_color(),
-            commands::fun::random_furry::random_furry(),
-            commands::fun::roast::roast(),
-            commands::fun::roll_dice::roll_dice(),
-            commands::fun::would_you::would_you(),
-            commands::info::help::help(),
-            commands::info::feedback::feedback(),
-            commands::info::info::info(),
-            commands::info::invite::invite(),
-            commands::info::ping::ping(),
-            commands::moderation::ban::ban(),
-            commands::moderation::bans::bans(),
-            commands::moderation::deafen::deafen(),
-            commands::moderation::disconnect::disconnect(),
-            commands::moderation::kick::kick(),
-            commands::moderation::mute::mute(),
-            commands::moderation::purge::purge(),
-            commands::moderation::timeout::timeout(),
-            commands::moderation::unban::unban(),
-            commands::moderation::undeafen::undeafen(),
-            commands::moderation::unmute::unmute(),
-            commands::moderation::untimeout::untimeout(),
-            commands::moderation::warn::warn(),
-            commands::moderation::yeet::yeet(),
-            commands::moderation::yoink::yoink(),
-            commands::music::play::play(),
-            commands::music::queue::queue(),
-            commands::music::seek::seek(),
-            commands::music::skip::skip(),
-            commands::music::stop::stop(),
-            commands::music::summon::summon(),
-            commands::music::volume::volume(),
-            commands::utility::channel_info::channel_info(),
-            commands::utility::guild_info::guild_info(),
-            commands::utility::ip_info::ip_info(),
-            commands::utility::member_info::member_info(),
-            commands::utility::member_info::member_info_user_context_menu(),
-            commands::utility::minecraft_info::minecraft_info(),
-            commands::utility::role_info::role_info(),
-            commands::utility::solve::solve(),
-            commands::utility::translate::translate(),
-            commands::utility::translate::translate_message_context_menu(),
-            commands::utility::text_to_speech::text_to_speech(),
-            commands::utility::unicode_info::unicode_info(),
-        ],
+        commands: create_commands(),
         event_handler: |framework, event| {
             Box::pin(
                 event_handler(framework, event)
@@ -142,7 +156,7 @@ async fn main() {
                 }
             )
         },
-        ..Default::default()
+        ..poise::FrameworkOptions::default()
     };
 
     let framework =
@@ -155,6 +169,7 @@ async fn main() {
             |ctx, _ready, framework| {
                 Box::pin(
                     async move {
+                        // register commands
                         poise::builtins::register_globally(ctx, &framework.options().commands).await?;
 
                         let lavalink_rs_events = lavalink_rs::model::events::Events::default();
@@ -197,24 +212,43 @@ async fn main() {
         )
         .build();
 
+    let songbird_arc = songbird::Songbird::serenity();
+
+    let songbird_config =
+        songbird::Config::default()
+        .decode_mode(songbird::driver::DecodeMode::Decode); // audio receiving mode
+
     let discord_token =
         std::env::var("DISCORD_TOKEN")
         .expect("Environment variable DISCORD_TOKEN not set");
 
-    let intents =
-        serenity::GatewayIntents::GUILDS |
-        serenity::GatewayIntents::GUILD_MESSAGES |
-        serenity::GatewayIntents::DIRECT_MESSAGES |
-        serenity::GatewayIntents::GUILD_MESSAGE_REACTIONS |
-        serenity::GatewayIntents::GUILD_VOICE_STATES |
-        serenity::GatewayIntents::GUILD_MEMBERS | // privileged intent
-        serenity::GatewayIntents::MESSAGE_CONTENT; // privileged intent
+    let gateway_intents = create_gateway_intents();
 
-    let client: serenity::ClientBuilder =
-        serenity::ClientBuilder::new(discord_token, intents)
-        .voice_manager_arc(songbird_arc.clone())
-        .type_map_insert::<songbird::SongbirdKey>(songbird_arc)
-        .framework(framework);
+    serenity::ClientBuilder::new(discord_token, gateway_intents)
+    .register_songbird_from_config(songbird_config)
+    .voice_manager_arc(songbird_arc.clone())
+    .type_map_insert::<songbird::SongbirdKey>(songbird_arc)
+    .framework(framework)
+}
 
-    client.await.unwrap().start().await.unwrap();
+//------------------------------------------------------------//
+
+async fn perform_basic_tests() {
+    common::database::db::test_database().await
+    .expect("Failed to test database connection");
+}
+
+//------------------------------------------------------------//
+
+#[tokio::main]
+async fn main() {
+    dotenv().ok(); // Load environment variables from .env file
+
+    perform_basic_tests().await;
+
+    let client_builder = create_client_builder().await;
+
+    let mut client = client_builder.await.unwrap();
+
+    client.start().await.unwrap();
 }
