@@ -27,9 +27,10 @@ services:
       - lavalink
       - libre-translate
 
+  # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
   database:
     container_name: database
-    image: mongodb/mongodb-community-server:6.0-ubi8
+    image: mongodb/mongodb-community-server:6.0.14-ubi8
     restart: unless-stopped
     env_file:
       - ./docker/database/.env
@@ -42,10 +43,10 @@ services:
         target: /etc/mongod.conf
     networks:
       - database
-    expose: # expose ports for other containers to connect to
+    expose: # for other containers
       - 27017
-    ports: # expose ports for the host to connect to
-      - 27017:27017 # internal:external ports
+    ports: # for the host (optional, safe to disable if not needed)
+      - 27017:27017 # container:host ports
     healthcheck:
       # check if mongodb is listening on port 27017
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
@@ -54,29 +55,31 @@ services:
       retries: 1
       start_period: 15s
 
+  # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
   lavalink:
     container_name: lavalink
-    image: ghcr.io/lavalink-devs/lavalink:4.0.0-alpine # pin the image version to Lavalink v4
+    image: ghcr.io/lavalink-devs/lavalink:4.0.4-alpine
     restart: unless-stopped
-    env_file: # use environment variables to configure Lavalink
+    env_file:
       - ./docker/lavalink/.env
     # volumes:
-    #   - ./application.yml:/opt/Lavalink/application.yml # mount application.yml from the same directory or use environment variables
-    #   - ./plugins/:/opt/Lavalink/plugins/ # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
+    #   - ./application.yml:/opt/Lavalink/application.yml # alternative to using environment variables
+    #   - ./plugins/:/opt/Lavalink/plugins/ # persist plugins between restarts, requires permissions (user: 322, group: 322)
     networks:
       - lavalink
-    expose: # expose ports for other containers to connect to
+    expose: # for other containers
       - 2333
-    # ports: # expose ports for the host to connect to
-    #   - 2333:2333 # internal:external ports
+    # ports: # for the host
+    #   - 2333:2333 # container:host ports
     healthcheck:
-      # check if lavalink is listening on port 2333
+      # check if anything is listening on port 2333 (hopefully lavalink)
       test: '[ "$(netstat -ltn | grep -c ":2333")" -ne 1 ] && exit 1 || exit 0'
       interval: 10s
       timeout: 5s
       retries: 1
       start_period: 15s
 
+  # https://hub.docker.com/r/libretranslate/libretranslate
   libre-translate:
     container_name: libre-translate
     image: libretranslate/libretranslate:latest
@@ -89,10 +92,10 @@ services:
         target: /home/libretranslate
     networks:
       - libre-translate
-    expose: # expose ports for other containers to connect to
+    expose: # for other containers
       - 7681
-    # ports: # expose ports for the host to connect to
-    #   - 7681:7681 # internal:external ports
+    # ports: # for the host
+    #   - 7681:7681 # container:host ports
 
 ################################################################
 

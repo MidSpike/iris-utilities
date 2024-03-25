@@ -7,7 +7,7 @@
 ################################################################
 
 # Create a stage for installing system dependencies.
-FROM rust:1.74.0-slim-bullseye AS system
+FROM rust:1.77.0-slim-bullseye AS system
 
 # Set the working directory.
 WORKDIR /app
@@ -24,9 +24,8 @@ FROM system as dependencies
 # Set the working directory.
 WORKDIR /app
 
-# This is a hack to cache the dependencies in a separate layer
-RUN mkdir "src" && \
-    echo "fn main() {}" > "./src/docker-cache.rs"
+# Copy docker-cache.rs
+COPY src/docker-cache.rs ./src/docker-cache.rs
 
 # Copy the dependency files
 COPY Cargo.toml Cargo.lock ./
