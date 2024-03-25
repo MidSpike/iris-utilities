@@ -807,7 +807,7 @@
     {
         "id": 116,
         "card_type": "A",
-        "text": "<i>Bees?</i>",
+        "text": "Bees?",
         "num_answers": 0,
         "expansion": "Base"
     },
@@ -3327,7 +3327,7 @@
     {
         "id": 476,
         "card_type": "Q",
-        "text": "This is the way the world ends <br> This is the way the world ends <br> Not with a bang but with _.",
+        "text": "This is the way the world ends\nThis is the way the world ends\nNot with a bang but with _.",
         "num_answers": 1,
         "expansion": "Base"
     },
@@ -5280,7 +5280,7 @@
     {
         "id": 1179,
         "card_type": "A",
-        "text": "The way white people is.",
+        "text": "The way white people are.",
         "num_answers": 0,
         "expansion": "ExpansionPack3"
     },

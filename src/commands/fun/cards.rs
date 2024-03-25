@@ -38,6 +38,7 @@ impl Card {
         let re = Regex::new(r"[_]+")?;
 
         // replaces all underscore sequences with `_____`
+        // don't escape underscores, as this wont be parsed as markdown
         let formatted_text = re.replace_all(&self.text, "_____");
 
         Ok(formatted_text.to_string())
@@ -189,9 +190,7 @@ pub async fn cards(
             .color(BrandColor::new().get())
             .title(format!("Cards Against {}", me.name))
             .image(attachment_url)
-            .footer(
-                serenity::CreateEmbedFooter::new("Inspired by Cards Against Humanity")
-            )
+            .footer(serenity::CreateEmbedFooter::new("Inspired by Cards Against Humanity"))
         )
     ).await?;
 
