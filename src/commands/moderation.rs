@@ -19,6 +19,8 @@ pub mod unmute;
 
 pub mod purge;
 
+pub mod slowmode;
+
 pub mod timeout;
 pub mod untimeout;
 

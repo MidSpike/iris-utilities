@@ -100,6 +100,7 @@ fn create_commands() -> Vec<poise::Command<Data, Error>> {
         commands::moderation::kick::kick(),
         commands::moderation::mute::mute(),
         commands::moderation::purge::purge(),
+        commands::moderation::slowmode::slowmode(),
         commands::moderation::timeout::timeout(),
         commands::moderation::unban::unban(),
         commands::moderation::undeafen::undeafen(),
