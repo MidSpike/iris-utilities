@@ -12,8 +12,6 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
-use crate::common::moderation;
-
 //------------------------------------------------------------//
 
 /// Lists the most recent bans.
@@ -23,21 +21,11 @@ pub async fn list(
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
-    let executing_member =
+    let _executing_member =
         ctx
         .author_member().await
         .expect("There should be a member in this context.")
         .clone();
-
-    // check if executing member has discord permission to perform this action at all
-    moderation::assert_guild_member_permitted_by_discord(
-        &ctx,
-        &executing_member,
-        |_guild, _executing_member, permissions| {
-            permissions.ban_members()
-        },
-        None,
-    ).await?;
 
     let guild_bans = guild.bans(
         &ctx,
@@ -80,7 +68,9 @@ pub async fn list(
         guild_only,
         category = "Moderation",
         subcommands("list"),
-        user_cooldown = "5", // in seconds
+        user_cooldown = "10", // in seconds
+        default_member_permissions = "VIEW_AUDIT_LOG | BAN_MEMBERS",
+        required_bot_permissions = "VIEW_AUDIT_LOG | BAN_MEMBERS",
     )
 ]
 pub async fn bans(

@@ -25,6 +25,8 @@ pub fn is_guild_member_owner_of_guild(
     guild.owner_id == member.user.id
 }
 
+//------------------------------------------------------------//
+
 type GuildMemberPermissionsChecker =
     fn(&serenity::Guild, &serenity::Member, serenity::Permissions) -> bool;
 
@@ -58,6 +60,8 @@ pub async fn assert_guild_member_permitted_by_discord(
     // the user does not have the required permissions
     Err(lacking_permissions_message.unwrap_or(LACKING_PERMISSIONS_MESSAGE))?
 }
+
+//------------------------------------------------------------//
 
 pub async fn assert_member_above_other_member(
     ctx: &Context<'_>,

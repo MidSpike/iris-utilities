@@ -13,9 +13,9 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
-use crate::common::moderation;
-
 use crate::common::helpers::bot::create_escaped_code_block;
+
+use crate::common::moderation;
 
 //------------------------------------------------------------//
 
@@ -25,7 +25,9 @@ use crate::common::helpers::bot::create_escaped_code_block;
         slash_command,
         guild_only,
         category = "Moderation",
-        user_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
+        default_member_permissions = "MODERATE_MEMBERS",
+        required_bot_permissions = "MODERATE_MEMBERS",
     )
 ]
 pub async fn timeout(
@@ -59,16 +61,6 @@ pub async fn timeout(
         .member(&ctx, my_id).await
         .expect("I should be in this guild.")
         .clone();
-
-    // check if executing member has discord permission to perform this action at all
-    moderation::assert_guild_member_permitted_by_discord(
-        &ctx,
-        &executing_member,
-        |_guild, _executing_member, permissions| {
-            permissions.moderate_members()
-        },
-        None,
-    ).await?;
 
     // check if executing member is above target member in the role hierarchy
     moderation::assert_member_above_other_member(

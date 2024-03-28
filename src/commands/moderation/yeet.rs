@@ -17,9 +17,9 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
-use crate::common::moderation;
-
 use crate::common::helpers::bot::create_escaped_code_block;
+
+use crate::common::moderation;
 
 //------------------------------------------------------------//
 
@@ -105,16 +105,6 @@ pub async fn someone(
         .member(&ctx, my_id).await
         .expect("I should be in this guild.")
         .clone();
-
-    // check if executing member has discord permission to perform this action at all
-    moderation::assert_guild_member_permitted_by_discord(
-        &ctx,
-        &executing_member,
-        |_guild, _executing_member, permissions| {
-            permissions.move_members()
-        },
-        None,
-    ).await?;
 
     // check if executing member is above target member in the role hierarchy
     moderation::assert_member_above_other_member(
@@ -218,7 +208,9 @@ pub async fn someone(
         guild_only,
         subcommands("someone"),
         category = "Moderation",
-        user_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
+        default_member_permissions = "MOVE_MEMBERS",
+        required_bot_permissions = "MOVE_MEMBERS",
     )
 ]
 pub async fn yeet(

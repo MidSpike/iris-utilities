@@ -13,8 +13,6 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
-use crate::common::moderation;
-
 use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
@@ -85,6 +83,8 @@ async fn remove_messages_from_channel(
         guild_only,
         category = "Moderation",
         user_cooldown = "10", // in seconds
+        default_member_permissions = "MANAGE_MESSAGES",
+        required_bot_permissions = "MANAGE_MESSAGES",
     )
 ]
 pub async fn purge(
@@ -105,16 +105,6 @@ pub async fn purge(
         .clone();
 
     let _guild = ctx.guild().expect("There should be a guild in this context.").clone();
-
-    // check if executing member has discord permission to perform this action at all
-    moderation::assert_guild_member_permitted_by_discord(
-        &ctx,
-        &executing_member,
-        |_guild, _executing_member, permissions| {
-            permissions.manage_messages()
-        },
-        None,
-    ).await?;
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
