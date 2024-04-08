@@ -11,7 +11,7 @@ services:
     container_name: iris-utilities
     build:
       context: .
-      target: runtime
+      target: runtime # defined in Dockerfile
     restart: unless-stopped
     env_file:
       - ./docker/iris-utilities/.env
@@ -45,8 +45,8 @@ services:
       - database
     expose: # for other containers
       - 27017
-    ports: # for the host (optional, safe to disable if not needed)
-      - 27017:27017 # container:host ports
+    # ports: # for the host (optional)
+    #   - 27017:27017 # container:host ports
     healthcheck:
       # check if mongodb is listening on port 27017
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
@@ -69,7 +69,7 @@ services:
       - lavalink
     expose: # for other containers
       - 2333
-    # ports: # for the host
+    # ports: # for the host (optional)
     #   - 2333:2333 # container:host ports
     healthcheck:
       # check if anything is listening on port 2333 (hopefully lavalink)
@@ -82,7 +82,7 @@ services:
   # https://hub.docker.com/r/libretranslate/libretranslate
   libre-translate:
     container_name: libre-translate
-    image: libretranslate/libretranslate:latest
+    image: libretranslate/libretranslate:v1.5.6
     restart: unless-stopped
     env_file:
       - ./docker/libre-translate/.env
@@ -94,7 +94,7 @@ services:
       - libre-translate
     expose: # for other containers
       - 7681
-    # ports: # for the host
+    # ports: # for the host (optional)
     #   - 7681:7681 # container:host ports
 
 ################################################################
