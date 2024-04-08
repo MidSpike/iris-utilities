@@ -53,7 +53,7 @@ pub async fn query_and_enqueue_track(
 
         Some(TrackLoadData::Search(tracks)) => {
             match tracks.first() {
-                Some(track) => vec![track.into()],
+                Some(track) => vec![track.to_owned().into()],
                 None => vec![],
             }
         },
@@ -103,8 +103,9 @@ pub async fn query_and_enqueue_track(
         }
     }
 
-    let queue_message_append = QueueMessage::Append(queue_tracks.into());
-    if let Err(why) = player_context.set_queue(queue_message_append) {
+    let queue = player_context.get_queue();
+
+    if let Err(why) = queue.append(queue_tracks.into()) {
         eprintln!("Failed to set queue:\n{}", why);
 
         return Err("Failed to set queue.".into());
@@ -119,18 +120,11 @@ pub async fn query_and_enqueue_track(
         },
     };
 
-    let queue = match player_context.get_queue().await {
-        Ok(queue) => queue,
-        Err(why) => {
-            eprintln!("Failed to get queue:\n{}", why);
-
-            return Err("Failed to get queue.".into());
-        },
-    };
+    let queue_is_empty = queue.get_count().await? == 0;
 
     // Sometimes the player does not automatically start playing.
     // This gives the player a little push to get it going.
-    if player.track.is_none() && !queue.is_empty() {
+    if player.track.is_none() && !queue_is_empty {
         player_context.skip()?;
     }
 

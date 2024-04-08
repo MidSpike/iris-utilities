@@ -4,7 +4,7 @@
 
 use itertools::Itertools;
 
-use lavalink_rs::prelude::*;
+// use lavalink_rs::prelude::*;
 
 //------------------------------------------------------------//
 
@@ -35,7 +35,13 @@ pub async fn clear(
         return Ok(());
     };
 
-    player.set_queue(QueueMessage::Clear)?;
+    let queue = player.get_queue();
+
+    if let Err(why) = queue.clear() {
+        ctx.say(format!("Failed to clear queue: {}", why)).await?;
+
+        return Ok(());
+    }
 
     ctx.say("Queue cleared successfully").await?;
 
@@ -63,12 +69,15 @@ pub async fn items(
         return Ok(());
     };
 
-    let queue = player.get_queue().await?;
+    let queue = player.get_queue();
     let player_data = player.get_player().await?;
 
-    let max = queue.len().min(9);
+    let queue_length = queue.get_count().await?;
+
+    let max = queue_length.min(9);
     let queue_message =
         queue
+        .get_queue().await?
         .range(0..max)
         .enumerate()
         .map(|(idx, x)| {
@@ -137,15 +146,19 @@ pub async fn remove(
         return Ok(());
     };
 
-    let queue = player.get_queue().await?;
+    let queue = player.get_queue();
 
-    if index > queue.len() {
+    let queue_length = queue.get_count().await?;
+
+    if index > queue_length {
         ctx.say("Position is larger than the queue length").await?;
 
         return Ok(());
     }
 
-    let track = &queue[index - 1].track;
+    let queue_items = queue.get_queue().await?;
+
+    let track = &queue_items[index - 1].track;
 
     if let Some(uri) = &track.info.uri {
         ctx.say(
@@ -166,7 +179,11 @@ pub async fn remove(
         ).await?;
     }
 
-    player.set_queue(QueueMessage::Remove(index))?;
+    if let Err(why) = queue.remove(index) {
+        ctx.say(format!("Failed to remove from queue: {}", why)).await?;
+
+        return Ok(());
+    }
 
     Ok(())
 }

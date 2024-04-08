@@ -2,7 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use lavalink_rs::prelude::*;
+// use lavalink_rs::prelude::*;
 
 //------------------------------------------------------------//
 
@@ -44,7 +44,7 @@ pub async fn stop(
         player_context.stop_now().await?;
 
         // clear the queue
-        player_context.set_queue(QueueMessage::Clear)?;
+        player_context.get_queue().clear()?;
 
         ctx.say(format!("Stopped {}", now_playing.info.title)).await?;
     } else {
