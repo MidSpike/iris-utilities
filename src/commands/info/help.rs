@@ -26,6 +26,9 @@ fn get_help_pages(
 ) -> HelpPages {
     ctx.framework().options().commands
     .iter()
+    .filter(
+        |command| command.slash_action.is_some()
+    )
     .group_by(
         |command| command.category.clone().unwrap_or("Unknown Category".into())
     )
