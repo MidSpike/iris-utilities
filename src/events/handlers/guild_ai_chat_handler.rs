@@ -35,6 +35,16 @@ pub async fn guild_ai_chat_handler(
         return Ok(());
     };
 
+    let guild_channel =
+        message.channel(&ctx).await?
+        .guild().expect("guild channel should be present");
+
+    // only listen to channels with slowmode enabled (to prevent spam)
+    let rate_limit_per_user = guild_channel.rate_limit_per_user.unwrap_or(0);
+    if rate_limit_per_user == 0 {
+        return Ok(());
+    }
+
     // attempt to fetch the guild config, if it doesn't exist, ignore the message
     let Some(guild_config) = GuildConfig::fetch(guild_id.get().to_string()).await? else {
         return Ok(());
