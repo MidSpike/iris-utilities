@@ -19,3 +19,7 @@ node_modules
 
 # Docker Persisted Data Storage
 /docker-data
+/docker
+
+# Rust Rewrite
+/target
