@@ -62,7 +62,7 @@ Users expect integrity and honesty from all Discord bots on the platform.
 
 ### 0. Prerequisites
 
-- Docker
+- Docker (recommended)
 
 ### 1. Environment Variables
 
@@ -72,21 +72,19 @@ Copy and rename any `.env.example` file to `.env` and fill in the required field
 
 Copy and rename the `mongod.conf.example` file to `mongod.conf` and configure it to your needs.
 
-### 3.a Running in Docker (Recommended)
+### 3.a Running with Docker (Recommended)
 
-Simply spin up docker via:
-```
-docker compose up --build
-```
+Make sure that Docker is installed and running on your system.
 
-Alternatively there are platform specific start scripts:
+The following platforms are supported via Docker:
 
-- `start.sh` for Linux
-- `start.cmd` for Windows
+- Windows: `.\start.cmd`
+- Linux: `./start.sh` (you may have to `chmod +x ./start.sh` first)
+- MacOS: not tested, but that's what Docker is for!
 
 ### 3.b Running without Docker (Not Recommended)
 
-Feel free to open a Pull Request to help fill out this section.
+Running without Docker is not supported and may not work.
 
 ---
 
