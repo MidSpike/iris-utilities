@@ -492,32 +492,40 @@ const music_subscriptions = new Map<GuildId, MusicSubscription>();
 
 export async function joinVoiceChannelAndEnsureMusicSubscription(
     guild_id: Discord.Snowflake,
-    voice_channel_id: Discord.Snowflake,
+    current_voice_channel_id: Discord.Snowflake | null | undefined,
+    new_voice_channel_id: Discord.Snowflake,
     text_channel_id: Discord.Snowflake,
     voice_adapter_creator: unknown,
 ): Promise<MusicSubscription> {
-    let music_subscription = music_subscriptions.get(guild_id);
-    if (music_subscription) return music_subscription;
-
-    music_subscription = new MusicSubscription({
-        voice_connection: DiscordVoice.joinVoiceChannel({
-            channelId: voice_channel_id,
-            guildId: guild_id,
-            // @ts-expect-error - voice adapter creator is not typed conveniently
-            adapterCreator: voice_adapter_creator,
-            selfDeaf: false,
-        }),
-        text_channel_id: text_channel_id,
+    const voice_connection = DiscordVoice.joinVoiceChannel({
+        channelId: new_voice_channel_id,
+        guildId: guild_id,
+        // @ts-expect-error - voice adapter creator is not typed conveniently
+        adapterCreator: voice_adapter_creator,
+        selfDeaf: false,
     });
 
-    music_subscriptions.set(guild_id, music_subscription);
-
     try {
-        await DiscordVoice.entersState(music_subscription.voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
+        await DiscordVoice.entersState(voice_connection, DiscordVoice.VoiceConnectionStatus.Ready, 10e3);
     } catch (error) {
         console.warn(error);
 
         throw error;
+    }
+
+    let music_subscription: MusicSubscription;
+    if (
+        music_subscriptions.has(guild_id) &&
+        current_voice_channel_id === new_voice_channel_id
+    ) {
+        music_subscription = music_subscriptions.get(guild_id)!;
+    } else {
+        music_subscription = new MusicSubscription({
+            voice_connection: voice_connection,
+            text_channel_id: text_channel_id,
+        });
+
+        music_subscriptions.set(guild_id, music_subscription);
     }
 
     return music_subscription;

@@ -298,6 +298,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         try {
             music_subscription = await joinVoiceChannelAndEnsureMusicSubscription(
                 interaction.guildId,
+                bot_voice_channel_id,
                 guild_member_voice_channel_id,
                 interaction.channelId,
                 interaction.guild.voiceAdapterCreator
