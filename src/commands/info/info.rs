@@ -4,7 +4,7 @@
 
 use derive_more::Display;
 
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 
 use poise::serenity_prelude::{self as serenity};
 
@@ -82,11 +82,10 @@ impl SystemInfo {
         system.refresh_all();
 
         let os_name =
-            system
-            .long_os_version()
+            System::long_os_version()
             .unwrap_or(String::from("Unknown"));
 
-        let uptime = std::time::Duration::from_secs(system.uptime());
+        let uptime = std::time::Duration::from_secs(System::uptime());
 
         let memory = MemoryInfo {
             total: MemoryValue(system.total_memory()),

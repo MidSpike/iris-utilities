@@ -60,7 +60,7 @@ pub async fn color(
     let image = image::ImageBuffer::from_pixel(1920, 1080, image::Rgb([r, g, b]));
 
     let mut image_bytes: Vec<u8> = Vec::new();
-    image.write_to(&mut Cursor::new(&mut image_bytes), image::ImageOutputFormat::Png)?;
+    image.write_to(&mut Cursor::new(&mut image_bytes), image::ImageFormat::Png)?;
 
     let attachment = serenity::CreateAttachment::bytes(image_bytes, image_name);
 
