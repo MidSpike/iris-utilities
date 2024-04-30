@@ -31,14 +31,14 @@
   "devDependencies": {
     "@types/bcryptjs": "2.4.6",
     "@types/string-similarity": "4.0.2",
-    "@typescript-eslint/eslint-plugin": "7.6.0",
-    "@typescript-eslint/parser": "7.6.0",
+    "@typescript-eslint/eslint-plugin": "7.8.0",
+    "@typescript-eslint/parser": "7.8.0",
     "eslint": "8.56.0",
     "eslint-plugin-deprecation": "2.0.0",
     "husky": "9.0.11",
     "is-ci": "3.0.1",
     "run-script-os": "1.1.6",
-    "typescript": "5.4.4"
+    "typescript": "5.4.5"
   },
   "dependencies": {
     "@discordjs/opus": "0.9.0",
@@ -57,7 +57,7 @@
     "html-entities": "2.5.2",
     "libsodium-wrappers": "0.7.13",
     "manakin": "0.5.2",
-    "mathjs": "12.4.1",
+    "mathjs": "12.4.2",
     "module-alias": "2.2.3",
     "moment-timezone": "0.5.45",
     "node-gyp": "10.1.0",
@@ -69,6 +69,6 @@
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
     "uuid": "9.0.1",
-    "youtube-sr": "4.3.10"
+    "youtube-sr": "4.3.11"
   }
 }

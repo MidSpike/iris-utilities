@@ -105,7 +105,7 @@ export class DiagnosticsLogger {
         if (!DiagnosticsLogger.initialized) return;
 
         if (DiagnosticsLogger._interval) {
-            clearInterval(DiagnosticsLogger._interval);
+            clearInterval(Number(DiagnosticsLogger._interval));
             DiagnosticsLogger._interval = undefined;
         }
 
