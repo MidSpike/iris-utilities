@@ -91,13 +91,25 @@ export async function disableMessageComponents(
                         component.type === Discord.ComponentType.Button ? (
                             Discord.ButtonBuilder.from(component).setDisabled(true)
                         ) : (
-                            component.type === Discord.ComponentType.MentionableSelect ||
-                            component.type === Discord.ComponentType.ChannelSelect ||
-                            component.type === Discord.ComponentType.RoleSelect ||
-                            component.type === Discord.ComponentType.UserSelect ||
                             component.type === Discord.ComponentType.StringSelect
                         ) ? (
-                            Discord.SelectMenuBuilder.from(component).setDisabled(true)
+                            Discord.StringSelectMenuBuilder.from(component).setDisabled(true)
+                        ) : (
+                            component.type === Discord.ComponentType.ChannelSelect
+                        ) ? (
+                            Discord.ChannelSelectMenuBuilder.from(component).setDisabled(true)
+                        ) : (
+                            component.type === Discord.ComponentType.RoleSelect
+                        ) ? (
+                            Discord.RoleSelectMenuBuilder.from(component).setDisabled(true)
+                        ) : (
+                            component.type === Discord.ComponentType.UserSelect
+                        ) ? (
+                            Discord.UserSelectMenuBuilder.from(component).setDisabled(true)
+                        ) : (
+                            component.type === Discord.ComponentType.MentionableSelect
+                        ) ? (
+                            Discord.MentionableSelectMenuBuilder.from(component).setDisabled(true)
                         ) : component
                     ),
                 })
@@ -119,13 +131,25 @@ export async function enableMessageComponents(
                         component.type === Discord.ComponentType.Button ? (
                             Discord.ButtonBuilder.from(component).setDisabled(false)
                         ) : (
-                            component.type === Discord.ComponentType.MentionableSelect ||
-                            component.type === Discord.ComponentType.ChannelSelect ||
-                            component.type === Discord.ComponentType.RoleSelect ||
-                            component.type === Discord.ComponentType.UserSelect ||
                             component.type === Discord.ComponentType.StringSelect
                         ) ? (
-                            Discord.SelectMenuBuilder.from(component).setDisabled(false)
+                            Discord.StringSelectMenuBuilder.from(component).setDisabled(false)
+                        ) : (
+                            component.type === Discord.ComponentType.ChannelSelect
+                        ) ? (
+                            Discord.ChannelSelectMenuBuilder.from(component).setDisabled(false)
+                        ) : (
+                            component.type === Discord.ComponentType.RoleSelect
+                        ) ? (
+                            Discord.RoleSelectMenuBuilder.from(component).setDisabled(false)
+                        ) : (
+                            component.type === Discord.ComponentType.UserSelect
+                        ) ? (
+                            Discord.UserSelectMenuBuilder.from(component).setDisabled(false)
+                        ) : (
+                            component.type === Discord.ComponentType.MentionableSelect
+                        ) ? (
+                            Discord.MentionableSelectMenuBuilder.from(component).setDisabled(false)
                         ) : component
                     ),
                 })
