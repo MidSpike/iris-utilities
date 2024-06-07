@@ -34,7 +34,7 @@
     "@typescript-eslint/eslint-plugin": "7.9.0",
     "@typescript-eslint/parser": "7.9.0",
     "eslint": "8.56.0",
-    "eslint-plugin-deprecation": "2.0.0",
+    "eslint-plugin-deprecation": "3.0.0",
     "husky": "9.0.11",
     "is-ci": "3.0.1",
     "run-script-os": "1.1.6",
