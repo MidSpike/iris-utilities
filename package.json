@@ -68,7 +68,7 @@
     "soundcloud-scraper": "5.0.3",
     "string-similarity": "4.0.4",
     "tweetnacl": "1.0.3",
-    "uuid": "9.0.1",
+    "uuid": "10.0.0",
     "youtube-sr": "4.3.11"
   }
 }
