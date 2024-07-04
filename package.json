@@ -57,7 +57,7 @@
     "html-entities": "2.5.2",
     "libsodium-wrappers": "0.7.13",
     "manakin": "0.5.2",
-    "mathjs": "12.4.2",
+    "mathjs": "13.0.2",
     "module-alias": "2.2.3",
     "moment-timezone": "0.5.45",
     "node-gyp": "10.1.0",
