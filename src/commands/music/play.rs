@@ -103,14 +103,6 @@ pub async fn query_and_enqueue_track(
         }
     }
 
-    let queue = player_context.get_queue();
-
-    if let Err(why) = queue.append(queue_tracks.into()) {
-        eprintln!("Failed to set queue:\n{}", why);
-
-        return Err("Failed to set queue.".into());
-    };
-
     let player = match player_context.get_player().await {
         Ok(player) => player,
         Err(why) => {
@@ -120,12 +112,26 @@ pub async fn query_and_enqueue_track(
         },
     };
 
-    let queue_is_empty = queue.get_count().await? == 0;
+    let queue = player_context.get_queue();
+
+    if let Err(why) = queue.append(queue_tracks.into()) {
+        eprintln!("Failed to set queue:\n{}", why);
+
+        return Err("Failed to set queue.".into());
+    };
+
+    // let queue_is_empty = queue.get_count().await? == 0;
 
     // Sometimes the player does not automatically start playing.
     // This gives the player a little push to get it going.
-    if player.track.is_none() && !queue_is_empty {
-        player_context.skip()?;
+    //
+    // @TODO: This does not properly fix the issue.
+    // This requires attempting to play the track twice.
+    if player.track.is_none() /* && !queue_is_empty */ {
+        if let Some(track_to_play) = queue.get_track(0).await? {
+            player_context.play(&track_to_play.track).await?;
+            // queue.remove(0)?;
+        }
     }
 
     let default_volume = music::Volume::from_normal_volume(music::NORMAL_VOLUME_DEFAULT);
@@ -160,7 +166,9 @@ pub async fn query_and_enqueue_track(
         slash_command,
         guild_only,
         category = "Music",
-        user_cooldown = "3", // in seconds
+        global_cooldown = "5", // in seconds
+        guild_cooldown = "15", // in seconds
+        user_cooldown = "30", // in seconds
     )
 ]
 pub async fn play(
@@ -169,6 +177,8 @@ pub async fn play(
     #[description = "Search query or url to play"]
     query: String,
 ) -> Result<(), Error> {
+    ctx.defer().await?;
+
     let Some(guild_id) = ctx.guild_id() else {
         ctx.say("This command can only be used in a server.").await?;
 
@@ -223,14 +233,14 @@ pub async fn play(
         music::JoinVoiceChannelResult::ConnectedToNewVoiceChannel => {
             ctx.say(format!("Joined {}", user_voice_channel_id.mention())).await?;
         },
-        music::JoinVoiceChannelResult::Failed(why) => {
-            eprintln!("Failed to join voice channel:\n{}", why);
+        music::JoinVoiceChannelResult::Failed(what, why) => {
+            eprintln!("Failed to join voice channel:\n{}\n{}", what, why);
 
             return Err("Failed to join voice channel.".into());
         },
     }
 
-    let lava_client = ctx.data().lavalink.clone();
+    let lava_client = &ctx.data().lavalink;
 
     let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
         ctx.say("Join the bot to a voice channel first.").await?;
@@ -238,13 +248,17 @@ pub async fn play(
         return Ok(());
     };
 
-    query_and_enqueue_track(
+    if let Err(why) = query_and_enqueue_track(
         ctx,
         &lava_client,
         &player_context,
         guild_id,
         query,
-    ).await?;
+    ).await {
+        eprintln!("Failed to query and enqueue track:\n{}", why);
+
+        return Err("Failed to query and enqueue track.".into());
+    };
 
     Ok(())
 }

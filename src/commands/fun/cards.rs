@@ -148,6 +148,7 @@ fn generate_card_play_html(
     poise::command(
         slash_command,
         category = "Fun",
+        global_cooldown = "1", // in seconds
         user_cooldown = "3", // in seconds
     )
 ]

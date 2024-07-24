@@ -48,7 +48,7 @@ async fn fetch_random_dilemma() -> Result<Dilemma, Error> {
 
     let response_json: Dilemma = response.json().await?;
 
-    return Ok(response_json);
+    Ok(response_json)
 }
 
 //------------------------------------------------------------//
@@ -143,6 +143,7 @@ async fn create_dilemma_results_message_stuff(
     poise::command(
         slash_command,
         category = "Fun",
+        global_cooldown = "1", // in seconds
         user_cooldown = "3", // in seconds
     )
 ]
@@ -239,5 +240,5 @@ pub async fn would_you(
         break;
     }
 
-    return Ok(());
+    Ok(())
 }

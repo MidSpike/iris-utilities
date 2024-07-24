@@ -89,7 +89,7 @@ pub fn songbird_connection_info_to_lavalink_connection_info(
 pub enum JoinVoiceChannelResult {
     ConnectedToNewVoiceChannel,
     ConnectedToSameVoiceChannel,
-    Failed(Error),
+    Failed(String, Error),
 }
 
 pub async fn join_voice_channel(
@@ -105,7 +105,7 @@ pub async fn join_voice_channel(
     {
         Ok(connection_info) => connection_info,
         Err(why) => {
-            return JoinVoiceChannelResult::Failed(why.into());
+            return JoinVoiceChannelResult::Failed("Song bird failed to join gateway".into(), why.into());
         }
     };
 
@@ -115,7 +115,7 @@ pub async fn join_voice_channel(
     let lavalink_player_context_result =
         lavalink_client.create_player_context(guild_id.get(), lavalink_connection_info).await;
 
-    match lavalink_player_context_result {
+    let result = match lavalink_player_context_result {
         Ok(_) => {
             if let Some(old_voice_channel_id) = old_voice_channel_id {
                 if old_voice_channel_id == new_voice_channel_id {
@@ -126,7 +126,12 @@ pub async fn join_voice_channel(
             JoinVoiceChannelResult::ConnectedToNewVoiceChannel
         },
         Err(why) => {
-            JoinVoiceChannelResult::Failed(why.into())
+            JoinVoiceChannelResult::Failed("Lavalink failed to create player context".into(), why.into())
         }
-    }
+    };
+
+    // @TODO: Hopefully this is a temporary fix.
+    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+
+    result
 }

@@ -7,7 +7,7 @@
 ################################################################
 
 # Create a stage for installing system dependencies.
-FROM rust:1.77.0-slim-bullseye AS system
+FROM rust:1.79.0-slim-bullseye AS system
 
 # Set the working directory.
 WORKDIR /app
@@ -24,8 +24,8 @@ FROM system as dependencies
 # Set the working directory.
 WORKDIR /app
 
-# Copy docker-cache.rs
-COPY src/docker-cache.rs ./src/docker-cache.rs
+# Copy docker_cache.rs
+COPY src/docker_cache.rs ./src/docker_cache.rs
 
 # Copy the dependency files
 COPY Cargo.toml Cargo.lock ./

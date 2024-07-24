@@ -18,6 +18,8 @@ use crate::Error;
         slash_command,
         guild_only,
         category = "Music",
+        guild_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn stop(

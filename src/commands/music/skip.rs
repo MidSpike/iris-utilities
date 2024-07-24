@@ -14,6 +14,8 @@ use crate::Error;
         slash_command,
         guild_only,
         category = "Music",
+        guild_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn skip(
@@ -29,16 +31,18 @@ pub async fn skip(
 
     let lava_client = ctx.data().lavalink.clone();
 
-    let Some(player) = lava_client.get_player_context(guild_id.get()) else {
+    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
         ctx.say("Have the bot join a voice channel first.").await?;
 
         return Ok(());
     };
 
-    let now_playing = player.get_player().await?.track;
+    let player = player_context.get_player().await?;
+
+    let now_playing = player.track;
 
     if let Some(track) = now_playing {
-        player.skip()?;
+        player_context.skip()?;
 
         let message = if let Some(uri) = &track.info.uri {
             format!(

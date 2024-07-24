@@ -7,7 +7,8 @@
 ################################################################
 
 systemLog:
-  destination: file
+  quiet: true
+  destination: syslog # was `file`
   logAppend: true
   path: /var/log/mongodb/mongod.log
 

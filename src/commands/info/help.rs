@@ -16,20 +16,22 @@ use crate::common::brand::BrandColor;
 
 //------------------------------------------------------------//
 
-type HelpPageTitle = String;
-type HelpPageContents = String;
-type HelpPage = (HelpPageTitle, HelpPageContents);
-type HelpPages = Vec<HelpPage>;
+struct HelpPage {
+    title: String,
+    contents: String,
+}
+
+//------------------------------------------------------------//
 
 fn get_help_pages(
     ctx: &Context<'_>,
-) -> HelpPages {
+) -> Vec<HelpPage> {
     ctx.framework().options().commands
     .iter()
     .filter(
         |command| command.slash_action.is_some()
     )
-    .group_by(
+    .chunk_by(
         |command| command.category.clone().unwrap_or("Unknown Category".into())
     )
     .into_iter()
@@ -55,15 +57,14 @@ fn get_help_pages(
                 |command| format!(
                     "`/{}` - {}",
                     command.name,
-                    match &command.description {
-                        Some(description) => description,
-                        None => "No description provided",
-                    }
+                    command.description.clone().unwrap_or("No description provided".to_string())
                 )
             ).join("\n");
 
-            // returns a HelpPage
-            (help_page_title, help_page_contents)
+            HelpPage {
+                title: help_page_title,
+                contents: help_page_contents,
+            }
         }
     )
     .collect()
@@ -72,13 +73,16 @@ fn get_help_pages(
 //------------------------------------------------------------//
 
 fn create_help_page_embed(
-    help_page_title: HelpPageTitle,
-    help_page_contents: HelpPageContents,
+    help_page: &HelpPage,
+    help_page_index: usize,
+    num_help_pages: usize,
 ) -> serenity::CreateEmbed {
+    let current_page_number = help_page_index + 1;
+
     serenity::CreateEmbed::default()
     .color(BrandColor::new().get())
-    .title(help_page_title)
-    .description(help_page_contents)
+    .title(format!("{} ({} / {})", help_page.title, current_page_number, num_help_pages))
+    .description(&help_page.contents)
 }
 
 //------------------------------------------------------------//
@@ -105,8 +109,9 @@ pub async fn help(
         poise::CreateReply::default()
         .embed(
             create_help_page_embed(
-                initial_help_page.0.clone(),
-                initial_help_page.1.clone(),
+                &initial_help_page,
+                help_page_index,
+                help_pages.len(),
             )
         )
         .components(vec![
@@ -150,15 +155,16 @@ pub async fn help(
             _ => {}, // Ignore unknown button ids
         }
 
-        let (help_page_title, help_page_contents) = &help_pages.get(help_page_index).unwrap();
+        let help_page = &help_pages.get(help_page_index).unwrap();
 
         // Edit response since we deferred earlier.
         component_interaction.edit_response(
-            ctx,
+            &ctx,
             serenity::EditInteractionResponse::default().embed(
                 create_help_page_embed(
-                    help_page_title.clone(),
-                    help_page_contents.clone(),
+                    &help_page,
+                    help_page_index,
+                    help_pages.len(),
                 )
             )
         ).await?;

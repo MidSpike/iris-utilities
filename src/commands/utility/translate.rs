@@ -83,6 +83,8 @@ async fn autocomplete_language_code_from<'a>(
     poise::command(
         context_menu_command = "Translate",
         category = "Context Commands",
+        hide_in_help,
+        guild_cooldown = "1",
         user_cooldown = "3", // in seconds
     )
 ]
@@ -205,6 +207,7 @@ pub async fn translate_message_context_menu(
     poise::command(
         slash_command,
         category = "Utility",
+        guild_cooldown = "1",
         user_cooldown = "3", // in seconds
     )
 ]

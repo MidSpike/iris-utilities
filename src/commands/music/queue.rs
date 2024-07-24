@@ -63,14 +63,14 @@ pub async fn items(
 
     let lava_client = ctx.data().lavalink.clone();
 
-    let Some(player) = lava_client.get_player_context(guild_id.get()) else {
+    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
         ctx.say("Join the bot to a voice channel first.").await?;
 
         return Ok(());
     };
 
-    let queue = player.get_queue();
-    let player_data = player.get_player().await?;
+    let queue = player_context.get_queue();
+    let player = player_context.get_player().await?;
 
     let queue_length = queue.get_count().await?;
 
@@ -104,7 +104,7 @@ pub async fn items(
         if queue_message.is_empty() { queue_message }
         else { format!("Up next:\n{}", queue_message) };
 
-    let now_playing_message = if let Some(track) = player_data.track {
+    let now_playing_message = if let Some(track) = player.track {
         if let Some(uri) = &track.info.uri {
             format!("Now playing: [{} - {}](<{}>)", track.info.author, track.info.title, uri)
         } else {
@@ -194,7 +194,9 @@ pub async fn remove(
         slash_command,
         guild_only,
         subcommands("clear", "items", "remove"),
-        category = "Music"
+        category = "Music",
+        guild_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn queue(

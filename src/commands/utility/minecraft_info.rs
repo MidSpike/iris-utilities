@@ -341,6 +341,7 @@ pub async fn player(
         slash_command,
         subcommands("server", "player"),
         category = "Utility",
+        global_cooldown = "1", // in seconds
         user_cooldown = "5", // in seconds
     )
 ]

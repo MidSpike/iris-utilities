@@ -15,6 +15,7 @@ use crate::common::telemetry;
     poise::command(
         slash_command,
         category = "Help and Info",
+        global_cooldown = "5", // in seconds
         user_cooldown = "60", // in seconds
     )
 ]

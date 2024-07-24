@@ -31,7 +31,8 @@ type GuildVoiceStates = HashMap::<poise::serenity_prelude::UserId, serenity::Voi
     poise::command(
         slash_command,
         category = "Utility",
-        user_cooldown = "3", // in seconds
+        guild_cooldown = "5", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn text_to_speech(
@@ -94,8 +95,8 @@ pub async fn text_to_speech(
         music::JoinVoiceChannelResult::ConnectedToNewVoiceChannel => {
             ctx.say(format!("Joined {}", user_voice_channel_id.mention())).await?;
         }
-        music::JoinVoiceChannelResult::Failed(why) => {
-            eprintln!("Failed to join voice channel:\n{}", why);
+        music::JoinVoiceChannelResult::Failed(what, why) => {
+            eprintln!("Failed to join voice channel:\n{}\n{}", what, why);
 
             return Err("Failed to join voice channel.".into());
         }

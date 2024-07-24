@@ -23,7 +23,7 @@ pub async fn ping(
     match ping_duration {
         std::time::Duration::ZERO => {
             ctx.reply(
-                "Average ping has not yet been calculated... Please try again in a few seconds."
+                "Average ping has not been calculated yet. Please try again in a few seconds..."
             ).await?;
         }
         _ => {

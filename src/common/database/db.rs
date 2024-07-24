@@ -2,6 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use tokio::sync::OnceCell;
 use tokio_stream::StreamExt;
 
 //------------------------------------------------------------//
@@ -34,13 +35,17 @@ pub fn get_users_collection_name() -> String {
 
 //------------------------------------------------------------//
 
-pub async fn get_client() -> mongodb::Client {
-    let client_options =
-        mongodb::options::ClientOptions::parse(get_connection_url()).await
-        .expect("Failed to parse mongodb connection url");
+static CLIENT: OnceCell<mongodb::Client> = OnceCell::const_new();
 
-    mongodb::Client::with_options(client_options)
-    .expect("Failed to create mongodb client")
+pub async fn get_client() -> &'static mongodb::Client {
+    CLIENT.get_or_init(|| async {
+        let client_options =
+            mongodb::options::ClientOptions::parse(get_connection_url()).await
+            .expect("Failed to parse mongodb connection url");
+
+        mongodb::Client::with_options(client_options)
+        .expect("Failed to create mongodb client")
+    }).await
 }
 
 //------------------------------------------------------------//
@@ -63,7 +68,7 @@ impl CollectionHelper {
 
     pub async fn get<Item>(
         &self,
-        filter: Option<mongodb::bson::Document>,
+        filter: mongodb::bson::Document,
     ) -> Result<Option<Item>, Error>
     where
         Item: serde::de::DeserializeOwned + Unpin + Send + Sync,
@@ -72,7 +77,7 @@ impl CollectionHelper {
         let db = client.database(&self.database_name);
         let collection = db.collection::<Item>(&self.collection_name);
 
-        let mut cursor = collection.find(filter, None).await?;
+        let mut cursor = collection.find(filter).await?;
 
         let item = cursor.next().await.transpose()?;
 
@@ -84,13 +89,13 @@ impl CollectionHelper {
         item: Item,
     ) -> Result<Item, Error>
     where
-        Item: serde::Serialize,
+        Item: serde::Serialize + Send + Sync,
     {
         let client = get_client().await;
         let db = client.database(&self.database_name);
         let collection = db.collection::<Item>(&self.collection_name);
 
-        collection.insert_one(&item, None).await?;
+        collection.insert_one(&item).await?;
 
         Ok(item)
     }
@@ -101,13 +106,13 @@ impl CollectionHelper {
         update_document: mongodb::bson::Document,
     ) -> Result<(), Error>
     where
-        Item: serde::Serialize,
+        Item: serde::Serialize + Send + Sync,
     {
         let client = get_client().await;
         let db = client.database(&self.database_name);
         let collection = db.collection::<Item>(&self.collection_name);
 
-        collection.update_one(filter, update_document, None).await?;
+        collection.update_one(filter, update_document).await?;
 
         Ok(())
     }
@@ -115,12 +120,15 @@ impl CollectionHelper {
     pub async fn delete<Item>(
         &self,
         filter: mongodb::bson::Document,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    where
+        Item: serde::Serialize + Send + Sync,
+    {
         let client = get_client().await;
         let db = client.database(&self.database_name);
         let collection = db.collection::<Item>(&self.collection_name);
 
-        collection.delete_one(filter, None).await?;
+        collection.delete_one(filter).await?;
 
         Ok(())
     }

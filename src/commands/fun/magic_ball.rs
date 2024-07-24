@@ -79,7 +79,6 @@ pub async fn magic_ball(
         poise::CreateReply::default().embed(
             serenity::CreateEmbed::default()
             .color(BrandColor::new().get())
-            .thumbnail("https://cdn.midspike.com/projects/iris/magic-8-ball.webp")
             .title("Magic 8 Ball")
             .field(
                 "You asked",

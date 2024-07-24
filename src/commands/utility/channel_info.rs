@@ -48,7 +48,7 @@ pub async fn channel_info(
 
     let c_position = &channel.position;
 
-    let c_nsfw = channel.is_nsfw();
+    let c_nsfw = channel.nsfw;
 
     let c_flags =
         channel.flags

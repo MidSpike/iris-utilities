@@ -44,11 +44,9 @@ impl UserConfig {
         let collection_name = get_users_collection_name();
         let collection_helper = CollectionHelper::new(database_name, collection_name);
         let user_config = collection_helper.get(
-            Some(
-                mongodb::bson::doc! {
-                    "discord_user_id": discord_user_id,
-                }
-            )
+            mongodb::bson::doc! {
+                "discord_user_id": discord_user_id,
+            }
         ).await?;
 
         Ok(user_config)

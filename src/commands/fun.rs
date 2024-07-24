@@ -24,6 +24,8 @@ pub mod random_color;
 
 pub mod random_furry;
 
+pub mod random_identity;
+
 pub mod roast;
 
 pub mod roll_dice;

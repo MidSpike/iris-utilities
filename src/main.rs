@@ -8,11 +8,11 @@
 
 //------------------------------------------------------------//
 
-use dotenv::dotenv;
+use anyhow::{Context as AnyhowContext, Result};
 
 use lavalink_rs::prelude::*;
 
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, ActivityData};
 
 use songbird::SerenityInit; // used by `register_songbird_from_config`
 
@@ -85,6 +85,7 @@ fn create_commands() -> Vec<poise::Command<Data, Error>> {
         commands::fun::random_animal::random_animal(),
         commands::fun::random_color::random_color(),
         commands::fun::random_furry::random_furry(),
+        commands::fun::random_identity::random_identity(),
         commands::fun::roast::roast(),
         commands::fun::roll_dice::roll_dice(),
         commands::fun::would_you::would_you(),
@@ -117,7 +118,7 @@ fn create_commands() -> Vec<poise::Command<Data, Error>> {
         commands::music::summon::summon(),
         commands::music::volume::volume(),
         commands::utility::channel_info::channel_info(),
-        commands::utility::guild_info::guild_info(),
+        commands::utility::server_info::server_info(),
         commands::utility::ip_info::ip_info(),
         commands::utility::member_info::member_info(),
         commands::utility::member_info::member_info_user_context_menu(),
@@ -229,6 +230,7 @@ async fn create_client_builder() -> serenity::ClientBuilder {
     .register_songbird_from_config(songbird_config)
     .voice_manager_arc(songbird_arc.clone())
     .type_map_insert::<songbird::SongbirdKey>(songbird_arc)
+    .activity(ActivityData::custom("Chilling with slash commands!"))
     .framework(framework)
 }
 
@@ -242,14 +244,14 @@ async fn perform_basic_tests() {
 //------------------------------------------------------------//
 
 #[tokio::main]
-async fn main() {
-    dotenv().ok(); // Load environment variables from .env file
-
+async fn main() -> Result<()> {
     perform_basic_tests().await;
 
     let client_builder = create_client_builder().await;
 
-    let mut client = client_builder.await.unwrap();
+    let mut client = client_builder.await.context("Failed to create discord client")?;
 
-    client.start().await.unwrap();
+    client.start().await.context("Failed to start discord client")?;
+
+    Ok(())
 }

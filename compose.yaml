@@ -30,7 +30,8 @@ services:
   # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
   database:
     container_name: database
-    image: mongodb/mongodb-community-server:6.0.14-ubi8
+    image: mongodb/mongodb-community-server:6.0.16-ubi8
+    command: --quiet
     restart: unless-stopped
     env_file:
       - ./docker/database/.env
@@ -50,7 +51,7 @@ services:
     healthcheck:
       # check if mongodb is listening on port 27017
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
+      interval: 25s
       timeout: 5s
       retries: 1
       start_period: 15s
@@ -58,13 +59,15 @@ services:
   # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
   lavalink:
     container_name: lavalink
-    image: ghcr.io/lavalink-devs/lavalink:4.0.4-alpine
+    image: ghcr.io/lavalink-devs/lavalink:4.0.7-alpine
     restart: unless-stopped
     env_file:
       - ./docker/lavalink/.env
-    # volumes:
-    #   - ./application.yml:/opt/Lavalink/application.yml # alternative to using environment variables
-    #   - ./plugins/:/opt/Lavalink/plugins/ # persist plugins between restarts, requires permissions (user: 322, group: 322)
+    volumes:
+      # mount application.yml from the same directory or use environment variables
+      - ./docker/lavalink/application.yml:/opt/Lavalink/application.yml
+      # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
+      - ./docker/lavalink/storage/plugins/:/opt/Lavalink/plugins/
     networks:
       - lavalink
     expose: # for other containers
@@ -82,7 +85,7 @@ services:
   # https://hub.docker.com/r/libretranslate/libretranslate
   libre-translate:
     container_name: libre-translate
-    image: libretranslate/libretranslate:v1.5.6
+    image: libretranslate/libretranslate:v1.6.0
     restart: unless-stopped
     env_file:
       - ./docker/libre-translate/.env

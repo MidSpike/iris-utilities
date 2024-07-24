@@ -26,7 +26,8 @@ use crate::common::music;
         slash_command,
         guild_only,
         category = "Music",
-        user_cooldown = "3", // in seconds
+        guild_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn summon(
@@ -85,10 +86,10 @@ pub async fn summon(
         music::JoinVoiceChannelResult::ConnectedToNewVoiceChannel => {
             ctx.say(format!("Joined {}", user_voice_channel_id.mention())).await?;
         }
-        music::JoinVoiceChannelResult::Failed(why) => {
-            ctx.say(format!("Failed to join voice channel: {}", why)).await?;
+        music::JoinVoiceChannelResult::Failed(what, why) => {
+            eprintln!("Failed to join voice channel:\n{}\n{}", what, why);
 
-            return Err(why);
+            return Err("Failed to join voice channel.".into());
         }
     }
 

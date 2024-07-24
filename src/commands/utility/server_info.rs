@@ -17,7 +17,7 @@ use crate::common::brand::BrandColor;
 
 //------------------------------------------------------------//
 
-/// Displays information about this guild.
+/// Displays information about this server.
 #[
     poise::command(
         slash_command,
@@ -25,7 +25,7 @@ use crate::common::brand::BrandColor;
         category = "Utility",
     )
 ]
-pub async fn guild_info(
+pub async fn server_info(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
     ctx.defer().await?;
@@ -328,7 +328,7 @@ pub async fn guild_info(
         poise::CreateReply::default().embed(
             serenity::CreateEmbed::default()
             .color(BrandColor::new().get())
-            .title("Don't go wild with this guild information!")
+            .title("Don't go wild with this server information!")
             .fields(embed_fields)
         )
     ).await?;

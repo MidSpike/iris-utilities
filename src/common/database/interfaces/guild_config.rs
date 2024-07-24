@@ -103,11 +103,9 @@ impl GuildConfig {
         let collection_name = get_guilds_collection_name();
         let collection_helper = CollectionHelper::new(database_name, collection_name);
         let guild_config = collection_helper.get(
-            Some(
-                mongodb::bson::doc! {
-                    "discord_guild_id": discord_guild_id,
-                }
-            )
+            mongodb::bson::doc! {
+                "discord_guild_id": discord_guild_id,
+            }
         ).await?;
 
         Ok(guild_config)

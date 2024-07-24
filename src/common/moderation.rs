@@ -91,17 +91,15 @@ pub async fn assert_member_above_other_member(
         &RoleId::new(guild.id.get()) // equivalent to @everyone role id
     ).unwrap(); // should never fail
 
-    let (_, member_highest_role_position) =
-        member
-        .highest_role_info(ctx)
-        .unwrap_or((everyone_role.id, everyone_role.position));
+    let member_highest_role =
+        guild.member_highest_role(member)
+        .unwrap_or(everyone_role);
 
-    let (_, other_member_highest_role_position) =
-        other_member
-        .highest_role_info(ctx)
-        .unwrap_or((everyone_role.id, everyone_role.position));
+    let other_member_highest_role =
+        guild.member_highest_role(other_member)
+        .unwrap_or(everyone_role);
 
-    if member_highest_role_position <= other_member_highest_role_position {
+    if member_highest_role.position <= other_member_highest_role.position {
         Err(error_message)?
     }
 

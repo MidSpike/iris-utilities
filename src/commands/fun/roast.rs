@@ -25,6 +25,7 @@ use crate::common::ai;
     poise::command(
         slash_command,
         category = "Fun",
+        guild_cooldown = "1", // in seconds
         user_cooldown = "5", // in seconds
     )
 ]

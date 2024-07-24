@@ -97,6 +97,8 @@ async fn set_new_volume(
         slash_command,
         guild_only,
         category = "Music",
+        guild_cooldown = "3", // in seconds
+        user_cooldown = "5", // in seconds
     )
 ]
 pub async fn volume(
