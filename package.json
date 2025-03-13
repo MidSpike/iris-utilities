@@ -1,6 +1,6 @@
 {
   "name": "iris-utilities",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "",
   "author": "MidSpike",
   "keywords": [],
@@ -49,7 +49,7 @@
     "ffmpeg-static": "5.2.0",
     "ffmpeg-stream": "1.0.0",
     "go-mongo-db": "git://github.com/MidSpike/go-mongo-db#v2.1.0",
-    "google-translate-tts": "git://github.com/midspike/google-translate-tts#v2.1.0",
+    "google-translate-tts": "github:midspike/google-translate-tts#v2.2.0",
     "html-entities": "2.5.2",
     "iris-utilities": "file:",
     "libsodium-wrappers": "0.7.15",
