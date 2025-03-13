@@ -554,7 +554,11 @@ export class ClientInteractionManager {
                     error_message: error,
                 });
 
-                if (unknown_interaction.channel?.isTextBased()) {
+                if (
+                    // this library makes these checks obtuse
+                    unknown_interaction.channel &&
+                    'send' in unknown_interaction.channel
+                ) {
                     void unknown_interaction.channel.send({
                         embeds: [
                             CustomEmbed.from({

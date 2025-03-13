@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
+import * as DiscordSpeechRecognition from 'discord-speech-recognition';
 
 //------------------------------------------------------------//
 

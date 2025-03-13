@@ -170,36 +170,38 @@ export async function requestPotentialNotSafeForWorkContentConsent(
     }
 
     try {
-        await channel.send({
-            content: `${user}`,
-            embeds: [
-                CustomEmbed.from({
-                    title: 'Heads up!',
-                    description: [
-                        'This command might contain content that is not safe for work.',
-                        'Do you understand the risks and still want to run this command?',
-                    ].join('\n'),
-                }),
-            ],
-            components: [
-                {
-                    type: Discord.ComponentType.ActionRow,
-                    components: [
-                        {
-                            type: Discord.ComponentType.Button,
-                            style: Discord.ButtonStyle.Danger,
-                            customId: 'user_consents_to_potential_nsfw_content',
-                            label: 'I understand the risks',
-                        }, {
-                            type: Discord.ComponentType.Button,
-                            style: Discord.ButtonStyle.Secondary,
-                            customId: 'user_does_not_consent_to_potential_nsfw_content',
-                            label: 'Cancel',
-                        },
-                    ],
-                },
-            ],
-        });
+        if ('send' in channel) {
+            await channel.send({
+                content: `${user}`,
+                embeds: [
+                    CustomEmbed.from({
+                        title: 'Heads up!',
+                        description: [
+                            'This command might contain content that is not safe for work.',
+                            'Do you understand the risks and still want to run this command?',
+                        ].join('\n'),
+                    }),
+                ],
+                components: [
+                    {
+                        type: Discord.ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: Discord.ComponentType.Button,
+                                style: Discord.ButtonStyle.Danger,
+                                customId: 'user_consents_to_potential_nsfw_content',
+                                label: 'I understand the risks',
+                            }, {
+                                type: Discord.ComponentType.Button,
+                                style: Discord.ButtonStyle.Secondary,
+                                customId: 'user_does_not_consent_to_potential_nsfw_content',
+                                label: 'Cancel',
+                            },
+                        ],
+                    },
+                ],
+            });
+        }
     } catch {
         return false;
     }
@@ -235,33 +237,35 @@ export async function requestConfirmation(
     },
 ): Promise<boolean> {
     try {
-        await channel.send({
-            content: Discord.userMention(user.id),
-            embeds: [
-                CustomEmbed.from({
-                    title: title,
-                    description: description,
-                }),
-            ],
-            components: [
-                {
-                    type: Discord.ComponentType.ActionRow,
-                    components: [
-                        {
-                            type: Discord.ComponentType.Button,
-                            style: Discord.ButtonStyle.Primary,
-                            customId: 'user_confirmed',
-                            label: confirm_button_label,
-                        }, {
-                            type: Discord.ComponentType.Button,
-                            style: Discord.ButtonStyle.Secondary,
-                            customId: 'user_cancelled',
-                            label: cancel_button_label,
-                        },
-                    ],
-                },
-            ],
-        });
+        if ('send' in channel) {
+            await channel.send({
+                content: Discord.userMention(user.id),
+                embeds: [
+                    CustomEmbed.from({
+                        title: title,
+                        description: description,
+                    }),
+                ],
+                components: [
+                    {
+                        type: Discord.ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: Discord.ComponentType.Button,
+                                style: Discord.ButtonStyle.Primary,
+                                customId: 'user_confirmed',
+                                label: confirm_button_label,
+                            }, {
+                                type: Discord.ComponentType.Button,
+                                style: Discord.ButtonStyle.Secondary,
+                                customId: 'user_cancelled',
+                                label: cancel_button_label,
+                            },
+                        ],
+                    },
+                ],
+            });
+        }
     } catch {
         return false;
     }

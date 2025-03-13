@@ -136,36 +136,42 @@ async function playAttachment(
         });
 
         void track.onStart(async (track) => {
-            interaction.channel?.send({
-                embeds: [
-                    CustomEmbed.from({
-                        description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
-                    }),
-                ],
-            }).catch(console.warn);
+            if (interaction.channel && 'send' in interaction.channel) {
+                interaction.channel?.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            description: `${interaction.user}, is playing **[${track.metadata.title}](${track.metadata.url})**.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+            }
         });
 
         void track.onFinish(async (track) => {
-            interaction.channel?.send({
-                embeds: [
-                    CustomEmbed.from({
-                        description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
-                    }),
-                ],
-            }).catch(console.warn);
+            if (interaction.channel && 'send' in interaction.channel) {
+                interaction.channel?.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            description: `${interaction.user}, finished playing **${track.metadata.title}**.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+            }
         });
 
         void track.onError(async (track, error) => {
             console.trace(error);
 
-            interaction.channel?.send({
-                embeds: [
-                    CustomEmbed.from({
-                        color: CustomEmbed.Colors.Red,
-                        description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
-                    }),
-                ],
-            }).catch(console.warn);
+            if (interaction.channel && 'send' in interaction.channel) {
+                interaction.channel?.send({
+                    embeds: [
+                        CustomEmbed.from({
+                            color: CustomEmbed.Colors.Red,
+                            description: `${interaction.user}, failed to play **${track.metadata.title}**.`,
+                        }),
+                    ],
+                }).catch(console.warn);
+            }
         });
 
         // Add the track and reply a success message to the user

@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import * as Discord from 'discord.js';
 
-import * as DiscordSpeechRecognition from '@midspike/discord-speech-recognition';
+import * as DiscordSpeechRecognition from 'discord-speech-recognition';
 
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
@@ -93,6 +93,7 @@ export default {
         const text_channel = await discord_client.channels.fetch(music_subscription.text_channel_id);
         if (!text_channel) return;
         if (!text_channel.isTextBased()) return;
+        if (!('send' in text_channel)) return;
 
         await text_channel.send({
             embeds: [
@@ -343,14 +344,16 @@ export default {
                 const maximum_allowed_volume = 100;
                 const volume_level = Math.max(minimum_allowed_volume, Math.min(parsed_volume_input, maximum_allowed_volume));
 
-                text_channel.send({
-                    embeds: [
-                        CustomEmbed.from({
-                            title: 'Voice Command',
-                            description: `${guild_member.user}, set the volume to **${volume_level}%**.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+                if ('send' in text_channel) {
+                    text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, set the volume to **${volume_level}%**.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
 
                 // eslint-disable-next-line require-atomic-updates
                 music_subscription.queue.volume_manager.volume = volume_level;
@@ -361,14 +364,16 @@ export default {
 
             case 'paws': // fallback for improper recognition
             case 'pause': {
-                text_channel.send({
-                    embeds: [
-                        CustomEmbed.from({
-                            title: 'Voice Command',
-                            description: `${guild_member.user}, paused the current track.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+                if ('send' in text_channel) {
+                    text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, paused the current track.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
 
                 music_subscription.queue.state_manager.pause();
 
@@ -377,14 +382,16 @@ export default {
 
             case 'resumes': // fallback for improper recognition
             case 'resume': {
-                text_channel.send({
-                    embeds: [
-                        CustomEmbed.from({
-                            title: 'Voice Command',
-                            description: `${guild_member.user}, resumed the current track.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+                if ('send' in text_channel) {
+                    text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, resumed the current track.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
 
                 music_subscription.queue.state_manager.resume();
 
@@ -394,14 +401,16 @@ export default {
             case 'skit': // fallback for improper recognition
             case 'skin': // fallback for improper recognition
             case 'skip': {
-                text_channel.send({
-                    embeds: [
-                        CustomEmbed.from({
-                            title: 'Voice Command',
-                            description: `${guild_member.user}, skipped the current track.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+                if ('send' in text_channel) {
+                    text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, skipped the current track.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
 
                 await music_subscription.processQueue(true);
 
@@ -411,14 +420,16 @@ export default {
             case 'disconnect':
             case 'star': // fallback for improper recognition
             case 'stop': {
-                text_channel.send({
-                    embeds: [
-                        CustomEmbed.from({
-                            title: 'Voice Command',
-                            description: `${guild_member.user}, stopped the queue.`,
-                        }),
-                    ],
-                }).catch(console.warn);
+                if ('send' in text_channel) {
+                    text_channel.send({
+                        embeds: [
+                            CustomEmbed.from({
+                                title: 'Voice Command',
+                                description: `${guild_member.user}, stopped the queue.`,
+                            }),
+                        ],
+                    }).catch(console.warn);
+                }
 
                 music_subscription.stop();
 

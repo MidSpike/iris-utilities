@@ -16,6 +16,7 @@ node_modules
 
 # TypeScript generated
 /dist
+/tsconfig.tsbuildinfo
 
 # Docker Persisted Data Storage
 /docker-data

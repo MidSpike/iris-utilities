@@ -16,7 +16,7 @@ import * as path from 'node:path';
 
 import * as Discord from 'discord.js';
 
-import { attachSpeechEvent } from '@midspike/discord-speech-recognition';
+import { attachSpeechEvent } from 'discord-speech-recognition';
 
 import recursiveReadDirectory from 'recursive-read-directory';
 
