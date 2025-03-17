@@ -29,7 +29,7 @@
     "start": "npm run prepare && npm run title && node --trace-warnings --enable-source-maps --require dotenv/config ."
   },
   "devDependencies": {
-    "@types/bcryptjs": "2.4.6",
+    "@types/bcryptjs": "3.0.0",
     "@types/string-similarity": "4.0.2",
     "husky": "9.1.7",
     "is-ci": "4.1.0",
