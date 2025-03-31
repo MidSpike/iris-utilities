@@ -50,7 +50,7 @@
     "ffmpeg-stream": "1.0.0",
     "go-mongo-db": "git://github.com/MidSpike/go-mongo-db#v2.2.0",
     "google-translate-tts": "git://github.com/MidSpike/google-translate-tts#v2.2.0",
-    "html-entities": "2.5.2",
+    "html-entities": "2.6.0",
     "iris-utilities": "file:",
     "libsodium-wrappers": "0.7.15",
     "manakin": "0.5.2",
