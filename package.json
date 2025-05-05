@@ -47,7 +47,7 @@
     "discord.js": "14.18.0",
     "dotenv": "16.5.0",
     "ffmpeg-static": "5.2.0",
-    "ffmpeg-stream": "1.0.0",
+    "ffmpeg-stream": "1.0.1",
     "go-mongo-db": "git://github.com/MidSpike/go-mongo-db#v2.2.0",
     "google-translate-tts": "git://github.com/MidSpike/google-translate-tts#v2.2.0",
     "html-entities": "2.6.0",
