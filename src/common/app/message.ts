@@ -78,43 +78,35 @@ export class CustomEmbed {
 
 //------------------------------------------------------------//
 
+// TODO: This part of the code base is jank as hell, it needs to be refactored
+
+function _modifyComponentStatesInActionRow(
+    top_level_component: Discord.TopLevelComponent,
+    disabled: boolean,
+): Discord.TopLevelComponent {
+    if (top_level_component instanceof Discord.ActionRow) {
+        Discord.ActionRowBuilder.from(top_level_component).setComponents(
+            top_level_component.components.map(
+                (action_row_component) => Discord.createComponentBuilder(action_row_component.toJSON()).setDisabled(disabled)
+            )
+        );
+    }
+
+    return top_level_component; // if it's not an ActionRow, return it as is
+}
+
 export async function disableMessageComponents(
     message: Discord.Message,
 ): Promise<Discord.Message> {
     return message.fetch(true).then(
-        async (message) => message.edit({
-            embeds: message.embeds,
-            components: message.components.map(
-                (component_row) => ({
-                    ...component_row.toJSON(),
-                    components: component_row.components.map((component) =>
-                        component.type === Discord.ComponentType.Button ? (
-                            Discord.ButtonBuilder.from(component).setDisabled(true)
-                        ) : (
-                            component.type === Discord.ComponentType.StringSelect
-                        ) ? (
-                            Discord.StringSelectMenuBuilder.from(component).setDisabled(true)
-                        ) : (
-                            component.type === Discord.ComponentType.ChannelSelect
-                        ) ? (
-                            Discord.ChannelSelectMenuBuilder.from(component).setDisabled(true)
-                        ) : (
-                            component.type === Discord.ComponentType.RoleSelect
-                        ) ? (
-                            Discord.RoleSelectMenuBuilder.from(component).setDisabled(true)
-                        ) : (
-                            component.type === Discord.ComponentType.UserSelect
-                        ) ? (
-                            Discord.UserSelectMenuBuilder.from(component).setDisabled(true)
-                        ) : (
-                            component.type === Discord.ComponentType.MentionableSelect
-                        ) ? (
-                            Discord.MentionableSelectMenuBuilder.from(component).setDisabled(true)
-                        ) : component
-                    ),
-                })
-            ),
-        })
+        async (message) => {
+            return message.edit({
+                embeds: message.embeds,
+                components: message.components.map(
+                    (component_row) => _modifyComponentStatesInActionRow(component_row, true)
+                ),
+            });
+        }
     );
 }
 
@@ -125,34 +117,7 @@ export async function enableMessageComponents(
         async (message) => message.edit({
             embeds: message.embeds,
             components: message.components.map(
-                (component_row) => ({
-                    ...component_row.toJSON(),
-                    components: component_row.components.map((component) =>
-                        component.type === Discord.ComponentType.Button ? (
-                            Discord.ButtonBuilder.from(component).setDisabled(false)
-                        ) : (
-                            component.type === Discord.ComponentType.StringSelect
-                        ) ? (
-                            Discord.StringSelectMenuBuilder.from(component).setDisabled(false)
-                        ) : (
-                            component.type === Discord.ComponentType.ChannelSelect
-                        ) ? (
-                            Discord.ChannelSelectMenuBuilder.from(component).setDisabled(false)
-                        ) : (
-                            component.type === Discord.ComponentType.RoleSelect
-                        ) ? (
-                            Discord.RoleSelectMenuBuilder.from(component).setDisabled(false)
-                        ) : (
-                            component.type === Discord.ComponentType.UserSelect
-                        ) ? (
-                            Discord.UserSelectMenuBuilder.from(component).setDisabled(false)
-                        ) : (
-                            component.type === Discord.ComponentType.MentionableSelect
-                        ) ? (
-                            Discord.MentionableSelectMenuBuilder.from(component).setDisabled(false)
-                        ) : component
-                    ),
-                })
+                (component_row) => _modifyComponentStatesInActionRow(component_row, false)
             ),
         })
     );
