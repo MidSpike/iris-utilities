@@ -16,9 +16,9 @@ use crate::Error;
 
 #[derive(Display)]
 enum CoinFlipToss {
-    #[display(fmt = "heads")]
+    #[display("heads")]
     Heads,
-    #[display(fmt = "tails")]
+    #[display("tails")]
     Tails,
 }
 
@@ -36,7 +36,7 @@ pub async fn coin_flip(
 ) -> Result<(), Error> {
     ctx.defer().await?;
 
-    let toss = match rand::thread_rng().gen_bool(0.5) {
+    let toss = match rand::rng().random_bool(0.5) {
         true => CoinFlipToss::Heads,
         false => CoinFlipToss::Tails,
     };

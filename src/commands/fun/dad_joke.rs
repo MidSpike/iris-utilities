@@ -4,7 +4,7 @@
 
 use regex::Regex;
 
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 
 use poise::serenity_prelude::{self as serenity};
 
@@ -76,7 +76,7 @@ pub async fn dad_joke(
 
     let random_system_prompt =
         system_prompts
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .expect("System prompts vector is empty")
         .to_string();
 

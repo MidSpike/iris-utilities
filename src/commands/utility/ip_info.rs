@@ -55,8 +55,8 @@ struct ApiResponse {
     timezone: String,
     #[serde(default = "default_integer_value", rename = "offset")]
     utc_offset: i32,
-    #[serde(default = "default_string_value")]
-    currency: String,
+    // #[serde(default = "default_string_value")]
+    // currency: String,
     #[serde(default = "default_string_value", rename = "isp")]
     internet_service_provider: String,
     #[serde(default = "default_string_value", rename = "org")]

@@ -2,7 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 
 use poise::serenity_prelude::{self as serenity};
 
@@ -81,7 +81,7 @@ pub async fn roast(
 
     let random_system_prompt =
         system_prompts
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .expect("System prompts vector is empty")
         .replace("{user_mention}", &target_user.mention().to_string());
 

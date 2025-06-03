@@ -33,9 +33,12 @@ struct Dilemma {
 async fn fetch_random_dilemma() -> Result<Dilemma, Error> {
     let reqwest_client = reqwest::Client::new();
 
+    let user_agent = std::env::var("USER_AGENT").expect("Missing `USER_AGENT` in environment.");
+
     let response =
         reqwest_client
         .get("https://v4.willyoupressthebutton.com/api/dilemma/random")
+        .header(reqwest::header::USER_AGENT, user_agent) // api is picky about having a user agent
         .timeout(std::time::Duration::from_secs(15))
         .send()
         .await?;

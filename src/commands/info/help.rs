@@ -57,7 +57,7 @@ fn get_help_pages(
                 |command| format!(
                     "`/{}` - {}",
                     command.name,
-                    command.description.clone().unwrap_or("No description provided".to_string())
+                    command.description.clone().unwrap_or("No description provided".into())
                 )
             ).join("\n");
 

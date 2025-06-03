@@ -38,9 +38,9 @@ pub async fn assert_guild_member_permitted_by_discord(
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild.").clone();
 
-    let Ok(permissions) = member.permissions(ctx) else {
-        Err("Failed to get guild member permissions.")?
-    };
+    let channel = ctx.guild_channel().await.expect("There should be a channel.");
+
+    let permissions = guild.user_permissions_in(&channel, member);
 
     // check if the user is the guild owner
     if is_guild_member_owner_of_guild(ctx, &guild, &member) {

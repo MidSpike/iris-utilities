@@ -216,9 +216,13 @@ async fn create_client_builder() -> serenity::ClientBuilder {
 
     let songbird_arc = songbird::Songbird::serenity();
 
+    let decode_mode = songbird::driver::DecodeMode::Decode(
+        songbird::driver::DecodeConfig::default()
+    );
+
     let songbird_config =
         songbird::Config::default()
-        .decode_mode(songbird::driver::DecodeMode::Decode); // audio receiving mode
+        .decode_mode(decode_mode); // audio receiving mode
 
     let discord_token =
         std::env::var("DISCORD_TOKEN")

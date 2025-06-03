@@ -31,15 +31,15 @@ use crate::common::helpers::bot::{fetch_my_guild_invite_url, generate_bot_invite
 #[allow(dead_code)]
 #[derive(Clone, Copy, Display)]
 enum MemoryUnit {
-    #[display(fmt = "B")]
+    #[display("B")]
     Byte = 0,
-    #[display(fmt = "KB")]
+    #[display("KB")]
     KiloByte = 1,
-    #[display(fmt = "MB")]
+    #[display("MB")]
     MegaByte = 2,
-    #[display(fmt = "GB")]
+    #[display("GB")]
     GigaByte = 3,
-    #[display(fmt = "TB")]
+    #[display("TB")]
     TeraByte = 4,
 }
 

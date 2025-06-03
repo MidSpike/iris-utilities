@@ -2,7 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use rand::prelude::SliceRandom;
+use rand::prelude::IndexedRandom;
 
 use poise::serenity_prelude::{self as serenity};
 
@@ -51,7 +51,7 @@ fn shake_magic_ball() -> String {
     ];
 
     magic_ball_responses
-    .choose(&mut rand::thread_rng())
+    .choose(&mut rand::rng())
     .expect("Magic 8 ball responses vector is empty")
     .to_string()
 }

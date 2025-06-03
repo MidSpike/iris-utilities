@@ -46,7 +46,7 @@ pub async fn roll_dice(
 
     let mut rolls = Vec::new();
     for _ in 0..amount {
-        let roll = rand::thread_rng().gen_range(1..=sides);
+        let roll = rand::rng().random_range(1..=sides);
 
         rolls.push(roll);
     }

@@ -4,7 +4,7 @@
 
 use regex::Regex;
 
-use rand::prelude::SliceRandom;
+use rand::prelude::IndexedRandom;
 
 use serde::{Deserialize, Serialize};
 
@@ -66,7 +66,7 @@ async fn fetch_random_question_card() -> Result<Option<Card>, Error> {
 
     let random_question_card =
         question_cards
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .map(|card| card.clone());
 
     Ok(random_question_card)
@@ -86,7 +86,7 @@ async fn fetch_random_answer_cards(
 
     let random_answer_cards =
         answer_cards
-        .choose_multiple(&mut rand::thread_rng(), question_card.num_answers as usize)
+        .choose_multiple(&mut rand::rng(), question_card.num_answers as usize)
         .map(|card| card.clone())
         .collect::<Vec<Card>>();
 
