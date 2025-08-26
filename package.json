@@ -43,7 +43,7 @@
     "aki-api": "6.0.9",
     "axios": "1.9.0",
     "discord-speech-recognition": "git://github.com/MidSpike/discord-speech-recognition#v3.5.0",
-    "discord.js": "14.19.3",
+    "discord.js": "14.22.1",
     "dotenv": "16.5.0",
     "ffmpeg-static": "5.2.0",
     "ffmpeg-stream": "1.0.1",
