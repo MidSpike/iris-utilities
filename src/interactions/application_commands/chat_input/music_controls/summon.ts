@@ -36,7 +36,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const guild_member = await interaction.guild.members.fetch(interaction.user.id);
 

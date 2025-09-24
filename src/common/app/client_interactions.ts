@@ -166,7 +166,7 @@ export class ClientCommandHelper {
 
         if (!is_valid_environment && interaction.isRepliable()) {
             await interaction.reply({
-                ephemeral: true,
+                flags: Discord.MessageFlags.Ephemeral,
                 embeds: [
                     CustomEmbed.from({
                         color: CustomEmbed.Colors.Violet,
@@ -234,7 +234,7 @@ export class ClientCommandHelper {
         if (highest_access_level_for_user < required_access_level) {
             if (reply_to_interaction && interaction.isRepliable()) {
                 interaction.reply({
-                    ephemeral: true,
+                    flags: Discord.MessageFlags.Ephemeral,
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.Colors.Violet,
@@ -286,7 +286,7 @@ export class ClientCommandHelper {
 
             if (interaction.isRepliable()) {
                 interaction.reply({
-                    ephemeral: true,
+                    flags: Discord.MessageFlags.Ephemeral,
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.Colors.Violet,

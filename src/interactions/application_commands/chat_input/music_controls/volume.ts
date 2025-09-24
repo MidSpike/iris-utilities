@@ -49,7 +49,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const music_subscription = music_subscriptions.get(interaction.guildId);
         if (!music_subscription) {

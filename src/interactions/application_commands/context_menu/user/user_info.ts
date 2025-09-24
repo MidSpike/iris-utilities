@@ -28,7 +28,7 @@ export default new ClientInteraction<Discord.UserApplicationCommandData>({
         if (!interaction.isUserContextMenuCommand()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: Discord.MessageFlags.Ephemeral });
 
         const user = await interaction.client.users.fetch(interaction.targetUser, { force: true });
 

@@ -48,7 +48,7 @@ export default new ClientInteraction<never>({
         }).then(async (modal_submit_interaction) => {
             if (!modal_submit_interaction.isFromMessage()) return;
 
-            await modal_submit_interaction.deferReply({ ephemeral: false });
+            await modal_submit_interaction.deferReply();
 
             const text_input = modal_submit_interaction.fields.getTextInputValue('test_text_input');
 

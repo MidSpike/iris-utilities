@@ -107,7 +107,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         if (!interaction.isChatInputCommand()) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const text_to_translate = interaction.options.getString('text', true);
         const translate_to_code = interaction.options.getString('to', false);

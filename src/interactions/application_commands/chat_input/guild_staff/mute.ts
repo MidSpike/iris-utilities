@@ -47,7 +47,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const is_user_allowed_to_mute = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.MuteMembers);
         if (!is_user_allowed_to_mute) {

@@ -117,7 +117,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const text = interaction.options.getString('text', true);
         const provider_voice = interaction.options.getString('voice', false) ?? 'google:en-US';

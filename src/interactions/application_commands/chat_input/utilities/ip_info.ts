@@ -74,7 +74,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const ephemeral = interaction.options.getBoolean('ephemeral', false) ?? false;
 
-        await interaction.deferReply({ ephemeral: ephemeral });
+        if (ephemeral) {
+            await interaction.deferReply({ flags: Discord.MessageFlags.Ephemeral });
+        } else {
+            await interaction.deferReply();
+        }
 
         const query = interaction.options.getString('query', true);
 

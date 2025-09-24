@@ -48,7 +48,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const guild_resolvable = interaction.guild;
         const guild = await interaction.client.guilds.fetch({ guild: guild_resolvable, withCounts: true });

@@ -67,7 +67,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const amount_of_dice = interaction.options.getInteger('amount', false) ?? 1;
         const number_of_sides = interaction.options.getInteger('sides', false) ?? 6;

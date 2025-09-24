@@ -49,7 +49,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const message_id = interaction.options.getString('message_id', true);
         const from_channel = interaction.options.getChannel('from_channel', false);

@@ -51,7 +51,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const random_color_decimal = randomNumberFromInclusiveRange(0x000000, 0xFFFFFF);
         const random_color_rgb = decimalColorToRgb(random_color_decimal);

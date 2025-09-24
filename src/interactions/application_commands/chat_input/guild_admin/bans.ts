@@ -100,7 +100,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply();
 
         const is_user_allowed_to_view_bans = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.BanMembers);
         if (!is_user_allowed_to_view_bans) {

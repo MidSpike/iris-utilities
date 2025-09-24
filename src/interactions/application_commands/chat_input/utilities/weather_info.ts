@@ -305,7 +305,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         const ephemeral = interaction.options.getBoolean('ephemeral', false) ?? false;
 
-        await interaction.deferReply({ ephemeral: ephemeral });
+        if (ephemeral) {
+            await interaction.deferReply({ flags: Discord.MessageFlags.Ephemeral });
+        } else {
+            await interaction.deferReply();
+        }
 
         const location_option_value = interaction.options.getString('location', true);
         const units_option_value = interaction.options.getString('units', false) ?? 'metric';

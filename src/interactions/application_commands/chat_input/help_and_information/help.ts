@@ -126,7 +126,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: Discord.MessageFlags.Ephemeral });
 
         const category_option_value = interaction.options.getString('category', false) as ClientCommandCategoryId | undefined;
         const help_category_id = category_option_value ?? 'HELP_AND_INFORMATION';

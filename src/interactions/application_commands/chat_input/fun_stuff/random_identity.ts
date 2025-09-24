@@ -119,7 +119,11 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.channel) return;
 
         const ephemeral = interaction.options.getBoolean('ephemeral', false) ?? false;
-        await interaction.deferReply({ ephemeral: ephemeral });
+        if (ephemeral) {
+            await interaction.deferReply({ flags: Discord.MessageFlags.Ephemeral });
+        } else {
+            await interaction.deferReply();
+        }
 
         await interaction.editReply({
             embeds: [

@@ -88,7 +88,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
         if (!interaction.isChatInputCommand()) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const math_expression = interaction.options.getString('expression', true);
 

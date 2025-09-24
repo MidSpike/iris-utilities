@@ -94,7 +94,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         switch (interaction.options.getSubcommandGroup(true)) {
             case 'listen_to_me': {

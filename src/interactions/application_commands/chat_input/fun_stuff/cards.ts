@@ -156,14 +156,13 @@ async function updateMessageWithNewContent(discord_client: Discord.Client<true>,
         </html>
     `;
 
-    const image_base64 = await nodeHtmlToImage({
+    const image_buffer = await nodeHtmlToImage({
         type: 'png',
-        encoding: 'base64',
+        encoding: 'binary',
         html: html_for_image,
         waitUntil: 'load',
-    }) as string;
+    }) as Buffer;
 
-    const image_buffer = Buffer.from(image_base64, 'base64');
     const attachment_name = `attachment-${Date.now()}.png`;
     const attachment = new Discord.AttachmentBuilder(image_buffer, { name: attachment_name });
 
@@ -209,7 +208,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel, interaction.user);
         if (!user_consents_to_potential_nsfw) return await interaction.deleteReply();

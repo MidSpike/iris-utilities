@@ -129,7 +129,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const user_consents_to_potential_nsfw = await requestPotentialNotSafeForWorkContentConsent(interaction.channel!, interaction.user);
         if (!user_consents_to_potential_nsfw) return await interaction.deleteReply();
@@ -167,7 +167,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             if (button_interaction.user.id !== interaction.user.id) {
                 await button_interaction.followUp({
-                    ephemeral: true,
+                    flags: Discord.MessageFlags.Ephemeral,
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.Colors.Red,

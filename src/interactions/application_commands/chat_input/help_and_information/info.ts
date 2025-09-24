@@ -118,7 +118,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const bot_application = await discord_client.application.fetch();
         const bot_application_owner: Discord.User | null | undefined = bot_application.owner instanceof Discord.Team ? bot_application.owner.owner?.user : bot_application.owner;

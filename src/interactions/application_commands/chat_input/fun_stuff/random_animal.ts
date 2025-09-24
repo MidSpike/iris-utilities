@@ -17,7 +17,7 @@ enum AnimalType {
     Dog = 'dog',
     Cat = 'cat',
     Fox = 'fox',
-    Panda = 'panda',
+    // Panda = 'panda',
 }
 
 type DogApiResponseData = {
@@ -25,17 +25,17 @@ type DogApiResponseData = {
     message: string;
 };
 
-type CatApiResponseData = {
-    file: string;
-};
+// type CatApiResponseData = {
+//     file: string;
+// };
 
 type FoxApiResponseData = {
     image: string;
 };
 
-type PandaApiResponseData = {
-    link: string;
-};
+// type PandaApiResponseData = {
+//     link: string;
+// };
 
 //------------------------------------------------------------//
 
@@ -60,15 +60,7 @@ async function fetchRandomAnimalImageUrl(
         }
 
         case AnimalType.Cat: {
-            random_animal_image_url = await axios({
-                method: 'get',
-                url: 'https://cataas.com/cat',
-                validateStatus: (status_code) => status_code === 200,
-            }).then(
-                (response) => response.data as Partial<CatApiResponseData>
-            ).then(
-                (response_data) => response_data.file
-            ).catch(() => undefined);
+            random_animal_image_url = `https://cataas.com/cat?v=${Date.now()}`;
 
             break;
         }
@@ -87,19 +79,19 @@ async function fetchRandomAnimalImageUrl(
             break;
         }
 
-        case AnimalType.Panda: {
-            random_animal_image_url = await axios({
-                method: 'get',
-                url: 'https://some-random-api.ml/img/panda',
-                validateStatus: (status_code) => status_code === 200,
-            }).then(
-                (response) => response.data as Partial<PandaApiResponseData>
-            ).then(
-                (response_data) => response_data.link
-            ).catch(() => undefined);
+        // case AnimalType.Panda: {
+        //     random_animal_image_url = await axios({
+        //         method: 'get',
+        //         url: 'https://some-random-api.ml/img/panda', // broken link
+        //         validateStatus: (status_code) => status_code === 200,
+        //     }).then(
+        //         (response) => response.data as Partial<PandaApiResponseData>
+        //     ).then(
+        //         (response_data) => response_data.link
+        //     ).catch(() => undefined);
 
-            break;
-        }
+        //     break;
+        // }
 
         default: {
             throw new Error(`Unknown animal type: ${animal_type}`);
@@ -183,7 +175,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const subcommand_name = interaction.options.getSubcommand(true) as AnimalType;
 
@@ -207,7 +199,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
 
             if (button_interaction.user.id !== interaction.user.id) {
                 await button_interaction.followUp({
-                    ephemeral: true,
+                    flags: Discord.MessageFlags.Ephemeral,
                     embeds: [
                         CustomEmbed.from({
                             color: CustomEmbed.Colors.Violet,

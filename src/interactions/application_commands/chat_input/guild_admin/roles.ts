@@ -307,7 +307,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const is_member_allowed_to_manage_roles = await doesMemberHavePermission(interaction.member, Discord.PermissionFlagsBits.ManageRoles);
         if (!is_member_allowed_to_manage_roles) {

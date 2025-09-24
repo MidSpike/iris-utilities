@@ -53,7 +53,7 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
         if (!interaction.inCachedGuild()) return;
         if (!interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply();
 
         const member = interaction.options.getMember('user') ?? interaction.member;
 
@@ -125,14 +125,13 @@ export default new ClientInteraction<Discord.ChatInputApplicationCommandData>({
             </html>
         `;
 
-        const image_base64 = await nodeHtmlToImage({
+        const image_buffer = await nodeHtmlToImage({
             type: 'png',
-            encoding: 'base64',
+            encoding: 'binary',
             html: html_for_image,
             waitUntil: 'load',
-        }) as string;
+        }) as Buffer;
 
-        const image_buffer = Buffer.from(image_base64, 'base64');
         const attachment_name = `attachment-${Date.now()}.png`;
         const attachment = new Discord.AttachmentBuilder(image_buffer, { name: attachment_name });
 
