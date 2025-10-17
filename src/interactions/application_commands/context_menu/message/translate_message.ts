@@ -4,7 +4,7 @@
 
 import * as Discord from 'discord.js';
 
-import { compareTwoStrings } from 'string-similarity';
+import { compareTwoStrings } from '@root/common/lib/utilities/string';
 
 import { CustomEmbed } from '@root/common/app/message';
 

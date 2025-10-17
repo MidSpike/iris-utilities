@@ -14,11 +14,9 @@ import axios from 'axios';
 
 import * as Discord from 'discord.js';
 
-import { compareTwoStrings } from 'string-similarity';
-
 import { GoogleTranslateTTS } from 'google-translate-tts';
 
-import { EnvironmentVariableName, arrayChunks, delay, parseEnvironmentVariable, stringEllipses } from '@root/common/lib/utilities';
+import { EnvironmentVariableName, arrayChunks, delay, parseEnvironmentVariable, stringEllipses, compareTwoStrings } from '@root/common/lib/utilities';
 
 import { CustomEmbed } from '@root/common/app/message';
 

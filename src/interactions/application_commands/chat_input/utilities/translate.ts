@@ -6,7 +6,7 @@ import * as Discord from 'discord.js';
 
 import { CustomEmbed } from '@root/common/app/message';
 
-import { compareTwoStrings } from 'string-similarity';
+import { compareTwoStrings } from '@root/common/lib/utilities/string';
 
 import { ClientCommandHelper, ClientInteraction } from '@root/common/app/client_interactions';
 
