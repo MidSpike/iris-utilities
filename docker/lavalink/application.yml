@@ -19,17 +19,23 @@ plugins:
     allowDirectVideoIds: true # Whether just video IDs can match. If false, only complete URLs will be loaded.
     allowDirectPlaylistIds: true # Whether just playlist IDs can match. If false, only complete URLs will be loaded.
     # The clients to use for track loading. See below for a list of valid clients.
-    # Clients are queried in the order they are given (left-to-right)
-    clients: ["MUSIC", "ANDROID", "WEB"]
+    # Clients are queried in the order they are given (so the first client is queried first and so on...)
+    clients:
+      - MUSIC
+      - ANDROID_VR
+      - WEB
+      - WEBEMBEDDED
+    remoteCipher:
+      url: "https://cipher.kikkia.dev/"
 
 lavalink:
   plugins:
     # Replace VERSION with the current version as shown by the Releases tab or a long commit hash for snapshots.
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.4.0"
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0"
       snapshot: false # Set to true if you want to use a snapshot version.
-#  pluginsDir: "./plugins" # optional, defaults to "./plugins"
-#  defaultPluginRepository: "https://maven.lavalink.dev/releases" # optional, defaults to the Lavalink release repository
-#  defaultPluginSnapshotRepository: "https://maven.lavalink.dev/snapshots" # optional, defaults to the Lavalink snapshot repository
+  # pluginsDir: "./plugins" # optional, defaults to "./plugins"
+  # defaultPluginRepository: "https://maven.lavalink.dev/releases" # optional, defaults to the Lavalink release repository
+  # defaultPluginSnapshotRepository: "https://maven.lavalink.dev/snapshots" # optional, defaults to the Lavalink snapshot repository
   server:
     # password: "" # Overridden by environment variables
     sources:
@@ -64,20 +70,20 @@ lavalink:
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
     gc-warnings: true
-    #ratelimit:
-      #ipBlocks: ["1.0.0.0/8", "..."] # list of ip blocks
-      #excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
-      #strategy: "RotateOnBan" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
-      #searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
-      #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
-    #youtubeConfig: # Required for avoiding all age restrictions by YouTube, some restricted videos still can be played without.
-      #email: "" # Email of Google account
-      #password: "" # Password of Google account
-    #httpConfig: # Useful for blocking bad-actors from ip-grabbing your music node and attacking it, this way only the http proxy will be attacked
-      #proxyHost: "localhost" # Hostname of the proxy, (ip or domain)
-      #proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
-      #proxyUser: "" # Optional user for basic authentication fields, leave blank if you don't use basic auth
-      #proxyPassword: "" # Password for basic authentication
+    # ratelimit:
+    #   ipBlocks: ["1.0.0.0/8", "..."] # list of ip blocks
+    #   excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
+    #   strategy: "RotateOnBan" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
+    #   searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
+    #   retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
+    # youtubeConfig: # Required for avoiding all age restrictions by YouTube, some restricted videos still can be played without.
+    #   email: "" # Email of Google account
+    #   password: "" # Password of Google account
+    # httpConfig: # Useful for blocking bad-actors from ip-grabbing your music node and attacking it, this way only the http proxy will be attacked
+    #   proxyHost: "localhost" # Hostname of the proxy, (ip or domain)
+    #   proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
+    #   proxyUser: "" # Optional user for basic authentication fields, leave blank if you don't use basic auth
+    #   proxyPassword: "" # Password for basic authentication
 
 metrics:
   prometheus:
@@ -87,9 +93,9 @@ metrics:
 sentry:
   dsn: ""
   environment: ""
-#  tags:
-#    some_key: some_value
-#    another_key: another_value
+  # tags:
+  #   some_key: some_value
+  #   another_key: another_value
 
 logging:
   file:

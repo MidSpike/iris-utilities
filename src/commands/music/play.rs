@@ -48,7 +48,7 @@ pub async fn query_and_enqueue_track(
         },
     };
 
-    let queue_tracks: Vec<TrackInQueue> = match loaded_tracks.data {
+    let queued_tracks: Vec<TrackInQueue> = match loaded_tracks.data {
         Some(TrackLoadData::Track(track)) => vec![track.into()],
 
         Some(TrackLoadData::Search(tracks)) => {
@@ -77,18 +77,27 @@ pub async fn query_and_enqueue_track(
         },
     };
 
-    if queue_tracks.len() == 1 {
-        // safe to unwrap since we checked the length
-        let first_queue_track = queue_tracks.first().unwrap();
+    if queued_tracks.len() > 1 {
+        eprintln!("Playlists are not yet supported.");
 
-        let first_track = &first_queue_track.track;
+        return Err("Playlists are not yet supported.".into());
+    }
 
-        if let Some(uri) = &first_track.info.uri {
+    for track_to_enqueue in queued_tracks {
+        if let Err(why) = player_context.get_queue().push_to_back(track_to_enqueue.track.clone()) {
+            eprintln!("Failed to enqueue track:\n{}", why);
+
+            return Err("Failed to enqueue track.".into());
+        };
+
+        let track_to_enqueue_data = track_to_enqueue.track;
+
+        if let Some(uri) = track_to_enqueue_data.info.uri {
             ctx.say(
                 format!(
                     "Added [{} - {}](<{}>) to the queue.",
-                    first_track.info.author,
-                    first_track.info.title,
+                    track_to_enqueue_data.info.author,
+                    track_to_enqueue_data.info.title,
                     uri
                 )
             ).await?;
@@ -96,12 +105,26 @@ pub async fn query_and_enqueue_track(
             ctx.say(
                 format!(
                     "Added {} - {} to the queue.",
-                    first_track.info.author,
-                    first_track.info.title
+                    track_to_enqueue_data.info.author,
+                    track_to_enqueue_data.info.title
                 )
             ).await?;
         }
     }
+
+    match player_context.get_queue().get_track(0).await {
+        Ok(Some(track)) => {
+            // Attempt to jump-start the player by playing the first track in the queue.
+            // This should not cause issues if the player is already playing.
+            player_context.play(&track.track).await?;
+        },
+        Ok(None) => {}, // NOOP - queue is empty
+        Err(why) => {
+            eprintln!("Failed to get first queued track:\n{}", why);
+
+            return Err("Failed to get first queued track.".into());
+        },
+    };
 
     let player = match player_context.get_player().await {
         Ok(player) => player,
@@ -111,28 +134,6 @@ pub async fn query_and_enqueue_track(
             return Err("Failed to get player.".into());
         },
     };
-
-    let queue = player_context.get_queue();
-
-    if let Err(why) = queue.append(queue_tracks.into()) {
-        eprintln!("Failed to set queue:\n{}", why);
-
-        return Err("Failed to set queue.".into());
-    };
-
-    // let queue_is_empty = queue.get_count().await? == 0;
-
-    // Sometimes the player does not automatically start playing.
-    // This gives the player a little push to get it going.
-    //
-    // @TODO: This does not properly fix the issue.
-    // This requires attempting to play the track twice.
-    if player.track.is_none() /* && !queue_is_empty */ {
-        if let Some(track_to_play) = queue.get_track(0).await? {
-            player_context.play(&track_to_play.track).await?;
-            // queue.remove(0)?;
-        }
-    }
 
     let default_volume = music::Volume::from_normal_volume(music::NORMAL_VOLUME_DEFAULT);
     let maximum_volume = music::Volume::from_normal_volume(music::NORMAL_VOLUME_MAXIMUM);
