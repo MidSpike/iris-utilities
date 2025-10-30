@@ -37,18 +37,36 @@ pub fn escape_html(
 pub async fn html_to_png(
     untrusted_html: String,
 ) -> Result<Vec<u8>, Error> {
-    let browser_config = BrowserConfig::builder().build()?;
+    // When uncommented, this provides helpful debug logging for seemingly random failures.
+    // unsafe {
+    //     std::env::set_var("RUST_LOG", "chromiumoxide=debug");
+    //     env_logger::init();
+    // }
+
+    let browser_config =
+        BrowserConfig::builder()
+        // The following args may help in some environments.
+        // .args(
+        //     [
+        //         "--disable-gpu",
+        //         "--disable-dev-shm-usage",
+        //         "--disable-setuid-sandbox",
+        //     ]
+        // )
+        .no_sandbox() // Required for containerized environments.
+        .new_headless_mode()
+        .build().expect("Failed to build browser config");
 
     // Yes, I know that this spawns a new browser instance every call.
     // It's not ideal, but rate-limits should prevent this from being abused.
-    let (mut browser, mut handler) = Browser::launch(browser_config).await?;
+    let (mut browser, mut handler) = Browser::launch(browser_config).await.expect("Failed to launch browser");
 
     // Spawn a new task that continuously polls the handler.
     let handle = tokio::task::spawn(async move {
-        while let Some(h) = handler.next().await {
-            if h.is_err() {
-                break;
-            }
+        while let Some(_) = handler.next().await {
+            // Ignore any errors from the handler.
+            // They are usually non-fatal and can be ignored.
+            // However, this is a likely area for potential failures.
         }
     });
 
