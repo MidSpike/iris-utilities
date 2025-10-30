@@ -7,7 +7,7 @@
 ################################################################
 
 # Create a stage for installing system dependencies.
-FROM rust:1.79.0-slim-bullseye AS system
+FROM rust:1.90.0-slim-bullseye AS system
 
 # Set the working directory.
 WORKDIR /app
@@ -19,7 +19,7 @@ RUN apt-get update -y && \
 ################################################################
 
 # Create a new stage for building the dependencies.
-FROM system as dependencies
+FROM system AS dependencies
 
 # Set the working directory.
 WORKDIR /app
@@ -36,7 +36,7 @@ RUN cargo build --locked --release --bin docker-cache
 ################################################################
 
 # Create a new stage for building the application.
-FROM dependencies as builder
+FROM dependencies AS builder
 
 # Set the working directory.
 WORKDIR /app
@@ -50,7 +50,7 @@ RUN cargo build --locked --release --bin iris-utilities
 ################################################################
 
 # Create a new stage for running the application.
-FROM builder as runtime
+FROM builder AS runtime
 
 # Set the working directory
 WORKDIR /app
