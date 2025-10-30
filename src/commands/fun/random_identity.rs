@@ -92,7 +92,7 @@ struct RandomIdentityRegistered {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct RandomIdentityId {
     pub name: String,
-    pub value: String,
+    pub value: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
