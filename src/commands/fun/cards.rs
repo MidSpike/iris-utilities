@@ -133,7 +133,6 @@ fn generate_card_play_html(
 
     let answer_cards_html = answer_cards_html_strings.join("\n");
 
-
     Ok(
         include_str!("../../extras/html/pages/card_play.html")
         .replace("{question_card}", &question_card_html)

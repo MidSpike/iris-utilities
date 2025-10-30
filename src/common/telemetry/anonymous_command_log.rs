@@ -30,7 +30,7 @@ async fn get_anonymous_command_log_telemetry_channel(
 
     let telemetry_channel_id =
         telemetry_channel_id.parse::<u64>()
-        .expect("Failed to parse the telemetry channel id from the environment variable.",);
+        .expect("Failed to parse the telemetry channel id from the environment variable.");
 
     let telemetry_channel_id = serenity::ChannelId::new(telemetry_channel_id);
 
