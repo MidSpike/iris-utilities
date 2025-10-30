@@ -110,6 +110,7 @@ fn create_commands() -> Vec<poise::Command<Data, Error>> {
         commands::moderation::warn::warn(),
         commands::moderation::yeet::yeet(),
         commands::moderation::yoink::yoink(),
+        commands::music::filters::filters(),
         commands::music::play::play(),
         commands::music::queue::queue(),
         commands::music::seek::seek(),

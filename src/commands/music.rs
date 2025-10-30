@@ -2,6 +2,8 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+pub mod filters;
+
 pub mod play;
 
 pub mod queue;
