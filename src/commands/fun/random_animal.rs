@@ -47,23 +47,23 @@ async fn fetch_random_dog_image_url() -> Result<String, Error> {
 }
 
 async fn fetch_random_bird_image_url() -> Result<String, Error> {
-    let response = reqwest::get("https://shibe.online/api/birds").await?;
+    let response = reqwest::get("https://api.animality.xyz/img/bird").await?;
 
     let json: serde_json::Value = response.json().await?;
 
-    let image_url = json.get(0).expect("Index `0` was missing in response.");
+    let image_url = json.get("image").expect("`image` was missing in response.");
 
-    Ok(image_url.as_str().expect("Index `0` was not a string.").into())
+    Ok(image_url.as_str().expect("`image` was not a string.").into())
 }
 
 async fn fetch_random_panda_image_url() -> Result<String, Error> {
-    let response = reqwest::get("https://some-random-api.ml/img/panda").await?;
+    let response = reqwest::get("https://api.animality.xyz/img/panda").await?;
 
     let json: serde_json::Value = response.json().await?;
 
-    let image_url = json.get("link").expect("`link` was missing in response.");
+    let image_url = json.get("image").expect("`image` was missing in response.");
 
-    Ok(image_url.as_str().expect("`link` was not a string.").into())
+    Ok(image_url.as_str().expect("`image` was not a string.").into())
 }
 
 //------------------------------------------------------------//
