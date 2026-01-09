@@ -250,6 +250,12 @@ async fn perform_basic_tests() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // We need to specify a default cryptography provider for Rustls.
+    // Otherwise, Rustls will panic that it could not default at runtime.
+    // Rustls is required by some dependencies, such as `reqwest`.
+    rustls::crypto::ring::default_provider().install_default()
+    .expect("Failed to set default rustls cryptography provider");
+
     perform_basic_tests().await;
 
     let client_builder = create_client_builder().await;

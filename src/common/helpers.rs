@@ -4,7 +4,7 @@
 
 pub mod bot;
 
-pub mod chromium_oxide;
+pub mod html_rendering;
 
 pub mod libre_translate;
 

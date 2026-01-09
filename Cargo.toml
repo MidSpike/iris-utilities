@@ -17,48 +17,45 @@ path = "src/docker_cache.rs"
 # Dependencies
 [dependencies]
 anyhow = "1.0.100"
-async-trait = "0.1.89"
-bitflags = "2.10.0"
 chrono = "0.4.42"
-env_logger = "0.11.8"
-image = "0.25.8"
 indoc = "2.0.7"
 itertools = "0.14.0"
-lazy_static = "1.4.0"
 rand = "0.9.2"
-regex = "1.11.2"
+regex = "1.12.2"
+rustls = "0.23.36"
 serde = "1.0.228"
-serde_json = "1.0.145"
-sha256 = "1.4.0"
+serde_json = "1.0.149"
+sha256 = "1.6.0"
 sysinfo = "0.37.2"
-tokio-stream = "0.1.17"
-tracing = "0.1.40"
+tempfile = "3.24.0"
+tokio-stream = "0.1.18"
 urlencoding = "2.1.3"
 
+# Not currently used, but is helpful for debugging
+# env_logger = "0.11.8"
+
 [dependencies.derive_more]
-version = "2.0.1"
+version = "2.1.1"
 features = ["full"]
 
-[dependencies.chromiumoxide]
-version = "0.7.0"
-default-features = false
-features = ["tokio-runtime"]
+[dependencies.headless_chrome]
+git = "https://github.com/rust-headless-chrome/rust-headless-chrome"
+features = ["fetch"]
 
 [dependencies.lavalink-rs]
 git = "https://gitlab.com/vicky5124/lavalink-rs/"
 branch = "main"
 
 [dependencies.mongodb]
-version = "3.3.0"
+version = "3.4.1"
 
 [dependencies.poise]
 git = "https://github.com/serenity-rs/poise/"
 branch = "next"
 
 [dependencies.reqwest]
-version = "0.12.24"
-default-features = false
-features = ["json", "rustls-tls"]
+version = "0.13.1"
+features = ["json"]
 
 [dependencies.songbird]
 git = "https://github.com/serenity-rs/songbird/"
@@ -70,5 +67,9 @@ version = "0.5.5"
 features = ["aac", "mp3", "isomp4", "alac"]
 
 [dependencies.tokio]
-version = "1.48.0"
+version = "1.49.0"
 features = ["full"]
+
+[dependencies.image]
+version = "0.25.9"
+features = ["png"]

@@ -16,7 +16,7 @@ use crate::common::brand::BrandColor;
 
 use crate::common::brand::BrandEmojis;
 
-use crate::common::helpers::chromium_oxide::{escape_html, html_to_png};
+use crate::common::helpers::html_rendering::{escape_html, html_to_png};
 
 //------------------------------------------------------------//
 
