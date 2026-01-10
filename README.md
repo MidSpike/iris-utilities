@@ -63,12 +63,15 @@ Users expect integrity and honesty from all Discord bots on the platform.
 ### 0. Prerequisites
 
 - Docker (recommended)
+- Enable Privileged Intents on the Discord Developer Portal:
+    - Server Members
+    - Message Content
 
 ### 1. Environment Variables
 
 Copy and rename any `.env.example` file to `.env` and fill in the required fields.
 
-### 2. Mongo
+### 2. MongoDB
 
 Copy and rename the `mongod.conf.example` file to `mongod.conf` and configure it to your needs.
 
@@ -84,7 +87,7 @@ The following platforms are supported via Docker:
 
 ### 3.b Running without Docker (Not Recommended)
 
-Running without Docker is not supported and may not work.
+Running without Docker is considered as unsupported.
 
 ---
 
