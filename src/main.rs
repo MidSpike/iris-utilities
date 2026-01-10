@@ -256,6 +256,9 @@ async fn main() -> Result<()> {
     rustls::crypto::ring::default_provider().install_default()
     .expect("Failed to set default rustls cryptography provider");
 
+    // Initialize tracing subscriber to catch logs from serenity/poise and other libraries.
+    tracing_subscriber::fmt::init();
+
     perform_basic_tests().await;
 
     let client_builder = create_client_builder().await;
