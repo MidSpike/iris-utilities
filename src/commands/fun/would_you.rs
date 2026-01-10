@@ -39,15 +39,9 @@ async fn fetch_random_dilemma() -> Result<Dilemma, Error> {
         reqwest_client
         .get("https://v4.willyoupressthebutton.com/api/dilemma/random")
         .header(reqwest::header::USER_AGENT, user_agent) // api is picky about having a user agent
-        .timeout(std::time::Duration::from_secs(15))
+        .timeout(std::time::Duration::from_secs(5))
         .send()
         .await?;
-
-    let response_status_code = response.status();
-
-    if response_status_code != 200 {
-        return Err(format!("Dilemma Api returned status code {}", response_status_code).into());
-    }
 
     let response_json: Dilemma = response.json().await?;
 
@@ -92,16 +86,11 @@ async fn create_dilemma_inquiry_message_stuff(
     Ok((attachment, embeds))
 }
 
-type DilemmaResultsMessageStuff = Vec<serenity::CreateEmbed>;
-
 async fn create_dilemma_results_message_stuff(
     dilemma: &Dilemma,
-    initial_embeds: Vec<serenity::CreateEmbed>,
     user: serenity::UserId,
     user_agrees: bool,
-) -> Result<DilemmaResultsMessageStuff, Error> {
-    let mut embeds = initial_embeds;
-
+) -> Result<serenity::CreateEmbed, Error> {
     let yes_vote_num = dilemma.yes;
     let no_vote_num = dilemma.no;
 
@@ -109,34 +98,33 @@ async fn create_dilemma_results_message_stuff(
     let yes_vote_percent = (yes_vote_num as f32 / total_votes as f32 * 100.0).round();
     let no_vote_percent = (no_vote_num as f32 / total_votes as f32 * 100.0).round();
 
-    let majority_agrees = yes_vote_num > no_vote_num;
+    let majority_said_yes = yes_vote_num > no_vote_num;
+    let mutual_consensus = user_agrees == majority_said_yes;
 
     let embed_description = indoc::formatdoc!(
         r#"
-            {user_mention}, it seems like the **majority of people {majority_opinion} with you**.
-
-            You said **{choice}** and the majority of people said **{majority_choice}** too.
+            {user_mention}, {response_joke}
 
             **{yes_vote_num} ({yes_vote_percent}%)** people said **yes**!
             **{no_vote_num} ({no_vote_percent}%)** people said **no**!
         "#,
         user_mention = user.mention(),
-        majority_opinion = if majority_agrees { "agree" } else { "disagree" },
-        choice = if user_agrees { "yes" } else { "no" },
-        majority_choice = if majority_agrees { "yes" } else { "no" },
+        response_joke = if mutual_consensus {
+            "it seems like great minds think alike!"
+        } else {
+            "so this is a bit awkward..."
+        },
         yes_vote_num = yes_vote_num,
         yes_vote_percent = yes_vote_percent,
         no_vote_num = no_vote_num,
         no_vote_percent = no_vote_percent,
     );
 
-    embeds.push(
+    Ok(
         serenity::CreateEmbed::default()
         .color(BrandColor::new().get())
         .description(embed_description)
-    );
-
-    Ok(embeds)
+    )
 }
 
 //------------------------------------------------------------//
@@ -209,9 +197,8 @@ pub async fn would_you(
             continue; // Continue loop on unknown buttons.
         }
 
-        let embeds = create_dilemma_results_message_stuff(
+        let result_embed = create_dilemma_results_message_stuff(
             &random_dilemma,
-            initial_embeds.clone(),
             ctx.author().id,
             is_yes_button,
         ).await?;
@@ -219,7 +206,8 @@ pub async fn would_you(
         let edit_reply =
             serenity::EditInteractionResponse::default()
             .new_attachment(attachment)
-            .add_embeds(embeds)
+            .add_embeds(initial_embeds)
+            .add_embed(result_embed)
             .components(vec![
                 serenity::CreateActionRow::Buttons(vec![
                     yes_button

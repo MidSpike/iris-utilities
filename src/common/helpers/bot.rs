@@ -11,6 +11,8 @@ use crate::Context;
 
 use crate::Error;
 
+use crate::common::brand::BrandColor;
+
 //------------------------------------------------------------//
 
 pub fn create_escaped_code_block(
@@ -117,4 +119,104 @@ pub async fn fetch_my_guild_invite_url(
         Some(invite) => Ok(invite.url()),
         None => Ok(fallback_invite_url),
     }
+}
+
+//------------------------------------------------------------//
+
+pub async fn simple_confirmation_embed(
+    ctx: &Context<'_>,
+    question: &str,
+) -> Result<bool, Error> {
+    let yes_button_id = format!("{}-yes", ctx.id());
+    let no_button_id = format!("{}-no", ctx.id());
+
+    let yes_button =
+        serenity::CreateButton::new(&yes_button_id)
+        .style(serenity::ButtonStyle::Success)
+        .label("Yes");
+
+    let no_button =
+        serenity::CreateButton::new(&no_button_id)
+        .style(serenity::ButtonStyle::Danger)
+        .label("No");
+
+    let create_reply =
+        poise::CreateReply::default()
+        .embed(
+            serenity::CreateEmbed::default()
+            .color(BrandColor::new().get())
+            .description(question)
+        )
+        .components(vec![
+            serenity::CreateActionRow::Buttons(vec![
+                yes_button.clone(),
+                no_button.clone(),
+            ])
+        ]);
+
+    let reply_handle = ctx.send(create_reply).await?;
+
+    let message = reply_handle.message().await?;
+
+    while let Some(component_interaction) =
+        message
+        .await_component_interactions(ctx)
+        .author_id(ctx.author().id)
+        .timeout(std::time::Duration::from_secs(5 * 60))
+        .await
+    {
+        // Defer while we process the interaction.
+        component_interaction.defer(ctx).await?;
+
+        let component_interaction_id = component_interaction.data.custom_id.clone();
+
+        let is_yes_button = component_interaction_id == yes_button_id;
+        let is_no_button = component_interaction_id == no_button_id;
+
+        if !is_yes_button && !is_no_button {
+            continue; // Continue loop on unknown buttons.
+        }
+
+        let edit_reply =
+            serenity::EditInteractionResponse::default()
+            .components(vec![
+                serenity::CreateActionRow::Buttons(vec![
+                    yes_button
+                    .style(
+                        if is_yes_button { serenity::ButtonStyle::Success }
+                        else { serenity::ButtonStyle::Secondary }
+                    )
+                    .disabled(true),
+
+                    no_button
+                    .style(
+                        if is_no_button { serenity::ButtonStyle::Danger }
+                        else { serenity::ButtonStyle::Secondary }
+                    )
+                    .disabled(true),
+                ])
+            ]);
+
+        component_interaction.edit_response(ctx, edit_reply).await?;
+
+        return Ok(is_yes_button);
+    }
+
+    Ok(false)
+}
+
+pub async fn third_party_content_confirmation(
+    ctx: &Context<'_>,
+) -> Result<bool, Error> {
+    simple_confirmation_embed(
+        &ctx,
+        indoc::indoc!{"
+            Disclaimer:
+            - This command fetches content from third-party sources.
+            - Content returned by this command is usually age appropriate.
+            - Users are advised to utilize appropriate viewership discretion.
+
+            Do you wish to proceed?
+        "}
+    ).await
 }

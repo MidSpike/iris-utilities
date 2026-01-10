@@ -2,6 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use poise::serenity_prelude::Mentionable;
 use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
@@ -11,6 +12,7 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
+use crate::common::helpers::bot::third_party_content_confirmation;
 
 //------------------------------------------------------------//
 
@@ -39,7 +41,7 @@ async fn fetch_random_furry_image_url() -> Result<String, Error> {
 
 //------------------------------------------------------------//
 
-/// Fetches a random safe-for-work image of a furry.
+/// Fetches a random usually safe-for-work image of a furry.
 #[
     poise::command(
         slash_command,
@@ -52,6 +54,17 @@ pub async fn random_furry(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
     ctx.defer().await?;
+
+    let is_nsfw_channel = ctx.guild_channel().await.map_or(false, |gc| gc.nsfw);
+
+    if !is_nsfw_channel && !third_party_content_confirmation(&ctx).await? {
+        ctx.send(
+            poise::CreateReply::default()
+            .content(format!("Cancelled by {}.", ctx.author().mention()))
+        ).await?;
+
+        return Ok(());
+    }
 
     let image_url = match fetch_random_furry_image_url().await {
         Ok(image_url) => image_url,
