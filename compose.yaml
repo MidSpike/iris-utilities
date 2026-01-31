@@ -59,8 +59,10 @@ services:
   # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
   lavalink:
     container_name: lavalink
-    image: ghcr.io/lavalink-devs/lavalink:4.1.1-alpine
+    image: ghcr.io/lavalink-devs/lavalink:4.1.2-alpine
     restart: unless-stopped
+    profiles:
+      - lavalink
     env_file:
       - ./docker/lavalink/.env
     volumes:
@@ -85,8 +87,10 @@ services:
   # https://hub.docker.com/r/libretranslate/libretranslate
   libre-translate:
     container_name: libre-translate
-    image: libretranslate/libretranslate:v1.7.3
+    image: libretranslate/libretranslate:v1.8.3
     restart: unless-stopped
+    profiles:
+      - libre-translate
     env_file:
       - ./docker/libre-translate/.env
     volumes:

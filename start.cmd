@@ -4,7 +4,7 @@
 cd /D "%~dp0"
 
 :: Start everything
-call docker compose up --build
+call docker compose --profile lavalink --profile libre-translate up --build
 
 :: Wait for user input to exit
 pause
