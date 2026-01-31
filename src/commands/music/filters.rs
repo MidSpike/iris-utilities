@@ -36,6 +36,11 @@ pub async fn filters(
     #[max = 1.0]
     #[description = "Karaoke effect amount (0.0 to 1.0, default is 0.0)"]
     karaoke: Option<f64>,
+
+    #[min = 0.0]
+    #[max = 200.0]
+    #[description = "Volume adjustment (0.0 to 200.0, default is 100.0)"]
+    volume: Option<f64>,
 ) -> Result<(), Error> {
     ctx.defer().await?;
 
@@ -45,9 +50,16 @@ pub async fn filters(
         return Ok(());
     };
 
-    let lava_client = ctx.data().lavalink.clone();
+    let lavalink_client = match &ctx.data().lavalink {
+        Some(client) => client,
+        None => {
+            ctx.say("Lavalink client is not initialized.").await?;
 
-    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
+            return Ok(());
+        }
+    };
+
+    let Some(player_context) = lavalink_client.get_player_context(guild_id.get()) else {
         ctx.say("Have the bot join a voice channel first.").await?;
 
         return Ok(());
@@ -56,6 +68,8 @@ pub async fn filters(
     let pitch = pitch.unwrap_or(1.0).clamp(0.0, 2.0);
 
     let karaoke = karaoke.unwrap_or(0.0).clamp(0.0, 1.0);
+
+    let volume = volume.unwrap_or(100.0).clamp(0.0, 200.0) / 100.0; // Scale to 0.0 - 2.0 for lavalink
 
     let result = player_context.set_filters(
         Filters {
@@ -71,6 +85,7 @@ pub async fn filters(
                     ..Default::default()
                 }
             ),
+            volume: Some(volume),
             ..Default::default()
         }
     ).await;

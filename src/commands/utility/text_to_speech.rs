@@ -76,12 +76,19 @@ pub async fn text_to_speech(
         return Ok(());
     };
 
-    let lavalink_client = &ctx.data().lavalink;
+    let lavalink_client = match &ctx.data().lavalink {
+        Some(client) => client,
+        None => {
+            ctx.say("Lavalink client is not initialized.").await?;
+
+            return Ok(());
+        }
+    };
 
     let songbird_manager = &songbird::get(ctx.serenity_context()).await.unwrap();
 
     let join_voice_channel_result = music::join_voice_channel(
-        lavalink_client,
+        &lavalink_client,
         songbird_manager,
         guild_id,
         my_current_voice_channel_id_option,
@@ -102,9 +109,7 @@ pub async fn text_to_speech(
         }
     }
 
-    let lava_client = ctx.data().lavalink.clone();
-
-    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
+    let Some(player_context) = lavalink_client.get_player_context(guild_id.get()) else {
         ctx.say("Join the bot to a voice channel first.").await?;
 
         return Ok(());
@@ -115,7 +120,7 @@ pub async fn text_to_speech(
 
     query_and_enqueue_track(
         ctx,
-        &lava_client,
+        &lavalink_client,
         &player_context,
         guild_id,
         query,

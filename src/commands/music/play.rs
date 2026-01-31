@@ -84,7 +84,7 @@ pub async fn query_and_enqueue_track(
     }
 
     for track_to_enqueue in queued_tracks {
-        if let Err(why) = player_context.get_queue().push_to_back(track_to_enqueue.track.clone()) {
+        if let Err(why) = player_context.queue(track_to_enqueue.track.clone()) {
             eprintln!("Failed to enqueue track:\n{}", why);
 
             return Err("Failed to enqueue track.".into());
@@ -146,8 +146,7 @@ pub async fn query_and_enqueue_track(
     // Use the default volume if the current volume is too loud.
     // I wonder why lavalink's default is so high.
     if volume_is_too_loud {
-        let set_volume_result =
-            player_context.set_volume(default_volume.get_lavalink_volume()).await;
+        let set_volume_result = player_context.set_volume(default_volume.get_lavalink_volume()).await;
 
         if let Err(why) = set_volume_result {
             eprintln!("Failed to set volume:\n{}", why);
@@ -168,8 +167,8 @@ pub async fn query_and_enqueue_track(
         guild_only,
         category = "Music",
         global_cooldown = "5", // in seconds
-        guild_cooldown = "15", // in seconds
-        user_cooldown = "30", // in seconds
+        guild_cooldown = "10", // in seconds
+        user_cooldown = "15", // in seconds
     )
 ]
 pub async fn play(
@@ -215,12 +214,19 @@ pub async fn play(
         return Ok(());
     };
 
-    let lavalink_client = &ctx.data().lavalink;
+    let lavalink_client = match &ctx.data().lavalink {
+        Some(client) => client,
+        None => {
+            ctx.say("Lavalink client is not initialized.").await?;
+
+            return Ok(());
+        }
+    };
 
     let songbird_manager = &songbird::get(ctx.serenity_context()).await.unwrap();
 
     let join_voice_channel_result = music::join_voice_channel(
-        lavalink_client,
+        &lavalink_client,
         songbird_manager,
         guild_id,
         my_current_voice_channel_id_option,
@@ -241,9 +247,7 @@ pub async fn play(
         },
     }
 
-    let lava_client = &ctx.data().lavalink;
-
-    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
+    let Some(player_context) = lavalink_client.get_player_context(guild_id.get()) else {
         ctx.say("Join the bot to a voice channel first.").await?;
 
         return Ok(());
@@ -251,7 +255,7 @@ pub async fn play(
 
     if let Err(why) = query_and_enqueue_track(
         ctx,
-        &lava_client,
+        &lavalink_client,
         &player_context,
         guild_id,
         query,

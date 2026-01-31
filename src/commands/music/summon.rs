@@ -70,11 +70,19 @@ pub async fn summon(
         return Ok(());
     };
 
-    let lavalink_client = &ctx.data().lavalink;
+    let lavalink_client = match &ctx.data().lavalink {
+        Some(client) => client,
+        None => {
+            ctx.say("Lavalink client is not initialized.").await?;
+
+            return Ok(());
+        }
+    };
+
     let songbird_manager = &songbird::get(ctx.serenity_context()).await.unwrap();
 
     let join_voice_channel_result = music::join_voice_channel(
-        lavalink_client,
+        &lavalink_client,
         songbird_manager,
         guild_id,
         my_current_voice_channel_id_option,

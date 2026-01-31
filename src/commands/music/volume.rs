@@ -113,9 +113,16 @@ pub async fn volume(
 
     let guild_id = ctx.guild_id().expect("This command can only be used in a guild.");
 
-    let lava_client = ctx.data().lavalink.clone();
+    let lavalink_client = match &ctx.data().lavalink {
+        Some(client) => client,
+        None => {
+            ctx.say("Lavalink client is not initialized.").await?;
 
-    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
+            return Ok(());
+        }
+    };
+
+    let Some(player_context) = lavalink_client.get_player_context(guild_id.get()) else {
         ctx.say("Join the bot to a voice channel first.").await?;
 
         return Ok(());

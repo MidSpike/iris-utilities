@@ -29,9 +29,16 @@ pub async fn skip(
         return Ok(());
     };
 
-    let lava_client = ctx.data().lavalink.clone();
+    let lavalink_client = match &ctx.data().lavalink {
+        Some(client) => client,
+        None => {
+            ctx.say("Lavalink client is not initialized.").await?;
 
-    let Some(player_context) = lava_client.get_player_context(guild_id.get()) else {
+            return Ok(());
+        }
+    };
+
+    let Some(player_context) = lavalink_client.get_player_context(guild_id.get()) else {
         ctx.say("Have the bot join a voice channel first.").await?;
 
         return Ok(());
@@ -42,7 +49,7 @@ pub async fn skip(
     let now_playing = player.track;
 
     if let Some(track) = now_playing {
-        player_context.skip()?;
+        player_context.finish(true)?;
 
         let message = if let Some(uri) = &track.info.uri {
             format!(

@@ -47,7 +47,7 @@ impl DefaultAllowedMentions {
 //------------------------------------------------------------//
 
 pub struct Data {
-    pub lavalink: LavalinkClient,
+    pub lavalink: Option<LavalinkClient>,
     pub libre_translate_supported_languages: Vec<libre_translate::LibreTranslateLanguage>,
 }
 
@@ -71,66 +71,111 @@ fn create_gateway_intents() -> serenity::GatewayIntents {
 
 //------------------------------------------------------------//
 
+fn get_enabled_command_categories() -> Vec<String> {
+    std::env::var("ENABLED_COMMAND_CATEGORIES")
+    .expect("Environment variable ENABLED_COMMAND_CATEGORIES not set")
+    .split(',')
+    .map(|s| s.trim().to_lowercase())
+    .collect::<Vec<String>>()
+}
+
+fn is_command_category_enabled(category: &str) -> bool {
+    let categories = get_enabled_command_categories();
+
+    categories.contains(&category.to_lowercase())
+}
+
 fn create_commands() -> Vec<poise::Command<Data, Error>> {
-    vec![
-        commands::configuration::setup::setup(),
-        commands::fun::cards::cards(),
-        commands::fun::coin_flip::coin_flip(),
-        commands::fun::color::color(),
-        commands::fun::dad_joke::dad_joke(),
-        commands::fun::fact_check::fact_check(),
-        commands::fun::gpt::gpt(),
-        commands::fun::magic_ball::magic_ball(),
-        commands::fun::poll::poll(),
-        commands::fun::random_animal::random_animal(),
-        commands::fun::random_color::random_color(),
-        commands::fun::random_furry::random_furry(),
-        commands::fun::random_identity::random_identity(),
-        commands::fun::roast::roast(),
-        commands::fun::roll_dice::roll_dice(),
-        commands::fun::would_you::would_you(),
-        commands::info::help::help(),
-        commands::info::feedback::feedback(),
-        commands::info::info::info(),
-        commands::info::invite::invite(),
-        commands::info::ping::ping(),
-        commands::moderation::ban::ban(),
-        commands::moderation::bans::bans(),
-        commands::moderation::deafen::deafen(),
-        commands::moderation::disconnect::disconnect(),
-        commands::moderation::kick::kick(),
-        commands::moderation::mute::mute(),
-        commands::moderation::purge::purge(),
-        commands::moderation::slowmode::slowmode(),
-        commands::moderation::timeout::timeout(),
-        commands::moderation::unban::unban(),
-        commands::moderation::undeafen::undeafen(),
-        commands::moderation::unmute::unmute(),
-        commands::moderation::untimeout::untimeout(),
-        commands::moderation::warn::warn(),
-        commands::moderation::yeet::yeet(),
-        commands::moderation::yoink::yoink(),
-        commands::music::filters::filters(),
-        commands::music::play::play(),
-        commands::music::queue::queue(),
-        commands::music::seek::seek(),
-        commands::music::skip::skip(),
-        commands::music::stop::stop(),
-        commands::music::summon::summon(),
-        commands::music::volume::volume(),
-        commands::utility::channel_info::channel_info(),
-        commands::utility::server_info::server_info(),
-        commands::utility::ip_info::ip_info(),
-        commands::utility::member_info::member_info(),
-        commands::utility::member_info::member_info_user_context_menu(),
-        commands::utility::minecraft_info::minecraft_info(),
-        commands::utility::role_info::role_info(),
-        commands::utility::solve::solve(),
-        commands::utility::translate::translate(),
-        commands::utility::translate::translate_message_context_menu(),
-        commands::utility::text_to_speech::text_to_speech(),
-        commands::utility::unicode_info::unicode_info(),
-    ]
+    let mut commands_to_register = vec![];
+
+    if is_command_category_enabled("configuration") {
+        commands_to_register.extend(vec![
+            commands::configuration::setup::setup(),
+        ]);
+    }
+
+    if is_command_category_enabled("info") {
+        commands_to_register.extend(vec![
+            commands::info::help::help(),
+            commands::info::feedback::feedback(),
+            commands::info::info::info(),
+            commands::info::invite::invite(),
+            commands::info::ping::ping(),
+        ]);
+    }
+
+    if is_command_category_enabled("utility") {
+        commands_to_register.extend(vec![
+            commands::utility::channel_info::channel_info(),
+            commands::utility::server_info::server_info(),
+            commands::utility::ip_info::ip_info(),
+            commands::utility::member_info::member_info(),
+            commands::utility::member_info::member_info_user_context_menu(),
+            commands::utility::minecraft_info::minecraft_info(),
+            commands::utility::role_info::role_info(),
+            commands::utility::solve::solve(),
+            commands::utility::translate::translate(),
+            commands::utility::translate::translate_message_context_menu(),
+            commands::utility::text_to_speech::text_to_speech(),
+            commands::utility::unicode_info::unicode_info(),
+        ]);
+    }
+
+    if is_command_category_enabled("moderation") {
+        commands_to_register.extend(vec![
+            commands::moderation::ban::ban(),
+            commands::moderation::bans::bans(),
+            commands::moderation::deafen::deafen(),
+            commands::moderation::disconnect::disconnect(),
+            commands::moderation::kick::kick(),
+            commands::moderation::mute::mute(),
+            commands::moderation::purge::purge(),
+            commands::moderation::slowmode::slowmode(),
+            commands::moderation::timeout::timeout(),
+            commands::moderation::unban::unban(),
+            commands::moderation::undeafen::undeafen(),
+            commands::moderation::unmute::unmute(),
+            commands::moderation::untimeout::untimeout(),
+            commands::moderation::warn::warn(),
+            commands::moderation::yeet::yeet(),
+            commands::moderation::yoink::yoink(),
+        ]);
+    }
+
+    if is_command_category_enabled("fun") {
+        commands_to_register.extend(vec![
+            commands::fun::cards::cards(),
+            commands::fun::coin_flip::coin_flip(),
+            commands::fun::color::color(),
+            commands::fun::dad_joke::dad_joke(),
+            commands::fun::fact_check::fact_check(),
+            commands::fun::gpt::gpt(),
+            commands::fun::magic_ball::magic_ball(),
+            commands::fun::poll::poll(),
+            commands::fun::random_animal::random_animal(),
+            commands::fun::random_color::random_color(),
+            commands::fun::random_furry::random_furry(),
+            commands::fun::random_identity::random_identity(),
+            commands::fun::roast::roast(),
+            commands::fun::roll_dice::roll_dice(),
+            commands::fun::would_you::would_you(),
+        ]);
+    }
+
+    if is_command_category_enabled("music") {
+        commands_to_register.extend(vec![
+            commands::music::filters::filters(),
+            commands::music::play::play(),
+            commands::music::queue::queue(),
+            commands::music::seek::seek(),
+            commands::music::skip::skip(),
+            commands::music::stop::stop(),
+            commands::music::summon::summon(),
+            commands::music::volume::volume(),
+        ]);
+    }
+
+    commands_to_register
 }
 
 //------------------------------------------------------------//
@@ -165,65 +210,53 @@ async fn create_client_builder() -> serenity::ClientBuilder {
     let framework =
         poise::Framework::builder()
         .options(framework_options)
-        .setup(
-            // Dear Poise developers, extract this
-            // parameter's signature into a type alias
-            // to allow me to move this out of here.
-            |ctx, _ready, framework| {
-                Box::pin(
-                    async move {
-                        // register commands
-                        poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+        .setup(|ctx, _ready, framework| {
+            Box::pin(async move {
+                // register commands
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
 
-                        let lavalink_rs_events = lavalink_rs::model::events::Events::default();
+                let lavalink_client: Option<LavalinkClient> = if is_command_category_enabled("music") {
+                    let lavalink_rs_events = lavalink_rs::model::events::Events::default();
 
-                        let lavalink_rs_hostname =
-                            std::env::var("LAVALINK_HOSTNAME")
-                            .expect("Environment variable LAVALINK_HOSTNAME not set");
+                    let lavalink_rs_hostname =
+                        std::env::var("LAVALINK_HOSTNAME")
+                        .expect("Environment variable LAVALINK_HOSTNAME not set");
 
-                        let lavalink_rs_password =
-                            std::env::var("LAVALINK_PASSWORD")
-                            .expect("Environment variable LAVALINK_PASSWORD not set");
+                    let lavalink_rs_password =
+                        std::env::var("LAVALINK_PASSWORD")
+                        .expect("Environment variable LAVALINK_PASSWORD not set");
 
-                        let lavalink_rs_node = NodeBuilder {
-                            is_ssl: false,
-                            hostname: lavalink_rs_hostname,
-                            password: lavalink_rs_password,
-                            user_id: lavalink_rs::model::UserId(ctx.cache.current_user().id.get()),
-                            events: lavalink_rs_events.to_owned(),
-                            session_id: None,
-                        };
+                    let lavalink_rs_node = NodeBuilder {
+                        is_ssl: false,
+                        hostname: lavalink_rs_hostname,
+                        password: lavalink_rs_password,
+                        user_id: lavalink_rs::model::UserId(ctx.cache.current_user().id.get()),
+                        events: lavalink_rs_events.to_owned(),
+                        session_id: None,
+                    };
 
-                        let lava_link_rs_client = LavalinkClient::new(
-                            lavalink_rs_events,
-                            vec![lavalink_rs_node],
-                            NodeDistributionStrategy::sharded(),
-                        ).await;
+                    let lava_link_rs_client = LavalinkClient::new(
+                        lavalink_rs_events,
+                        vec![lavalink_rs_node],
+                        NodeDistributionStrategy::sharded(),
+                    ).await;
 
-                        let supported_libre_langs =
-                            libre_translate::fetch_supported_languages().await?;
+                    Some(lava_link_rs_client)
+                } else {
+                    None
+                };
 
-                        Ok(
-                            Data {
-                                lavalink: lava_link_rs_client,
-                                libre_translate_supported_languages: supported_libre_langs,
-                            }
-                        )
+                let supported_libre_langs = libre_translate::fetch_supported_languages().await?;
+
+                Ok(
+                    Data {
+                        lavalink: lavalink_client,
+                        libre_translate_supported_languages: supported_libre_langs,
                     }
                 )
-            }
-        )
+            })
+        })
         .build();
-
-    let songbird_arc = songbird::Songbird::serenity();
-
-    let decode_mode = songbird::driver::DecodeMode::Decode(
-        songbird::driver::DecodeConfig::default()
-    );
-
-    let songbird_config =
-        songbird::Config::default()
-        .decode_mode(decode_mode); // audio receiving mode
 
     let discord_token =
         std::env::var("DISCORD_TOKEN")
@@ -231,12 +264,30 @@ async fn create_client_builder() -> serenity::ClientBuilder {
 
     let gateway_intents = create_gateway_intents();
 
-    serenity::ClientBuilder::new(discord_token, gateway_intents)
-    .register_songbird_from_config(songbird_config)
-    .voice_manager_arc(songbird_arc.clone())
-    .type_map_insert::<songbird::SongbirdKey>(songbird_arc)
-    .activity(ActivityData::custom("Chilling with slash commands!"))
-    .framework(framework)
+    let mut client_builder =
+        serenity::ClientBuilder::new(discord_token, gateway_intents)
+        .activity(ActivityData::custom("Chilling with slash commands!"))
+        .framework(framework);
+
+    if is_command_category_enabled("music") {
+        let songbird_arc = songbird::Songbird::serenity();
+
+        let decode_mode = songbird::driver::DecodeMode::Decode(
+            songbird::driver::DecodeConfig::default()
+        );
+
+        let songbird_config =
+            songbird::Config::default()
+            .decode_mode(decode_mode); // audio receiving mode
+
+        client_builder =
+            client_builder
+            .register_songbird_from_config(songbird_config)
+            .voice_manager_arc(songbird_arc.clone())
+            .type_map_insert::<songbird::SongbirdKey>(songbird_arc)
+    }
+
+    client_builder
 }
 
 //------------------------------------------------------------//
