@@ -30,8 +30,8 @@ services:
   # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
   database:
     container_name: database
-    image: mongodb/mongodb-community-server:7.0.25-ubi8
-    command: --quiet
+    image: mongodb/mongodb-community-server:7.0-ubi9
+    command: --quiet --config /etc/mongod.conf
     restart: unless-stopped
     env_file:
       - ./docker/database/.env
@@ -50,7 +50,7 @@ services:
     #   - 27017:27017 # container:host ports
     healthcheck:
       # check if mongodb is listening on port 27017
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet localhost:27017/test
       interval: 25s
       timeout: 5s
       retries: 1
