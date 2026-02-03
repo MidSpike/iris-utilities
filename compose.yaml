@@ -18,14 +18,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
-      lavalink:
-        condition: service_healthy
-      libre-translate:
-        condition: service_started
     networks:
-      - database
-      - lavalink
-      - libre-translate
+      - iris-utilities
 
   # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
   database:
@@ -43,7 +37,7 @@ services:
         source: ./docker/database/mongod.conf
         target: /etc/mongod.conf
     networks:
-      - database
+      - iris-utilities
     expose: # for other containers
       - 27017
     # ports: # for the host (optional)
@@ -71,7 +65,7 @@ services:
       # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
       - ./docker/lavalink/storage/plugins/:/opt/Lavalink/plugins/
     networks:
-      - lavalink
+      - iris-utilities
     expose: # for other containers
       - 2333
     # ports: # for the host (optional)
@@ -98,7 +92,7 @@ services:
         source: ./docker/libre-translate/storage
         target: /home/libretranslate
     networks:
-      - libre-translate
+      - iris-utilities
     expose: # for other containers
       - 7681
     # ports: # for the host (optional)
@@ -107,11 +101,5 @@ services:
 ################################################################
 
 networks:
-  database:
-    name: database
-
-  lavalink:
-    name: lavalink
-
-  libre-translate:
-    name: libre-translate
+  iris-utilities:
+    name: iris-utilities
