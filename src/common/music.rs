@@ -73,19 +73,6 @@ impl Volume {
 
 //------------------------------------------------------------//
 
-/// Silly wrapper to return proper types.
-pub fn songbird_connection_info_to_lavalink_connection_info(
-    connection_info: songbird::ConnectionInfo,
-) -> lavalink_rs::model::player::ConnectionInfo {
-    lavalink_rs::model::player::ConnectionInfo {
-        session_id: connection_info.session_id,
-        endpoint: connection_info.endpoint,
-        token: connection_info.token,
-    }
-}
-
-//------------------------------------------------------------//
-
 pub enum JoinVoiceChannelResult {
     ConnectedToNewVoiceChannel,
     ConnectedToSameVoiceChannel,
@@ -99,21 +86,28 @@ pub async fn join_voice_channel(
     old_voice_channel_id: Option<serenity::ChannelId>,
     new_voice_channel_id: serenity::ChannelId,
 ) -> JoinVoiceChannelResult {
-    let (connection_info, _) =
-    match
-        songbird_manager.join_gateway(guild_id, new_voice_channel_id).await
-    {
-        Ok(connection_info) => connection_info,
-        Err(why) => {
-            return JoinVoiceChannelResult::Failed("Song bird failed to join gateway".into(), why.into());
+    let connection_info = {
+        let (sb_conn_info, _) = match songbird_manager.join_gateway(guild_id, new_voice_channel_id).await {
+            Ok(conn_info) => conn_info,
+            Err(why) => {
+                return JoinVoiceChannelResult::Failed("Song bird failed to join gateway".into(), why.into());
+            }
+        };
+
+        lavalink_rs::model::player::ConnectionInfo {
+            endpoint: sb_conn_info.endpoint,
+            session_id: sb_conn_info.session_id,
+            token: sb_conn_info.token,
+            channel_id: {
+                sb_conn_info.channel_id
+                .map(|id| id.0.get()) // NonZero<u64> -> u64
+                .map(|id| lavalink_rs::model::ChannelId(id))
+            },
         }
     };
 
-    let lavalink_connection_info =
-        songbird_connection_info_to_lavalink_connection_info(connection_info);
-
     let lavalink_player_context_result =
-        lavalink_client.create_player_context(guild_id.get(), lavalink_connection_info).await;
+        lavalink_client.create_player_context(guild_id.get(), connection_info).await;
 
     let result = match lavalink_player_context_result {
         Ok(_) => {

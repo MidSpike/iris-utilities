@@ -46,6 +46,7 @@ features = ["fetch"]
 [dependencies.lavalink-rs]
 git = "https://gitlab.com/vicky5124/lavalink-rs/"
 branch = "main"
+features = ["songbird"]
 
 [dependencies.mongodb]
 version = "3.5.1"

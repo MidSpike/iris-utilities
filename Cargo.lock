@@ -2105,7 +2105,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha256",
- "songbird",
+ "songbird 0.5.0 (git+https://github.com/serenity-rs/songbird/?branch=next)",
  "symphonia",
  "sysinfo",
  "tempfile",
@@ -2191,6 +2191,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_qs",
+ "songbird 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio",
  "tokio-tungstenite 0.28.0",
  "tracing",
@@ -4139,6 +4140,22 @@ dependencies = [
  "byteorder",
  "libc",
  "winapi",
+]
+
+[[package]]
+name = "songbird"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc0f2c269821881c25c6daa6863a611a10c9b40ed9f56e2955793bf06fb0fdfd"
+dependencies = [
+ "derivative",
+ "either",
+ "futures",
+ "pin-project",
+ "serde",
+ "serde_json",
+ "tracing",
+ "tracing-futures",
 ]
 
 [[package]]
