@@ -86,7 +86,7 @@ async fn fetch_random_answer_cards(
 
     let random_answer_cards =
         answer_cards
-        .choose_multiple(&mut rand::rng(), question_card.num_answers as usize)
+        .sample(&mut rand::rng(), question_card.num_answers as usize)
         .map(|card| card.clone())
         .collect::<Vec<Card>>();
 

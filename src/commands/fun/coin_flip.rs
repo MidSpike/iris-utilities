@@ -4,7 +4,7 @@
 
 use derive_more::Display;
 
-use rand::Rng;
+use rand::RngExt;
 
 //------------------------------------------------------------//
 
