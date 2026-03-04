@@ -12,9 +12,7 @@ use anyhow::{Context as AnyhowContext, Result};
 
 use lavalink_rs::prelude::*;
 
-use poise::serenity_prelude::{self as serenity, ActivityData};
-
-use songbird::SerenityInit; // used by `register_songbird_from_config`
+use poise::serenity_prelude::{self as serenity, ActivityData as SerenityActivityData};
 
 //------------------------------------------------------------//
 
@@ -189,20 +187,13 @@ async fn create_client_builder() -> serenity::ClientBuilder {
                 event_handler(framework, event)
             )
         },
-        pre_command: |ctx| {
+        pre_command: |context| {
             // This will run before every command invocation
-            Box::pin(
-                async move {
-                    match ctx {
-                        poise::Context::Application(ctx) => {
-                            let command = ctx.invocation_string();
-                            telemetry_anonymous_command_log(&ctx, command).await;
-                        },
-
-                        _ => {}, // ignore other types of contexts
-                    }
+            Box::pin(async move {
+                if let poise::Context::Application(ctx) = context {
+                    telemetry_anonymous_command_log(&ctx).await;
                 }
-            )
+            })
         },
         ..poise::FrameworkOptions::default()
     };
@@ -216,8 +207,6 @@ async fn create_client_builder() -> serenity::ClientBuilder {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
 
                 let lavalink_client: Option<LavalinkClient> = if is_command_category_enabled("music") {
-                    let lavalink_rs_events = lavalink_rs::model::events::Events::default();
-
                     let lavalink_rs_hostname =
                         std::env::var("LAVALINK_HOSTNAME")
                         .expect("Environment variable LAVALINK_HOSTNAME not set");
@@ -227,21 +216,19 @@ async fn create_client_builder() -> serenity::ClientBuilder {
                         .expect("Environment variable LAVALINK_PASSWORD not set");
 
                     let lavalink_rs_node = NodeBuilder {
-                        is_ssl: false,
                         hostname: lavalink_rs_hostname,
                         password: lavalink_rs_password,
                         user_id: lavalink_rs::model::UserId(ctx.cache.current_user().id.get()),
-                        events: lavalink_rs_events.to_owned(),
-                        session_id: None,
+                        ..Default::default()
                     };
 
-                    let lava_link_rs_client = LavalinkClient::new(
-                        lavalink_rs_events,
+                    let lavalink_rs_client = LavalinkClient::new(
+                        lavalink_rs::model::events::Events::default(),
                         vec![lavalink_rs_node],
-                        NodeDistributionStrategy::sharded(),
+                        NodeDistributionStrategy::default(),
                     ).await;
 
-                    Some(lava_link_rs_client)
+                    Some(lavalink_rs_client)
                 } else {
                     None
                 };
@@ -266,10 +253,12 @@ async fn create_client_builder() -> serenity::ClientBuilder {
 
     let mut client_builder =
         serenity::ClientBuilder::new(discord_token, gateway_intents)
-        .activity(ActivityData::custom("Chilling with slash commands!"))
+        .activity(SerenityActivityData::custom("Chilling with slash commands!"))
         .framework(framework);
 
     if is_command_category_enabled("music") {
+        use songbird::SerenityInit; // used by `register_songbird_from_config`
+
         let songbird_arc = songbird::Songbird::serenity();
 
         let decode_mode = songbird::driver::DecodeMode::Decode(

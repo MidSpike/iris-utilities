@@ -61,7 +61,6 @@ async fn get_anonymous_command_log_telemetry_channel(
 
 pub async fn telemetry_anonymous_command_log(
     ctx: &Context<'_>,
-    command: String,
 ) {
     let Some(telemetry_channel) = get_anonymous_command_log_telemetry_channel(ctx).await else {
         return;
@@ -85,7 +84,7 @@ pub async fn telemetry_anonymous_command_log(
         ),
         (
             "Command Run",
-            format!("```\n{}\n```", command),
+            format!("```\n{}\n```", ctx.invocation_string()),
             false,
         ),
     ];
