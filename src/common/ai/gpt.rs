@@ -2,7 +2,13 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use serde::{Deserialize, Serialize};
+use async_openai::{
+    Client, types::responses::{
+        CreateResponseArgs,
+        ResponseTextParam,
+        TextResponseFormatConfiguration,
+    }
+};
 
 //------------------------------------------------------------//
 
@@ -10,88 +16,36 @@ use crate::Error;
 
 //------------------------------------------------------------//
 
-#[allow(dead_code)] // unused enum variants
-#[derive(Serialize, Deserialize, Debug)]
-pub enum GptMessageRole {
-    #[serde(rename = "system")] // match OpenAi Api
-    System,
-    #[serde(rename = "assistant")] // match OpenAi Api
-    Assistant,
-    #[serde(rename = "user")] // match OpenAi Api
-    User,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct GptMessage {
-    role: GptMessageRole,
-    content: String,
-}
-
-impl GptMessage {
-    pub fn new(role: GptMessageRole, content: String) -> Self {
-        Self {
-            role: role,
-            content: content,
-        }
-    }
-
-    pub fn system(content: String) -> Self {
-        Self::new(GptMessageRole::System, content)
-    }
-
-    pub fn assistant(content: String) -> Self {
-        Self::new(GptMessageRole::Assistant, content)
-    }
-
-    pub fn user(content: String) -> Self {
-        Self::new(GptMessageRole::User, content)
-    }
-}
-
-//------------------------------------------------------------//
-
-#[derive(Serialize, Deserialize, Debug)]
-struct OpenAiChatCompletionsApiRequest {
-    model: String,
-    messages: Vec<GptMessage>,
-    max_tokens: u16,
-    temperature: f32, // scale from 0.0 to 2.0
-    user: String, // should be a hashed user identifier
-}
-
-//------------------------------------------------------------//
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ResponseChoice {
-    message: GptMessage,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ResponseUsage {
-    total_tokens: u32,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ResponseError {
-    message: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct OpenAiChatCompletionsApiResponse {
-    error: Option<ResponseError>,
-    choices: Option<Vec<ResponseChoice>>,
-    usage: Option<ResponseUsage>,
-}
-
-//------------------------------------------------------------//
-
-/// # Summary
 /// Simple hashing function to hash user ids before sending them to OpenAI.
 fn hash_user_id(user_id: String) -> String {
     sha256::digest(user_id)
 }
 
 //------------------------------------------------------------//
+
+pub struct PromptOptions {
+    pub model: String,
+    pub user_id: String,
+    pub instructions: String,
+    pub input_prompt: Vec<String>,
+    pub max_output_tokens: u32,
+}
+
+impl Default for PromptOptions {
+    fn default() -> Self {
+        PromptOptions {
+            model:
+                std::env::var("OPENAI_API_MODEL")
+                .unwrap_or_else(|_| "gpt-5-nano".to_string()),
+            user_id:
+                std::env::var("OPENAI_API_SAFETY_NAMESPACE")
+                .unwrap_or_else(|_| "iris-utilities".to_string()),
+            instructions: "You are a helpful assistant.".to_string(),
+            input_prompt: vec![],
+            max_output_tokens: 512,
+        }
+    }
+}
 
 pub struct PromptResponse {
     pub content: String,
@@ -100,99 +54,68 @@ pub struct PromptResponse {
 
 /// # Summary
 ///
-/// Prompts OpenAi's Chat Completions api to receive a response from GPT.
+/// Prompts OpenAI's Responses API to receive a response from GPT using the async-openai SDK.
 ///
 /// # Arguments
 ///
-/// * `system_message` - The system message to prompt GPT with.
-/// * `user_message` - The user message to prompt GPT with.
-/// * `user_id` - The id of the user.
+/// * `model` - The model to use (e.g., "gpt-5-nano")
+/// * `instructions` - The instructions for the model
+/// * `input_prompt` - The input prompt to send to the model
+/// * `user_id` - The user id for safety namespace hashing
+/// * `max_output_tokens` - The maximum number of output tokens to generate
 ///
 /// # Returns
 ///
-/// * `Ok(String)` - The response from GPT.
-/// * `Err(Error)` - An error.
+/// * `Ok(PromptResponse)` - The response from GPT
+/// * `Err(Error)` - An error
 pub async fn prompt(
-    messages: Vec<GptMessage>,
-    user_id: Option<String>,
-    temperature: Option<f32>,
-    max_tokens: Option<u16>,
+    options: PromptOptions,
 ) -> Result<PromptResponse, Error> {
-    let open_ai_token = std::env::var("OPEN_AI_TOKEN").expect("Environment variable OPEN_AI_TOKEN not set");
-    let open_ai_gpt_model = std::env::var("OPEN_AI_GPT_MODEL").expect("Environment variable OPEN_AI_GPT_MODEL not set");
+    let PromptOptions {
+        model,
+        instructions,
+        input_prompt,
+        user_id,
+        max_output_tokens,
+    } = options;
 
-    let temperature = temperature.unwrap_or(1.0); // default to 1.0
-
-    if !(0.0..=2.0).contains(&temperature) {
-        return Err("Temperature must be between 0.0 and 2.0".into());
+    if input_prompt.is_empty() {
+        return Err("No input was provided to prompt GPT".into());
     }
 
-    let max_tokens = max_tokens.unwrap_or(256); // default to 256
+    let client = Client::new();
 
-    let user_id: String = match user_id {
-        Some(user_id) => user_id,
-        None => String::from("not_a_user"),
-    };
-
-    let reqwest_client = reqwest::Client::new();
-
-    if messages.is_empty() {
-        return Err("No messages were provided to prompt gpt".into());
-    }
+    let request =
+        CreateResponseArgs::default()
+        .safety_identifier(hash_user_id(user_id))
+        .model(&model)
+        .instructions(instructions)
+        .input(input_prompt)
+        .max_output_tokens(max_output_tokens)
+        .text(ResponseTextParam {
+            format: TextResponseFormatConfiguration::Text,
+            verbosity: None,
+        })
+        .build()?;
 
     let response =
-        reqwest_client
-        .post("https://api.openai.com/v1/chat/completions")
-        .bearer_auth(open_ai_token)
-        .json(
-            &OpenAiChatCompletionsApiRequest {
-                model: open_ai_gpt_model,
-                messages: messages,
-                temperature: temperature,
-                max_tokens: max_tokens,
-                user: hash_user_id(user_id),
-            }
-        )
-        .timeout(std::time::Duration::from_secs(15))
-        .send()
-        .await?;
+        client.responses().create(request).await
+        .map_err(|e| Error::from(format!("OpenAI API error: {}", e)))?;
 
-    let response_status_code = response.status();
+    let content =
+        response.output_text()
+        .unwrap_or_else(|| { "No response content found".into() });
 
-    // println!("OpenAI API response status code: {}", response_status_code);
+    // Get token usage
+    let total_tokens =
+        response.usage
+        .map(|usage| usage.total_tokens)
+        .unwrap_or(0);
 
-    let response_json: OpenAiChatCompletionsApiResponse = response.json().await?;
-
-    // println!("OpenAI API response JSON: {:#?}", response_json);
-
-    if response_status_code != 200 {
-        let response_error =
-            response_json.error
-            .expect("OpenAI API response missing \"error\" object in response for non-200 status code");
-
-        let response_error_message = response_error.message;
-
-        return Err(format!("OpenAI API error: {}", response_error_message).into());
-    }
-
-    let usage =
-        response_json.usage
-        .expect("OpenAI API response missing \"usage\" object in response for 200 status code");
-
-    let total_tokens = usage.total_tokens;
-
-    let response_choices =
-        response_json.choices
-        .expect("OpenAI API response missing \"choices\" array in response for 200 status code");
-
-    let first_response_choice = response_choices.first().expect("OpenAI API response JSON \"choices\" array is empty");
-
-    let first_response_choice_text = first_response_choice.message.content.to_string();
-
-    return Ok(
+    Ok(
         PromptResponse {
-            content: first_response_choice_text,
+            content,
             tokens_used: total_tokens,
         }
-    );
+    )
 }

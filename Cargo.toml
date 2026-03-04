@@ -58,6 +58,10 @@ branch = "next"
 version = "0.13.1"
 features = ["json"]
 
+[dependencies.async-openai]
+version = "0.33.0"
+features = ["responses"]
+
 [dependencies.songbird]
 git = "https://github.com/serenity-rs/songbird/"
 branch = "next"

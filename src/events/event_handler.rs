@@ -49,8 +49,6 @@ pub async fn event_handler(
         },
 
         serenity::FullEvent::Message { new_message } => {
-            // println!("{}: {}", new_message.author.name, new_message.content);
-
             guild_ai_chat_handler(ctx, new_message).await.expect("Failed to handle AI chat");
         },
 

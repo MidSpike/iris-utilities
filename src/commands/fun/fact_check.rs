@@ -40,23 +40,18 @@ pub async fn fact_check(
 
     let user_id = ctx.author().id;
 
-
-    let system_message = ai::gpt::GptMessage::system(
-        [
-            "Be extremely unique and very concise.",
-            "Fact-check what you are told.",
-            "If something is not factual, correct it.",
-            "If you don't know, say so.",
-        ].join("\n")
-    );
-
-    let user_message = ai::gpt::GptMessage::user(statement);
-
     let prompt_response = ai::gpt::prompt(
-        vec![system_message, user_message],
-        Some(user_id.to_string()),
-        None, // use default temperature
-        Some(256), // max tokens
+        ai::gpt::PromptOptions {
+            user_id: user_id.to_string(),
+            instructions: [
+                "Be extremely unique and very concise.",
+                "Fact-check what you are told.",
+                "If something is not factual, correct it.",
+                "If you don't know, say so.",
+            ].join("\n"),
+            input_prompt: vec![statement],
+            ..Default::default()
+        }
     ).await?;
 
     ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;

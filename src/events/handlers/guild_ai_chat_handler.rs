@@ -35,6 +35,8 @@ pub async fn guild_ai_chat_handler(
         return Ok(());
     };
 
+    // println!("guild_ai_chat_handler(): [{}]: {}", message.author.name, message.content);
+
     let guild_channel =
         message.channel(&ctx).await?
         .guild().expect("guild channel should be present");
@@ -77,29 +79,25 @@ pub async fn guild_ai_chat_handler(
 
     let me = ctx.cache.current_user().clone(); // cloned to avoid async issues
 
-    let system_message = ai::gpt::GptMessage::system(
-        [
-            format!(
-                "You are {} (aka ${}), a discord bot on Discord.",
-                me.name,
-                me.mention()
-            ).as_str(),
-            "Converse like a human,",
-            "pretend to not be an ai,",
-            "keep your responses very short,",
-            "and refrain from using emojis.",
-        ].join("\n"),
-    );
-
-    let user_message = ai::gpt::GptMessage::user(
-        message.content.chars().take(128).collect::<String>(),
-    );
-
     let prompt_response = ai::gpt::prompt(
-        vec![system_message, user_message],
-        Some(user_id_string),
-        None, // use default temperature
-        Some(128), // max tokens
+        ai::gpt::PromptOptions {
+            user_id: user_id_string,
+            instructions: [
+                format!(
+                    "You are {} (aka {}), a discord bot on Discord.",
+                    me.name,
+                    me.mention()
+                ).as_str(),
+                "Converse like a human,",
+                "pretend to not be an ai,",
+                "keep your responses very short,",
+                "and refrain from using emojis.",
+            ].join("\n"),
+            input_prompt: vec![
+                message.content.chars().take(256).collect::<String>(),
+            ],
+            ..Default::default()
+        }
     ).await?;
 
     ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;

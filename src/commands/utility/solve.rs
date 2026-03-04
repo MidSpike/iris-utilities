@@ -35,21 +35,17 @@ pub async fn solve(
         return Ok(());
     }
 
-    let system_message = ai::gpt::GptMessage::system(
-        [
-            "You can only do math. Attempt to solve the supplied input.",
-            "If the input is not solvable using math, say \"unable to solve\".",
-            "Be succinct in your output.",
-        ].join("\n")
-    );
-
-    let user_message = ai::gpt::GptMessage::user(problem);
-
     let prompt_response = ai::gpt::prompt(
-        vec![system_message, user_message],
-        Some(user_id.to_string()),
-        None, // use default temperature
-        Some(128), // max tokens
+        ai::gpt::PromptOptions {
+            user_id: user_id.to_string(),
+            instructions: [
+                "You can only do math. Attempt to solve the supplied input.",
+                "If the input is not solvable using math, say \"unable to solve\".",
+                "Be succinct in your output.",
+            ].join("\n"),
+            input_prompt: vec![problem.to_string()],
+            ..Default::default()
+        }
     ).await?;
 
     ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;

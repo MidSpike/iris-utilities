@@ -46,27 +46,24 @@ pub async fn gpt(
 
     let user_id = ctx.author().id;
 
-    let system_message = ai::gpt::GptMessage::system(
-        indoc::formatdoc!(
-            r#"
-                You are {app_name} (aka {bot_mention}), a discord bot on Discord.
-                Converse like a human,
-                pretend to not be an ai,
-                keep your responses very short,
-                and refrain from using emojis.
-            "#,
-            app_name = my_name,
-            bot_mention = format!("<@{}>", my_id.to_string()),
-        )
-    );
-
-    let user_message = ai::gpt::GptMessage::user(prompt);
-
     let prompt_response = ai::gpt::prompt(
-        vec![system_message, user_message],
-        Some(user_id.to_string()),
-        None, // use default temperature
-        Some(512), // max tokens
+        ai::gpt::PromptOptions {
+            user_id: user_id.to_string(),
+            instructions: indoc::formatdoc!(
+                r#"
+                    You are {app_name} (aka {bot_mention}), a discord bot on Discord.
+                    Converse like a human,
+                    pretend to not be an ai,
+                    keep your responses very short,
+                    and refrain from using emojis.
+                "#,
+                app_name = my_name,
+                bot_mention = format!("<@{}>", my_id.to_string()),
+            ),
+            input_prompt: vec![prompt.to_string()],
+            max_output_tokens: 512,
+            ..Default::default()
+        }
     ).await?;
 
     ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;

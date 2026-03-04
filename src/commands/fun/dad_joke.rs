@@ -43,13 +43,13 @@ pub async fn dad_joke(
     let user_id = ctx.author().id;
     let user_id_string = user_id.to_string();
 
-    let gpt_default_user_id =
-        std::env::var("OPEN_AI_GPT_DEFAULT_USER_ID")
-        .expect("Environment variable OPEN_AI_GPT_DEFAULT_USER_ID not set");
+    let gpt_safety_namespace =
+        std::env::var("OPENAI_API_SAFETY_NAMESPACE")
+        .expect("Environment variable OPENAI_API_SAFETY_NAMESPACE not set");
 
     // Distinguish known prompts from unknown prompts.
     // Append the user id to the default user id.
-    let gpt_user_id = format!("{}-{}", gpt_default_user_id, user_id_string);
+    let gpt_user_id = format!("{}-{}", gpt_safety_namespace, user_id_string);
 
     let prompt_prefix =
         "Be extremely unique and very concise. Tell me a";
@@ -80,13 +80,13 @@ pub async fn dad_joke(
         .expect("System prompts vector is empty")
         .to_string();
 
-    let system_message = ai::gpt::GptMessage::system(random_system_prompt);
-
     let prompt_response = ai::gpt::prompt(
-        vec![system_message],
-        Some(gpt_user_id), // ironic that we are still providing a user id
-        None, // use default temperature
-        Some(128), // max tokens
+        ai::gpt::PromptOptions {
+            user_id: gpt_user_id,
+            instructions: random_system_prompt,
+            input_prompt: vec!["Tell me a dad joke".to_string()],
+            ..Default::default()
+        }
     ).await?;
 
     ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;
