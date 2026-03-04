@@ -10,6 +10,20 @@ use crate::Error;
 
 //------------------------------------------------------------//
 
+fn get_libre_translate_url() -> String {
+    let mut libre_translate_url =
+        std::env::var("LIBRE_TRANSLATE_API_URL")
+        .expect("Environment variable LIBRE_TRANSLATE_API_URL not set");
+
+    if libre_translate_url.ends_with('/') {
+        libre_translate_url.pop();
+    }
+
+    libre_translate_url
+}
+
+//------------------------------------------------------------//
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LibreTranslateLanguage {
     pub code: String,
@@ -25,14 +39,12 @@ pub struct LibreTranslateLanguagesApiResponse {
 //------------------------------------------------------------//
 
 pub async fn fetch_supported_languages() -> Result<Vec<LibreTranslateLanguage>, Error> {
-    let libre_translate_url =
-        std::env::var("LIBRE_TRANSLATE_API_URL")
-        .expect("Environment variable LIBRE_TRANSLATE_API_URL not set");
+    let libre_translate_url = get_libre_translate_url();
 
-    let languages_url = format!("{}/languages", libre_translate_url);
+    let available_languages_url = format!("{}/languages", libre_translate_url);
 
     let mut response: LibreTranslateLanguagesApiResponse =
-        reqwest::get(&languages_url).await?
+        reqwest::get(&available_languages_url).await?
         .json().await?;
 
     response.languages.push(
@@ -60,9 +72,7 @@ pub async fn translate(
     from_language: &str,
     to_language: &str,
 ) -> Result<String, Error> {
-    let libre_translate_url =
-        std::env::var("LIBRE_TRANSLATE_API_URL")
-        .expect("Environment variable LIBRE_TRANSLATE_API_URL not set");
+    let libre_translate_url = get_libre_translate_url();
 
     let translate_url = format!("{}/translate", libre_translate_url);
 
@@ -73,7 +83,7 @@ pub async fn translate(
         |l| l.code == from_language || l.name.to_lowercase() == from_language.to_lowercase()
     ) {
         Some(l) => l.code.clone(),
-        None => Err(format!("Language code {} is not supported.", from_language))?,
+        None => Err(format!("Language code `{}` is not supported.", from_language))?,
     };
 
     let target_language = match supported_languages.iter().find(
@@ -81,7 +91,7 @@ pub async fn translate(
         |l| l.code == to_language || l.name.to_lowercase() == to_language.to_lowercase()
     ) {
         Some(l) => l.code.clone(),
-        None => Err(format!("Language code {} is not supported.", to_language))?,
+        None => Err(format!("Language code `{}` is not supported.", to_language))?,
     };
 
     let params = std::collections::HashMap::from([
