@@ -2,6 +2,8 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use std::net::IpAddr;
+
 use serde::{Deserialize, Serialize};
 
 use poise::serenity_prelude::{self as serenity};
@@ -27,79 +29,80 @@ const API_FIELDS_PARAMETER: &str = "66846719";
 /// 200 OK from `API_URL`
 #[derive(Serialize, Deserialize, Default, Debug)]
 struct ApiResponse {
-    #[serde(default = "default_string_value")]
+    #[serde(default = "ApiResponse::default_string_value")]
     continent: String,
-    #[serde(default = "default_string_value", rename = "continentCode")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "continentCode")]
     continent_code: String,
-    #[serde(default = "default_string_value")]
+    #[serde(default = "ApiResponse::default_string_value")]
     country: String,
-    #[serde(default = "default_string_value", rename = "countryCode")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "countryCode")]
     country_code: String,
-    #[serde(default = "default_string_value")]
+    #[serde(default = "ApiResponse::default_string_value")]
     region: String,
-    #[serde(default = "default_string_value", rename = "regionName")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "regionName")]
     region_name: String,
-    #[serde(default = "default_string_value")]
+    #[serde(default = "ApiResponse::default_string_value")]
     city: String,
-    #[serde(default = "default_string_value")]
+    #[serde(default = "ApiResponse::default_string_value")]
     district: String,
-    #[serde(default = "default_string_value", rename = "zip")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "zip")]
     postal_code: String,
-    #[serde(default = "default_floating_value", rename = "lat")]
+    #[serde(default = "ApiResponse::default_floating_value", rename = "lat")]
     latitude: f64,
-    #[serde(default = "default_floating_value", rename = "lon")]
+    #[serde(default = "ApiResponse::default_floating_value", rename = "lon")]
     longitude: f64,
-    #[serde(default = "default_string_value", rename = "currency")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "currency")]
     currency_code: String,
-    #[serde(default = "default_string_value")]
+    #[serde(default = "ApiResponse::default_string_value")]
     timezone: String,
-    #[serde(default = "default_integer_value", rename = "offset")]
+    #[serde(default = "ApiResponse::default_integer_value", rename = "offset")]
     utc_offset: i32,
-    // #[serde(default = "default_string_value")]
-    // currency: String,
-    #[serde(default = "default_string_value", rename = "isp")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "isp")]
     internet_service_provider: String,
-    #[serde(default = "default_string_value", rename = "org")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "org")]
     organization: String,
-    #[serde(default = "default_string_value", rename = "as")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "as")]
     autonomous_system_number: String,
-    #[serde(default = "default_string_value", rename = "asname")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "asname")]
     autonomous_system_name: String,
-    #[serde(default = "default_string_value", rename = "reverse")]
+    #[serde(default = "ApiResponse::default_string_value", rename = "reverse")]
     reverse_dns: String,
-    #[serde(default = "default_boolean_value", rename = "mobile")]
+    #[serde(default = "ApiResponse::default_boolean_value", rename = "mobile")]
     is_cellular_connection: bool,
-    #[serde(default = "default_boolean_value", rename = "proxy")]
+    #[serde(default = "ApiResponse::default_boolean_value", rename = "proxy")]
     is_known_proxy: bool,
-    #[serde(default = "default_boolean_value", rename = "hosting")]
+    #[serde(default = "ApiResponse::default_boolean_value", rename = "hosting")]
     is_data_center: bool,
 }
 
-fn default_string_value() -> String {
-    String::from("Unknown")
+impl ApiResponse {
+    fn default_string_value() -> String {
+        String::from("Unknown")
+    }
+
+    fn default_floating_value() -> f64 {
+        0.0
+    }
+
+    fn default_integer_value() -> i32 {
+        0
+    }
+
+    fn default_boolean_value() -> bool {
+        false
+    }
 }
 
-fn default_floating_value() -> f64 {
-    0.0
-}
-
-fn default_integer_value() -> i32 {
-    0
-}
-
-fn default_boolean_value() -> bool {
-    false
-}
 
 //------------------------------------------------------------//
 
 async fn fetch_ip_address_info(
-    ip_address: &str, // example: "1.1.1.1"
+    ip_address: &IpAddr, // example: "1.1.1.1" or "2606:4700:4700::1111"
 ) -> Result<ApiResponse, Error> {
     let url = format!(
         "{}/{}?fields={}",
         API_URL,
-        urlencoding::encode(ip_address),
+        urlencoding::encode(&ip_address.to_string()),
         API_FIELDS_PARAMETER
     );
 
@@ -137,6 +140,15 @@ pub async fn ip_info(
 
         return Ok(());
     }
+
+    let ip_address = match ip_address.parse::<IpAddr>() {
+        Ok(ip) => ip,
+        Err(_) => {
+            ctx.say("The provided address is not a valid IP address.").await?;
+
+            return Ok(());
+        },
+    };
 
     let ip_address_info = match fetch_ip_address_info(&ip_address).await {
         Ok(s) => s,

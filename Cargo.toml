@@ -12,7 +12,7 @@ path = "src/main.rs"
 # Used as a cache for Docker images
 [[bin]]
 name = "docker-cache"
-path = "src/docker_cache.rs"
+path = "src/_docker_cache.rs"
 
 # Dependencies
 [dependencies]

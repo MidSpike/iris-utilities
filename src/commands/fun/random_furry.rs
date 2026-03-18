@@ -2,8 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::Mentionable;
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
 //------------------------------------------------------------//
 
@@ -12,7 +11,8 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
-use crate::common::helpers::bot::third_party_content_confirmation;
+
+use crate::common::helpers::bot::potential_nsfw_confirmation;
 
 //------------------------------------------------------------//
 
@@ -57,7 +57,7 @@ pub async fn random_furry(
 
     let is_nsfw_channel = ctx.guild_channel().await.map_or(false, |gc| gc.nsfw);
 
-    if !is_nsfw_channel && !third_party_content_confirmation(&ctx).await? {
+    if !is_nsfw_channel && !potential_nsfw_confirmation(&ctx).await? {
         ctx.send(
             poise::CreateReply::default()
             .content(format!("Cancelled by {}.", ctx.author().mention()))
@@ -66,14 +66,14 @@ pub async fn random_furry(
         return Ok(());
     }
 
-    let image_url = match fetch_random_furry_image_url().await {
+    let image_url: String = match fetch_random_furry_image_url().await {
         Ok(image_url) => image_url,
         Err(why) => {
-            println!("Failed to fetch a furry image: {:?}", why);
+            println!("Failed to fetch a random furry image: {:?}", why);
 
             ctx.send(
                 poise::CreateReply::default()
-                .content("Failed to fetch a furry image.")
+                .content("Failed to fetch a random furry image.")
             ).await?;
 
             return Ok(());

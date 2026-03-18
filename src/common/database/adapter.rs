@@ -3,6 +3,7 @@
 //------------------------------------------------------------//
 
 use tokio::sync::OnceCell;
+
 use tokio_stream::StreamExt;
 
 //------------------------------------------------------------//
@@ -66,7 +67,7 @@ impl CollectionHelper {
         }
     }
 
-    pub async fn get<Item>(
+    pub async fn get<Item> (
         &self,
         filter: mongodb::bson::Document,
     ) -> Result<Option<Item>, Error>
@@ -136,7 +137,7 @@ impl CollectionHelper {
 
 //------------------------------------------------------------//
 
-pub async fn test_database() -> Result<(), Error> {
+pub async fn test() -> Result<(), Error> {
     println!("Testing database interfaces...");
 
     {
@@ -172,5 +173,5 @@ pub async fn test_database() -> Result<(), Error> {
         println!("Finished testing guild config.");
     }
 
-    return Ok(());
+    Ok(())
 }

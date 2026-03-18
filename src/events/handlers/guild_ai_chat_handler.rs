@@ -9,11 +9,11 @@ use poise::serenity_prelude::{self as serenity};
 
 use crate::Error;
 
-use crate::common::ai;
+use crate::common::ai::{gpt, user_ai_usage};
 
 use crate::common::database::interfaces::guild_config::GuildConfig;
 
-use crate::common::ai::user_ai_usage::is_user_above_gpt_token_limit;
+use crate::common::helpers::bot::create_default_allowed_mentions;
 
 //------------------------------------------------------------//
 
@@ -73,14 +73,14 @@ pub async fn guild_ai_chat_handler(
     let user_id = member.user.id;
     let user_id_string = user_id.get().to_string();
 
-    if is_user_above_gpt_token_limit(user_id).await? {
+    if user_ai_usage::is_user_above_gpt_token_limit(user_id).await? {
         return Ok(()); // don't continue if the user is above the token limit
     }
 
     let me = ctx.cache.current_user().clone(); // cloned to avoid async issues
 
-    let prompt_response = ai::gpt::prompt(
-        ai::gpt::PromptOptions {
+    let prompt_response = gpt::prompt(
+        gpt::PromptOptions {
             user_id: user_id_string,
             instructions: [
                 format!(
@@ -100,14 +100,14 @@ pub async fn guild_ai_chat_handler(
         }
     ).await?;
 
-    ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;
+    user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;
 
     let channel = message.channel(&ctx).await?; // should never fail
 
     channel.id().send_message(
         ctx,
         serenity::CreateMessage::default()
-        .allowed_mentions(crate::DefaultAllowedMentions::new())
+        .allowed_mentions(create_default_allowed_mentions())
         .reference_message(message)
         .content(prompt_response.content)
     ).await?;

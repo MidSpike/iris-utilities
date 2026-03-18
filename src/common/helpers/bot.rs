@@ -2,8 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::CreateInvite;
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, CreateInvite};
 
 //------------------------------------------------------------//
 
@@ -12,6 +11,16 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
+
+//------------------------------------------------------------//
+
+pub fn create_default_allowed_mentions() -> serenity::CreateAllowedMentions {
+    serenity::CreateAllowedMentions::default()
+    .replied_user(true)
+    .all_users(false)
+    .all_roles(false)
+    .everyone(false)
+}
 
 //------------------------------------------------------------//
 
@@ -57,9 +66,10 @@ pub fn generate_bot_invite_url(
 
 //------------------------------------------------------------//
 
-async fn create_permanent_guild_invite(
+async fn create_guild_invite(
     ctx: Context<'_>,
     guild_id: serenity::GuildId,
+    temporary: bool,
 ) -> Result<Option<serenity::RichInvite>, Error> {
     // use http to work across shards
     let guild =
@@ -75,7 +85,7 @@ async fn create_permanent_guild_invite(
         Some(first_channel) => Some(
             first_channel.create_invite(
                 &ctx,
-                CreateInvite::default().temporary(false)
+                CreateInvite::default().temporary(temporary),
             ).await?
         ),
         None => None,
@@ -112,7 +122,7 @@ pub async fn fetch_my_guild_invite_url(
 
     let guild_invite = match potential_permanent_guild_invite {
         Some(invite) => Some(invite),
-        None => create_permanent_guild_invite(ctx, guild_id).await?,
+        None => create_guild_invite(ctx, guild_id, false).await?,
     };
 
     match guild_invite {
@@ -205,18 +215,26 @@ pub async fn simple_confirmation_embed(
     Ok(false)
 }
 
-pub async fn third_party_content_confirmation(
+/// Creates a confirmation dialog for potentially nsfw content.\
+/// Intended to be used when executed inside of non-nsfw channels.
+///
+/// This should only be reserved for content that MAY CONTAIN SOME nsfw content.\
+/// This should NOT be used for content that WILL or MOSTLY CONTAINS nsfw content.
+pub async fn potential_nsfw_confirmation(
     ctx: &Context<'_>,
 ) -> Result<bool, Error> {
+
     simple_confirmation_embed(
         &ctx,
-        indoc::indoc!{"
-            Disclaimer:
-            - This command fetches content from third-party sources.
-            - Content returned by this command is usually age appropriate.
-            - Users are advised to utilize appropriate viewership discretion.
+        indoc::formatdoc!(
+            r#"
+            # Third-Party Content Warning
+
+            Fetched content may not be suitable for all age demographics.
+            Most content is expected to be safe-for-work, but some may not be.
 
             Do you wish to proceed?
-        "}
+            "#,
+        ).as_str()
     ).await
 }

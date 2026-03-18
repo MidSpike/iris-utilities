@@ -8,6 +8,8 @@ use crate::Error;
 
 use crate::common::ai;
 
+use crate::common::helpers::bot::create_default_allowed_mentions;
+
 //------------------------------------------------------------//
 
 /// Solves math problems.
@@ -52,7 +54,7 @@ pub async fn solve(
 
     ctx.send(
         poise::CreateReply::default()
-        .allowed_mentions(crate::DefaultAllowedMentions::new())
+        .allowed_mentions(create_default_allowed_mentions())
         .content(prompt_response.content)
     ).await?;
 

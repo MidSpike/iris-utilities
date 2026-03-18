@@ -43,7 +43,7 @@ pub async fn coin_flip(
 
     ctx.send(
         poise::CreateReply::default().content(
-            format!("You flipped a coin, it landed on **{}**!", toss)
+            format!("You flipped a coin, it landed on **{toss}**!")
         )
     ).await?;
 

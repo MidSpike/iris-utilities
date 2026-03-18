@@ -10,11 +10,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::Error;
 
-use crate::common::database::db::get_database_name;
+use crate::common::database::adapter::get_database_name;
 
-use crate::common::database::db::get_users_collection_name;
+use crate::common::database::adapter::get_users_collection_name;
 
-use crate::common::database::db::CollectionHelper;
+use crate::common::database::adapter::CollectionHelper;
 
 //------------------------------------------------------------//
 
@@ -33,7 +33,6 @@ pub struct UserConfig {
 
     #[serde(default)]
     gpt_tokens_used_last_regeneration: chrono::DateTime<chrono::Utc>,
-
 }
 
 impl UserConfig {

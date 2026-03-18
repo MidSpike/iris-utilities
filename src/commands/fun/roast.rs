@@ -4,9 +4,7 @@
 
 use rand::seq::IndexedRandom;
 
-use poise::serenity_prelude::{self as serenity};
-
-use serenity::Mentionable;
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
 //------------------------------------------------------------//
 
@@ -14,9 +12,11 @@ use crate::Context;
 
 use crate::Error;
 
+use crate::common::ai;
+
 use crate::common::brand::BrandColor;
 
-use crate::common::ai;
+use crate::common::helpers::bot::create_default_allowed_mentions;
 
 //------------------------------------------------------------//
 
@@ -98,7 +98,7 @@ pub async fn roast(
 
     ctx.send(
         poise::CreateReply::default()
-        .allowed_mentions(crate::DefaultAllowedMentions::new())
+        .allowed_mentions(create_default_allowed_mentions())
         .content(prompt_response.content)
         .embed(
             serenity::CreateEmbed::default()

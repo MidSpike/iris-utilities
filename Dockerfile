@@ -24,8 +24,8 @@ FROM system AS dependencies
 # Set the working directory.
 WORKDIR /app
 
-# Copy docker_cache.rs
-COPY src/docker_cache.rs ./src/docker_cache.rs
+# Copy _docker_cache.rs
+COPY src/_docker_cache.rs ./src/_docker_cache.rs
 
 # Copy the dependency files
 COPY Cargo.toml Cargo.lock ./

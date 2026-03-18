@@ -10,11 +10,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::Error;
 
-use crate::common::database::db::get_database_name;
+use crate::common::database::adapter::get_database_name;
 
-use crate::common::database::db::get_guilds_collection_name;
+use crate::common::database::adapter::get_guilds_collection_name;
 
-use crate::common::database::db::CollectionHelper;
+use crate::common::database::adapter::CollectionHelper;
 
 //------------------------------------------------------------//
 
