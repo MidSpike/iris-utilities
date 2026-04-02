@@ -87,7 +87,7 @@ async fn ai_chat_mode(
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
     // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&ctx, &guild, &executing_member) {
+    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
         send_not_guild_owner(&ctx).await?;
 
         return Ok(());
@@ -178,7 +178,7 @@ async fn list_ai_chat_channels(
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
     // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&ctx, &guild, &executing_member) {
+    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
         send_not_guild_owner(&ctx).await?;
 
         return Ok(());
@@ -245,7 +245,7 @@ async fn enable_ai_chat_channel(
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
     // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&ctx, &guild, &executing_member) {
+    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
         send_not_guild_owner(&ctx).await?;
 
         return Ok(());
@@ -314,7 +314,7 @@ async fn disable_ai_chat_channel(
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
     // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&ctx, &guild, &executing_member) {
+    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
         send_not_guild_owner(&ctx).await?;
 
         return Ok(());

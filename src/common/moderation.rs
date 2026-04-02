@@ -18,7 +18,6 @@ pub const LACKING_PERMISSIONS_MESSAGE: &str = "You do not have permission to per
 //------------------------------------------------------------//
 
 pub fn is_guild_member_owner_of_guild(
-    _ctx: &Context<'_>,
     guild: &serenity::Guild,
     member: &serenity::Member,
 ) -> bool {
@@ -40,20 +39,20 @@ pub async fn assert_guild_member_permitted_by_discord(
 
     let channel = ctx.guild_channel().await.expect("There should be a channel.");
 
-    let permissions = guild.user_permissions_in(&channel, member);
+    let member_perms_in_channel = guild.user_permissions_in(&channel, member);
 
     // check if the user is the guild owner
-    if is_guild_member_owner_of_guild(ctx, &guild, &member) {
+    if is_guild_member_owner_of_guild(&guild, &member) {
         return Ok(());
     }
 
     // check if the user is a guild administrator
-    if permissions.administrator() {
+    if member_perms_in_channel.administrator() {
         return Ok(());
     }
 
     // check if the user has the required permissions
-    if check_permissions(&guild, &member, permissions) {
+    if check_permissions(&guild, &member, member_perms_in_channel) {
         return Ok(());
     }
 
@@ -78,18 +77,18 @@ pub async fn assert_member_above_other_member(
     }
 
     // check if the member is the guild owner
-    if is_guild_member_owner_of_guild(ctx, &guild, &member) {
+    if is_guild_member_owner_of_guild(&guild, &member) {
         return Ok(());
     }
 
     // check if the other member is the guild owner
-    if is_guild_member_owner_of_guild(ctx, &guild, &other_member) {
+    if is_guild_member_owner_of_guild(&guild, &other_member) {
         Err(error_message)?
     }
 
     let everyone_role = guild.roles.get(
         &RoleId::new(guild.id.get()) // equivalent to @everyone role id
-    ).unwrap(); // should never fail
+    ).expect("Guild should have an everyone role.");
 
     let member_highest_role =
         guild.member_highest_role(member)
