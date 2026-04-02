@@ -27,7 +27,7 @@ use crate::common::moderation;
         category = "Moderation",
         user_cooldown = "3", // in seconds
         default_member_permissions = "MODERATE_MEMBERS",
-        // required_bot_permissions = "MODERATE_MEMBERS", // exists for parity with other commands
+        required_bot_permissions = "MODERATE_MEMBERS",
     )
 ]
 pub async fn warn(
