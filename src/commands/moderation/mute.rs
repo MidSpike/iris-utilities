@@ -98,7 +98,7 @@ pub async fn mute(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were muted in {} by {} for:\n```{}```",
+                    "You were muted in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -122,7 +122,7 @@ pub async fn mute(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was muted by {} for:\n```{}```",
+                    "{} was muted by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

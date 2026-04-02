@@ -98,7 +98,7 @@ pub async fn disconnect(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were disconnected in {} by {} for:\n```{}```",
+                    "You were disconnected in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -122,7 +122,7 @@ pub async fn disconnect(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was disconnected by {} for:\n```{}```",
+                    "{} was disconnected by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

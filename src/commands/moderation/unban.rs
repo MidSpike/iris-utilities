@@ -84,7 +84,7 @@ pub async fn unban(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were unbanned in {} by {} for:\n```{}```",
+                    "You were unbanned in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -103,7 +103,7 @@ pub async fn unban(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was unbanned by {} for:\n```{}```",
+                    "{} was unbanned by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

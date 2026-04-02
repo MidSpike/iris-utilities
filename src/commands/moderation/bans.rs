@@ -12,6 +12,8 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
+use crate::common::helpers::bot::create_escaped_code_block;
+
 //------------------------------------------------------------//
 
 /// Lists the most recent bans.
@@ -42,8 +44,9 @@ pub async fn list(
                 let user_id = user.id.get();
                 let user_name = user.name.clone();
                 let reason = ban.reason.clone().unwrap_or("No reason provided.".into());
+                let reason = create_escaped_code_block(None, &reason);
 
-                format!("**{} ({})**\n```{}```", user_name, user_id, reason)
+                format!("**{} ({})**\n{}", user_name, user_id, reason)
             }
         )
         .collect::<Vec<String>>()

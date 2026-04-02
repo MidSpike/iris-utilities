@@ -84,7 +84,7 @@ pub async fn warn(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were warned in {} by {} for:\n```{}```",
+                    "You were warned in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -101,7 +101,7 @@ pub async fn warn(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was warned by {} for:\n```{}```",
+                    "{} was warned by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

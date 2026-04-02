@@ -84,7 +84,7 @@ pub async fn ban(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were banned from {} by {} for:\n```{}```",
+                    "You were banned from {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -107,7 +107,7 @@ pub async fn ban(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was banned by {} for:\n```{}```",
+                    "{} was banned by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

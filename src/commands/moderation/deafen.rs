@@ -98,7 +98,7 @@ pub async fn deafen(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were deafened in {} by {} for:\n```{}```",
+                    "You were deafened in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -122,7 +122,7 @@ pub async fn deafen(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was deafened by {} for:\n```{}```",
+                    "{} was deafened by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

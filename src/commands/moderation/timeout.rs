@@ -109,7 +109,7 @@ pub async fn timeout(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were timed out for {} hours in {} by {} for:\n```{}```",
+                    "You were timed out for {} hours in {} by {} for:\n{}",
                     hours,
                     guild.name,
                     executing_member.user.mention(),
@@ -134,7 +134,7 @@ pub async fn timeout(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was timed out for {} hours by {} for:\n```{}```",
+                    "{} was timed out for {} hours by {} for:\n{}",
                     target_member.user.mention(),
                     hours,
                     executing_member.user.mention(),

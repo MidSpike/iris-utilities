@@ -91,7 +91,7 @@ pub async fn untimeout(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were removed from timeout in {} by {} for:\n```{}```",
+                    "You were removed from timeout in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -108,7 +108,7 @@ pub async fn untimeout(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was removed from timeout by {} for:\n```{}```",
+                    "{} was removed from timeout by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

@@ -124,7 +124,7 @@ pub async fn someone(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were yoinked in {} by {} for:\n```{}```",
+                    "You were yoinked in {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -148,7 +148,7 @@ pub async fn someone(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was yoinked by {} for:\n```{}```",
+                    "{} was yoinked by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

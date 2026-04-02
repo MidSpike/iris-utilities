@@ -84,7 +84,7 @@ pub async fn kick(
             .title(format!("{} - Moderation", guild.name))
             .description(
                 format!(
-                    "You were kicked from {} by {} for:\n```{}```",
+                    "You were kicked from {} by {} for:\n{}",
                     guild.name,
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),
@@ -103,7 +103,7 @@ pub async fn kick(
             .title("Moderation")
             .description(
                 format!(
-                    "{} was kicked by {} for:\n```{}```",
+                    "{} was kicked by {} for:\n{}",
                     target_member.user.mention(),
                     executing_member.user.mention(),
                     create_escaped_code_block(None, &reason),

@@ -14,6 +14,8 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
+use crate::common::helpers::bot::create_escaped_code_block;
+
 //------------------------------------------------------------//
 
 fn get_unicode_character_info(
@@ -65,8 +67,8 @@ pub async fn unicode_info(
             .title("Unicode Information")
             .description(
                 format!(
-                    "```{}```\n{}",
-                    unicode,
+                    "{}\n{}",
+                    create_escaped_code_block(None, &unicode),
                     info,
                 )
             )

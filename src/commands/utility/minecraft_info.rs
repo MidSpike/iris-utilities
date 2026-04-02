@@ -14,6 +14,8 @@ use crate::Error;
 
 use crate::common::brand::BrandColor;
 
+use crate::common::helpers::bot::create_escaped_code_block;
+
 //------------------------------------------------------------//
 
 const MINECRAFT_SERVER_INFO_API_URL: &str = "https://api.mcsrvstat.us/2/";
@@ -177,7 +179,7 @@ pub async fn server(
         let embed_fields = vec![
             (
                 "Address / Hostname",
-                format!("```{}```", address_or_hostname),
+                create_escaped_code_block(None, &address_or_hostname),
                 false,
             ),
             (
@@ -284,12 +286,12 @@ pub async fn player(
         let embed_fields = vec![
             (
                 "Username",
-                format!("```{}```", player_info.data.player.username),
+                create_escaped_code_block(None, &player_info.data.player.username),
                 false,
             ),
             (
                 "Uuid",
-                format!("```{}```", player_info.data.player.id),
+                create_escaped_code_block(None, &player_info.data.player.id),
                 false,
             ),
             (

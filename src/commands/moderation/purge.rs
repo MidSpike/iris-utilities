@@ -167,7 +167,7 @@ pub async fn purge(
             .title("Moderation")
             .description(
                 format!(
-                    "{} purged {} messages for:\n```{}```",
+                    "{} purged {} messages for:\n{}",
                     executing_member.user.mention(),
                     amount_of_messages,
                     create_escaped_code_block(None, &reason),
