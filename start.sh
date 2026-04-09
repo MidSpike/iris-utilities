@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 # Start everything
-docker compose --profile lavalink --profile libre-translate up --build
+docker compose --profile lavalink --profile libre-translate up --build --remove-orphans
 
 # Wait for user input to exit
 read -p "Press any key to continue... " -n1 -s
