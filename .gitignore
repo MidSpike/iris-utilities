@@ -10,6 +10,3 @@
 
 # Rust Build Artifacts
 /target
-
-# Docker Compose Storage Locations
-/docker/*/storage
