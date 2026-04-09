@@ -90,7 +90,7 @@ pub async fn join_voice_channel(
         let (sb_conn_info, _) = match songbird_manager.join_gateway(guild_id, new_voice_channel_id).await {
             Ok(conn_info) => conn_info,
             Err(why) => {
-                return JoinVoiceChannelResult::Failed("Song bird failed to join gateway".into(), why.into());
+                return JoinVoiceChannelResult::Failed("Songbird failed to join gateway".into(), why.into());
             }
         };
 
@@ -98,11 +98,7 @@ pub async fn join_voice_channel(
             endpoint: sb_conn_info.endpoint,
             session_id: sb_conn_info.session_id,
             token: sb_conn_info.token,
-            channel_id: {
-                sb_conn_info.channel_id
-                .map(|id| id.0.get()) // NonZero<u64> -> u64
-                .map(|id| lavalink_rs::model::ChannelId(id))
-            },
+            channel_id: Some(lavalink_rs::model::ChannelId(sb_conn_info.channel_id.0.into())),
         }
     };
 

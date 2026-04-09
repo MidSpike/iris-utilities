@@ -48,7 +48,7 @@ async fn create_client_builder() -> serenity::ClientBuilder {
     let framework_options = poise::FrameworkOptions {
         allowed_mentions: Some(create_default_allowed_mentions()),
         commands: create_commands(),
-        event_handler: |framework, event| Box::pin(event_handler(framework, event)),
+        event_handler: |ctx, event, _, _| Box::pin(event_handler(ctx, event)),
         pre_command: |context| {
             // This will run before every command invocation
             Box::pin(async move {

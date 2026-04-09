@@ -2,6 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use poise::serenity_prelude::AutocompleteChoice;
 use serenity::Mentionable;
 
 use poise::serenity_prelude::{self as serenity};
@@ -65,19 +66,19 @@ async fn autocomplete_language_code<'a>(
 async fn autocomplete_language_code_to<'a>(
     ctx: Context<'_>,
     partial: &'a str,
-) -> serenity::CreateAutocompleteResponse {
-    let choices: Vec<_> = autocomplete_language_code(ctx, partial, false).await.collect();
+) -> Vec<serenity::AutocompleteChoice> {
+    let choices: Vec<AutocompleteChoice> = autocomplete_language_code(ctx, partial, false).await.collect();
 
-    serenity::CreateAutocompleteResponse::default().set_choices(choices)
+    choices
 }
 
 async fn autocomplete_language_code_from<'a>(
     ctx: Context<'_>,
     partial: &'a str,
-) -> serenity::CreateAutocompleteResponse {
-    let choices: Vec<_> = autocomplete_language_code(ctx, partial, true).await.collect();
+) -> Vec<serenity::AutocompleteChoice> {
+    let choices: Vec<AutocompleteChoice> = autocomplete_language_code(ctx, partial, true).await.collect();
 
-    serenity::CreateAutocompleteResponse::default().set_choices(choices)
+    choices
 }
 
 //------------------------------------------------------------//

@@ -45,7 +45,6 @@ features = ["fetch"]
 
 [dependencies.lavalink-rs]
 git = "https://gitlab.com/vicky5124/lavalink-rs/"
-branch = "main"
 features = ["songbird"]
 
 [dependencies.mongodb]
@@ -53,7 +52,6 @@ version = "3.5.2"
 
 [dependencies.poise]
 git = "https://github.com/serenity-rs/poise/"
-branch = "next"
 
 [dependencies.reqwest]
 version = "0.13.2"
@@ -65,7 +63,6 @@ features = ["responses"]
 
 [dependencies.songbird]
 git = "https://github.com/serenity-rs/songbird/"
-branch = "next"
 features = ["gateway", "receive"]
 
 [dependencies.symphonia]

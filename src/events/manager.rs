@@ -6,7 +6,7 @@ use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
 
-use crate::Data;
+// use crate::Data;
 
 use crate::Error;
 
@@ -25,11 +25,9 @@ async fn component_interaction_handler(
 //------------------------------------------------------------//
 
 pub async fn event_handler(
-    framework: poise::FrameworkContext<'_, Data, Error>,
+    ctx: &serenity::Context,
     event: &serenity::FullEvent,
 ) -> Result<(), Error> {
-    let ctx = framework.serenity_context;
-
     match event {
         serenity::FullEvent::Ready { data_about_bot } => {
             let my_name = &data_about_bot.user.name;
