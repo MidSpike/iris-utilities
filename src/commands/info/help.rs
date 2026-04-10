@@ -92,6 +92,8 @@ fn create_help_page_embed(
     poise::command(
         slash_command,
         category = "Help and Info",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn help(

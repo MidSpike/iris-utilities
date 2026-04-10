@@ -23,6 +23,8 @@ use crate::common::helpers::bot::create_escaped_code_block;
         slash_command,
         guild_only,
         category = "Moderation",
+        install_context = "Guild",
+        interaction_context = "Guild",
         user_cooldown = "10", // in seconds
         default_member_permissions = "MANAGE_CHANNELS",
         required_bot_permissions = "MANAGE_CHANNELS",

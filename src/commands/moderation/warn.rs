@@ -25,6 +25,8 @@ use crate::common::moderation;
         slash_command,
         guild_only,
         category = "Moderation",
+        install_context = "Guild",
+        interaction_context = "Guild",
         user_cooldown = "3", // in seconds
         default_member_permissions = "MODERATE_MEMBERS",
         required_bot_permissions = "MODERATE_MEMBERS",

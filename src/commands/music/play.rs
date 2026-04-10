@@ -166,6 +166,8 @@ pub async fn query_and_enqueue_track(
         slash_command,
         guild_only,
         category = "Music",
+        install_context = "Guild",
+        interaction_context = "Guild",
         global_cooldown = "5", // in seconds
         guild_cooldown = "10", // in seconds
         user_cooldown = "15", // in seconds

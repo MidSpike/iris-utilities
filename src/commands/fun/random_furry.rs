@@ -48,6 +48,8 @@ async fn fetch_random_furry_image_url() -> Result<String, Error> {
         category = "Fun",
         global_cooldown = "1", // in seconds
         user_cooldown = "5", // in seconds
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn random_furry(

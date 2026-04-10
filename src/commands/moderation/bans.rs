@@ -70,6 +70,8 @@ pub async fn list(
         slash_command,
         guild_only,
         category = "Moderation",
+        install_context = "Guild",
+        interaction_context = "Guild",
         subcommands("list"),
         user_cooldown = "10", // in seconds
         default_member_permissions = "VIEW_AUDIT_LOG | BAN_MEMBERS",

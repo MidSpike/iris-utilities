@@ -30,7 +30,10 @@ type GuildVoiceStates = HashMap::<poise::serenity_prelude::UserId, serenity::Voi
 #[
     poise::command(
         slash_command,
+        guild_only,
         category = "Utility",
+        install_context = "Guild",
+        interaction_context = "Guild",
         guild_cooldown = "5", // in seconds
         user_cooldown = "5", // in seconds
     )

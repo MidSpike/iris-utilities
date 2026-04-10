@@ -136,6 +136,8 @@ async fn create_dilemma_results_message_stuff(
         category = "Fun",
         global_cooldown = "1", // in seconds
         user_cooldown = "3", // in seconds
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn would_you(

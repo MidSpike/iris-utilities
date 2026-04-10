@@ -17,6 +17,8 @@ use crate::common::telemetry;
         category = "Help and Info",
         global_cooldown = "5", // in seconds
         user_cooldown = "60", // in seconds
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn feedback(

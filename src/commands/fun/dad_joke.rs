@@ -26,6 +26,8 @@ use crate::common::helpers::bot::create_default_allowed_mentions;
     poise::command(
         slash_command,
         category = "Fun",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
         guild_cooldown = "1", // in seconds
         user_cooldown = "3", // in seconds
     )

@@ -18,6 +18,8 @@ use crate::Error;
         slash_command,
         guild_only,
         category = "Music",
+        install_context = "Guild",
+        interaction_context = "Guild",
         guild_cooldown = "3", // in seconds
         user_cooldown = "5", // in seconds
     )

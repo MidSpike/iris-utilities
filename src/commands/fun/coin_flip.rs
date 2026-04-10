@@ -29,6 +29,8 @@ enum CoinFlipToss {
     poise::command(
         slash_command,
         category = "Fun",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn coin_flip(

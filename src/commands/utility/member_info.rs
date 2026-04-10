@@ -164,10 +164,12 @@ async fn create_member_info_embed(
 /// Displays information about a member.
 #[
     poise::command(
+        guild_only,
+        hide_in_help,
         context_menu_command = "Guild Member Info",
         category = "Context Commands",
-        hide_in_help,
-        guild_only,
+        install_context = "Guild",
+        interaction_context = "Guild",
     )
 ]
 pub async fn member_info_user_context_menu(
@@ -203,6 +205,8 @@ pub async fn member_info_user_context_menu(
         slash_command,
         guild_only,
         category = "Utility",
+        install_context = "Guild",
+        interaction_context = "Guild",
     )
 ]
 pub async fn member_info(

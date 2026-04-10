@@ -208,6 +208,8 @@ pub async fn someone(
         guild_only,
         subcommands("someone"),
         category = "Moderation",
+        install_context = "Guild",
+        interaction_context = "Guild",
         user_cooldown = "5", // in seconds
         default_member_permissions = "MOVE_MEMBERS",
         required_bot_permissions = "MOVE_MEMBERS",

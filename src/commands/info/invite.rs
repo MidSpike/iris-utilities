@@ -21,6 +21,8 @@ use crate::common::helpers::bot::{fetch_my_guild_invite_url, generate_bot_invite
     poise::command(
         slash_command,
         category = "Help and Info",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn invite(

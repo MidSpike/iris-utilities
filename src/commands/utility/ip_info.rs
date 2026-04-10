@@ -126,6 +126,9 @@ async fn fetch_ip_address_info(
     poise::command(
         slash_command,
         category = "Utility",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
+        global_cooldown = "1", // in seconds
         user_cooldown = "5", // in seconds
     )
 ]

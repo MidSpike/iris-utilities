@@ -23,6 +23,8 @@ use crate::common::brand::BrandColor;
         slash_command,
         guild_only,
         category = "Utility",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn server_info(

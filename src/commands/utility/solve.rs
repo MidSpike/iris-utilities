@@ -19,6 +19,8 @@ use crate::common::helpers::bot::create_default_allowed_mentions;
         category = "Utility",
         guild_cooldown = "1", // in seconds
         user_cooldown = "3", // in seconds
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn solve(

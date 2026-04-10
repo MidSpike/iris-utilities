@@ -82,6 +82,8 @@ async fn remove_messages_from_channel(
         slash_command,
         guild_only,
         category = "Moderation",
+        install_context = "Guild",
+        interaction_context = "Guild",
         user_cooldown = "10", // in seconds
         default_member_permissions = "MANAGE_MESSAGES",
         required_bot_permissions = "MANAGE_MESSAGES",

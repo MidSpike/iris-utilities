@@ -39,6 +39,8 @@ fn get_unicode_character_info(
     poise::command(
         slash_command,
         category = "Utility",
+        install_context = "Guild|User",
+        interaction_context = "Guild|BotDm|PrivateChannel",
     )
 ]
 pub async fn unicode_info(

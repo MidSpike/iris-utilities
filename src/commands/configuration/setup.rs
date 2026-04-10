@@ -379,6 +379,8 @@ async fn ai_chat_channels(
         guild_only,
         subcommands("ai_chat_mode", "ai_chat_channels"),
         category = "Configuration",
+        install_context = "Guild",
+        interaction_context = "Guild",
     )
 ]
 pub async fn setup(
