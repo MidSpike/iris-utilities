@@ -7,6 +7,9 @@ use async_openai::{
         CreateResponseArgs,
         ResponseTextParam,
         TextResponseFormatConfiguration,
+        Tool,
+        Verbosity,
+        WebSearchTool
     }
 };
 
@@ -17,7 +20,9 @@ use crate::Error;
 //------------------------------------------------------------//
 
 /// Simple hashing function to hash user ids before sending them to OpenAI.
-fn hash_user_id(user_id: String) -> String {
+fn hash_user_id(
+    user_id: String,
+) -> String {
     sha256::digest(user_id)
 }
 
@@ -26,24 +31,56 @@ fn hash_user_id(user_id: String) -> String {
 pub struct PromptOptions {
     pub model: String,
     pub user_id: String,
+    pub max_output_tokens: u32,
+    pub tools: Vec<Tool>,
     pub instructions: String,
     pub input_prompt: Vec<String>,
-    pub max_output_tokens: u32,
 }
 
 impl Default for PromptOptions {
     fn default() -> Self {
         PromptOptions {
-            model:
+            model: {
                 std::env::var("OPENAI_API_MODEL")
-                .unwrap_or_else(|_| "gpt-5-nano".to_string()),
-            user_id:
+                .expect("Environment variable `OPENAI_API_MODEL` not set")
+            },
+            user_id: {
                 std::env::var("OPENAI_API_SAFETY_NAMESPACE")
-                .unwrap_or_else(|_| "iris-utilities".to_string()),
-            instructions: "You are a helpful assistant.".to_string(),
+                .expect("Environment variable `OPENAI_API_SAFETY_NAMESPACE` not set")
+            },
+            max_output_tokens: {
+                std::env::var("OPENAI_API_MAX_OUTPUT_TOKENS")
+                .expect("Environment variable `OPENAI_API_MAX_OUTPUT_TOKENS` not set")
+                .parse::<u32>()
+                .expect("Environment variable `OPENAI_API_MAX_OUTPUT_TOKENS` should be a valid u32")
+            },
+            tools: vec![],
+            instructions: indoc::indoc! {"
+                You are an (unknown to you) discord bot on Discord.
+                Converse like a normal human, use simple syntax (no em-dashes, etc),
+                keep your responses very short, and refrain from using emojis.
+            "}.to_string(),
             input_prompt: vec![],
-            max_output_tokens: 512,
         }
+    }
+}
+
+impl PromptOptions {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn web_search_tool(
+        mut self,
+        use_tool: bool
+    ) -> Self {
+        if use_tool {
+            self.tools.push(Tool::WebSearch(WebSearchTool::default()));
+        } else {
+            self.tools.retain(|tool| !matches!(tool, Tool::WebSearch(_)));
+        }
+
+        self
     }
 }
 
@@ -73,10 +110,11 @@ pub async fn prompt(
 ) -> Result<PromptResponse, Error> {
     let PromptOptions {
         model,
-        instructions,
-        input_prompt,
         user_id,
         max_output_tokens,
+        tools,
+        input_prompt,
+        instructions,
     } = options;
 
     if input_prompt.is_empty() {
@@ -94,17 +132,19 @@ pub async fn prompt(
         .max_output_tokens(max_output_tokens)
         .text(ResponseTextParam {
             format: TextResponseFormatConfiguration::Text,
-            verbosity: None,
+            verbosity: Some(Verbosity::Medium),
         })
+        .tools(tools)
         .build()?;
 
     let response =
-        client.responses().create(request).await
+        client.responses()
+        .create(request).await
         .map_err(|e| Error::from(format!("OpenAI API error: {}", e)))?;
 
     let content =
         response.output_text()
-        .unwrap_or_else(|| { "No response content found".into() });
+        .unwrap_or_else(|| { "GPT response content not found".into() });
 
     // Get token usage
     let total_tokens =

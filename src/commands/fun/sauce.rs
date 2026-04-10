@@ -10,15 +10,15 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
-
 use crate::common::ai;
+
+use crate::common::brand::BrandColor;
 
 use crate::common::helpers::bot::create_default_allowed_mentions;
 
 //------------------------------------------------------------//
 
-/// Ask GPT a question.
+/// Get GPT to sus out baseless claims.
 #[
     poise::command(
         slash_command,
@@ -27,45 +27,34 @@ use crate::common::helpers::bot::create_default_allowed_mentions;
         user_cooldown = "5", // in seconds
     )
 ]
-pub async fn gpt(
+pub async fn sauce(
     ctx: Context<'_>,
-
-    #[description = "The prompt to send to GPT"]
-    prompt: String,
+    #[max_length = 512]
+    #[description = "The claim to sus out"] claim: String,
 ) -> Result<(), Error> {
+    ctx.defer().await?;
+
     if ai::user_ai_usage::is_user_above_gpt_token_limit(ctx.author().id).await? {
         ai::user_ai_usage::send_gpt_token_limit_exceeded_message(&ctx).await?;
 
         return Ok(());
     }
 
-    ctx.defer().await?;
-
-    let me = ctx.serenity_context().http.get_current_application_info().await?;
-
-    let my_name = me.name;
-    let my_id = me.id;
-
     let user_id = ctx.author().id;
 
     let prompt_response = ai::gpt::prompt(
         ai::gpt::PromptOptions {
             user_id: user_id.to_string(),
-            instructions: indoc::formatdoc!(
-                r#"
-                    You are {app_name} (aka {bot_mention}), a discord bot on Discord.
-                    Converse like a human,
-                    pretend to not be an ai,
-                    keep your responses very short,
-                    and refrain from using emojis.
-                "#,
-                app_name = my_name,
-                bot_mention = format!("<@{}>", my_id.to_string()),
-            ),
-            input_prompt: vec![prompt.to_string()],
-            max_output_tokens: 512,
+            instructions: [
+                "Your job is to \"sus out baseless claims using sauces\" (aka fact-check).",
+                "If something is sus, correct it with evidence.",
+                "If you don't know, say so instead of guessing.",
+                "Cite \"sauces\" (aka sources) if necessary.",
+                "Be very concise and avoid over-explaining.",
+            ].join("\n"),
+            input_prompt: vec![claim],
             ..Default::default()
-        }
+        }.web_search_tool(true)
     ).await?;
 
     ai::user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;
@@ -77,7 +66,7 @@ pub async fn gpt(
         .embed(
             serenity::CreateEmbed::default()
             .color(BrandColor::new().get())
-            .footer(serenity::CreateEmbedFooter::new("Response powered by GPT"))
+            .footer(serenity::CreateEmbedFooter::new("Sauces powered by GPT"))
         )
     ).await?;
 

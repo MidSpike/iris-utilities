@@ -9,6 +9,8 @@ pub mod configuration {
 }
 
 pub mod fun {
+    pub mod ask;
+
     pub mod cards;
 
     pub mod color;
@@ -16,10 +18,6 @@ pub mod fun {
     pub mod coin_flip;
 
     pub mod dad_joke;
-
-    pub mod fact_check;
-
-    pub mod gpt;
 
     pub mod magic_ball;
 
@@ -36,6 +34,8 @@ pub mod fun {
     pub mod roast;
 
     pub mod roll_dice;
+
+    pub mod sauce;
 
     pub mod would_you;
 }
@@ -195,12 +195,11 @@ pub fn create_commands() -> Vec<poise::Command<Data, Error>> {
 
     if is_command_category_enabled("fun") {
         commands_to_register.extend(vec![
+            fun::ask::ask(),
             fun::cards::cards(),
             fun::coin_flip::coin_flip(),
             fun::color::color(),
             fun::dad_joke::dad_joke(),
-            fun::fact_check::fact_check(),
-            fun::gpt::gpt(),
             fun::magic_ball::magic_ball(),
             fun::poll::poll(),
             fun::random_animal::random_animal(),
@@ -209,6 +208,7 @@ pub fn create_commands() -> Vec<poise::Command<Data, Error>> {
             fun::random_identity::random_identity(),
             fun::roast::roast(),
             fun::roll_dice::roll_dice(),
+            fun::sauce::sauce(),
             fun::would_you::would_you(),
         ]);
     }

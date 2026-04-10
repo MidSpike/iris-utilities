@@ -77,6 +77,12 @@ pub async fn guild_ai_chat_handler(
         return Ok(()); // don't continue if the user is above the token limit
     }
 
+    // ---
+    // We can now safely assume that we should respond to the message.
+    // ---
+
+    let typing_indicator = guild_channel.start_typing(&ctx.http);
+
     let me = ctx.cache.current_user().clone(); // cloned to avoid async issues
 
     let prompt_response = gpt::prompt(
@@ -102,9 +108,9 @@ pub async fn guild_ai_chat_handler(
 
     user_ai_usage::increment_user_gpt_tokens(user_id, prompt_response.tokens_used).await?;
 
-    let channel = message.channel(&ctx).await?; // should never fail
+    typing_indicator.stop();
 
-    channel.id().send_message(
+    guild_channel.send_message(
         ctx,
         serenity::CreateMessage::default()
         .allowed_mentions(create_default_allowed_mentions())
