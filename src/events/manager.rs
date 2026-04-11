@@ -37,17 +37,21 @@ pub async fn event_handler(
         },
 
         serenity::FullEvent::InteractionCreate { interaction } => {
-            match interaction {
-                serenity::Interaction::Component(component_interaction) => {
-                    component_interaction_handler(component_interaction).await?;
-                },
+            if let serenity::Interaction::Component(component_interaction) = interaction {
+                if let Err(why) = component_interaction_handler(component_interaction).await {
+                    eprintln!("Error handling component interaction: {:?}", why);
 
-                _ => {}, // ignore other types of interactions
+                    return Ok(()); // Graceful
+                }
             }
         },
 
         serenity::FullEvent::Message { new_message } => {
-            guild_ai_chat_handler(ctx, new_message).await.expect("Failed to handle AI chat");
+            if let Err(why) = guild_ai_chat_handler(&ctx, new_message).await {
+                eprintln!("Error handling guild AI chat: {:?}", why);
+
+                return Ok(()); // Graceful
+            }
         },
 
         serenity::FullEvent::GuildCreate { guild, is_new } => {
