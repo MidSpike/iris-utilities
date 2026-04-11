@@ -19,58 +19,78 @@ pub fn is_checking_enabled() -> bool {
 
 //------------------------------------------------------------//
 
-/// For now we will just check if the user has any entitlements
-/// that are not deleted, from this application, and are currently valid.
-///
-/// In the future, specific entitlements should be checked.
-/// But for now, since Discord only allows one active entitlement per application,
-/// we can just check if they have any entitlements at all.
-///
-/// When entitlement checking is disabled, all users are considered to have entitlements.
-pub fn has_entitlement(
-    ctx: &Context<'_>,
-) -> bool {
-    let entitlement_checking_enabled = is_entitlement_checking_enabled();
+// TODO: This should probably be replaced with a system that checks a cache.
+async fn _get_guild_active_valid_entitlements(
+    http: impl serenity::CacheHttp,
+    guild_id: serenity::GuildId,
+) -> Result<Vec<serenity::Entitlement>, Error> {
+    let guild_entitlements = http.http().get_entitlements(
+        None, // user id
+        None, // sku ids
+        None, // before
+        None, // after
+        None, // limit
+        Some(guild_id), // guild id
+        Some(true) // exclude_ended
+    ).await?;
 
-    if !entitlement_checking_enabled {
-        return true;
-    }
+    Ok(guild_entitlements)
+}
 
-    let entitlement =
-        &ctx.interaction.entitlements
-        .iter()
-        .find(
-            |context_entitlement| {
-                context_entitlement.deleted == false &&
-                context_entitlement.application_id == ctx.interaction.application_id
-            }
-        );
+// TODO: This should probably be replaced with a system that checks a cache.
+async fn get_user_active_valid_entitlements(
+    http: impl serenity::CacheHttp,
+    user_id: serenity::UserId,
+) -> Result<Vec<serenity::Entitlement>, Error> {
+    let user_entitlements = http.http().get_entitlements(
+        Some(user_id), // user id
+        None, // sku ids
+        None, // before
+        None, // after
+        None, // limit
+        None, // guild id
+        Some(true) // exclude_ended
+    ).await?;
 
-    let Some(entitlement) = entitlement else {
-        return false;
-    };
+    Ok(user_entitlements)
+}
 
-    let now_seconds = chrono::Utc::now().timestamp();
+// TODO: This should probably be replaced with a system that checks a cache.
+async fn _get_guild_and_user_active_valid_entitlements(
+    http: impl serenity::CacheHttp,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+) -> Result<Vec<serenity::Entitlement>, Error> {
+    let guild_entitlements = _get_guild_active_valid_entitlements(&http, guild_id).await?;
+    let user_entitlements = get_user_active_valid_entitlements(&http, user_id).await?;
 
-    if let Some(starts_at) = entitlement.starts_at {
-        let starts_at_seconds = starts_at.unix_timestamp();
+    let combined_entitlements =
+        guild_entitlements.into_iter()
+        .chain(user_entitlements.into_iter())
+        .unique_by(|e| e.id)
+        .collect();
 
-        if now_seconds < starts_at_seconds {
-            println!("Entitlement: {:?} is not yet valid.", entitlement);
+    Ok(combined_entitlements)
+}
 
-            return false;
-        }
-    }
+//------------------------------------------------------------//
 
-    if let Some(ends_at) = entitlement.ends_at {
-        let ends_at_seconds = ends_at.unix_timestamp();
+// TODO: Temporary, expected to be replaced or removed.
+async fn _is_guild_entitled_anything(
+    http: impl serenity::CacheHttp,
+    guild_id: serenity::GuildId,
+) -> Result<bool, Error> {
+    let guild_entitlements = _get_guild_active_valid_entitlements(&http, guild_id).await?;
 
-        if now_seconds > ends_at_seconds {
-            println!("Entitlement: {:?} is no longer valid.", entitlement);
+    Ok(!guild_entitlements.is_empty())
+}
 
-            return false;
-        }
-    }
+// TODO: Temporary, expected to be replaced or removed.
+pub async fn is_user_entitled_anything(
+    http: impl serenity::CacheHttp,
+    user_id: serenity::UserId,
+) -> Result<bool, Error> {
+    let user_entitlements = get_user_active_valid_entitlements(&http, user_id).await?;
 
-    true
+    Ok(!user_entitlements.is_empty())
 }

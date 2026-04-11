@@ -25,12 +25,28 @@ async fn get_user_gpt_token_limit(
     http: impl serenity::CacheHttp,
     discord_user_id: serenity::UserId,
 ) -> Result<u32, Error> {
-    Ok(
-        std::env::var("USER_AI_GPT_TOKEN_LIMIT")
-        .expect("USER_AI_GPT_TOKEN_LIMIT environment variable is not set.")
+    let is_entitled: bool = if entitlements::is_checking_enabled() {
+        // TODO: Unsophisticated check for development purposes.
+        entitlements::is_user_entitled_anything(&http, discord_user_id).await?
+    } else {
+        false
+    };
+
+    let limit: u32 = if is_entitled {
+        std::env::var("USER_AI_GPT_TOKEN_LIMIT_PREMIUM")
+        .expect("USER_AI_GPT_TOKEN_LIMIT_PREMIUM is not set.")
         .parse::<u32>()
-        .expect("USER_AI_GPT_TOKEN_LIMIT environment variable is not a valid u32.")
-    )
+        .expect("USER_AI_GPT_TOKEN_LIMIT_PREMIUM is not a valid u32.")
+    } else {
+        std::env::var("USER_AI_GPT_TOKEN_LIMIT_STANDARD")
+        .expect("USER_AI_GPT_TOKEN_LIMIT_STANDARD is not set.")
+        .parse::<u32>()
+        .expect("USER_AI_GPT_TOKEN_LIMIT_STANDARD is not a valid u32.")
+    };
+
+    assert!(limit > 0, "USER_AI_GPT_TOKEN_LIMIT_<TIER> must be greater than 0.");
+
+    Ok(limit)
 }
 
 /// Stored in an environment variable for now.
@@ -40,16 +56,28 @@ async fn get_user_gpt_token_regeneration_interval(
     http: impl serenity::CacheHttp,
     discord_user_id: serenity::UserId,
 ) -> Result<chrono::Duration, Error> {
-    let interval =
-        std::env::var("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL")
-        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL environment variable is not set.")
-        .parse::<i64>()
-        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL environment variable is not a valid i64.");
+    let is_entitled: bool = if entitlements::is_checking_enabled() {
+        // TODO: Unsophisticated check for development purposes.
+        entitlements::is_user_entitled_anything(&http, discord_user_id).await?
+    } else {
+        false
+    };
 
-    Ok(
-        chrono::Duration::try_minutes(interval)
-        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL environment variable is not a valid duration.")
-    )
+    let interval: i32 = if is_entitled {
+        std::env::var("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_PREMIUM")
+        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_PREMIUM is not set.")
+        .parse::<i32>()
+        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_PREMIUM is not a valid i32.")
+    } else {
+        std::env::var("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_STANDARD")
+        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_STANDARD is not set.")
+        .parse::<i32>()
+        .expect("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_STANDARD is not a valid i32.")
+    };
+
+    assert!(interval > 0, "USER_AI_GPT_TOKEN_REGENERATION_INTERVAL_<TIER> must be greater than 0.");
+
+    Ok(chrono::Duration::minutes(interval as i64))
 }
 
 //------------------------------------------------------------//
