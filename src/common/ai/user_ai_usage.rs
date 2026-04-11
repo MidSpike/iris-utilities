@@ -2,9 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::{self as serenity};
-
-use serenity::utils::{FormattedTimestamp,FormattedTimestampStyle};
+use poise::serenity_prelude::{self as serenity, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
@@ -16,7 +14,7 @@ use crate::common::brand::BrandColor;
 
 use crate::common::database::interfaces::user_config::UserConfig;
 
-use crate::common::entitlements::is_entitlement_checking_enabled;
+use crate::common::entitlements;
 
 //------------------------------------------------------------//
 
@@ -24,7 +22,8 @@ use crate::common::entitlements::is_entitlement_checking_enabled;
 /// In the future, this should be dynamically determined based on the user's entitlements.
 /// Returns the number of GPT tokens a user is allowed to use before being limited.
 async fn get_user_gpt_token_limit(
-    _discord_user_id: serenity::UserId,
+    http: impl serenity::CacheHttp,
+    discord_user_id: serenity::UserId,
 ) -> Result<u32, Error> {
     Ok(
         std::env::var("USER_AI_GPT_TOKEN_LIMIT")
@@ -38,7 +37,8 @@ async fn get_user_gpt_token_limit(
 /// In the future, this should be dynamically determined based on the user's entitlements.
 /// Returns the interval at which a user's GPT tokens should regenerate.
 async fn get_user_gpt_token_regeneration_interval(
-    _discord_user_id: serenity::UserId,
+    http: impl serenity::CacheHttp,
+    discord_user_id: serenity::UserId,
 ) -> Result<chrono::Duration, Error> {
     let interval =
         std::env::var("USER_AI_GPT_TOKEN_REGENERATION_INTERVAL")
@@ -83,12 +83,13 @@ async fn get_user_gpt_tokens_used_last_regeneration(
 /// If the user is due for a token regeneration, their token usage will be reset.
 /// Afterwards, returns `true` if the user is above their GPT token limit.
 pub async fn is_user_above_gpt_token_limit(
+    http: impl serenity::CacheHttp,
     discord_user_id: serenity::UserId,
 ) -> Result<bool, Error> {
     let now = chrono::Utc::now();
 
     let gpt_token_regeneration_interval =
-        get_user_gpt_token_regeneration_interval(discord_user_id).await?;
+        get_user_gpt_token_regeneration_interval(&http, discord_user_id).await?;
 
     let gpt_tokens_used_last_regeneration =
         get_user_gpt_tokens_used_last_regeneration(discord_user_id).await?;
@@ -106,22 +107,9 @@ pub async fn is_user_above_gpt_token_limit(
 
     let gpt_tokens_used = get_user_gpt_tokens_used(discord_user_id).await?;
 
-    let gpt_token_limit = get_user_gpt_token_limit(discord_user_id).await?;
+    let gpt_token_limit = get_user_gpt_token_limit(&http, discord_user_id).await?;
 
     Ok(gpt_tokens_used >= gpt_token_limit)
-}
-
-pub async fn increment_user_gpt_tokens(
-    discord_user_id: serenity::UserId,
-    increment_by: u32,
-) -> Result<(), Error> {
-    let user_id = discord_user_id.get().to_string();
-
-    let user_config = UserConfig::ensure(user_id).await?;
-
-    user_config.increment_gpt_tokens_used(increment_by).await?;
-
-    Ok(())
 }
 
 pub async fn send_gpt_token_limit_exceeded_message(
@@ -129,13 +117,13 @@ pub async fn send_gpt_token_limit_exceeded_message(
 ) -> Result<(), Error> {
     let user_id = ctx.author().id;
 
-    let gpt_token_limit = get_user_gpt_token_limit(user_id).await?;
+    let gpt_token_limit = get_user_gpt_token_limit(&ctx, user_id).await?;
 
     let gpt_tokens_used = get_user_gpt_tokens_used(user_id).await?;
 
     let relative_regeneration_timestamp = {
         let gpt_token_regeneration_interval =
-            get_user_gpt_token_regeneration_interval(user_id).await?;
+            get_user_gpt_token_regeneration_interval(&ctx, user_id).await?;
 
         let gpt_tokens_used_last_regeneration =
             get_user_gpt_tokens_used_last_regeneration(user_id).await?;
@@ -150,7 +138,7 @@ pub async fn send_gpt_token_limit_exceeded_message(
 
     let application = ctx.http().get_current_application_info().await?;
 
-    let message = if is_entitlement_checking_enabled() {
+    let message = if entitlements::is_checking_enabled() {
         indoc::formatdoc!(
             r#"
                 It looks like you exceeded your limit of **{gpt_token_limit}** GPT tokens.
@@ -192,6 +180,19 @@ pub async fn send_gpt_token_limit_exceeded_message(
             .description(message)
         )
     ).await?;
+
+    Ok(())
+}
+
+pub async fn increment_user_gpt_tokens(
+    discord_user_id: serenity::UserId,
+    increment_by: u32,
+) -> Result<(), Error> {
+    let user_id = discord_user_id.get().to_string();
+
+    let user_config = UserConfig::ensure(user_id).await?;
+
+    user_config.increment_gpt_tokens_used(increment_by).await?;
 
     Ok(())
 }

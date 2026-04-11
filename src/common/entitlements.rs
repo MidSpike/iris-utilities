@@ -2,15 +2,19 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use crate::Context;
+use itertools::Itertools;
+
+use poise::serenity_prelude::{self as serenity};
+
+use crate::Error;
 
 //------------------------------------------------------------//
 
-pub fn is_entitlement_checking_enabled() -> bool {
+pub fn is_checking_enabled() -> bool {
     std::env::var("ENTITLEMENT_CHECKING_ENABLED")
-    .unwrap_or("invalid".into())
+    .expect("ENTITLEMENT_CHECKING_ENABLED environment variable is not set.")
     .parse::<bool>()
-    .unwrap_or(false)
+    .expect("ENTITLEMENT_CHECKING_ENABLED environment variable is not a valid boolean.")
 }
 
 //------------------------------------------------------------//

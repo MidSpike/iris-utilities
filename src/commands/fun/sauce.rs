@@ -36,7 +36,7 @@ pub async fn sauce(
 ) -> Result<(), Error> {
     ctx.defer().await?;
 
-    if ai::user_ai_usage::is_user_above_gpt_token_limit(ctx.author().id).await? {
+    if ai::user_ai_usage::is_user_above_gpt_token_limit(ctx, ctx.author().id).await? {
         ai::user_ai_usage::send_gpt_token_limit_exceeded_message(&ctx).await?;
 
         return Ok(());

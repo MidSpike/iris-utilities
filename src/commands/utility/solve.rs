@@ -33,7 +33,7 @@ pub async fn solve(
 
     let user_id = ctx.author().id;
 
-    if ai::user_ai_usage::is_user_above_gpt_token_limit(user_id).await? {
+    if ai::user_ai_usage::is_user_above_gpt_token_limit(&ctx, user_id).await? {
         ai::user_ai_usage::send_gpt_token_limit_exceeded_message(&ctx).await?;
 
         return Ok(());
