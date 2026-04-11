@@ -2,14 +2,15 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::{FormattedTimestamp, FormattedTimestampStyle};
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
 use crate::Context;
 
 use crate::common::brand::BrandColor;
+
+use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
@@ -84,7 +85,7 @@ pub async fn telemetry_anonymous_command_log(
         ),
         (
             "Command Run",
-            format!("```\n{}\n```", ctx.invocation_string()),
+            create_escaped_code_block(None, &ctx.invocation_string()),
             false,
         ),
     ];

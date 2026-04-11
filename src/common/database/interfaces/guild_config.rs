@@ -64,12 +64,13 @@ impl GuildConfigAiChatMode {
         let is_ai_chat_channel = guild_config.ai_chat_channels.contains(&channel_id);
 
         match self {
-            GuildConfigAiChatMode::Disabled =>
-                false,
-            GuildConfigAiChatMode::AiChatChannelsRequireMention =>
-                was_mentioned && is_ai_chat_channel,
-            GuildConfigAiChatMode::AiChatChannelsAlwaysRespond =>
-                was_mentioned || is_ai_chat_channel,
+            GuildConfigAiChatMode::Disabled => false,
+            GuildConfigAiChatMode::AiChatChannelsRequireMention => {
+                was_mentioned && is_ai_chat_channel
+            },
+            GuildConfigAiChatMode::AiChatChannelsAlwaysRespond => {
+                was_mentioned || is_ai_chat_channel
+            },
         }
     }
 }

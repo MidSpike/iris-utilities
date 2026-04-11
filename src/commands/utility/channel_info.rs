@@ -2,10 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::Mentionable;
-use poise::serenity_prelude::{self as serenity};
-
-use serenity::utils::{FormattedTimestamp,FormattedTimestampStyle};
+use poise::serenity_prelude::{self as serenity, Mentionable, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
@@ -14,6 +11,8 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
+
+use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
@@ -75,7 +74,7 @@ pub async fn channel_info(
     embed_fields.push(
         (
             "Name",
-            format!("```\n{}\n```", c_name),
+            create_escaped_code_block(None, &c_name),
             false,
         )
     );
@@ -83,7 +82,7 @@ pub async fn channel_info(
     embed_fields.push(
         (
             "Snowflake",
-            format!("```\n{}\n```", c_id_string),
+            create_escaped_code_block(None, &c_id_string),
             false,
         )
     );
@@ -92,7 +91,7 @@ pub async fn channel_info(
         embed_fields.push(
             (
                 "Topic",
-                format!("```\n{}\n```", c_topic),
+                create_escaped_code_block(None, &c_topic),
                 false,
             )
         );
@@ -113,7 +112,7 @@ pub async fn channel_info(
     embed_fields.push(
         (
             "Type",
-            format!("`{}`", c_type.name()),
+            create_escaped_code_block(None, &c_type.name().to_string()),
             true,
         )
     );
@@ -121,7 +120,7 @@ pub async fn channel_info(
     embed_fields.push(
         (
             "Position",
-            format!("`{}`", c_position),
+            create_escaped_code_block(None, &c_position.to_string()),
             true,
         )
     );
@@ -130,7 +129,7 @@ pub async fn channel_info(
         embed_fields.push(
             (
                 "Parent",
-                format!("{}", c_parent_id.mention()),
+                create_escaped_code_block(None, &c_parent_id.mention().to_string()),
                 true,
             )
         );
@@ -148,7 +147,7 @@ pub async fn channel_info(
         embed_fields.push(
             (
                 "Flags",
-                format!("```\n{}\n```", c_flags.join("\n")),
+                create_escaped_code_block(None, &c_flags.join("\n")),
                 false,
             )
         );

@@ -6,9 +6,11 @@ use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
 
+use crate::Context;
+
 use crate::common::brand::BrandColor;
 
-use crate::Context;
+use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
@@ -75,7 +77,7 @@ pub async fn telemetry_user_feedback(
         ),
         (
             "Feedback",
-            format!("```\n{}\n```", feedback),
+            create_escaped_code_block(None, &feedback),
             false,
         ),
     ];

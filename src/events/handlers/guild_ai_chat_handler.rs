@@ -7,6 +7,8 @@ use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
 
+// use crate::Data;
+
 use crate::Error;
 
 use crate::common::ai::{gpt, user_ai_usage};

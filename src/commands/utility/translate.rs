@@ -2,10 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::AutocompleteChoice;
-use serenity::Mentionable;
-
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
 //------------------------------------------------------------//
 
@@ -14,6 +11,8 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
+
+use crate::common::helpers::bot::create_escaped_code_block;
 
 use crate::common::helpers::libre_translate;
 
@@ -67,18 +66,14 @@ async fn autocomplete_language_code_to<'a>(
     ctx: Context<'_>,
     partial: &'a str,
 ) -> Vec<serenity::AutocompleteChoice> {
-    let choices: Vec<AutocompleteChoice> = autocomplete_language_code(ctx, partial, false).await.collect();
-
-    choices
+    autocomplete_language_code(ctx, partial, false).await.collect()
 }
 
 async fn autocomplete_language_code_from<'a>(
     ctx: Context<'_>,
     partial: &'a str,
 ) -> Vec<serenity::AutocompleteChoice> {
-    let choices: Vec<AutocompleteChoice> = autocomplete_language_code(ctx, partial, true).await.collect();
-
-    choices
+    autocomplete_language_code(ctx, partial, true).await.collect()
 }
 
 //------------------------------------------------------------//
@@ -196,8 +191,8 @@ pub async fn translate_message_context_menu(
             .color(BrandColor::new().get())
             .title("Translation")
             .description(format!("{}, here is the translation.", ctx.author().mention()))
-            .field("From", format!("```\n{}\n```", text), false)
-            .field("To", format!("```\n{}\n```", translated_text), false)
+            .field("From", create_escaped_code_block(None, &text), false)
+            .field("To", create_escaped_code_block(None, &translated_text), false)
             .footer(
                 serenity::CreateEmbedFooter::new("Translated using Libre Translate")
             )
@@ -265,8 +260,8 @@ pub async fn translate(
             .color(BrandColor::new().get())
             .title("Translation")
             .description(format!("{}, here is the translation.", ctx.author().mention()))
-            .field("From", format!("```\n{}\n```", text), false)
-            .field("To", format!("```\n{}\n```", translated_text), false)
+            .field("From", create_escaped_code_block(None, &text), false)
+            .field("To", create_escaped_code_block(None, &translated_text), false)
             .footer(
                 serenity::CreateEmbedFooter::new("Translated using Libre Translate")
             )

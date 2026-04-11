@@ -2,8 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::{FormattedTimestamp, FormattedTimestampStyle};
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
@@ -183,6 +182,6 @@ pub async fn telemetry_guild_retention(
     let result = telemetry_channel.send_message(ctx, message).await;
 
     if let Err(why) = result {
-        println!("Failed to send the telemetry message: {:?}", why);
+        eprintln!("Failed to send the telemetry message: {:?}", why);
     }
 }

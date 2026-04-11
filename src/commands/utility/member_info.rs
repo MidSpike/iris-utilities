@@ -2,9 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::{self as serenity};
-
-use serenity::utils::{FormattedTimestamp,FormattedTimestampStyle};
+use poise::serenity_prelude::{self as serenity, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
@@ -13,6 +11,8 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
+
+use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
@@ -58,7 +58,7 @@ async fn create_member_info_embed(
     embed_fields.push(
         (
             "Username",
-            format!("```\n{}\n```", u_username),
+            create_escaped_code_block(None, &u_username),
             false,
         )
     );
@@ -67,7 +67,7 @@ async fn create_member_info_embed(
         embed_fields.push(
             (
                 "Nickname",
-                format!("```\n{}\n```", m_nickname),
+                create_escaped_code_block(None, &m_nickname),
                 false,
             )
         );
@@ -76,7 +76,7 @@ async fn create_member_info_embed(
     embed_fields.push(
         (
             "Snowflake",
-            format!("```\n{}\n```", u_id_string),
+            create_escaped_code_block(None, &u_id_string),
             false,
         )
     );
@@ -147,7 +147,7 @@ async fn create_member_info_embed(
         embed_fields.push(
             (
                 "Flags",
-                format!("```\n{}\n```", u_flags.join("\n")),
+                create_escaped_code_block(None, &u_flags.join("\n")),
                 false,
             )
         );

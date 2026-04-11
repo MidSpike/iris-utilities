@@ -2,10 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::Mentionable;
-use poise::serenity_prelude::{self as serenity};
-
-use serenity::utils::{FormattedTimestamp,FormattedTimestampStyle};
+use poise::serenity_prelude::{self as serenity, Mentionable, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
@@ -14,6 +11,8 @@ use crate::Context;
 use crate::Error;
 
 use crate::common::brand::BrandColor;
+
+use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
@@ -110,7 +109,7 @@ pub async fn server_info(
     embed_fields.push(
         (
             "Name",
-            format!("```\n{}\n```", g_name),
+            create_escaped_code_block(None, &g_name),
             false,
         )
     );
@@ -119,7 +118,7 @@ pub async fn server_info(
         embed_fields.push(
             (
                 "Description",
-                format!("```\n{}\n```", g_description),
+                create_escaped_code_block(None, &g_description),
                 false,
             )
         );
@@ -128,7 +127,7 @@ pub async fn server_info(
     embed_fields.push(
         (
             "Snowflake",
-            format!("```\n{}\n```", g_id_string),
+            create_escaped_code_block(None, &g_id_string),
             false,
         )
     );
@@ -321,7 +320,7 @@ pub async fn server_info(
     embed_fields.push(
         (
             "Features",
-            format!("```\n{}\n```", g_features.join("\n")),
+            create_escaped_code_block(None, &g_features.join("\n")),
             true,
         )
     );

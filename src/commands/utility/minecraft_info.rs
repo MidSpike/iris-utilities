@@ -219,7 +219,7 @@ pub async fn server(
             ),
             (
                 "Message of the Day",
-                format!("```\n{}\n```", server_info_motd_clean),
+                create_escaped_code_block(None, &server_info_motd_clean),
                 false,
             ),
         ];
