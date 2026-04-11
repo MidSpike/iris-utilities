@@ -91,9 +91,6 @@ pub struct GuildConfig {
 
     #[serde(default)]
     ai_chat_channels: GuildConfigAiChatChannels,
-
-    #[serde(default)]
-    gpt_tokens_used: i32,
 }
 
 impl GuildConfig {
@@ -124,7 +121,6 @@ impl GuildConfig {
                 moderation_mode: GuildConfigModerationMode::default(),
                 ai_chat_mode: GuildConfigAiChatMode::default(),
                 ai_chat_channels: GuildConfigAiChatChannels::default(),
-                gpt_tokens_used: i32::default(),
             }
         ).await?;
 
@@ -212,48 +208,6 @@ impl GuildConfig {
             mongodb::bson::doc! {
                 "$set": {
                     "ai_chat_channels": to_bson(&ai_chat_channels)?,
-                },
-            }
-        ).await?;
-
-        Ok(())
-    }
-
-    /// Returns the number of GPT tokens used by this guild.
-    pub async fn get_gpt_tokens_used(
-        &self,
-    ) -> i32 {
-        self.gpt_tokens_used
-    }
-
-    /// Increments the number of GPT tokens used by this guild.
-    pub async fn increment_gpt_tokens_used(
-        &self,
-        increment_by: i32,
-    ) -> Result<(), Error> {
-        if increment_by < 0 {
-            return Err("Cannot increment by a negative value.".into());
-        }
-
-        self.update(
-            mongodb::bson::doc! {
-                "$inc": {
-                    "gpt_tokens_used": increment_by,
-                },
-            }
-        ).await?;
-
-        Ok(())
-    }
-
-    /// Resets the amount of GPT tokens used by this guild to `0`.
-    pub async fn reset_gpt_tokens_used(
-        &self,
-    ) -> Result<(), Error> {
-        self.update(
-            mongodb::bson::doc! {
-                "$set": {
-                    "gpt_tokens_used": 0,
                 },
             }
         ).await?;
