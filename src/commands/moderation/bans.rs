@@ -29,11 +29,7 @@ pub async fn list(
         .expect("There should be a member in this context.")
         .clone();
 
-    let guild_bans = guild.bans(
-        &ctx,
-        None,
-        Some(25),
-    ).await?;
+    let guild_bans = guild.bans(&ctx, None, Some(25)).await?;
 
     let guild_bans_string =
         guild_bans
@@ -42,9 +38,9 @@ pub async fn list(
             |ban| {
                 let user = &ban.user;
                 let user_id = user.id.get();
-                let user_name = user.name.clone();
-                let reason = ban.reason.clone().unwrap_or("No reason provided.".into());
-                let reason = create_escaped_code_block(None, &reason);
+                let user_name = &user.name;
+                let reason = ban.reason.as_deref().unwrap_or("No reason provided.");
+                let reason = create_escaped_code_block(None, &reason.to_string());
 
                 format!("**{} ({})**\n{}", user_name, user_id, reason)
             }
@@ -64,7 +60,7 @@ pub async fn list(
     Ok(())
 }
 
-/// Helpful collection of commands for managing bans.
+/// Manage banned users in this guild.
 #[
     poise::command(
         slash_command,
