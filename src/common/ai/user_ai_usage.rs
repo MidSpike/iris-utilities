@@ -10,7 +10,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::database::interfaces::user_config::UserConfig;
 
@@ -203,7 +203,7 @@ pub async fn send_gpt_token_limit_exceeded_message(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("This action requires more GPT tokens.")
             .description(message)
         )

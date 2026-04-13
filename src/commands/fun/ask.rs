@@ -10,7 +10,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::ai;
 
@@ -78,7 +78,7 @@ pub async fn ask(
         .content(prompt_response.content)
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .footer(serenity::CreateEmbedFooter::new("Response powered by GPT"))
         )
     ).await?;

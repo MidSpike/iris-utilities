@@ -10,7 +10,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 //------------------------------------------------------------//
 
@@ -128,7 +128,7 @@ pub async fn random_animal(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title(format!("Here's a random {}!", kind.to_string().to_lowercase()))
             .image(image_url)
         )

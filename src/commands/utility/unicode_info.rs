@@ -12,7 +12,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
@@ -65,7 +65,7 @@ pub async fn unicode_info(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Unicode Information")
             .description(
                 format!(

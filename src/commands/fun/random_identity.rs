@@ -12,7 +12,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 //------------------------------------------------------------//
 
@@ -205,7 +205,7 @@ pub async fn random_identity(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title(format!("Here's a random fake identity."))
             .thumbnail(fake_identity.picture.large_url)
             .fields(embed_fields)

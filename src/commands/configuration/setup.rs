@@ -13,7 +13,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::moderation;
 
@@ -29,7 +29,7 @@ async fn send_not_guild_owner(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Guild Configuration")
             .description("You must be the owner of this guild to setup this bot.")
         )
@@ -105,7 +105,7 @@ async fn ai_chat_mode(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Guild Configuration - Ai Chat Mode")
             .description(format!("Set ai chat mode to **{}**.", ai_chat_mode.name()))
         )
@@ -132,7 +132,7 @@ async fn info_ai_chat_channels(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Guild Configuration - Ai Chat Channels")
             .description(
                 indoc::formatdoc!(
@@ -195,7 +195,7 @@ async fn list_ai_chat_channels(
             poise::CreateReply::default()
             .embed(
                 serenity::CreateEmbed::default()
-                .color(BrandColor::new().get())
+                .color(branding::color::PRIMARY)
                 .title("Guild Configuration - Ai Chat Channels")
                 .description("Currently this guild does not have any ai chat channels.")
             )
@@ -214,7 +214,7 @@ async fn list_ai_chat_channels(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Guild Configuration - Ai Chat Channels")
             .description(ai_chat_channels_string)
         )
@@ -273,7 +273,7 @@ async fn enable_ai_chat_channel(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Guild Configuration - Ai Chat Channels")
             .description(
                 [
@@ -343,7 +343,7 @@ async fn disable_ai_chat_channel(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Guild Configuration - Ai Chat Channels")
             .description(format!("Removed <#{}> as an ai chat channel.", channel.id))
         )

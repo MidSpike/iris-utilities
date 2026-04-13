@@ -13,7 +13,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::html_rendering::{escape_html, html_to_png};
 
@@ -78,7 +78,7 @@ async fn create_dilemma_inquiry_message_stuff(
 
     embeds.push(
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .title(format!("Would you press the button? (#{})", dilemma.link))
         .image(attachment_url)
     );
@@ -122,7 +122,7 @@ async fn create_dilemma_results_message_stuff(
 
     Ok(
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .description(embed_description)
     )
 }

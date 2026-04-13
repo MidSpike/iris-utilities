@@ -2,16 +2,20 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-pub struct BrandColor(u32);
+pub mod color {
+    use poise::serenity_prelude::model::Color as SerenityColor;
 
-impl BrandColor {
-    pub fn new() -> Self {
-        Self(0xFF5500)
+    pub struct BrandColor(u32);
+
+    impl Into<SerenityColor> for BrandColor {
+        fn into(
+            self
+        ) -> SerenityColor {
+            SerenityColor::new(self.0)
+        }
     }
 
-    pub fn get(&self) -> u32 {
-        self.0
-    }
+    pub const PRIMARY: BrandColor = BrandColor(0xFF5500);
 }
 
 //------------------------------------------------------------//

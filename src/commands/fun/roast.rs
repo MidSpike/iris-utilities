@@ -14,7 +14,7 @@ use crate::Error;
 
 use crate::common::ai;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_default_allowed_mentions;
 
@@ -104,7 +104,7 @@ pub async fn roast(
         .content(prompt_response.content)
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .footer(serenity::CreateEmbedFooter::new("Roasts powered by GPT"))
         )
     ).await?;

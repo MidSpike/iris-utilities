@@ -14,7 +14,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::time::format_duration;
 use crate::common::helpers::bot::{fetch_my_guild_invite_url, generate_bot_invite_url};
@@ -230,7 +230,7 @@ pub async fn info(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title(title)
             .description(description)
             .fields(vec![

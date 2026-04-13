@@ -10,7 +10,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 //------------------------------------------------------------//
 
@@ -154,7 +154,7 @@ pub async fn simple_confirmation_embed(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .description(question)
         )
         .components(vec![

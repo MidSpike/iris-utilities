@@ -12,7 +12,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
@@ -225,7 +225,7 @@ pub async fn server(
         ];
 
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .title(embed_title)
         .fields(embed_fields)
     } else {
@@ -238,7 +238,7 @@ pub async fn server(
         );
 
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .title(embed_title)
         .description(embed_description)
     };
@@ -312,7 +312,7 @@ pub async fn player(
         ];
 
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .title(embed_title)
         .fields(embed_fields)
     } else {
@@ -325,7 +325,7 @@ pub async fn player(
         );
 
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .title(embed_title)
         .description(embed_description)
     };

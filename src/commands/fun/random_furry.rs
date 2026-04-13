@@ -10,7 +10,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::potential_nsfw_confirmation;
 
@@ -86,7 +86,7 @@ pub async fn random_furry(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title(format!("Here's a random furry image!"))
             .image(image_url)
         )

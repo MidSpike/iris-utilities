@@ -8,7 +8,7 @@ use poise::serenity_prelude::{self as serenity};
 
 use crate::Context;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
@@ -84,7 +84,7 @@ pub async fn telemetry_user_feedback(
 
     let embed =
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .fields(embed_fields);
 
     let message = serenity::CreateMessage::default().embed(embed);

@@ -12,9 +12,9 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
-use crate::common::brand::BrandEmojis;
+use crate::common::branding::BrandEmojis;
 
 use crate::common::helpers::html_rendering::{escape_html, html_to_png};
 
@@ -168,7 +168,7 @@ pub async fn poll(
         .attachment(attachment)
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title(poll.title)
             .description(poll.description)
             .image(attachment_url)

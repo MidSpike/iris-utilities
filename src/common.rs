@@ -8,7 +8,7 @@ pub mod ai {
     pub mod user_ai_usage;
 }
 
-pub mod brand;
+pub mod branding;
 
 pub mod entitlements;
 

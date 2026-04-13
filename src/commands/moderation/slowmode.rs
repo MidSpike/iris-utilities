@@ -11,7 +11,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
@@ -65,7 +65,7 @@ pub async fn slowmode(
             eprintln!("Error configuring slow mode: {:?}", why);
 
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Moderation")
             .description(
                 "Failed to configure slow mode.\nTry checking my permissions.".to_string()
@@ -75,7 +75,7 @@ pub async fn slowmode(
             if duration == 0 {
                 // slow mode disabled
                 serenity::CreateEmbed::default()
-                .color(BrandColor::new().get())
+                .color(branding::color::PRIMARY)
                 .title("Moderation")
                 .description(
                     format!(
@@ -88,7 +88,7 @@ pub async fn slowmode(
             } else {
                 // slow mode enabled with duration
                 serenity::CreateEmbed::default()
-                .color(BrandColor::new().get())
+                .color(branding::color::PRIMARY)
                 .title("Moderation")
                 .description(
                     format!(

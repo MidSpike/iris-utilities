@@ -13,7 +13,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::music;
 
@@ -52,12 +52,12 @@ fn create_volume_embed(
             };
 
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .description(description)
         },
         None => {
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .description(format!("The current volume is {}%", old_volume.get_normal_volume()))
         },
     }

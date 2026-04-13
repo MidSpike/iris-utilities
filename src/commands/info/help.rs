@@ -12,7 +12,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 //------------------------------------------------------------//
 
@@ -80,7 +80,7 @@ fn create_help_page_embed(
     let current_page_number = help_page_index + 1;
 
     serenity::CreateEmbed::default()
-    .color(BrandColor::new().get())
+    .color(branding::color::PRIMARY)
     .title(format!("{} ({} / {})", help_page.title, current_page_number, num_help_pages))
     .description(&help_page.contents)
 }

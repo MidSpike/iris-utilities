@@ -10,7 +10,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
@@ -188,7 +188,7 @@ pub async fn translate_message_context_menu(
         serenity::EditInteractionResponse::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Translation")
             .description(format!("{}, here is the translation.", ctx.author().mention()))
             .field("From", create_escaped_code_block(None, &text), false)
@@ -257,7 +257,7 @@ pub async fn translate(
         poise::CreateReply::default()
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Translation")
             .description(format!("{}, here is the translation.", ctx.author().mention()))
             .field("From", create_escaped_code_block(None, &text), false)

@@ -12,7 +12,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
@@ -80,7 +80,7 @@ pub async fn magic_ball(
     ctx.send(
         poise::CreateReply::default().embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .title("Magic 8 Ball")
             .field(
                 "You asked",

@@ -16,7 +16,7 @@ use crate::Error;
 
 use crate::common::ai;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 use crate::common::helpers::bot::create_default_allowed_mentions;
 
 //------------------------------------------------------------//
@@ -104,7 +104,7 @@ pub async fn dad_joke(
         .content(prompt_response_content)
         .embed(
             serenity::CreateEmbed::default()
-            .color(BrandColor::new().get())
+            .color(branding::color::PRIMARY)
             .footer(serenity::CreateEmbedFooter::new("Dad jokes powered by GPT"))
         )
     ).await?;

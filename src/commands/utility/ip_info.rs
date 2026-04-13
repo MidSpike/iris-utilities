@@ -14,7 +14,7 @@ use crate::Context;
 
 use crate::Error;
 
-use crate::common::brand::BrandColor;
+use crate::common::branding;
 
 //------------------------------------------------------------//
 
@@ -247,7 +247,7 @@ pub async fn ip_info(
         ];
 
         serenity::CreateEmbed::default()
-        .color(BrandColor::new().get())
+        .color(branding::color::PRIMARY)
         .title(embed_title)
         .fields(embed_fields)
     };
