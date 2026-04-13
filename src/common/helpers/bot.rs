@@ -25,8 +25,8 @@ pub fn create_default_allowed_mentions() -> serenity::CreateAllowedMentions {
 //------------------------------------------------------------//
 
 pub fn create_escaped_code_block(
-    language: Option<&String>,
-    content: &String,
+    language: Option<&str>,
+    content: &str,
 ) -> String {
     // Replace all triple backticks with zero width space joined triple backticks.
     // This prevents the code block from being parsed by Discord.
@@ -34,8 +34,7 @@ pub fn create_escaped_code_block(
 
     // Default to an empty string if no language is provided.
     // This will result in a plain text code block.
-    let default_language = String::from("");
-    let language = language.unwrap_or(&default_language);
+    let language = language.unwrap_or("");
 
     format!("```{}\n{}```", language, content)
 }
@@ -172,38 +171,38 @@ pub async fn simple_confirmation_embed(
         message
         .await_component_interactions(ctx)
         .author_id(ctx.author().id)
+        .custom_ids(vec![yes_button_id.clone(), no_button_id.clone()])
         .timeout(std::time::Duration::from_secs(5 * 60))
         .await
     {
         // Defer while we process the interaction.
         component_interaction.defer(ctx).await?;
 
-        let component_interaction_id = component_interaction.data.custom_id.clone();
+        let is_yes_button = component_interaction.data.custom_id == yes_button_id;
+        let is_no_button = component_interaction.data.custom_id == no_button_id;
 
-        let is_yes_button = component_interaction_id == yes_button_id;
-        let is_no_button = component_interaction_id == no_button_id;
+        let disabled_yes_button =
+            yes_button
+            .style(
+                if is_yes_button { serenity::ButtonStyle::Success }
+                else { serenity::ButtonStyle::Secondary }
+            )
+            .disabled(true);
 
-        if !is_yes_button && !is_no_button {
-            continue; // Continue loop on unknown buttons.
-        }
+        let disabled_no_button =
+            no_button
+            .style(
+                if is_no_button { serenity::ButtonStyle::Danger }
+                else { serenity::ButtonStyle::Secondary }
+            )
+            .disabled(true);
 
         let edit_reply =
             serenity::EditInteractionResponse::default()
             .components(vec![
                 serenity::CreateActionRow::Buttons(vec![
-                    yes_button
-                    .style(
-                        if is_yes_button { serenity::ButtonStyle::Success }
-                        else { serenity::ButtonStyle::Secondary }
-                    )
-                    .disabled(true),
-
-                    no_button
-                    .style(
-                        if is_no_button { serenity::ButtonStyle::Danger }
-                        else { serenity::ButtonStyle::Secondary }
-                    )
-                    .disabled(true),
+                    disabled_yes_button,
+                    disabled_no_button,
                 ])
             ]);
 
