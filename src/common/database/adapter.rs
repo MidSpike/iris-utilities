@@ -6,6 +6,8 @@ use tokio::sync::OnceCell;
 
 use tokio_stream::StreamExt;
 
+use poise::serenity_prelude::{self as serenity};
+
 //------------------------------------------------------------//
 
 use crate::Error;
@@ -142,14 +144,14 @@ pub async fn test() -> Result<(), Error> {
 
     {
         println!("Testing guild config...");
-        let guild_id = "069420123456789"; // Hopefully this guild id doesn't exist
+        let guild_id = serenity::GuildId::default();
 
         println!("Ensuring guild config...");
-        let guild_config = GuildConfig::ensure(guild_id.into()).await?;
+        let guild_config = GuildConfig::ensure(guild_id).await?;
         println!("Ensured guild config: {:?}", guild_config);
 
         println!("Confirming guild config exists...");
-        match GuildConfig::fetch(guild_id.into()).await? {
+        match GuildConfig::fetch(guild_id).await? {
             Some(guild_config) => {
                 println!("Guild config exists: {:?}", guild_config);
             },

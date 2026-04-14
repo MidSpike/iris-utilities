@@ -6,6 +6,8 @@ use mongodb::bson::to_bson;
 
 use serde::{Deserialize, Serialize};
 
+use poise::serenity_prelude::{self as serenity};
+
 //------------------------------------------------------------//
 
 use crate::Error;
@@ -20,7 +22,7 @@ use crate::common::database::adapter::CollectionHelper;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UserConfig {
-    discord_user_id: String,
+    discord_user_id: serenity::UserId,
 
     #[serde(default)]
     discord_entitlements_cache: Vec<String>,
@@ -37,8 +39,10 @@ pub struct UserConfig {
 
 impl UserConfig {
     pub async fn fetch(
-        discord_user_id: String,
+        discord_user_id: serenity::UserId,
     ) -> Result<Option<UserConfig>, Error> {
+        let discord_user_id: String = discord_user_id.get().to_string();
+
         let database_name = get_database_name();
         let collection_name = get_users_collection_name();
         let collection_helper = CollectionHelper::new(database_name, collection_name);
@@ -52,14 +56,14 @@ impl UserConfig {
     }
 
     pub async fn create(
-        discord_user_id: String,
+        discord_user_id: serenity::UserId,
     ) -> Result<UserConfig, Error> {
         let database_name = get_database_name();
         let collection_name = get_users_collection_name();
         let collection_helper = CollectionHelper::new(database_name, collection_name);
         let user_config = collection_helper.set(
             UserConfig {
-                discord_user_id: discord_user_id.clone(),
+                discord_user_id: discord_user_id,
                 discord_entitlements_cache: Vec::default(),
                 discord_entitlements_cache_last_updated: None,
                 gpt_tokens_used: u32::default(),
@@ -71,9 +75,9 @@ impl UserConfig {
     }
 
     pub async fn ensure(
-        discord_user_id: String,
+        discord_user_id: serenity::UserId,
     ) -> Result<UserConfig, Error> {
-        match UserConfig::fetch(discord_user_id.clone()).await? {
+        match UserConfig::fetch(discord_user_id).await? {
             Some(user_config) => Ok(user_config),
             None => Ok(UserConfig::create(discord_user_id).await?),
         }
@@ -83,11 +87,13 @@ impl UserConfig {
         &self,
         update_document: mongodb::bson::Document,
     ) -> Result<(), Error> {
+        let discord_user_id: String = self.discord_user_id.get().to_string();
+
         let database_name = get_database_name();
         let collection_name = get_users_collection_name();
         let collection_helper = CollectionHelper::new(database_name, collection_name);
         let filter = mongodb::bson::doc! {
-            "discord_user_id": &self.discord_user_id,
+            "discord_user_id": discord_user_id,
         };
 
         collection_helper.update::<UserConfig>(filter, update_document).await?;
@@ -98,11 +104,13 @@ impl UserConfig {
     pub async fn delete(
         self,
     ) -> Result<(), Error> {
+        let discord_user_id: String = self.discord_user_id.get().to_string();
+
         let database_name = get_database_name();
         let collection_name = get_users_collection_name();
         let collection_helper = CollectionHelper::new(database_name, collection_name);
         let filter = mongodb::bson::doc! {
-            "discord_user_id": self.discord_user_id,
+            "discord_user_id": discord_user_id,
         };
 
         collection_helper.delete::<UserConfig>(filter).await?;
@@ -112,8 +120,8 @@ impl UserConfig {
 
     pub async fn get_discord_user_id(
         &self,
-    ) -> String {
-        self.discord_user_id.clone()
+    ) -> serenity::UserId {
+        self.discord_user_id
     }
 
     /// Returns the number of GPT tokens used by this user.

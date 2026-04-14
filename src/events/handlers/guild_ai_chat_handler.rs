@@ -50,7 +50,7 @@ pub async fn guild_ai_chat_handler(
     }
 
     // attempt to fetch the guild config, if it doesn't exist, ignore the message
-    let Some(guild_config) = GuildConfig::fetch(guild_id.get().to_string()).await? else {
+    let Some(guild_config) = GuildConfig::fetch(guild_id).await? else {
         return Ok(());
     };
 

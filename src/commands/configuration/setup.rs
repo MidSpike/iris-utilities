@@ -93,9 +93,7 @@ async fn ai_chat_mode(
         return Ok(());
     }
 
-    let guild_config = GuildConfig::ensure(
-        guild.id.to_string(),
-    ).await?;
+    let guild_config = GuildConfig::ensure(guild.id).await?;
 
     guild_config.set_ai_chat_mode(
         ai_chat_mode.to_guild_config_value(),
@@ -184,9 +182,7 @@ async fn list_ai_chat_channels(
         return Ok(());
     }
 
-    let guild_config = GuildConfig::ensure(
-        guild.id.to_string(),
-    ).await?;
+    let guild_config = GuildConfig::ensure(guild.id).await?;
 
     let ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
@@ -251,11 +247,9 @@ async fn enable_ai_chat_channel(
         return Ok(());
     }
 
-    let guild_id_string = guild.id.get().to_string();
-
     let channel_id_string = channel.id.get().to_string();
 
-    let guild_config = GuildConfig::ensure(guild_id_string).await?;
+    let guild_config = GuildConfig::ensure(guild.id).await?;
 
     let current_ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
@@ -320,11 +314,9 @@ async fn disable_ai_chat_channel(
         return Ok(());
     }
 
-    let guild_id_string = guild.id.get().to_string();
-
     let channel_id_string = channel.id.get().to_string();
 
-    let guild_config = GuildConfig::ensure(guild_id_string).await?;
+    let guild_config = GuildConfig::ensure(guild.id).await?;
 
     let current_ai_chat_channels = guild_config.get_ai_chat_channels().await;
 

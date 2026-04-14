@@ -85,9 +85,7 @@ async fn get_user_gpt_token_regeneration_interval(
 async fn get_user_gpt_tokens_used(
     discord_user_id: serenity::UserId,
 ) -> Result<u32, Error> {
-    let user_id = discord_user_id.get().to_string();
-
-    let user_config = UserConfig::ensure(user_id).await?;
+    let user_config = UserConfig::ensure(discord_user_id).await?;
 
     let gpt_tokens_used = user_config.get_gpt_tokens_used().await;
 
@@ -97,9 +95,7 @@ async fn get_user_gpt_tokens_used(
 async fn get_user_gpt_tokens_used_last_regeneration(
     discord_user_id: serenity::UserId,
 ) -> Result<chrono::DateTime<chrono::Utc>, Error> {
-    let user_id = discord_user_id.get().to_string();
-
-    let user_config = UserConfig::ensure(user_id).await?;
+    let user_config = UserConfig::ensure(discord_user_id).await?;
 
     let gpt_tokens_last_regeneration = user_config.get_gpt_tokens_used_last_regeneration().await;
 
@@ -126,9 +122,7 @@ pub async fn is_user_above_gpt_token_limit(
         gpt_tokens_used_last_regeneration + gpt_token_regeneration_interval;
 
     if now > next_regeneration {
-        let user_id = discord_user_id.get().to_string();
-
-        let user_config = UserConfig::ensure(user_id).await?;
+        let user_config = UserConfig::ensure(discord_user_id).await?;
 
         user_config.reset_gpt_tokens_used().await?;
     }
@@ -216,9 +210,7 @@ pub async fn increment_user_gpt_tokens(
     discord_user_id: serenity::UserId,
     increment_by: u32,
 ) -> Result<(), Error> {
-    let user_id = discord_user_id.get().to_string();
-
-    let user_config = UserConfig::ensure(user_id).await?;
+    let user_config = UserConfig::ensure(discord_user_id).await?;
 
     user_config.increment_gpt_tokens_used(increment_by).await?;
 
