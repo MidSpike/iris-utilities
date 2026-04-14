@@ -175,7 +175,9 @@ async fn main() -> Result<()> {
 
     let mut client = client_builder.await.context("Failed to create discord client")?;
 
-    client.start().await.context("Failed to start discord client")?;
+    let shard_count = client.http.get_bot_gateway().await.context("Failed to get bot gateway")?.shards;
+
+    client.start_shards(shard_count).await.context("Failed to start discord client")?;
 
     Ok(())
 }
