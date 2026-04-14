@@ -14,8 +14,6 @@ use crate::Error;
 
 use crate::common::branding;
 
-use crate::common::branding::BrandEmojis;
-
 use crate::common::helpers::html_rendering::{escape_html, html_to_png};
 
 //------------------------------------------------------------//
@@ -141,12 +139,13 @@ pub async fn poll(
         option_9,
     ];
 
-    let options = maybe_options.into_iter().filter_map(|option| option).collect();
+    let poll_options: Vec<String> = maybe_options.into_iter().filter_map(|option| option).collect();
+    let poll_options_length = poll_options.len();
 
     let poll = Poll {
-        title,
-        description,
-        options,
+        title: title,
+        description: description,
+        options: poll_options,
     };
 
     let poll_html = generate_poll_html(&poll)?;
@@ -179,29 +178,21 @@ pub async fn poll(
     let poll_message = reply_handle.message().await?;
 
     let reactions = vec![
-        BrandEmojis::NumberZero,
-        BrandEmojis::NumberOne,
-        BrandEmojis::NumberTwo,
-        BrandEmojis::NumberThree,
-        BrandEmojis::NumberFour,
-        BrandEmojis::NumberFive,
-        BrandEmojis::NumberSix,
-        BrandEmojis::NumberSeven,
-        BrandEmojis::NumberEight,
-        BrandEmojis::NumberNine,
+        branding::emojis::BrandEmojis::NumberOne.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberTwo.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberThree.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberFour.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberFive.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberSix.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberSeven.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberEight.fetch(ctx).await,
+        branding::emojis::BrandEmojis::NumberNine.fetch(ctx).await,
     ];
 
-    for reaction in reactions {
-        let reaction = reaction.get();
+    let reactions_to_add = reactions.into_iter().take(poll_options_length);
 
-        poll_message.react(
-            ctx,
-            serenity::ReactionType::Custom {
-                id: serenity::EmojiId::new(reaction.id()),
-                name: Some(reaction.name().to_string()),
-                animated: false,
-            },
-        ).await?;
+    for reaction in reactions_to_add {
+        poll_message.react(ctx, reaction).await?;
 
         // throttle the reaction rate to avoid rate limits imposed by Discord
         tokio::time::sleep(std::time::Duration::from_millis(250)).await;

@@ -20,52 +20,79 @@ pub mod color {
 
 //------------------------------------------------------------//
 
-pub struct BrandEmoji(u64, String);
+pub mod emojis {
+    use poise::serenity_prelude::EmojiId as SerenityEmojiId;
+    use poise::serenity_prelude::ReactionType as SerenityReaction;
+    use poise::serenity_prelude::CacheHttp as SerenityCacheHttp;
 
-impl BrandEmoji {
-    pub fn from(
+    pub struct BrandEmoji {
         id: u64,
-        name: impl Into<String>,
-    ) -> Self {
-        Self(id, name.into())
+        name: String,
+        animated: bool,
     }
 
-    pub fn id(&self) -> u64 {
-        self.0
+    impl Into<SerenityReaction> for BrandEmoji {
+        fn into(
+            self
+        ) -> SerenityReaction {
+            SerenityReaction::Custom {
+                id: SerenityEmojiId::new(self.id),
+                name: Some(self.name),
+                animated: self.animated,
+            }
+        }
     }
 
-    pub fn name(&self) -> &String {
-        &self.1
+    pub async fn get_application_emojis(
+        http: impl SerenityCacheHttp,
+    ) -> Vec<BrandEmoji> {
+        let app_emojis = http.http().get_application_emojis().await.expect("Failed to get application emojis");
+
+        app_emojis.into_iter().map(|emoji| {
+            BrandEmoji {
+                id: emoji.id.get(),
+                name: emoji.name,
+                animated: emoji.animated,
+            }
+        }).collect()
     }
-}
 
-pub enum BrandEmojis {
-    NumberZero,
-    NumberOne,
-    NumberTwo,
-    NumberThree,
-    NumberFour,
-    NumberFive,
-    NumberSix,
-    NumberSeven,
-    NumberEight,
-    NumberNine,
-}
+    pub enum BrandEmojis {
+        NumberZero,
+        NumberOne,
+        NumberTwo,
+        NumberThree,
+        NumberFour,
+        NumberFive,
+        NumberSix,
+        NumberSeven,
+        NumberEight,
+        NumberNine,
+    }
 
-impl BrandEmojis {
-    pub fn get(&self) -> BrandEmoji {
-        match self {
-            BrandEmojis::NumberZero => BrandEmoji::from(678691063178985480, "bot_emoji_zero"),
-            BrandEmojis::NumberOne => BrandEmoji::from(678691126357655572, "bot_emoji_one"),
-            BrandEmojis::NumberTwo => BrandEmoji::from(678691155738624011, "bot_emoji_two"),
-            BrandEmojis::NumberThree => BrandEmoji::from(678691184603824128, "bot_emoji_three"),
-            BrandEmojis::NumberFour => BrandEmoji::from(678691214102364181, "bot_emoji_four"),
-            BrandEmojis::NumberFive => BrandEmoji::from(678691239348011018, "bot_emoji_five"),
-            BrandEmojis::NumberSix => BrandEmoji::from(678691272986329102, "bot_emoji_six"),
-            BrandEmojis::NumberSeven => BrandEmoji::from(678691301276778526, "bot_emoji_seven"),
-            BrandEmojis::NumberEight => BrandEmoji::from(678691330783969290, "bot_emoji_eight"),
-            BrandEmojis::NumberNine => BrandEmoji::from(678691358415781915, "bot_emoji_nine"),
+    impl BrandEmojis {
+        pub async fn fetch(
+            &self,
+            http: impl SerenityCacheHttp,
+        ) -> BrandEmoji {
+            let emoji_name = match self {
+                BrandEmojis::NumberZero => "bot_emoji_zero",
+                BrandEmojis::NumberOne => "bot_emoji_one",
+                BrandEmojis::NumberTwo => "bot_emoji_two",
+                BrandEmojis::NumberThree => "bot_emoji_three",
+                BrandEmojis::NumberFour => "bot_emoji_four",
+                BrandEmojis::NumberFive => "bot_emoji_five",
+                BrandEmojis::NumberSix => "bot_emoji_six",
+                BrandEmojis::NumberSeven => "bot_emoji_seven",
+                BrandEmojis::NumberEight => "bot_emoji_eight",
+                BrandEmojis::NumberNine => "bot_emoji_nine",
+            };
+
+            let app_emojis = get_application_emojis(http).await;
+
+            app_emojis.into_iter()
+            .find(|emoji| emoji.name == emoji_name)
+            .expect("Failed to find brand emoji")
         }
     }
 }
-
