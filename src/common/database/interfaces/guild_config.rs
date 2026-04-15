@@ -60,7 +60,7 @@ impl GuildConfigAiChatMode {
     pub fn should_respond_in_channel(
         &self,
         guild_config: &GuildConfig,
-        channel_id: String,
+        channel_id: serenity::ChannelId,
         was_mentioned: bool,
     ) -> bool {
         let is_ai_chat_channel = guild_config.ai_chat_channels.contains(&channel_id);
@@ -77,7 +77,7 @@ impl GuildConfigAiChatMode {
     }
 }
 
-type GuildConfigAiChatChannels = Vec<String>;
+type GuildConfigAiChatChannels = Vec<serenity::ChannelId>;
 
 //------------------------------------------------------------//
 

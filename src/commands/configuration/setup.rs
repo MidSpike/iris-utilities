@@ -5,7 +5,7 @@
 use itertools::Itertools;
 
 use poise::ChoiceParameter;
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
 //------------------------------------------------------------//
 
@@ -58,9 +58,9 @@ async fn ai_chat_mode(
     #[description = "The ai chat mode to use."]
     ai_chat_mode: AiChatMode,
 ) -> Result<(), Error> {
-    let guild = ctx.guild().expect("There should be a guild in this context.").clone();
+    let guild_id = ctx.guild_id().expect("There should be a guild in this context.");
 
-    let guild_config = GuildConfig::ensure(guild.id).await?;
+    let guild_config = GuildConfig::ensure(guild_id).await?;
 
     guild_config.set_ai_chat_mode(
         ai_chat_mode.to_guild_config_value(),
@@ -91,7 +91,7 @@ async fn ai_chat_mode(
 async fn info_ai_chat_channels(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
-    let _guild = ctx.guild().expect("There should be a guild in this context.").clone();
+    let _guild_id = ctx.guild_id().expect("There should be a guild in this context.");
 
     ctx.send(
         poise::CreateReply::default()
@@ -134,9 +134,9 @@ async fn info_ai_chat_channels(
 async fn list_ai_chat_channels(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
-    let guild = ctx.guild().expect("There should be a guild in this context.").clone();
+    let guild_id = ctx.guild_id().expect("There should be a guild in this context.");
 
-    let guild_config = GuildConfig::ensure(guild.id).await?;
+    let guild_config = GuildConfig::ensure(guild_id).await?;
 
     let ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
@@ -157,7 +157,7 @@ async fn list_ai_chat_channels(
     let ai_chat_channels_string =
         ai_chat_channels
         .into_iter()
-        .map(|id| format!("- <#{}> ({})", id, id))
+        .map(|id| format!("- {} ({})", id.mention(), id.to_string()))
         .join("\n");
 
     ctx.send(
@@ -186,19 +186,17 @@ async fn enable_ai_chat_channel(
     #[description = "A channel to use for ai chat."]
     channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
-    let guild = ctx.guild().expect("There should be a guild in this context.").clone();
+    let guild_id = ctx.guild_id().expect("There should be a guild in this context.");
 
-    let channel_id_string = channel.id.get().to_string();
-
-    let guild_config = GuildConfig::ensure(guild.id).await?;
+    let guild_config = GuildConfig::ensure(guild_id).await?;
 
     let current_ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
     // don't add the same channel multiple times
-    if !current_ai_chat_channels.contains(&channel_id_string) {
+    if !current_ai_chat_channels.contains(&channel.id) {
         let new_ai_chat_channels = [
             current_ai_chat_channels,
-            vec![channel_id_string],
+            vec![channel.id],
         ].concat();
 
         guild_config.set_ai_chat_channels(new_ai_chat_channels).await?;
@@ -242,19 +240,17 @@ async fn disable_ai_chat_channel(
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
-    let channel_id_string = channel.id.get().to_string();
-
     let guild_config = GuildConfig::ensure(guild.id).await?;
 
     let current_ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
     // don't remove a channel that isn't already an ai chat channel
-    if current_ai_chat_channels.contains(&channel_id_string) {
+    if current_ai_chat_channels.contains(&channel.id) {
         let new_ai_chat_channels =
             current_ai_chat_channels
             .into_iter()
-            .filter(|s| s != &channel_id_string)
-            .collect::<Vec<String>>();
+            .filter(|s| s != &channel.id)
+            .collect::<Vec<serenity::ChannelId>>();
 
         guild_config.set_ai_chat_channels(new_ai_chat_channels).await?;
     }

@@ -61,7 +61,7 @@ pub struct CollectionHelper {
 impl CollectionHelper {
     pub fn new(
         database_name: String,
-        collection_name: String
+        collection_name: String,
     ) -> Self {
         Self {
             database_name,
@@ -72,7 +72,7 @@ impl CollectionHelper {
     pub async fn get<Item> (
         &self,
         filter: mongodb::bson::Document,
-    ) -> Result<Option<Item>, Error>
+    ) -> Result<Option<Item>, mongodb::error::Error>
     where
         Item: serde::de::DeserializeOwned + Unpin + Send + Sync,
     {
@@ -82,15 +82,13 @@ impl CollectionHelper {
 
         let mut cursor = collection.find(filter).await?;
 
-        let item = cursor.next().await.transpose()?;
-
-        Ok(item)
+        cursor.next().await.transpose()
     }
 
     pub async fn set<Item>(
         &self,
         item: Item,
-    ) -> Result<Item, Error>
+    ) -> Result<Item, mongodb::error::Error>
     where
         Item: serde::Serialize + Send + Sync,
     {
@@ -107,7 +105,7 @@ impl CollectionHelper {
         &self,
         filter: mongodb::bson::Document,
         update_document: mongodb::bson::Document,
-    ) -> Result<(), Error>
+    ) -> Result<(), mongodb::error::Error>
     where
         Item: serde::Serialize + Send + Sync,
     {
@@ -123,7 +121,7 @@ impl CollectionHelper {
     pub async fn delete<Item>(
         &self,
         filter: mongodb::bson::Document,
-    ) -> Result<(), Error>
+    ) -> Result<(), mongodb::error::Error>
     where
         Item: serde::Serialize + Send + Sync,
     {

@@ -54,15 +54,13 @@ pub async fn guild_ai_chat_handler(
         return Ok(());
     };
 
-    let channel_id_string = message.channel_id.get().to_string();
-
     let was_mentioned = message.mentions_me(&ctx).await?;
 
     let guild_ai_chat_mode = guild_config.get_ai_chat_mode().await;
 
     let should_respond = guild_ai_chat_mode.should_respond_in_channel(
         &guild_config,
-        channel_id_string,
+        message.channel_id,
         was_mentioned,
     );
 
