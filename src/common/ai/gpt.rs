@@ -89,22 +89,6 @@ pub struct PromptResponse {
     pub tokens_used: u32,
 }
 
-/// # Summary
-///
-/// Prompts OpenAI's Responses API to receive a response from GPT using the async-openai SDK.
-///
-/// # Arguments
-///
-/// * `model` - The model to use (e.g., "gpt-5-nano")
-/// * `instructions` - The instructions for the model
-/// * `input_prompt` - The input prompt to send to the model
-/// * `user_id` - The user id for safety namespace hashing
-/// * `max_output_tokens` - The maximum number of output tokens to generate
-///
-/// # Returns
-///
-/// * `Ok(PromptResponse)` - The response from GPT
-/// * `Err(Error)` - An error
 pub async fn prompt(
     options: PromptOptions,
 ) -> Result<PromptResponse, Error> {
@@ -154,7 +138,7 @@ pub async fn prompt(
 
     Ok(
         PromptResponse {
-            content,
+            content: content,
             tokens_used: total_tokens,
         }
     )
