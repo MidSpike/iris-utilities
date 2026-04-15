@@ -2,6 +2,8 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use url::Host;
+
 use serde::{Deserialize, Serialize};
 
 use poise::serenity_prelude::{self as serenity};
@@ -18,9 +20,11 @@ use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
-const MINECRAFT_SERVER_INFO_API_URL: &str = "https://api.mcsrvstat.us/2/";
+// Do not use trailing slashes for api urls.
 
-const MINECRAFT_PLAYER_INFO_API_URL: &str = "https://playerdb.co/api/player/minecraft/";
+const MINECRAFT_SERVER_INFO_API_URL: &str = "https://api.mcsrvstat.us/3";
+
+const MINECRAFT_PLAYER_INFO_API_URL: &str = "https://playerdb.co/api/player/minecraft";
 
 //------------------------------------------------------------//
 
@@ -48,22 +52,29 @@ struct MinecraftServerInfoPlayers {
 /// 200 OK from `MINECRAFT_SERVER_INFO_API_URL`
 #[derive(Serialize, Deserialize, Default, Debug)]
 struct MinecraftServerInfoApiResponse {
-    // the `debug` field should always be present in the response
+    // The following fields will exist.
+
     debug: MinecraftServerInfoDebug,
+
+    // The following fields should exist.
+
+    #[serde(default)]
+    online: bool,
     #[serde(default)]
     ip: String,
     #[serde(default)]
     port: i32,
+
+    // The following fields might exist.
+
     #[serde(default)]
     hostname: String,
     #[serde(default)]
-    icon: String,
+    icon: String, // base64 encoded png
     #[serde(default)]
     version: String,
     #[serde(default)]
-    protocol_name: String,
-    #[serde(default)]
-    online: bool,
+    software: String,
     #[serde(default)]
     players: MinecraftServerInfoPlayers,
     #[serde(default)]
@@ -71,11 +82,22 @@ struct MinecraftServerInfoApiResponse {
 }
 
 async fn fetch_server_info(
-    server_address: &str, // example: "mc.hypixel.net" or a valid ip address
+    query: &Host, // example: "mc.hypixel.net" or a valid ip address
 ) -> Result<MinecraftServerInfoApiResponse, Error> {
-    let url = format!("{}{}", MINECRAFT_SERVER_INFO_API_URL, urlencoding::encode(server_address));
+    let query_str = query.to_string();
 
-    let response = reqwest::get(&url).await?;
+    let url = format!("{}/{}", MINECRAFT_SERVER_INFO_API_URL, urlencoding::encode(&query_str));
+
+    let reqwest_client = reqwest::Client::new();
+
+    let user_agent = std::env::var("USER_AGENT").expect("Missing `USER_AGENT` in environment.");
+
+    let response =
+        reqwest_client
+        .get(&url)
+        .header(reqwest::header::USER_AGENT, user_agent)
+        .send()
+        .await?;
 
     let response_status = response.status();
 
@@ -124,9 +146,18 @@ struct MinecraftPlayerInfoApiResponse {
 async fn fetch_player_info(
     player_name: &str, // example: "MidSpike"
 ) -> Result<MinecraftPlayerInfoApiResponse, Error> {
-    let url = format!("{}{}", MINECRAFT_PLAYER_INFO_API_URL, urlencoding::encode(player_name));
+    let url = format!("{}/{}", MINECRAFT_PLAYER_INFO_API_URL, urlencoding::encode(player_name));
 
-    let response = reqwest::get(&url).await?;
+    let reqwest_client = reqwest::Client::new();
+
+    let user_agent = std::env::var("USER_AGENT").expect("Missing `USER_AGENT` in environment.");
+
+    let response =
+        reqwest_client
+        .get(&url)
+        .header(reqwest::header::USER_AGENT, user_agent)
+        .send()
+        .await?;
 
     let response_status = response.status();
 
@@ -146,9 +177,19 @@ async fn fetch_player_info(
 pub async fn server(
     ctx: Context<'_>,
 
+    #[min_length = 1]
+    #[max_length = 64] // unlikely
     #[description = "The server address to lookup"]
     server_address: String,
 ) -> Result<(), Error> {
+    let server_address = server_address.trim();
+
+    let Ok(server_address) = Host::parse(&server_address) else {
+        ctx.say("Invalid server address or ip address provided.").await?;
+
+        return Ok(());
+    };
+
     let server_info = match fetch_server_info(&server_address).await {
         Ok(s) => s,
         Err(e) => {
@@ -193,8 +234,8 @@ pub async fn server(
                 true,
             ),
             (
-                "Protocol",
-                format!("`{}`", server_info.protocol_name),
+                "Software",
+                format!("`{}`", server_info.software),
                 true,
             ),
             ( // filler field to make the embed look nicer
@@ -255,9 +296,13 @@ pub async fn server(
 pub async fn player(
     ctx: Context<'_>,
 
+    #[min_length = 1]
+    #[max_length = 64] // unlikely
     #[description = "The player name to lookup"]
     player_name: String,
 ) -> Result<(), Error> {
+    let player_name = player_name.trim();
+
     let player_info = match fetch_player_info(&player_name).await {
         Ok(p) => p,
         Err(e) => {

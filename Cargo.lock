@@ -2440,6 +2440,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tracing-subscriber",
+ "url",
  "urlencoding",
 ]
 
