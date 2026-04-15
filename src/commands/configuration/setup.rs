@@ -102,20 +102,20 @@ async fn info_ai_chat_channels(
             .description(
                 indoc::formatdoc!(
                     r#"
-                        Using the power of large language models, this bot can respond to messages
-                        in specific channels, or even when mentioned in any channel. This can be
-                        useful for creating an interactive experience for your guild's members.
+                        Using the power of large language models, I can respond to messages
+                        in specific channels, or when mentioned in any channel. This can be
+                        useful for creating interactive experiences for your guild's members.
 
-                        Make sure to enable slowmode in ai chat channels for ai chat to respond.
+                        I will only reply in configured channels with slowmode enabled!
 
                         **Ai Chat Modes**
                         - Disabled:
-                          The bot will not respond to messages in ai chat channels.
+                          I will not reply to messages in ai chat channels.
                         - When mentioned in ai chat channels:
-                          The bot will only respond to messages in ai chat channels when mentioned.
+                          I will only reply to messages in ai chat channels when mentioned.
                         - Always in ai chat channels or when mentioned anywhere:
-                          The bot will always respond to messages in ai chat channels and when mentioned.
-                    "#
+                          I will always reply to messages in ai chat channels and when mentioned.
+                    "#,
                 )
             )
         )
