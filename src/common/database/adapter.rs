@@ -13,6 +13,7 @@ use poise::serenity_prelude::{self as serenity};
 use crate::Error;
 
 use crate::common::database::interfaces::guild_config::GuildConfig;
+use crate::common::database::interfaces::user_config::UserConfig;
 
 //------------------------------------------------------------//
 
@@ -138,40 +139,63 @@ impl CollectionHelper {
 //------------------------------------------------------------//
 
 pub async fn test() -> Result<(), Error> {
-    println!("Testing database interfaces...");
+    println!("[TEST] Testing database interfaces...");
 
     {
-        println!("Testing guild config...");
-        let guild_id = serenity::GuildId::default();
+        println!("[TEST] Testing guild config...");
+        let test_guild_id = serenity::GuildId::default();
 
-        println!("Ensuring guild config...");
-        let guild_config = GuildConfig::ensure(guild_id).await?;
-        println!("Ensured guild config: {:?}", guild_config);
+        println!("[TEST] Ensuring guild config...");
+        GuildConfig::ensure(test_guild_id).await?;
 
-        println!("Confirming guild config exists...");
-        match GuildConfig::fetch(guild_id).await? {
-            Some(guild_config) => {
-                println!("Guild config exists: {:?}", guild_config);
-            },
-            None => {
-                panic!("Guild config should exist.");
-            },
+        println!("[TEST] Confirming guild config exists...");
+        let Some(test_guild_config) = GuildConfig::fetch(test_guild_id).await? else {
+            panic!("[TEST] Guild config does not exist!");
+        };
+
+        println!("[TEST] Guild config exists: {test_guild_config:#?}");
+
+        println!("[TEST] Deleting guild config...");
+        if let Err(why) = test_guild_config.delete().await {
+            panic!("[TEST] Failed to delete guild config!\nError: {why:#}");
         }
-        println!("Confirmed guild config exists.");
 
-        println!("Deleting guild config...");
-        guild_config.delete().await?;
-        println!("Deleted guild config.");
-
-        println!("Confirming guild config is deleted...");
-        let guild_config = GuildConfig::fetch(guild_id.into()).await?;
-        if guild_config.is_some() {
-            panic!("Guild config should not exist.");
+        println!("[TEST] Confirming guild config is deleted...");
+        if let Some(_) = GuildConfig::fetch(test_guild_id).await? {
+            panic!("[TEST] Guild config still exists after deletion!");
         }
-        println!("Confirmed guild config is deleted.");
 
-        println!("Finished testing guild config.");
+        println!("[TEST] Finished testing guild config.");
     }
+
+    {
+        println!("[TEST] Testing user config...");
+        let test_user_id = serenity::UserId::default();
+
+        println!("[TEST] Ensuring user config...");
+        UserConfig::ensure(test_user_id).await?;
+
+        println!("[TEST] Confirming user config exists...");
+        let Some(test_user_config) = UserConfig::fetch(test_user_id).await? else {
+            panic!("[TEST] User config does not exist!");
+        };
+
+        println!("[TEST] User config exists: {test_user_config:#?}");
+
+        println!("[TEST] Deleting user config...");
+        if let Err(why) = test_user_config.delete().await {
+            panic!("[TEST] Failed to delete user config!\nError: {why:#}");
+        }
+
+        println!("[TEST] Confirming user config is deleted...");
+        let Some(_) = UserConfig::fetch(test_user_id).await? else {
+            panic!("[TEST] User config still exists after deletion!");
+        };
+
+        println!("[TEST] Finished testing user config.");
+    }
+
+    println!("[TEST] Finished testing database interfaces.");
 
     Ok(())
 }
