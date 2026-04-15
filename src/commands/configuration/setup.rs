@@ -15,28 +15,8 @@ use crate::Error;
 
 use crate::common::branding;
 
-use crate::common::moderation;
-
 use crate::common::database::interfaces::guild_config::GuildConfig;
 use crate::common::database::interfaces::guild_config::GuildConfigAiChatMode;
-
-//------------------------------------------------------------//
-
-async fn send_not_guild_owner(
-    ctx: &Context<'_>,
-) -> Result<(), Error> {
-    ctx.send(
-        poise::CreateReply::default()
-        .embed(
-            serenity::CreateEmbed::default()
-            .color(branding::color::PRIMARY)
-            .title("Guild Configuration")
-            .description("You must be the owner of this guild to setup this bot.")
-        )
-    ).await?;
-
-    Ok(())
-}
 
 //------------------------------------------------------------//
 
@@ -78,20 +58,7 @@ async fn ai_chat_mode(
     #[description = "The ai chat mode to use."]
     ai_chat_mode: AiChatMode,
 ) -> Result<(), Error> {
-    let executing_member =
-        ctx
-        .author_member().await
-        .expect("There should be a member in this context.")
-        .clone();
-
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
-
-    // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
-        send_not_guild_owner(&ctx).await?;
-
-        return Ok(());
-    }
 
     let guild_config = GuildConfig::ensure(guild.id).await?;
 
@@ -167,20 +134,7 @@ async fn info_ai_chat_channels(
 async fn list_ai_chat_channels(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
-    let executing_member =
-        ctx
-        .author_member().await
-        .expect("There should be a member in this context.")
-        .clone();
-
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
-
-    // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
-        send_not_guild_owner(&ctx).await?;
-
-        return Ok(());
-    }
 
     let guild_config = GuildConfig::ensure(guild.id).await?;
 
@@ -232,20 +186,7 @@ async fn enable_ai_chat_channel(
     #[description = "A channel to use for ai chat."]
     channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
-    let executing_member =
-        ctx
-        .author_member().await
-        .expect("There should be a member in this context.")
-        .clone();
-
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
-
-    // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
-        send_not_guild_owner(&ctx).await?;
-
-        return Ok(());
-    }
 
     let channel_id_string = channel.id.get().to_string();
 
@@ -299,20 +240,7 @@ async fn disable_ai_chat_channel(
     #[description = "A channel to use for ai chat."]
     channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
-    let executing_member =
-        ctx
-        .author_member().await
-        .expect("There should be a member in this context.")
-        .clone();
-
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
-
-    // ensure the executing member is the owner of the guild
-    if !moderation::is_guild_member_owner_of_guild(&guild, &executing_member) {
-        send_not_guild_owner(&ctx).await?;
-
-        return Ok(());
-    }
 
     let channel_id_string = channel.id.get().to_string();
 
@@ -373,6 +301,8 @@ async fn ai_chat_channels(
         category = "Configuration",
         install_context = "Guild",
         interaction_context = "Guild",
+        default_member_permissions = "MANAGE_GUILD",
+        required_bot_permissions = "MANAGE_GUILD",
     )
 ]
 pub async fn setup(
