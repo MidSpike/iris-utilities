@@ -2,7 +2,6 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::RoleId;
 use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
@@ -17,34 +16,26 @@ pub const LACKING_PERMISSIONS_MESSAGE: &str = "You do not have permission to per
 
 //------------------------------------------------------------//
 
-pub fn is_guild_member_owner_of_guild(
-    guild: &serenity::Guild,
-    member: &serenity::Member,
-) -> bool {
-    guild.owner_id == member.user.id
-}
-
-//------------------------------------------------------------//
-
-type GuildMemberPermissionsChecker =
-    fn(&serenity::Guild, &serenity::Member, serenity::Permissions) -> bool;
+type GuildMemberPermittedPredicate = fn(
+    &serenity::Guild,
+    &serenity::GuildChannel,
+    &serenity::Member,
+    &serenity::Permissions
+) -> Result<bool, Error>;
 
 pub async fn assert_guild_member_permitted_by_discord(
     ctx: &Context<'_>,
     member: &serenity::Member,
-    check_permissions: GuildMemberPermissionsChecker,
-    lacking_permissions_message: Option<&str>,
+    further_check: GuildMemberPermittedPredicate,
+    not_permitted_message: Option<&str>,
 ) -> Result<(), Error> {
-    let guild = ctx.guild().expect("There should be a guild.").clone();
+    let guild = ctx.guild().expect("There should be a guild.");
 
-    let channel = ctx.guild_channel().await.expect("There should be a channel.");
+    let channel = ctx.guild_channel().await.expect("This channel should be in a guild.");
+
+    // Guild owners are expected to explicitly assign permission to themselves.
 
     let member_perms_in_channel = guild.user_permissions_in(&channel, member);
-
-    // check if the user is the guild owner
-    if is_guild_member_owner_of_guild(&guild, &member) {
-        return Ok(());
-    }
 
     // check if the user is a guild administrator
     if member_perms_in_channel.administrator() {
@@ -52,12 +43,12 @@ pub async fn assert_guild_member_permitted_by_discord(
     }
 
     // check if the user has the required permissions
-    if check_permissions(&guild, &member, member_perms_in_channel) {
+    if further_check(&guild, &channel, &member, &member_perms_in_channel)? {
         return Ok(());
     }
 
     // the user does not have the required permissions
-    Err(lacking_permissions_message.unwrap_or(LACKING_PERMISSIONS_MESSAGE))?
+    Err(Error::from(not_permitted_message.unwrap_or(LACKING_PERMISSIONS_MESSAGE)))
 }
 
 //------------------------------------------------------------//
@@ -69,26 +60,28 @@ pub async fn assert_member_above_other_member(
     error_message: &str,
 ) -> Result<(), Error> {
     let Some(guild) = ctx.guild() else {
-        Err("Failed to get guild.")?
+        return Err(Error::from("Failed to get guild."));
     };
 
     if member.user.id == other_member.user.id {
-        Err(error_message)?
+        return Err(Error::from("Member is the same as the other member."));
     }
 
-    // check if the member is the guild owner
-    if is_guild_member_owner_of_guild(&guild, &member) {
+    // Guild owner is considered as above all members, even if highest roles do not reflect that.
+    if member.user.id == guild.owner_id {
         return Ok(());
     }
 
-    // check if the other member is the guild owner
-    if is_guild_member_owner_of_guild(&guild, &other_member) {
-        Err(error_message)?
+    // The other member could be the guild owner, if so, the member cannot be above them.
+    if other_member.user.id == guild.owner_id {
+        return Err(Error::from(error_message));
     }
 
-    let everyone_role = guild.roles.get(
-        &RoleId::new(guild.id.get()) // equivalent to @everyone role id
-    ).expect("Guild should have an everyone role.");
+    // Per https://docs.discord.com/developers/topics/permissions#role-object
+    // > "The `@everyone` role has the same ID as the guild it belongs to."
+    let everyone_role =
+        guild.roles.get(&serenity::RoleId::new(guild.id.get()))
+        .expect("Guild should have an everyone role.");
 
     let member_highest_role =
         guild.member_highest_role(member)
@@ -99,7 +92,7 @@ pub async fn assert_member_above_other_member(
         .unwrap_or(everyone_role);
 
     if member_highest_role.position <= other_member_highest_role.position {
-        Err(error_message)?
+        return Err(Error::from(error_message));
     }
 
     Ok(())
