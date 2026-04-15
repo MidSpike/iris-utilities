@@ -21,6 +21,7 @@ use crate::common::database::interfaces::guild_config::GuildConfigAiChatMode;
 //------------------------------------------------------------//
 
 // The list of ai chat modes available publicly.
+// Note: Keep separate from `GuildConfigAiChatMode`.
 #[derive(poise::ChoiceParameter)]
 enum AiChatMode {
     #[name = "Disabled"]
@@ -50,12 +51,14 @@ impl AiChatMode {
     }
 }
 
-/// Configure ai chat mode for your guild.
+//------------------------------------------------------------//
+
+/// Configure the ai chat mode for this guild.
 #[poise::command(slash_command)]
 async fn ai_chat_mode(
     ctx: Context<'_>,
 
-    #[description = "The ai chat mode to use."]
+    #[description = "Control how ai chat works in this guild."]
     ai_chat_mode: AiChatMode,
 ) -> Result<(), Error> {
     let guild_id = ctx.guild_id().expect("There should be a guild in this context.");
@@ -81,7 +84,7 @@ async fn ai_chat_mode(
 
 //------------------------------------------------------------//
 
-/// Information about ai chat channels.
+/// Information about what ai chat channels are.
 #[
     poise::command(
         slash_command,
@@ -102,9 +105,9 @@ async fn info_ai_chat_channels(
             .description(
                 indoc::formatdoc!(
                     r#"
-                        Using the power of large language models, I can respond to messages
-                        in specific channels, or when mentioned in any channel. This can be
-                        useful for creating interactive experiences for your guild's members.
+                        Using 3rd-party large language models, I can respond to messages in
+                        specific channels, or when (enabled and) mentioned in any channel.
+                        This is useful for creating interactive experiences for guild members.
 
                         I will only reply in configured channels with slowmode enabled!
 
@@ -124,7 +127,7 @@ async fn info_ai_chat_channels(
     Ok(())
 }
 
-/// List the ai chat channels for your guild.
+/// Lists the ai chat channels in this guild.
 #[
     poise::command(
         slash_command,
@@ -147,7 +150,7 @@ async fn list_ai_chat_channels(
                 serenity::CreateEmbed::default()
                 .color(branding::color::PRIMARY)
                 .title("Guild Configuration - Ai Chat Channels")
-                .description("Currently this guild does not have any ai chat channels.")
+                .description("Ai chat is not enabled for any channels.")
             )
         ).await?;
 
@@ -173,17 +176,17 @@ async fn list_ai_chat_channels(
     Ok(())
 }
 
-/// Enable ai chat for channels in your guild.
+/// Allows ai chat features for a channel in this guild.
 #[
     poise::command(
         slash_command,
-        rename = "enable",
+        rename = "allow",
     )
 ]
-async fn enable_ai_chat_channel(
+async fn allow_ai_chat_channel(
     ctx: Context<'_>,
 
-    #[description = "A channel to use for ai chat."]
+    #[description = "A channel to allow ai chat in."]
     channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
     let guild_id = ctx.guild_id().expect("There should be a guild in this context.");
@@ -210,13 +213,11 @@ async fn enable_ai_chat_channel(
             .title("Guild Configuration - Ai Chat Channels")
             .description(
                 [
-                    format!(
-                        "Added <#{}> as an ai chat channel.",
-                        channel.id
-                    ),
-                    "".into(),
-                    "Remember to enable slowmode in this channel,".into(),
-                    "otherwise gpt will not be able to respond.".into(),
+                    format!("Allowed ai chat features for {}.", channel.mention()).as_str(),
+                    "",
+                    "**Pro-Tip:**",
+                    "Make sure slowmode is enabled for that channel.",
+                    "This won't work correctly if slowmode is disabled.",
                 ].join("\n")
             )
         )
@@ -225,17 +226,17 @@ async fn enable_ai_chat_channel(
     Ok(())
 }
 
-/// Disable ai chat for a channel in your guild.
+/// Disallows ai chat features for a channel in this guild.
 #[
     poise::command(
         slash_command,
-        rename = "disable",
+        rename = "disallow",
     )
 ]
-async fn disable_ai_chat_channel(
+async fn disallow_ai_chat_channel(
     ctx: Context<'_>,
 
-    #[description = "A channel to use for ai chat."]
+    #[description = "A channel to disallow ai chat in."]
     channel: serenity::GuildChannel,
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild in this context.").clone();
@@ -261,7 +262,15 @@ async fn disable_ai_chat_channel(
             serenity::CreateEmbed::default()
             .color(branding::color::PRIMARY)
             .title("Guild Configuration - Ai Chat Channels")
-            .description(format!("Removed <#{}> as an ai chat channel.", channel.id))
+            .description(
+                [
+                    format!("Disallowed ai chat features for {}.", channel.mention()).as_str(),
+                    "",
+                    "**Pro-Tip:**",
+                    "By default, channels do not have ai chat features.",
+                    "Only run this command for previously allowed channels.",
+                ].join("\n")
+            )
         )
     ).await?;
 
@@ -275,8 +284,8 @@ async fn disable_ai_chat_channel(
         subcommands(
             "info_ai_chat_channels",
             "list_ai_chat_channels",
-            "enable_ai_chat_channel",
-            "disable_ai_chat_channel"
+            "allow_ai_chat_channel",
+            "disallow_ai_chat_channel"
         ),
     )
 ]
@@ -288,7 +297,7 @@ async fn ai_chat_channels(
 
 //------------------------------------------------------------//
 
-/// Guild owners can setup this bot for their guild.
+/// Configure this guild's preferences and settings.
 #[
     poise::command(
         slash_command,
