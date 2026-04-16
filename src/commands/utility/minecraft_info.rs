@@ -217,6 +217,10 @@ pub async fn server(
             if server_info.hostname.is_empty() { server_info.ip }
             else { server_info.hostname };
 
+        let software =
+            if server_info.software.is_empty() { "Unknown".to_string() }
+            else { server_info.software };
+
         let embed_fields = vec![
             (
                 "Address / Hostname",
@@ -235,7 +239,7 @@ pub async fn server(
             ),
             (
                 "Software",
-                format!("`{}`", server_info.software),
+                format!("`{}`", software),
                 true,
             ),
             ( // filler field to make the embed look nicer
