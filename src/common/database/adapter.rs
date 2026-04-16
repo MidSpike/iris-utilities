@@ -188,9 +188,9 @@ pub async fn test() -> Result<(), Error> {
         }
 
         println!("[TEST] Confirming user config is deleted...");
-        let Some(_) = UserConfig::fetch(test_user_id).await? else {
+        if let Some(_) = UserConfig::fetch(test_user_id).await? {
             panic!("[TEST] User config still exists after deletion!");
-        };
+        }
 
         println!("[TEST] Finished testing user config.");
     }
