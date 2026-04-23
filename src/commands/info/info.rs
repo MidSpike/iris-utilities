@@ -66,7 +66,30 @@ impl MemoryValue {
 struct MemoryInfo {
     total: MemoryValue,
     used: MemoryValue,
-    free: MemoryValue,
+    allocated: MemoryValue,
+    unallocated: MemoryValue,
+}
+
+impl MemoryInfo {
+    fn from_system(
+        system: &System
+    ) -> Self {
+        Self {
+            total: MemoryValue(system.total_memory()),
+            used: MemoryValue(system.used_memory()),
+            allocated: MemoryValue(system.available_memory()),
+            unallocated: MemoryValue(
+                // `free_memory` returns the value provided by `available_memory` on Windows.
+                // If so, we'll report `0` zero bytes unallocated for Windows to avoid confusion.
+                // This is a known and accepted bug if Linux reports the same value for both.
+                if system.free_memory() != system.available_memory() {
+                    system.free_memory()
+                } else {
+                    0
+                }
+            ),
+        }
+    }
 }
 
 struct SystemInfo {
@@ -87,11 +110,7 @@ impl SystemInfo {
 
         let uptime = std::time::Duration::from_secs(System::uptime());
 
-        let memory = MemoryInfo {
-            total: MemoryValue(system.total_memory()),
-            used: MemoryValue(system.used_memory()),
-            free: MemoryValue(system.free_memory()),
-        };
+        let memory = MemoryInfo::from_system(&system);
 
         return Self {
             os_name: os_name,
@@ -196,7 +215,8 @@ pub async fn info(
             Uptime: {uptime}
             Total Memory: {memory_total}
             Used Memory: {memory_used}
-            Free Memory: {memory_free}
+            Allocated Memory: {memory_allocated}
+            Unallocated Memory: {memory_unallocated}
 
             **Shard Latencies**
             {shard_latencies}
@@ -208,9 +228,9 @@ pub async fn info(
         os_name = system_info.os_name,
         uptime = format_duration(system_info.uptime),
         memory_total = system_info.memory.total.display(MemoryUnit::GigaByte),
-        // TODO: make dynamic based on usage
-        memory_used = system_info.memory.used.display(MemoryUnit::MegaByte),
-        memory_free = system_info.memory.free.display(MemoryUnit::GigaByte),
+        memory_used = system_info.memory.used.display(MemoryUnit::GigaByte),
+        memory_allocated = system_info.memory.allocated.display(MemoryUnit::GigaByte),
+        memory_unallocated = system_info.memory.unallocated.display(MemoryUnit::GigaByte),
         shard_latencies = shard_pings_string,
     );
 
