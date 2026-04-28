@@ -55,11 +55,11 @@ version = "3.6.0"
 git = "https://github.com/serenity-rs/poise/"
 
 [dependencies.reqwest]
-version = "0.13.2"
+version = "0.13.3"
 features = ["json"]
 
 [dependencies.async-openai]
-version = "0.35.0"
+version = "0.36.1"
 features = ["responses"]
 
 [dependencies.songbird]
