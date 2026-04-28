@@ -217,3 +217,5 @@ The Copyright Holder retains sole rights to profit from the original or derived 
 The Copyright Holder retains sole rights to manage the licensing for derived works of the Program.
 
 The Copyright Holder retains sole rights to patent, trademark, copyright, license, etc the derived works of the Program.
+
+You may create derivatives of the Program, but may not use them for commercial or monetary purposes without the express written consent of the Copyright Holder. This includes but is not limited to Discord's Bot/Application Verification process, monetization, crowdfunding, or any other form of financial gain.
