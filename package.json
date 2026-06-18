@@ -15,17 +15,14 @@
     "npm": ">=10.9.3"
   },
   "scripts": {
-    "hook": "is-ci || husky",
-    "lint": "echo \"No linting rules defined\"",
     "clean": "run-script-os",
     "clean:windows": "if exist \".\\dist\" rmdir /s /q \".\\dist\"",
     "clean:linux": "rm -rf ./dist",
     "build": "npm run clean && tsc --build",
-    "test": "npm run hook && npm run lint && npm run build",
     "title": "run-script-os",
     "title:windows": "title I.R.I.S. Utilities v3.0.0",
     "title:default": "",
-    "start": "npm run test && npm run title && node --trace-warnings --enable-source-maps --require dotenv/config ."
+    "start": "npm run build && npm run title && node --trace-warnings --enable-source-maps --require dotenv/config ."
   },
   "devDependencies": {
     "@types/bcryptjs": "2.4.6",
