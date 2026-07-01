@@ -1,0 +1,99 @@
+################################################################
+##                   Copyright (c) MidSpike                   ##
+################################################################
+
+# https://docs.docker.com/compose/compose-file/
+
+################################################################
+
+services:
+  iris-utilities:
+    build:
+      context: .
+      target: runtime # defined in Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./docker/iris-utilities/.env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - iris-utilities
+
+  # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
+  mongodb:
+    image: mongodb/mongodb-community-server:8.0-ubi8
+    command: --quiet
+    restart: unless-stopped
+    env_file:
+      - ./docker/mongodb/.env
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - iris-utilities
+    expose: # for other containers
+      - 27017
+    # ports: # for the host (optional)
+    #   - 27017:27017 # container:host ports
+    healthcheck:
+      # check if mongodb is listening on port 27017
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet localhost:27017/test
+      interval: 25s
+      timeout: 5s
+      retries: 1
+      start_period: 15s
+
+  # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4.2.0
+    restart: unless-stopped
+    profiles:
+      - lavalink
+    env_file:
+      - ./docker/lavalink/.env
+    volumes:
+      - ./docker/lavalink/application.yml:/opt/Lavalink/application.yml
+    networks:
+      - iris-utilities
+    expose: # for other containers
+      - 2333
+    # ports: # for the host (optional)
+    #   - 2333:2333 # container:host ports
+    healthcheck:
+      # check if anything is listening on port 2333 (hopefully lavalink)
+      test: '[ "$(netstat -ltn | grep -c ":2333")" -ne 1 ] && exit 1 || exit 0'
+      interval: 10s
+      timeout: 5s
+      retries: 1
+      start_period: 15s
+
+  # https://hub.docker.com/r/libretranslate/libretranslate
+  libre-translate:
+    image: libretranslate/libretranslate:v1.8.3
+    restart: unless-stopped
+    profiles:
+      - libre-translate
+    env_file:
+      - ./docker/libre-translate/.env
+    volumes:
+      - libre-translate-data:/home/libretranslate
+    networks:
+      - iris-utilities
+    expose: # for other containers
+      - 7681
+    # ports: # for the host (optional)
+    #   - 7681:7681 # container:host ports
+
+################################################################
+
+volumes:
+  mongodb-data:
+    driver: local
+  libre-translate-data:
+    driver: local
+
+################################################################
+
+networks:
+  iris-utilities:
+    name: iris-utilities

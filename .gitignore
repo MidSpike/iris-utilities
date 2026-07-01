@@ -1,0 +1,12 @@
+# Visual Studio Code
+/.vscode
+
+# Visual Studio Code Extensions
+/.VSCodeCounter
+
+# Environment Variables and Secrets
+**/*.env
+**/mongod.conf
+
+# Rust Build Artifacts
+/target

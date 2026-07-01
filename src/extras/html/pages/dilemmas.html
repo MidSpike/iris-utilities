@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+            * {
+                box-sizing: border-box;
+            }
+            html {
+                margin: 0px;
+                padding: 0px;
+            }
+            body {
+                display: grid;
+                place-items: center;
+                width: 1000px;
+                height: 1000px;
+                margin: 0px;
+                padding: 0px;
+                overflow: hidden;
+            }
+            div {
+                color: #ff5500;
+                text-align: center;
+                font-family: 'Oswald', Helvetica, Arial, sans-serif;
+                font-weight: 900;
+                text-shadow: 0.1em 0.1em 0.1em #000000;
+            }
+            div.dilemma {
+                background-image: radial-gradient(circle at center, #000000, #6e2500ff);
+                display: flex;
+                position: relative;
+                flex-direction: column;
+                justify-content: center;
+                align-content: space-evenly;
+                width: 100%;
+                height: 100%;
+                padding: 0rem 2rem;
+                font-size: 2.5rem;
+            }
+            div.dilemma-id {
+                border-radius: 5rem !important;
+                background-color: #ff5500;
+                color: #000000;
+                position: relative;
+                width: min-content;
+                align-self: center;
+                justify-self: center;
+                height: min-content;
+                margin: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 1.25rem;
+                font-family: 'Rubik Mono One', sans-serif;
+                font-weight: 500;
+                text-align: center;
+                text-shadow: none !important;
+            }
+            div.dilemma-body {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: center;
+                flex-grow: 1;
+                width: 100%;
+                height: auto;
+                margin: 0px;
+                padding: 0px;
+            }
+            div.dilemma-situation {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+            div.dilemma-break {
+                border-radius: 0.5rem !important;
+                background-color: #ff5500;
+                color: #000000;
+                width: 100%;
+                height: min-content;
+                margin: 0px;
+                padding: 1rem;
+                font-size: 2rem;
+                font-weight: 500;
+                font-family: 'Rubik Mono One', sans-serif;
+                text-align: center;
+                text-transform: uppercase;
+                text-shadow: none !important;
+            }
+            div.dilemma-exception {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+        </style>
+    </head>
+    <body id="screenshot">
+        <div class="dilemma">
+            <div class="dilemma-id">
+                #{dilemma_id}
+            </div>
+            <div class="dilemma-body">
+                <div class="dilemma-situation">
+                    {dilemma_situation}
+                </div>
+                <div class="dilemma-break">
+                    However
+                </div>
+                <div class="dilemma-exception">
+                    {dilemma_exception}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

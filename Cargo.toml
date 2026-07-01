@@ -1,0 +1,81 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package]
+name = "iris-utilities"
+version = "4.0.0"
+edition = "2024"
+
+# Entry point for I.R.I.S. Utilities
+[[bin]]
+name = "iris-utilities"
+path = "src/main.rs"
+
+# Used as a cache for Docker images
+[[bin]]
+name = "docker-cache"
+path = "src/_docker_cache.rs"
+
+# Dependencies
+[dependencies]
+anyhow = "1.0.103"
+chrono = "0.4.45"
+indoc = "2.0.7"
+itertools = "0.15.0"
+rand = "0.10.1"
+regex = "1.12.4"
+rustls = "0.23.41"
+serde = "1.0.228"
+serde_json = "1.0.150"
+sha256 = "1.6.0"
+sysinfo = "0.39.5"
+tempfile = "3.27.0"
+tokio-stream = "0.1.18"
+tracing-subscriber = "0.3.23"
+url = "2.5.8"
+urlencoding = "2.1.3"
+
+# Not currently used, but is helpful for debugging
+# env_logger = "0.11.8"
+
+[dependencies.derive_more]
+version = "2.1.1"
+features = ["full"]
+
+[dependencies.headless_chrome]
+git = "https://github.com/rust-headless-chrome/rust-headless-chrome"
+features = ["fetch"]
+
+[dependencies.lavalink-rs]
+git = "https://gitlab.com/vicky5124/lavalink-rs/"
+features = ["songbird"]
+
+[dependencies.mongodb]
+version = "3.7.0"
+
+[dependencies.poise]
+git = "https://github.com/serenity-rs/poise/"
+branch = "serenity-next"
+
+[dependencies.reqwest]
+version = "0.13.4"
+features = ["json"]
+
+[dependencies.async-openai]
+version = "0.41.1"
+features = ["responses"]
+
+[dependencies.songbird]
+git = "https://github.com/serenity-rs/songbird/"
+branch = "serenity-next"
+features = ["gateway", "receive", "serenity"]
+
+[dependencies.symphonia]
+version = "0.6.0"
+features = ["aac", "mp3", "isomp4", "alac"]
+
+[dependencies.tokio]
+version = "1.52.3"
+features = ["full"]
+
+[dependencies.image]
+version = "0.25.10"
+features = ["png"]
