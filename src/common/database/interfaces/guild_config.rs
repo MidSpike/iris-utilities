@@ -81,6 +81,17 @@ type GuildConfigAiChatChannels = Vec<serenity::GenericChannelId>;
 
 //------------------------------------------------------------//
 
+#[derive(Default, Debug, Deserialize, Serialize, Clone)]
+pub struct GuildConfigLoggingChannels {
+    #[serde(default)]
+    pub guild_member_join: Option<serenity::GenericChannelId>,
+
+    #[serde(default)]
+    pub guild_member_leave: Option<serenity::GenericChannelId>,
+}
+
+//------------------------------------------------------------//
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GuildConfig {
     discord_guild_id: serenity::GuildId,
@@ -93,6 +104,9 @@ pub struct GuildConfig {
 
     #[serde(default)]
     ai_chat_channels: GuildConfigAiChatChannels,
+
+    #[serde(default)]
+    logging_channels: GuildConfigLoggingChannels,
 }
 
 impl GuildConfig {
@@ -125,6 +139,7 @@ impl GuildConfig {
                 moderation_mode: GuildConfigModerationMode::default(),
                 ai_chat_mode: GuildConfigAiChatMode::default(),
                 ai_chat_channels: GuildConfigAiChatChannels::default(),
+                logging_channels: GuildConfigLoggingChannels::default(),
             }
         ).await?;
 
@@ -216,6 +231,27 @@ impl GuildConfig {
             mongodb::bson::doc! {
                 "$set": {
                     "ai_chat_channels": to_bson(&ai_chat_channels)?,
+                },
+            }
+        ).await?;
+
+        Ok(())
+    }
+
+    pub async fn get_logging_channels(
+        &self,
+    ) -> GuildConfigLoggingChannels {
+        self.logging_channels.clone()
+    }
+
+    pub async fn set_logging_channels(
+        &self,
+        logging_channels: GuildConfigLoggingChannels,
+    ) -> Result<(), Error> {
+        self.update(
+            mongodb::bson::doc! {
+                "$set": {
+                    "logging_channels": to_bson(&logging_channels)?,
                 },
             }
         ).await?;

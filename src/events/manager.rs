@@ -18,6 +18,9 @@ use crate::commands::create_commands;
 
 use crate::events::handlers::guild_ai_chat_handler::guild_ai_chat_handler;
 
+use crate::events::handlers::guild_logging_channels_handler::guild_logging_channels_member_join_handler;
+use crate::events::handlers::guild_logging_channels_handler::guild_logging_channels_member_leave_handler;
+
 //------------------------------------------------------------//
 
 async fn component_interaction_handler(
@@ -43,6 +46,7 @@ async fn event_handler(
             // register commands (only once, in case of multiple ready events)
             if !handlers.has_processed_ready_event.swap(true, std::sync::atomic::Ordering::SeqCst) {
                 poise::builtins::register_globally(&ctx.http, create_commands().iter()).await?;
+
                 println!("Registered slash commands globally.");
             }
         },
@@ -79,6 +83,22 @@ async fn event_handler(
             if let Some(guild) = guild {
                 let kind = telemetry::guild_retention::GuildRetentionTelemetryKind::BotRemoved;
                 telemetry::guild_retention::telemetry_guild_retention(&ctx, &guild, kind).await;
+            }
+        },
+
+        serenity::FullEvent::GuildMemberAddition { new_member, .. } => {
+            if let Err(why) = guild_logging_channels_member_join_handler(&ctx, new_member).await {
+                eprintln!("Error handling guild logging channels member join: {:?}", why);
+
+                return Ok(()); // Graceful
+            }
+        },
+
+        serenity::FullEvent::GuildMemberRemoval { guild_id, user, .. } => {
+            if let Err(why) = guild_logging_channels_member_leave_handler(&ctx, *guild_id, &user).await {
+                eprintln!("Error handling guild logging channels member leave: {:?}", why);
+
+                return Ok(()); // Graceful
             }
         },
 
