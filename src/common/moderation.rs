@@ -31,11 +31,14 @@ pub async fn assert_guild_member_permitted_by_discord(
 ) -> Result<(), Error> {
     let guild = ctx.guild().expect("There should be a guild.");
 
-    let channel = ctx.guild_channel().await.expect("This channel should be in a guild.");
+    let guild_channel =
+        ctx.channel().await
+        .map(|c| c.guild()).flatten()
+        .expect("This channel should be in a guild.");
 
     // Guild owners are expected to explicitly assign permission to themselves.
 
-    let member_perms_in_channel = guild.user_permissions_in(&channel, member);
+    let member_perms_in_channel = guild.user_permissions_in(&guild_channel, member);
 
     // check if the user is a guild administrator
     if member_perms_in_channel.administrator() {
@@ -43,7 +46,7 @@ pub async fn assert_guild_member_permitted_by_discord(
     }
 
     // check if the user has the required permissions
-    if further_check(&guild, &channel, &member, &member_perms_in_channel)? {
+    if further_check(&guild, &guild_channel, &member, &member_perms_in_channel)? {
         return Ok(());
     }
 

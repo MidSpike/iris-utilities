@@ -134,35 +134,6 @@ impl SystemInfo {
 pub async fn info(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
-    let shard_manager =
-        ctx
-        .framework()
-        .shard_manager();
-
-    let shard_runners = shard_manager.runners.lock().await;
-
-    let shard_pings =
-        shard_runners
-        .iter()
-        .map(|(shard_id, shard_info)| (shard_id, shard_info.latency))
-        .collect::<Vec<_>>();
-
-    let shard_pings_string =
-        shard_pings
-        .iter()
-        .map(|(shard_id, latency)| {
-            format!(
-                "Shard `{}`: `{}`",
-                shard_id,
-                latency.map_or(
-                    "unknown".to_string(),
-                    |latency| format!("{}ms", latency.as_millis())
-                ),
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-
     let me = ctx.serenity_context().http.get_current_application_info().await?;
 
     let my_name = &me.name;
@@ -217,9 +188,6 @@ pub async fn info(
             Used Memory: {memory_used}
             Allocated Memory: {memory_allocated}
             Unallocated Memory: {memory_unallocated}
-
-            **Shard Latencies**
-            {shard_latencies}
         "#,
         bot_owner_name = my_owner_name,
         bot_owner_id = my_owner_id,
@@ -231,14 +199,16 @@ pub async fn info(
         memory_used = system_info.memory.used.display(MemoryUnit::GigaByte),
         memory_allocated = system_info.memory.allocated.display(MemoryUnit::GigaByte),
         memory_unallocated = system_info.memory.unallocated.display(MemoryUnit::GigaByte),
-        shard_latencies = shard_pings_string,
     );
+
+    let current_application_info = ctx.http().get_current_application_info().await?;
+
+    let approximate_guild_count = current_application_info.approximate_guild_count.map(|i| i as i64).unwrap_or(-1);
+
+    let approximate_user_install_count = current_application_info.approximate_user_install_count.map(|i| i as i64).unwrap_or(-1);
 
     let num_commands = ctx.framework().options().commands.len();
     let num_shards = ctx.serenity_context().cache.shard_count();
-    let num_cached_guilds = ctx.serenity_context().cache.guild_count();
-    let num_cached_users = ctx.serenity_context().cache.user_count();
-    let num_cached_channels = ctx.serenity_context().cache.guild_channel_count();
 
     let invite_button_label = "Invite Me!";
     let support_server_button_label = "Support Server";
@@ -265,36 +235,33 @@ pub async fn info(
                     true,
                 ),
                 (
-                    "Cached Guilds",
-                    format!("`{}`", num_cached_guilds),
+                    "Guilds",
+                    format!("`{}`", approximate_guild_count),
                     true,
                 ),
                 (
-                    "Cached Users",
-                    format!("`{}`", num_cached_users),
-                    true,
-                ),
-                (
-                    "Cached Channels",
-                    format!("`{}`", num_cached_channels),
+                    "Users",
+                    format!("`{}`", approximate_user_install_count),
                     true,
                 ),
             ])
         )
         .components(vec![
-            serenity::CreateActionRow::Buttons(vec![
-                serenity::CreateButton::new_link(my_invite_url)
-                .label(invite_button_label),
+            serenity::CreateComponent::ActionRow(
+                serenity::CreateActionRow::buttons(vec![
+                    serenity::CreateButton::new_link(my_invite_url)
+                    .label(invite_button_label),
 
-                serenity::CreateButton::new_link(my_support_server_invite)
-                .label(support_server_button_label),
+                    serenity::CreateButton::new_link(my_support_server_invite)
+                    .label(support_server_button_label),
 
-                serenity::CreateButton::new_link(my_tos_url)
-                .label(tos_button_label),
+                    serenity::CreateButton::new_link(my_tos_url)
+                    .label(tos_button_label),
 
-                serenity::CreateButton::new_link(my_pp_url)
-                .label(pp_button_label),
-            ])
+                    serenity::CreateButton::new_link(my_pp_url)
+                    .label(pp_button_label),
+                ])
+            )
         ])
     ).await?;
 

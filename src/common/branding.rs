@@ -24,6 +24,7 @@ pub mod emojis {
     use poise::serenity_prelude::EmojiId as SerenityEmojiId;
     use poise::serenity_prelude::ReactionType as SerenityReaction;
     use poise::serenity_prelude::CacheHttp as SerenityCacheHttp;
+    use poise::serenity_prelude::small_fixed_array::FixedString as SerenityFixedString;
 
     pub struct BrandEmoji {
         id: u64,
@@ -37,7 +38,7 @@ pub mod emojis {
         ) -> SerenityReaction {
             SerenityReaction::Custom {
                 id: SerenityEmojiId::new(self.id),
-                name: Some(self.name),
+                name: Some(SerenityFixedString::from_str_trunc(&self.name)),
                 animated: self.animated,
             }
         }
@@ -51,8 +52,8 @@ pub mod emojis {
         app_emojis.into_iter().map(|emoji| {
             BrandEmoji {
                 id: emoji.id.get(),
-                name: emoji.name,
-                animated: emoji.animated,
+                name: emoji.name.clone().into(),
+                animated: emoji.animated(),
             }
         }).collect()
     }

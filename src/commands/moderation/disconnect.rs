@@ -55,7 +55,7 @@ pub async fn disconnect(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -91,8 +91,8 @@ pub async fn disconnect(
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.dm(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()
@@ -110,7 +110,7 @@ pub async fn disconnect(
     ).await.ok(); // ignore errors
 
     target_member.edit(
-        &ctx,
+        &ctx.http(),
         serenity::EditMember::default()
         .disconnect_member()
         .audit_log_reason(&reason),

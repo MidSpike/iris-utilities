@@ -170,7 +170,7 @@ pub async fn poll(
             .color(branding::color::PRIMARY)
             .title(poll.title)
             .description(poll.description)
-            .image(attachment_url)
+            .image(attachment_url, None)
             .footer(footer)
         )
     ).await?;
@@ -192,7 +192,7 @@ pub async fn poll(
     let reactions_to_add = reactions.into_iter().take(poll_options_length);
 
     for reaction in reactions_to_add {
-        poll_message.react(ctx, reaction).await?;
+        poll_message.react(&ctx.http(), reaction).await?;
 
         // throttle the reaction rate to avoid rate limits imposed by Discord
         tokio::time::sleep(std::time::Duration::from_millis(250)).await;

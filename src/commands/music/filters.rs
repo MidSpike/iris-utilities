@@ -52,7 +52,9 @@ pub async fn filters(
         return Ok(());
     };
 
-    let lavalink_client = match &ctx.data().lavalink {
+    let ctx_data = ctx.data();
+
+    let lavalink_client = match &ctx_data.lavalink {
         Some(client) => client,
         None => {
             ctx.say("Lavalink client is not initialized.").await?;

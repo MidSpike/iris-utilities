@@ -2,6 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use poise::serenity_prelude::{CreateAutocompleteResponse, QuickModal};
 use poise::serenity_prelude::{self as serenity, Mentionable};
 
 //------------------------------------------------------------//
@@ -26,12 +27,13 @@ async fn autocomplete_language_code<'a>(
     ctx: Context<'_>,
     partial: &'a str,
     append_autocomplete: bool,
-) -> impl Iterator<Item = serenity::AutocompleteChoice> {
+) -> CreateAutocompleteResponse<'a> {
     let lowercase_user_input = partial.to_lowercase();
 
+    let context_data = ctx.data();
+
     let supported_languages =
-        ctx
-        .data()
+        context_data
         .libre_translate_supported_languages
         .iter()
         // Remove the autocomplete option if `append_autocomplete` is false
@@ -50,30 +52,28 @@ async fn autocomplete_language_code<'a>(
         if starts_with_lang_code || starts_with_lang_name {
             choices.push(
                 serenity::AutocompleteChoice::new(
-                    &language.name,
-                    serde_json::Value::String(
-                        language.code.clone()
-                    )
+                    language.name.clone(),
+                    language.code.clone()
                 )
             );
         }
     }
 
-    choices.into_iter()
+    CreateAutocompleteResponse::new().set_choices(choices)
 }
 
 async fn autocomplete_language_code_to<'a>(
     ctx: Context<'_>,
     partial: &'a str,
-) -> Vec<serenity::AutocompleteChoice> {
-    autocomplete_language_code(ctx, partial, false).await.collect()
+) -> CreateAutocompleteResponse<'a> {
+    autocomplete_language_code(ctx, partial, false).await
 }
 
 async fn autocomplete_language_code_from<'a>(
     ctx: Context<'_>,
     partial: &'a str,
-) -> Vec<serenity::AutocompleteChoice> {
-    autocomplete_language_code(ctx, partial, true).await.collect()
+) -> CreateAutocompleteResponse<'a> {
+    autocomplete_language_code(ctx, partial, true).await
 }
 
 //------------------------------------------------------------//
@@ -113,9 +113,9 @@ pub async fn translate_message_context_menu(
         serenity::CreateQuickModal::new("Translate")
         .timeout(std::time::Duration::from_secs(120))
         .field(
+            "From Language",
             serenity::CreateInputText::new(
                 serenity::InputTextStyle::Short,
-                "From Language",
                 &from_input_field_id,
             )
             .placeholder("auto | en | de | fr | etc")
@@ -125,9 +125,9 @@ pub async fn translate_message_context_menu(
             .required(true)
         )
         .field(
+            "To Language",
             serenity::CreateInputText::new(
                 serenity::InputTextStyle::Short,
-                "To Language",
                 &to_input_field_id,
             )
             .placeholder("en | de | fr | etc")
@@ -142,7 +142,7 @@ pub async fn translate_message_context_menu(
         return Ok(());
     };
 
-    modal_response.interaction.defer_ephemeral(ctx).await?;
+    modal_response.interaction.defer_ephemeral(&ctx.http()).await?;
 
     let text = message.content.clone();
     let from = modal_response.inputs.get(0).expect("unable to get from language").clone();
@@ -152,8 +152,8 @@ pub async fn translate_message_context_menu(
     // we should pretend that we never received the message
     // as interacting with other bots could lead to abuse
     if
-        message.author.bot ||
-        message.author.system
+        message.author.bot() ||
+        message.author.system()
     {
         return Ok(());
     }
@@ -184,7 +184,7 @@ pub async fn translate_message_context_menu(
     let translated_text: String = translated_text.chars().take(MAX_FIELD_LENGTH).collect();
 
     modal_response.interaction.edit_response(
-        ctx,
+        &ctx.http(),
         serenity::EditInteractionResponse::default()
         .embed(
             serenity::CreateEmbed::default()

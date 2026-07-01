@@ -2,7 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::Mentionable;
+use poise::serenity_prelude::{CacheHttp, GenericChannelId, Mentionable};
 use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
@@ -25,8 +25,8 @@ pub async fn guild_ai_chat_handler(
 ) -> Result<(), Error> {
     // don't respond to bots, system messages, or empty messages
     if
-        message.author.bot ||
-        message.author.system ||
+        message.author.bot() ||
+        message.author.system() ||
         message.content.is_empty()
     {
         return Ok(());
@@ -44,9 +44,9 @@ pub async fn guild_ai_chat_handler(
         .guild().expect("guild channel should be present");
 
     // only listen to channels with slowmode enabled (to prevent spam)
-    let rate_limit_per_user = guild_channel.rate_limit_per_user.unwrap_or(0);
-    if rate_limit_per_user == 0 {
-        return Ok(());
+    match guild_channel.base.rate_limit_per_user {
+        Some(rate_limit) if rate_limit.get() > 0 => {}, // continue
+        _ => return Ok(()), // ignore channels without slowmode
     }
 
     // attempt to fetch the guild config, if it doesn't exist, ignore the message
@@ -81,7 +81,7 @@ pub async fn guild_ai_chat_handler(
     // We can now safely assume that we should respond to the message.
     // ---
 
-    let typing_indicator = guild_channel.start_typing(&ctx.http);
+    let typing_indicator = GenericChannelId::from(guild_channel.id).start_typing(ctx.http.clone());
 
     let me = ctx.cache.current_user().clone(); // cloned to avoid async issues
 
@@ -111,7 +111,7 @@ pub async fn guild_ai_chat_handler(
     typing_indicator.stop();
 
     guild_channel.send_message(
-        ctx,
+        &ctx.http(),
         serenity::CreateMessage::default()
         .allowed_mentions(create_default_allowed_mentions())
         .reference_message(message)

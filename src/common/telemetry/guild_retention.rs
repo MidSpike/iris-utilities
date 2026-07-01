@@ -2,7 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
-use poise::serenity_prelude::{self as serenity, FormattedTimestamp, FormattedTimestampStyle};
+use poise::serenity_prelude::{self as serenity, CacheHttp, FormattedTimestamp, FormattedTimestampStyle};
 
 //------------------------------------------------------------//
 
@@ -32,7 +32,7 @@ async fn get_guild_retention_telemetry_channel(
         telemetry_channel_id.parse::<u64>()
         .expect("Failed to parse the telemetry channel id from the environment variable.");
 
-    let telemetry_channel_id = serenity::ChannelId::new(telemetry_channel_id);
+    let telemetry_channel_id = serenity::GenericChannelId::new(telemetry_channel_id);
 
     let telemetry_channel = ctx.http.get_channel(telemetry_channel_id).await;
 
@@ -61,7 +61,7 @@ async fn get_guild_retention_telemetry_channel(
 
 fn create_guild_added_embed(
     guild: &serenity::Guild,
-) -> serenity::CreateEmbed {
+) -> serenity::CreateEmbed<'_> {
     let guild_id_string = guild.id.get().to_string();
     let guild_name = &guild.name;
     let guild_icon = guild.icon_url();
@@ -74,7 +74,7 @@ fn create_guild_added_embed(
     let now_timestamp_relative_format =
         FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let now_timestamp_full_format =
-        FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let embed_fields = [
         (
@@ -104,7 +104,7 @@ fn create_guild_added_embed(
         .fields(embed_fields);
 
     if let Some(guild_icon) = guild_icon {
-        embed = embed.thumbnail(guild_icon);
+        embed = embed.thumbnail(guild_icon, None);
     }
 
     embed
@@ -112,7 +112,7 @@ fn create_guild_added_embed(
 
 fn create_guild_removed_embed(
     guild: &serenity::Guild,
-) -> serenity::CreateEmbed {
+) -> serenity::CreateEmbed<'_> {
     let guild_id_string = guild.id.get().to_string();
     let guild_name = &guild.name;
     let guild_icon = guild.icon_url();
@@ -125,7 +125,7 @@ fn create_guild_removed_embed(
     let now_timestamp_relative_format =
         FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let now_timestamp_full_format =
-        FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let embed_fields = [
         (
@@ -155,7 +155,7 @@ fn create_guild_removed_embed(
         .fields(embed_fields);
 
     if let Some(guild_icon) = guild_icon {
-        embed = embed.thumbnail(guild_icon);
+        embed = embed.thumbnail(guild_icon, None);
     }
 
     embed
@@ -179,7 +179,7 @@ pub async fn telemetry_guild_retention(
 
     let message = serenity::CreateMessage::default().embed(embed);
 
-    let result = telemetry_channel.send_message(ctx, message).await;
+    let result = telemetry_channel.send_message(&ctx.http(), message).await;
 
     if let Err(why) = result {
         eprintln!("Failed to send the telemetry message: {:?}", why);

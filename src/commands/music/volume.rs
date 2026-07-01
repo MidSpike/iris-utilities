@@ -4,8 +4,9 @@
 
 use lavalink_rs::player_context::PlayerContext;
 
-use poise::serenity_prelude::Mentionable;
+use poise::serenity_prelude::{ComponentInteractionCollector, Mentionable};
 use poise::serenity_prelude::{self as serenity};
+use serenity::futures::stream::StreamExt;
 
 //------------------------------------------------------------//
 
@@ -23,7 +24,7 @@ fn create_volume_embed(
     user: &serenity::User,
     old_volume: music::Volume,
     new_volume: Option<music::Volume>,
-) -> serenity::CreateEmbed {
+) -> serenity::CreateEmbed<'_> {
     let old_normal_volume = old_volume.get_normal_volume();
     let new_normal_volume = new_volume.map(|v| v.get_normal_volume());
 
@@ -115,7 +116,9 @@ pub async fn volume(
 
     let guild_id = ctx.guild_id().expect("This command can only be used in a guild.");
 
-    let lavalink_client = match &ctx.data().lavalink {
+    let context_data = ctx.data();
+
+    let lavalink_client = match &context_data.lavalink {
         Some(client) => client,
         None => {
             ctx.say("Lavalink client is not initialized.").await?;
@@ -166,25 +169,28 @@ pub async fn volume(
         poise::CreateReply::default()
         .embed(create_volume_embed(ctx.author(), current_volume, new_volume))
         .components(vec![
-            serenity::CreateActionRow::Buttons(vec![
-                mute_button.clone(),
-                decrease_volume_button.clone(),
-                increase_volume_button.clone(),
-            ])
+            serenity::CreateComponent::ActionRow(
+                serenity::CreateActionRow::buttons(vec![
+                    mute_button.clone(),
+                    decrease_volume_button.clone(),
+                    increase_volume_button.clone(),
+                ])
+            )
         ])
     ).await?;
 
     let message = reply_handle.message().await?;
 
-    while let Some(component_interaction) =
-        message
-        .await_component_interactions(ctx)
+    let mut component_interaction_collector =
+        ComponentInteractionCollector::new(&ctx.serenity_context())
         .author_id(ctx.author().id)
+        .message_id(message.id)
         .timeout(std::time::Duration::from_secs(2 * 60))
-        .await
-    {
+        .stream();
+
+    while let Some(component_interaction) = component_interaction_collector.next().await {
         // Defer while we process the interaction.
-        component_interaction.defer(ctx).await?;
+        component_interaction.defer(&ctx.http()).await?;
 
         let component_interaction_id = component_interaction.data.custom_id.clone();
 
@@ -219,7 +225,7 @@ pub async fn volume(
                 )
             );
 
-        component_interaction.edit_response(ctx, edit_reply).await?;
+        component_interaction.edit_response(&ctx.http(), edit_reply).await?;
     }
 
     // After the loop, delete the message to clean up.

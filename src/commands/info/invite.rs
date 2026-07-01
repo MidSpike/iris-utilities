@@ -43,13 +43,15 @@ pub async fn invite(
             .description("You can invite me to another server by using the button below!")
         )
         .components(vec![
-            serenity::CreateActionRow::Buttons(vec![
-                serenity::CreateButton::new_link(my_invite_url)
-                .label("Invite me!"),
+            serenity::CreateComponent::ActionRow(
+                serenity::CreateActionRow::buttons(vec![
+                    serenity::CreateButton::new_link(my_invite_url)
+                    .label("Invite me!"),
 
-                serenity::CreateButton::new_link(my_support_server_invite)
-                .label("Support server"),
-            ])
+                    serenity::CreateButton::new_link(my_support_server_invite)
+                    .label("Support server"),
+                ])
+            )
         ])
     ).await?;
 

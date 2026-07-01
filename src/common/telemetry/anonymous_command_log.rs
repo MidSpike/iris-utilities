@@ -33,7 +33,7 @@ async fn get_anonymous_command_log_telemetry_channel(
         telemetry_channel_id.parse::<u64>()
         .expect("Failed to parse the telemetry channel id from the environment variable.");
 
-    let telemetry_channel_id = serenity::ChannelId::new(telemetry_channel_id);
+    let telemetry_channel_id = serenity::GenericChannelId::new(telemetry_channel_id);
 
     let telemetry_channel = ctx.http().get_channel(telemetry_channel_id).await;
 
@@ -75,7 +75,7 @@ pub async fn telemetry_anonymous_command_log(
     let now_timestamp_relative_format =
         FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let now_timestamp_full_format =
-        FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(now_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let embed_fields = [
         (
@@ -97,7 +97,7 @@ pub async fn telemetry_anonymous_command_log(
 
     let message = serenity::CreateMessage::default().embed(embed);
 
-    let result = telemetry_channel.send_message(ctx, message).await;
+    let result = telemetry_channel.send_message(&ctx.http(), message).await;
 
     if let Err(why) = result {
         println!("Failed to send the telemetry message: {:?}", why);

@@ -77,7 +77,7 @@ pub async fn color(
             .field("Decimal", format!("`{}`", parsed_color), true)
             .field("Hexadecimal", format!("`{}`", hex_color_string), true)
             .field("Rgb", format!("`{}, {}, {}`", r, g, b), true)
-            .image(image_url)
+            .image(image_url, None)
         )
     ).await?;
 

@@ -4,7 +4,9 @@
 
 use itertools::Itertools;
 
+use poise::serenity_prelude::ComponentInteractionCollector;
 use poise::serenity_prelude::{self as serenity};
+use serenity::futures::stream::StreamExt;
 
 //------------------------------------------------------------//
 
@@ -76,7 +78,7 @@ fn create_help_page_embed(
     help_page: &HelpPage,
     help_page_index: usize,
     num_help_pages: usize,
-) -> serenity::CreateEmbed {
+) -> serenity::CreateEmbed<'_> {
     let current_page_number = help_page_index + 1;
 
     serenity::CreateEmbed::default()
@@ -117,29 +119,32 @@ pub async fn help(
             )
         )
         .components(vec![
-            serenity::CreateActionRow::Buttons(vec![
-                serenity::CreateButton::new(&previous_page_button_id)
-                .style(serenity::ButtonStyle::Secondary)
-                .label("Previous Page"),
+            serenity::CreateComponent::ActionRow(
+                serenity::CreateActionRow::buttons(vec![
+                    serenity::CreateButton::new(&previous_page_button_id)
+                    .style(serenity::ButtonStyle::Secondary)
+                    .label("Previous Page"),
 
-                serenity::CreateButton::new(&next_page_button_id)
-                .style(serenity::ButtonStyle::Secondary)
-                .label("Next Page"),
-            ])
+                    serenity::CreateButton::new(&next_page_button_id)
+                    .style(serenity::ButtonStyle::Secondary)
+                    .label("Next Page"),
+                ])
+            )
         ])
     ).await?;
 
     let message = reply_handle.message().await?;
 
-    while let Some(component_interaction) =
-        message
-        .await_component_interactions(ctx)
+    let mut component_interaction_collector =
+        ComponentInteractionCollector::new(&ctx.serenity_context())
         .author_id(ctx.author().id)
+        .message_id(message.id)
         .timeout(std::time::Duration::from_secs(5 * 60))
-        .await
-    {
+        .stream();
+
+    while let Some(component_interaction) = component_interaction_collector.next().await {
         // Defer while we process the interaction.
-        component_interaction.defer(ctx).await?;
+        component_interaction.defer(&ctx.http()).await?;
 
         let component_interaction_id = component_interaction.data.custom_id.clone();
 
@@ -161,7 +166,7 @@ pub async fn help(
 
         // Edit response since we deferred earlier.
         component_interaction.edit_response(
-            &ctx,
+            &ctx.http(),
             serenity::EditInteractionResponse::default().embed(
                 create_help_page_embed(
                     &help_page,

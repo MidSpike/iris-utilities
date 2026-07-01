@@ -2,7 +2,9 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use poise::serenity_prelude::{CacheHttp, ComponentInteractionCollector, Invite};
 use poise::serenity_prelude::{self as serenity, CreateInvite};
+use serenity::futures::stream::StreamExt;
 
 //------------------------------------------------------------//
 
@@ -14,7 +16,7 @@ use crate::common::branding;
 
 //------------------------------------------------------------//
 
-pub fn create_default_allowed_mentions() -> serenity::CreateAllowedMentions {
+pub fn create_default_allowed_mentions<'a>() -> serenity::CreateAllowedMentions<'a> {
     serenity::CreateAllowedMentions::default()
     .replied_user(true)
     .all_users(false)
@@ -69,21 +71,21 @@ async fn create_guild_invite(
     ctx: Context<'_>,
     guild_id: serenity::GuildId,
     temporary: bool,
-) -> Result<Option<serenity::RichInvite>, Error> {
+) -> Result<Option<serenity::Invite>, Error> {
     // use http to work across shards
     let guild =
         ctx
-        .serenity_context()
-        .http
+        .http()
         .get_guild(guild_id)
         .await?;
 
-    let guild_channels = guild.channels(&ctx.serenity_context().http).await?;
+    let guild_channels = guild.id.channels(&ctx.http()).await?;
 
-    let invite = match guild_channels.values().next() {
+    let invite = match guild_channels.iter().next() {
         Some(first_channel) => Some(
-            first_channel.create_invite(
-                &ctx,
+            Invite::create(
+                &ctx.http(),
+                first_channel.id,
                 CreateInvite::default().temporary(temporary),
             ).await?
         ),
@@ -117,7 +119,7 @@ pub async fn fetch_my_guild_invite_url(
         .get_guild_invites(guild_id)
         .await?;
 
-    let potential_permanent_guild_invite = guild_invites.into_iter().find(|g| !g.temporary);
+    let potential_permanent_guild_invite = guild_invites.into_iter().find(|g| g.expires_at.is_none());
 
     let guild_invite = match potential_permanent_guild_invite {
         Some(invite) => Some(invite),
@@ -157,26 +159,28 @@ pub async fn simple_confirmation_embed(
             .description(question)
         )
         .components(vec![
-            serenity::CreateActionRow::Buttons(vec![
-                yes_button.clone(),
-                no_button.clone(),
-            ])
+            serenity::CreateComponent::ActionRow(
+                serenity::CreateActionRow::buttons(vec![
+                    yes_button.clone(),
+                    no_button.clone(),
+                ])
+            )
         ]);
 
     let reply_handle = ctx.send(create_reply).await?;
 
     let message = reply_handle.message().await?;
 
-    while let Some(component_interaction) =
-        message
-        .await_component_interactions(ctx)
+    let mut component_interaction_collector =
+        ComponentInteractionCollector::new(&ctx.serenity_context())
         .author_id(ctx.author().id)
-        .custom_ids(vec![yes_button_id.clone(), no_button_id.clone()])
+        .message_id(message.id)
         .timeout(std::time::Duration::from_secs(5 * 60))
-        .await
-    {
+        .stream();
+
+    while let Some(component_interaction) = component_interaction_collector.next().await {
         // Defer while we process the interaction.
-        component_interaction.defer(ctx).await?;
+        component_interaction.defer(&ctx.http()).await?;
 
         let is_yes_button = component_interaction.data.custom_id == yes_button_id;
         let is_no_button = component_interaction.data.custom_id == no_button_id;
@@ -200,13 +204,15 @@ pub async fn simple_confirmation_embed(
         let edit_reply =
             serenity::EditInteractionResponse::default()
             .components(vec![
-                serenity::CreateActionRow::Buttons(vec![
-                    disabled_yes_button,
-                    disabled_no_button,
-                ])
+                serenity::CreateComponent::ActionRow(
+                    serenity::CreateActionRow::buttons(vec![
+                        disabled_yes_button,
+                        disabled_no_button,
+                    ])
+                )
             ]);
 
-        component_interaction.edit_response(ctx, edit_reply).await?;
+        component_interaction.edit_response(&ctx.http(), edit_reply).await?;
 
         return Ok(is_yes_button);
     }

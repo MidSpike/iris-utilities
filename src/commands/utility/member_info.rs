@@ -16,10 +16,10 @@ use crate::common::helpers::bot::create_escaped_code_block;
 
 //------------------------------------------------------------//
 
-async fn create_member_info_embed(
-    ctx: Context<'_>,
-    member: &serenity::Member,
-) -> serenity::CreateEmbed {
+async fn create_member_info_embed<'a>(
+    ctx: Context<'a>,
+    member: &'a serenity::Member,
+) -> serenity::CreateEmbed<'a> {
     let member = member.clone();
 
     let u_id = member.user.id;
@@ -35,23 +35,23 @@ async fn create_member_info_embed(
         .map(|(name, _value)| name)
         .collect::<Vec<&str>>();
 
-    let u_creation_timestamp = member.user.created_at();
+    let u_creation_timestamp = member.user.id.created_at();
     let u_creation_timestamp_relative_format =
         FormattedTimestamp::new(u_creation_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let u_creation_timestamp_full_format =
-        FormattedTimestamp::new(u_creation_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(u_creation_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let m_nickname = &member.nick;
 
     let m_avatar_url = member.face();
 
-    let m_color = member.colour(ctx).map(|color| color.hex());
+    let m_color = member.colour(&ctx.cache()).map(|color| color.hex());
 
     let m_join_timestamp = member.joined_at.expect("Member joined_at timestamp not found");
     let m_join_timestamp_relative_format =
         FormattedTimestamp::new(m_join_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let m_join_timestamp_full_format =
-        FormattedTimestamp::new(m_join_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(m_join_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let mut embed_fields = Vec::new();
 
@@ -104,7 +104,7 @@ async fn create_member_info_embed(
     embed_fields.push(
         (
             "System",
-            format!("`{}`", member.user.system),
+            format!("`{}`", member.user.system()),
             true,
         )
     );
@@ -112,7 +112,7 @@ async fn create_member_info_embed(
     embed_fields.push(
         (
             "Bot",
-            format!("`{}`", member.user.bot),
+            format!("`{}`", member.user.bot()),
             true,
         )
     );
@@ -184,7 +184,7 @@ pub async fn member_info_user_context_menu(
 
     let member =
         guild
-        .member(&ctx, user.id).await
+        .member(&ctx.http(), user.id).await
         .expect("Somehow, this user might not be a member of this guild.")
         .clone();
 

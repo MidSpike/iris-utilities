@@ -59,7 +59,7 @@ pub async fn role_info(
     let r_creation_timestamp_relative_format =
         FormattedTimestamp::new(r_creation_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let r_creation_timestamp_full_format =
-        FormattedTimestamp::new(r_creation_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(r_creation_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let mut embed_fields = Vec::new();
 
@@ -110,7 +110,7 @@ pub async fn role_info(
     embed_fields.push(
         (
             "Hoisted",
-            format!("`{}`", role.hoist),
+            format!("`{}`", role.hoist()),
             true,
         )
     );
@@ -118,7 +118,7 @@ pub async fn role_info(
     embed_fields.push(
         (
             "Mentionable",
-            format!("`{}`", role.mentionable),
+            format!("`{}`", role.mentionable()),
             true,
         )
     );
@@ -126,7 +126,7 @@ pub async fn role_info(
     embed_fields.push(
         (
             "Integration",
-            format!("`{}`", role.managed),
+            format!("`{}`", role.managed()),
             true,
         )
     );
@@ -134,7 +134,7 @@ pub async fn role_info(
     embed_fields.push(
         (
             "Premium",
-            format!("`{}`", role.tags.premium_subscriber),
+            format!("`{}`", role.tags.premium_subscriber()),
             true,
         )
     );
@@ -142,7 +142,7 @@ pub async fn role_info(
     embed_fields.push(
         (
             "Purchaseable",
-            format!("`{}`", role.tags.available_for_purchase),
+            format!("`{}`", role.tags.available_for_purchase()),
             true,
         )
     );

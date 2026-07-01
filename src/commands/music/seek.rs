@@ -35,7 +35,9 @@ pub async fn seek(
         return Ok(());
     };
 
-    let lavalink_client = match &ctx.data().lavalink {
+    let context_data = ctx.data();
+
+    let lavalink_client = match &context_data.lavalink {
         Some(client) => client,
         None => {
             ctx.say("Lavalink client is not initialized.").await?;

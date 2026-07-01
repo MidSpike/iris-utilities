@@ -98,7 +98,7 @@ pub async fn join_voice_channel(
             endpoint: sb_conn_info.endpoint,
             session_id: sb_conn_info.session_id,
             token: sb_conn_info.token,
-            channel_id: Some(lavalink_rs::model::ChannelId(sb_conn_info.channel_id.0.into())),
+            channel_id: Some(lavalink_rs::model::ChannelId(sb_conn_info.channel_id.get())),
         }
     };
 

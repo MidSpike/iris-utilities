@@ -50,9 +50,12 @@ pub async fn text_to_speech(
         return Ok(());
     };
 
-    let mut guild_voice_states = GuildVoiceStates::new();
+    let mut guild_voice_states: GuildVoiceStates = HashMap::new();
     if let Some(guild) = ctx.cache().guild(guild_id) {
-        guild_voice_states = guild.voice_states.clone();
+        guild_voice_states =
+            guild.voice_states.iter().cloned()
+            .map(|vs| (vs.user_id, vs))
+            .collect();
     }
 
     if guild_voice_states.is_empty() {
@@ -79,7 +82,9 @@ pub async fn text_to_speech(
         return Ok(());
     };
 
-    let lavalink_client = match &ctx.data().lavalink {
+    let context_data = ctx.data();
+
+    let lavalink_client = match &context_data.lavalink {
         Some(client) => client,
         None => {
             ctx.say("Lavalink client is not initialized.").await?;
@@ -88,7 +93,7 @@ pub async fn text_to_speech(
         }
     };
 
-    let songbird_manager = &songbird::get(ctx.serenity_context()).await.unwrap();
+    let songbird_manager = &context_data.songbird_manager;
 
     let join_voice_channel_result = music::join_voice_channel(
         &lavalink_client,

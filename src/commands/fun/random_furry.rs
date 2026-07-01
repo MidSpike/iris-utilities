@@ -57,9 +57,14 @@ pub async fn random_furry(
 ) -> Result<(), Error> {
     ctx.defer().await?;
 
-    let is_nsfw_channel = ctx.guild_channel().await.map_or(false, |gc| gc.nsfw);
+    let guild_channel = ctx.channel().await.map(|c| c.guild()).flatten();
 
-    if !is_nsfw_channel && !potential_nsfw_confirmation(&ctx).await? {
+    let is_nsfw_guild_channel = match guild_channel {
+        Some(channel) => channel.nsfw,
+        None => false, // if we can't determine if it's NSFW, assume it's not
+    };
+
+    if !is_nsfw_guild_channel && !potential_nsfw_confirmation(&ctx).await? {
         ctx.send(
             poise::CreateReply::default()
             .content(format!("Cancelled by {}.", ctx.author().mention()))
@@ -88,7 +93,7 @@ pub async fn random_furry(
             serenity::CreateEmbed::default()
             .color(branding::color::PRIMARY)
             .title(format!("Here's a random furry image!"))
-            .image(image_url)
+            .image(image_url, None)
         )
     ).await?;
 

@@ -39,11 +39,11 @@ pub async fn channel_info(
     let c_id = channel.id;
     let c_id_string = c_id.to_string();
 
-    let c_name = &channel.name;
+    let c_name = &channel.base.name;
+
+    let c_type = &channel.base.kind;
 
     let c_topic = &channel.topic;
-
-    let c_type = &channel.kind;
 
     let c_parent_id = &channel.parent_id;
 
@@ -67,7 +67,7 @@ pub async fn channel_info(
     let c_creation_timestamp_relative_format =
         FormattedTimestamp::new(c_creation_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let c_creation_timestamp_full_format =
-        FormattedTimestamp::new(c_creation_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(c_creation_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let mut embed_fields = Vec::new();
 

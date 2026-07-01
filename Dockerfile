@@ -7,7 +7,7 @@
 ################################################################
 
 # Create a stage for installing system dependencies.
-FROM rust:1.94.0-slim-trixie AS system
+FROM rust:1.96.1-slim-trixie AS system
 
 # Set the working directory.
 WORKDIR /app

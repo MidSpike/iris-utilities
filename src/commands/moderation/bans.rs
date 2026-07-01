@@ -2,6 +2,7 @@
 //                   Copyright (c) MidSpike                   //
 //------------------------------------------------------------//
 
+use poise::serenity_prelude::nonmax::NonMaxU16;
 use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
@@ -29,7 +30,7 @@ pub async fn list(
         .expect("There should be a member in this context.")
         .clone();
 
-    let guild_bans = guild.bans(&ctx, None, Some(25)).await?;
+    let guild_bans = guild.id.bans(&ctx.http(), None, Some(NonMaxU16::from(25))).await?;
 
     let guild_bans_string =
         guild_bans

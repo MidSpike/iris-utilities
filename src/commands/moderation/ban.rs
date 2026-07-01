@@ -55,7 +55,7 @@ pub async fn ban(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -77,8 +77,8 @@ pub async fn ban(
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.dm(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()
@@ -99,7 +99,7 @@ pub async fn ban(
     // In the future, this should be a configurable option.
     let delete_message_days = 0;
 
-    guild.ban_with_reason(&ctx, &target_member.user.id, delete_message_days, &reason).await?;
+    target_member.ban(&ctx.http(), delete_message_days, Some(&reason)).await?;
 
     ctx.send(
         poise::CreateReply::default()

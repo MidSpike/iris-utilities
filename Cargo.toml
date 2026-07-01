@@ -16,17 +16,17 @@ path = "src/_docker_cache.rs"
 
 # Dependencies
 [dependencies]
-anyhow = "1.0.102"
-chrono = "0.4.44"
+anyhow = "1.0.103"
+chrono = "0.4.45"
 indoc = "2.0.7"
-itertools = "0.14.0"
+itertools = "0.15.0"
 rand = "0.10.1"
-regex = "1.12.3"
-rustls = "0.23.40"
+regex = "1.12.4"
+rustls = "0.23.41"
 serde = "1.0.228"
 serde_json = "1.0.150"
 sha256 = "1.6.0"
-sysinfo = "0.39.3"
+sysinfo = "0.39.5"
 tempfile = "3.27.0"
 tokio-stream = "0.1.18"
 tracing-subscriber = "0.3.23"
@@ -53,18 +53,20 @@ version = "3.7.0"
 
 [dependencies.poise]
 git = "https://github.com/serenity-rs/poise/"
+branch = "serenity-next"
 
 [dependencies.reqwest]
 version = "0.13.4"
 features = ["json"]
 
 [dependencies.async-openai]
-version = "0.40.3"
+version = "0.41.1"
 features = ["responses"]
 
 [dependencies.songbird]
 git = "https://github.com/serenity-rs/songbird/"
-features = ["gateway", "receive"]
+branch = "serenity-next"
+features = ["gateway", "receive", "serenity"]
 
 [dependencies.symphonia]
 version = "0.6.0"

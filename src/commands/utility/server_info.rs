@@ -52,7 +52,7 @@ pub async fn server_info(
     let g_id_string = g_id.to_string();
 
     // although the method is called "vanity_url", it returns a code, not a url.
-    let g_vanity_code = guild.vanity_url(ctx).await.ok(); // ignore errors here
+    let g_vanity_code = guild.id.vanity_url(&ctx.http()).await.ok(); // ignore errors here
 
     let g_icon_url = guild.icon_url();
 
@@ -70,11 +70,11 @@ pub async fn server_info(
 
     let g_discoverable = g_features.iter().any(|f| f == "DISCOVERABLE");
 
-    let g_boost_level: u8 = guild.premium_tier.into();
+    let g_boost_level: u8 = guild.premium_tier.0;
 
-    let g_boost_count = guild.premium_subscription_count.unwrap_or(0);
+    let g_boost_count = guild.premium_subscription_count.map(|c| c.get()).unwrap_or(0);
 
-    let g_invites_count = guild.invites(ctx).await?.len();
+    let g_invites_count = guild.id.invites(&ctx.http()).await?.len();
 
     let g_roles_count = guild.roles.len();
 
@@ -94,7 +94,7 @@ pub async fn server_info(
     let g_creation_timestamp_relative_format =
         FormattedTimestamp::new(g_creation_timestamp, Some(FormattedTimestampStyle::RelativeTime));
     let g_creation_timestamp_full_format =
-        FormattedTimestamp::new(g_creation_timestamp, Some(FormattedTimestampStyle::LongDateTime));
+        FormattedTimestamp::new(g_creation_timestamp, Some(FormattedTimestampStyle::FullDateShortTime));
 
     let g_rules_channel_id = guild.rules_channel_id;
 

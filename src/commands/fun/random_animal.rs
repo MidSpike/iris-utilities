@@ -130,7 +130,7 @@ pub async fn random_animal(
             serenity::CreateEmbed::default()
             .color(branding::color::PRIMARY)
             .title(format!("Here's a random {}!", kind.to_string().to_lowercase()))
-            .image(image_url)
+            .image(image_url, None)
         )
     ).await?;
 

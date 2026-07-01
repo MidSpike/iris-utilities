@@ -55,7 +55,7 @@ pub async fn kick(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -77,8 +77,8 @@ pub async fn kick(
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.dm(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()
@@ -95,7 +95,7 @@ pub async fn kick(
         )
     ).await.ok(); // ignore errors
 
-    guild.kick_with_reason(&ctx, &target_member.user.id, &reason).await?;
+    target_member.kick(&ctx.http(), Some(&reason)).await?;
 
     ctx.send(
         poise::CreateReply::default()

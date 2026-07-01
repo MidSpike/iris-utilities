@@ -55,7 +55,7 @@ pub async fn warn(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -77,8 +77,8 @@ pub async fn warn(
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.dm(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()

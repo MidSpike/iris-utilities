@@ -3,6 +3,7 @@
 //------------------------------------------------------------//
 
 use poise::serenity_prelude::Mentionable;
+use poise::serenity_prelude::nonmax::NonMaxU16;
 use poise::serenity_prelude::{self as serenity};
 
 //------------------------------------------------------------//
@@ -51,12 +52,16 @@ pub async fn slowmode(
 
     let _guild = ctx.guild().expect("There should be a guild in this context.").clone();
 
+    let mut guild_channel =
+        ctx.channel().await.map(|c| c.guild()).flatten()
+        .expect("This channel should be in a guild.");
+
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    let edit_result = ctx.channel_id().edit(
-        &ctx,
+    let edit_result = guild_channel.edit(
+        &ctx.http(),
         serenity::EditChannel::default()
-        .rate_limit_per_user(duration)
+        .rate_limit_per_user(NonMaxU16::new(duration).unwrap_or(NonMaxU16::MAX))
         .audit_log_reason(&reason)
     ).await;
 

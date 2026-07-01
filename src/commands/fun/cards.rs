@@ -191,7 +191,7 @@ pub async fn cards(
             serenity::CreateEmbed::default()
             .color(branding::color::PRIMARY)
             .title(format!("Cards Against {}", me.name))
-            .image(attachment_url)
+            .image(attachment_url, None)
             .footer(serenity::CreateEmbedFooter::new("Inspired by Cards Against Humanity"))
         )
     ).await?;

@@ -4,8 +4,9 @@
 
 use serde::{Deserialize, Serialize};
 
-use poise::serenity_prelude::Mentionable;
+use poise::serenity_prelude::{ComponentInteractionCollector, Mentionable};
 use poise::serenity_prelude::{self as serenity};
+use serenity::futures::stream::StreamExt;
 
 //------------------------------------------------------------//
 
@@ -61,11 +62,11 @@ fn generate_dilemma_html(
 
 //------------------------------------------------------------//
 
-type DilemmaInquiryMessageStuff = (serenity::CreateAttachment, Vec<serenity::CreateEmbed>);
+type DilemmaInquiryMessageStuff<'a> = (serenity::CreateAttachment<'a>, Vec<serenity::CreateEmbed<'a>>);
 
 async fn create_dilemma_inquiry_message_stuff(
     dilemma: &Dilemma,
-) -> Result<DilemmaInquiryMessageStuff, Error> {
+) -> Result<DilemmaInquiryMessageStuff<'_>, Error> {
     let dilemma_html = generate_dilemma_html(&dilemma);
 
     let dilemma_png = html_to_png(dilemma_html).await?;
@@ -80,7 +81,7 @@ async fn create_dilemma_inquiry_message_stuff(
         serenity::CreateEmbed::default()
         .color(branding::color::PRIMARY)
         .title(format!("Would you press the button? (#{})", dilemma.link))
-        .image(attachment_url)
+        .image(attachment_url, None)
     );
 
     Ok((attachment, embeds))
@@ -90,7 +91,7 @@ async fn create_dilemma_results_message_stuff(
     dilemma: &Dilemma,
     user: serenity::UserId,
     user_agrees: bool,
-) -> Result<serenity::CreateEmbed, Error> {
+) -> Result<serenity::CreateEmbed<'_>, Error> {
     let yes_vote_num = dilemma.yes;
     let no_vote_num = dilemma.no;
 
@@ -166,10 +167,12 @@ pub async fn would_you(
         poise::CreateReply::default()
         .attachment(attachment.clone())
         .components(vec![
-            serenity::CreateActionRow::Buttons(vec![
-                yes_button.clone(),
-                no_button.clone(),
-            ])
+            serenity::CreateComponent::ActionRow(
+                serenity::CreateActionRow::buttons(vec![
+                    yes_button.clone(),
+                    no_button.clone(),
+                ])
+            )
         ]);
 
     for embed in &initial_embeds {
@@ -180,15 +183,16 @@ pub async fn would_you(
 
     let message = reply_handle.message().await?;
 
-    while let Some(component_interaction) =
-        message
-        .await_component_interactions(ctx)
+    let mut component_interaction_collector =
+        ComponentInteractionCollector::new(&ctx.serenity_context())
         .author_id(ctx.author().id)
+        .message_id(message.id)
         .timeout(std::time::Duration::from_secs(5 * 60))
-        .await
-    {
+        .stream();
+
+    while let Some(component_interaction) = component_interaction_collector.next().await {
         // Defer while we process the interaction.
-        component_interaction.defer(ctx).await?;
+        component_interaction.defer(&ctx.http()).await?;
 
         let component_interaction_id = component_interaction.data.custom_id.clone();
 
@@ -211,24 +215,26 @@ pub async fn would_you(
             .add_embeds(initial_embeds)
             .add_embed(result_embed)
             .components(vec![
-                serenity::CreateActionRow::Buttons(vec![
-                    yes_button
-                    .style(
-                        if is_yes_button { serenity::ButtonStyle::Success }
-                        else { serenity::ButtonStyle::Secondary }
-                    )
-                    .disabled(true),
+                serenity::CreateComponent::ActionRow(
+                    serenity::CreateActionRow::buttons(vec![
+                        yes_button
+                        .style(
+                            if is_yes_button { serenity::ButtonStyle::Success }
+                            else { serenity::ButtonStyle::Secondary }
+                        )
+                        .disabled(true),
 
-                    no_button
-                    .style(
-                        if is_no_button { serenity::ButtonStyle::Danger }
-                        else { serenity::ButtonStyle::Secondary }
-                    )
-                    .disabled(true),
-                ])
+                        no_button
+                        .style(
+                            if is_no_button { serenity::ButtonStyle::Danger }
+                            else { serenity::ButtonStyle::Secondary }
+                        )
+                        .disabled(true),
+                    ])
+                )
             ]);
 
-        component_interaction.edit_response(ctx, edit_reply).await?;
+        component_interaction.edit_response(&ctx.http(), edit_reply).await?;
 
         break;
     }

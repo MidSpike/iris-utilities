@@ -23,18 +23,18 @@ use crate::common::moderation;
 
 //------------------------------------------------------------//
 
+type GuildVoiceStates = HashMap::<poise::serenity_prelude::UserId, serenity::VoiceState>;
+
+//------------------------------------------------------------//
+
 fn find_suitable_voice_channel(
     ctx: &Context<'_>,
     _guild: &serenity::Guild, // reserved for future use
     _member: &serenity::Member, // reserved for future use
-    current_voice_channel: serenity::Channel,
+    current_voice_channel: serenity::GuildChannel,
 ) -> Result<Option<serenity::ChannelId>, Error> {
-    let current_voice_channel =
-        current_voice_channel.guild()
-        .expect("There should be a guild channel in this context.");
-
     let guild =
-        current_voice_channel.guild(&ctx)
+        current_voice_channel.base.guild(&ctx.cache())
         .expect("There should be a guild in this context.");
 
     let afk_metadata = guild.afk_metadata.clone();
@@ -42,11 +42,11 @@ fn find_suitable_voice_channel(
     let afk_channel_id_option = afk_metadata.map(|metadata| metadata.afk_channel_id);
 
     let fallback_channel_id_option =
-        guild.channels
-        .values()
+        guild.channels.clone()
+        .into_iter()
         .filter(
             |channel| {
-                channel.kind == serenity::ChannelType::Voice &&
+                channel.base.kind == serenity::ChannelType::Voice &&
                 channel.id != current_voice_channel.id
             }
         )
@@ -66,7 +66,7 @@ async fn relocate_member_in_voice_channel(
     audit_log_reason: &str,
 ) -> Result<(), Error> {
     member.edit(
-        &ctx,
+        &ctx.http(),
         serenity::EditMember::default()
         .voice_channel(target_voice_channel_id)
         .audit_log_reason(audit_log_reason)
@@ -102,7 +102,7 @@ pub async fn someone(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -124,9 +124,12 @@ pub async fn someone(
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    let mut guild_voice_states = HashMap::new();
+    let mut guild_voice_states: GuildVoiceStates = HashMap::new();
     if let Some(guild) = ctx.cache().guild(guild.id) {
-        guild_voice_states = guild.voice_states.clone();
+        guild_voice_states =
+            guild.voice_states.iter().cloned()
+            .map(|vs| (vs.user_id, vs))
+            .collect();
     }
 
     let target_member_voice_channel_id_option =
@@ -142,7 +145,7 @@ pub async fn someone(
 
     let target_member_voice_channel =
         target_member_voice_channel_id
-        .to_channel(&ctx)
+        .to_guild_channel(&ctx.http(), Some(guild.id))
         .await
         .expect("There should be a voice channel in this context.");
 
@@ -155,8 +158,8 @@ pub async fn someone(
         return Ok(());
     };
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.direct_message(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()

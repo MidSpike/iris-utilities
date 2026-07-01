@@ -23,6 +23,10 @@ use crate::common::moderation;
 
 //------------------------------------------------------------//
 
+type GuildVoiceStates = HashMap::<poise::serenity_prelude::UserId, serenity::VoiceState>;
+
+//------------------------------------------------------------//
+
 async fn relocate_member_in_voice_channel(
     ctx: &Context<'_>,
     member: &mut serenity::Member,
@@ -30,7 +34,7 @@ async fn relocate_member_in_voice_channel(
     audit_log_reason: &str,
 ) -> Result<(), Error> {
     member.edit(
-        &ctx,
+        &ctx.http(),
         serenity::EditMember::default()
         .voice_channel(target_voice_channel_id)
         .audit_log_reason(audit_log_reason)
@@ -66,7 +70,7 @@ pub async fn someone(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -88,9 +92,12 @@ pub async fn someone(
 
     let reason = reason.unwrap_or("A reason was not provided.".to_string());
 
-    let mut guild_voice_states = HashMap::new();
+    let mut guild_voice_states: GuildVoiceStates = HashMap::new();
     if let Some(guild) = ctx.cache().guild(guild.id) {
-        guild_voice_states = guild.voice_states.clone();
+        guild_voice_states =
+            guild.voice_states.iter().cloned()
+            .map(|vs| (vs.user_id, vs))
+            .collect();
     }
 
     let executing_member_voice_channel_id_option =
@@ -115,8 +122,8 @@ pub async fn someone(
         return Ok(());
     };
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.dm(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()

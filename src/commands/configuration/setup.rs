@@ -195,11 +195,13 @@ async fn allow_ai_chat_channel(
 
     let current_ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
+    let channel_id_generic: serenity::GenericChannelId = channel.id.into();
+
     // don't add the same channel multiple times
-    if !current_ai_chat_channels.contains(&channel.id) {
+    if !current_ai_chat_channels.contains(&channel_id_generic) {
         let new_ai_chat_channels = [
             current_ai_chat_channels,
-            vec![channel.id],
+            vec![channel_id_generic],
         ].concat();
 
         guild_config.set_ai_chat_channels(new_ai_chat_channels).await?;
@@ -245,13 +247,15 @@ async fn disallow_ai_chat_channel(
 
     let current_ai_chat_channels = guild_config.get_ai_chat_channels().await;
 
+    let channel_id_generic: serenity::GenericChannelId = channel.id.into();
+
     // don't remove a channel that isn't already an ai chat channel
-    if current_ai_chat_channels.contains(&channel.id) {
+    if current_ai_chat_channels.contains(&channel_id_generic) {
         let new_ai_chat_channels =
             current_ai_chat_channels
             .into_iter()
-            .filter(|s| s != &channel.id)
-            .collect::<Vec<serenity::ChannelId>>();
+            .filter(|s| s != &channel_id_generic)
+            .collect::<Vec<serenity::GenericChannelId>>();
 
         guild_config.set_ai_chat_channels(new_ai_chat_channels).await?;
     }

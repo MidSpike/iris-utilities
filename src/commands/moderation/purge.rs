@@ -25,9 +25,10 @@ const DISCORD_BULK_DELETE_AMOUNT: u8 = 100;
 
 async fn remove_messages_from_channel(
     ctx: &Context<'_>,
-    channel_id: serenity::ChannelId,
+    channel_id: serenity::GenericChannelId,
     total_amount: u32,
     before_message_id: serenity::MessageId,
+    reason: &str,
 ) -> Result<(), Error> {
     if total_amount > MAX_PURGE_AMOUNT {
         return Err("Purging more than 1000 messages at once is not allowed.".into());
@@ -65,7 +66,7 @@ async fn remove_messages_from_channel(
             .map(|message| message.id)
             .collect();
 
-        channel_id.delete_messages(&ctx, message_ids).await?;
+        channel_id.delete_messages(&ctx.http(), &message_ids, Some(reason)).await?;
 
         // throttle our requests to avoid hitting the rate limit
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
@@ -134,6 +135,7 @@ pub async fn purge(
         ctx.channel_id(),
         amount_of_messages,
         before_message_id,
+        &reason,
     ).await;
 
     if let Err(why) = removal_result {

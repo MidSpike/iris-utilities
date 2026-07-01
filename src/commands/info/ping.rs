@@ -23,13 +23,14 @@ pub async fn ping(
     let ping_duration = ctx.ping().await;
 
     match ping_duration {
-        std::time::Duration::ZERO => {
+        None | Some(std::time::Duration::ZERO) => {
             ctx.reply(
                 "Average ping has not been calculated yet. Please try again in a few seconds..."
             ).await?;
         }
-        _ => {
-            ctx.reply(format!("Pong! {}ms", ping_duration.as_millis())).await?;
+
+        Some(duration_ms) => {
+            ctx.reply(format!("Pong! {}ms", duration_ms.as_millis())).await?;
         }
     }
 

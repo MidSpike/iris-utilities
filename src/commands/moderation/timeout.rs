@@ -60,7 +60,7 @@ pub async fn timeout(
 
     let my_guild_member =
         guild
-        .member(&ctx, my_id).await
+        .member(&ctx.http(), my_id).await
         .expect("I should be in this guild.")
         .clone();
 
@@ -102,8 +102,8 @@ pub async fn timeout(
     let serenity_until_timestamp =
         serenity::Timestamp::from_millis(chrono_until.timestamp_millis())?;
 
-    target_member.user.dm(
-        &ctx,
+    target_member.user.id.dm(
+        &ctx.http(),
         serenity::CreateMessage::default()
         .embed(
             serenity::CreateEmbed::default()
@@ -122,9 +122,9 @@ pub async fn timeout(
     ).await.ok(); // ignore errors
 
     target_member.edit(
-        &ctx,
+        &ctx.http(),
         serenity::EditMember::default()
-        .disable_communication_until_datetime(serenity_until_timestamp)
+        .disable_communication_until(serenity_until_timestamp)
         .audit_log_reason(&reason),
     ).await?;
 
