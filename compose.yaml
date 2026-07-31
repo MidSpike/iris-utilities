@@ -8,6 +8,7 @@
 
 services:
   iris-utilities:
+    container_name: iris-utilities
     build:
       context: .
       target: runtime # defined in Dockerfile
@@ -22,6 +23,7 @@ services:
 
   # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
   mongodb:
+    container_name: iris-utilities-mongodb
     image: mongodb/mongodb-community-server:8.0-ubi8
     command: --quiet
     restart: unless-stopped
@@ -45,6 +47,7 @@ services:
 
   # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
   lavalink:
+    container_name: iris-utilities-lavalink
     image: ghcr.io/lavalink-devs/lavalink:4.2.0
     restart: unless-stopped
     profiles:
@@ -69,6 +72,7 @@ services:
 
   # https://hub.docker.com/r/libretranslate/libretranslate
   libre-translate:
+    container_name: iris-utilities-libre-translate
     image: libretranslate/libretranslate:v1.8.3
     restart: unless-stopped
     profiles:
