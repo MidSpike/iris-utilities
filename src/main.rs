@@ -24,7 +24,7 @@ pub mod common;
 
 pub mod events;
 
-use crate::commands::{create_commands, is_command_category_enabled};
+use crate::commands::create_commands;
 
 use crate::common::helpers::{libre_translate, bot::create_default_allowed_mentions};
 
