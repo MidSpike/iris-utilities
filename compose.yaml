@@ -24,7 +24,7 @@ services:
   # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
   mongodb:
     container_name: iris-utilities-mongodb
-    image: mongodb/mongodb-community-server:8.0-ubi8
+    image: mongodb/mongodb-community-server:8.0-ubi8-slim
     command: --quiet
     restart: unless-stopped
     env_file:
@@ -48,7 +48,7 @@ services:
   # https://github.com/lavalink-devs/Lavalink/pkgs/container/lavalink/versions?filters%5Bversion_type%5D=tagged
   lavalink:
     container_name: iris-utilities-lavalink
-    image: ghcr.io/lavalink-devs/lavalink:4.2.0
+    image: ghcr.io/lavalink-devs/lavalink:4.2.2
     restart: unless-stopped
     profiles:
       - lavalink
@@ -73,7 +73,7 @@ services:
   # https://hub.docker.com/r/libretranslate/libretranslate
   libre-translate:
     container_name: iris-utilities-libre-translate
-    image: libretranslate/libretranslate:v1.8.3
+    image: libretranslate/libretranslate:v1.9.6
     restart: unless-stopped
     profiles:
       - libre-translate
