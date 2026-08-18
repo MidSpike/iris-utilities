@@ -60,7 +60,7 @@ version = "0.13.4"
 features = ["json"]
 
 [dependencies.async-openai]
-version = "0.41.2"
+version = "0.41.3"
 features = ["responses"]
 
 [dependencies.songbird]
@@ -69,7 +69,7 @@ branch = "serenity-next"
 features = ["gateway", "receive", "serenity"]
 
 [dependencies.symphonia]
-version = "0.6.0"
+version = "0.6.1"
 features = ["aac", "mp3", "isomp4", "alac"]
 
 [dependencies.tokio]
