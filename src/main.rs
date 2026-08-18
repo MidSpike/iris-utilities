@@ -103,7 +103,7 @@ async fn create_client_builder() -> serenity::ClientBuilder {
     let voice_manager = songbird::Songbird::serenity_from_config(songbird_config);
 
     let data: Data = {
-        let lavalink_client: Option<LavalinkClient> = if is_command_category_enabled("music") {
+        let lavalink_client: Option<LavalinkClient> = {
             let lavalink_rs_hostname =
                 std::env::var("LAVALINK_HOSTNAME")
                 .expect("Environment variable LAVALINK_HOSTNAME not set");
@@ -126,8 +126,6 @@ async fn create_client_builder() -> serenity::ClientBuilder {
             ).await;
 
             Some(lavalink_rs_client)
-        } else {
-            None
         };
 
         let supported_libre_langs = match libre_translate::fetch_supported_languages().await {
