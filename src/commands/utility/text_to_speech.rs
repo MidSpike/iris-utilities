@@ -41,6 +41,8 @@ type GuildVoiceStates = HashMap::<poise::serenity_prelude::UserId, serenity::Voi
 pub async fn text_to_speech(
     ctx: Context<'_>,
 
+    #[min_length = 1]
+    #[max_length = 256]
     #[description = "Text to speak"]
     text: String,
 ) -> Result<(), Error> {
@@ -122,6 +124,19 @@ pub async fn text_to_speech(
 
         return Ok(());
     };
+
+    // Sanitize the text to remove non-standard or non-english characters.
+    let text =
+        text.chars()
+        .filter(|c| c.is_ascii_alphanumeric() || c.is_ascii_punctuation())
+        .take(256) // Limit to 256 characters
+        .collect::<String>();
+
+    if text.is_empty() {
+        ctx.say("Text was not valid for text-to-speech.").await?;
+
+        return Ok(());
+    }
 
     // Prefix the query with `speak:` to make Lavalink use the TTS feature.
     let query = format!("speak: {}", text);
