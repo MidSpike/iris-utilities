@@ -18,6 +18,8 @@ use crate::Error;
 
 use crate::common::music;
 
+use crate::common::helpers::bot::create_escaped_code_block;
+
 use crate::commands::music::play::query_and_enqueue_track;
 
 //------------------------------------------------------------//
@@ -46,8 +48,13 @@ pub async fn text_to_speech(
     #[description = "Text to speak"]
     text: String,
 ) -> Result<(), Error> {
+    ctx.defer().await?;
+
     let Some(guild_id) = ctx.guild_id() else {
-        ctx.say("This command can only be used in a server.").await?;
+        ctx.send(
+            poise::CreateReply::default()
+            .content("This command can only be used in a server.")
+        ).await?;
 
         return Ok(());
     };
@@ -61,7 +68,10 @@ pub async fn text_to_speech(
     }
 
     if guild_voice_states.is_empty() {
-        ctx.say("No voice states found").await?;
+        ctx.send(
+            poise::CreateReply::default()
+            .content("No voice states found.")
+        ).await?;
 
         return Ok(());
     }
@@ -79,7 +89,10 @@ pub async fn text_to_speech(
         .and_then(|voice_state| voice_state.channel_id);
 
     let Some(user_voice_channel_id) = user_voice_channel_id_option else {
-        ctx.say("You must be in a voice channel to use this command.").await?;
+        ctx.send(
+            poise::CreateReply::default()
+            .content("You must be in a voice channel to use this command.")
+        ).await?;
 
         return Ok(());
     };
@@ -89,7 +102,10 @@ pub async fn text_to_speech(
     let lavalink_client = match &context_data.lavalink {
         Some(client) => client,
         None => {
-            ctx.say("Lavalink client is not initialized.").await?;
+            ctx.send(
+                poise::CreateReply::default()
+                .content("Lavalink client is not initialized.")
+            ).await?;
 
             return Ok(());
         }
@@ -110,7 +126,10 @@ pub async fn text_to_speech(
             // say nothing since we're already connected to the voice channel
         }
         music::JoinVoiceChannelResult::ConnectedToNewVoiceChannel => {
-            ctx.say(format!("Joined {}", user_voice_channel_id.mention())).await?;
+            ctx.send(
+                poise::CreateReply::default()
+                .content(format!("Joined {}", user_voice_channel_id.mention()))
+            ).await?;
         }
         music::JoinVoiceChannelResult::Failed(what, why) => {
             eprintln!("Failed to join voice channel:\n{}\n{}", what, why);
@@ -120,7 +139,10 @@ pub async fn text_to_speech(
     }
 
     let Some(player_context) = lavalink_client.get_player_context(guild_id.get()) else {
-        ctx.say("Join the bot to a voice channel first.").await?;
+        ctx.send(
+            poise::CreateReply::default()
+            .content("Join the bot to a voice channel first.")
+        ).await?;
 
         return Ok(());
     };
@@ -133,7 +155,10 @@ pub async fn text_to_speech(
         .collect::<String>();
 
     if text.is_empty() {
-        ctx.say("Text was not valid for text-to-speech.").await?;
+        ctx.send(
+            poise::CreateReply::default()
+            .content("Text was not valid for text-to-speech.")
+        ).await?;
 
         return Ok(());
     }
@@ -141,12 +166,28 @@ pub async fn text_to_speech(
     // Prefix the query with `speak:` to make Lavalink use the TTS feature.
     let query = format!("speak: {}", text);
 
-    query_and_enqueue_track(
+    let result = query_and_enqueue_track(
         ctx,
         &lavalink_client,
         &player_context,
         guild_id,
         query,
+    ).await;
+
+    if let Err(why) = result {
+        eprintln!("Failed to enqueue text-to-speech track: {:?}", why);
+
+        ctx.send(
+            poise::CreateReply::default()
+            .content("Failed to enqueue text-to-speech track.")
+        ).await?;
+
+        return Ok(());
+    }
+
+    ctx.send(
+        poise::CreateReply::default()
+        .content(format!("Enqueued text-to-speech:\n{}", create_escaped_code_block(None, &text)))
     ).await?;
 
     Ok(())
