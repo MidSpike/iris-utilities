@@ -27,29 +27,10 @@ plugins:
       - WEBEMBEDDED
     remoteCipher:
       url: "https://cipher.kikkia.dev/"
-  dunctebot:
-    ttsLanguage: "en-US"
-    sources:
-      tts: true
-      reddit: true
-      tiktok: true
-      clypit: false
-      getyarn: false
-      mixcloud: false
-      ocremix: false
-      pixeldrain: false
-      pornhub: false
-      soundgasm: false
-      tumblr: false
-    tumblr:
-      secretKey: "<SECRET_KEY>"
-      consumerKey: "<CONSUMER_KEY>"
 
 lavalink:
   plugins:
     - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.2"
-      snapshot: false
-    - dependency: "com.dunctebot:skybot-lavalink-plugin:1.7.1"
       snapshot: false
   # pluginsDir: "./plugins" # optional, defaults to "./plugins"
   # defaultPluginRepository: "https://maven.lavalink.dev/releases" # optional, defaults to the Lavalink release repository
