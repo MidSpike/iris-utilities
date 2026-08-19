@@ -167,7 +167,7 @@ pub fn create_commands() -> Vec<poise::Command<Data, Error>> {
             utility::solve::solve(),
             utility::translate::translate(),
             utility::translate::translate_message_context_menu(),
-            utility::text_to_speech::text_to_speech(),
+            // utility::text_to_speech::text_to_speech(), // Disabled pending replacement lavalink plugin
             utility::unicode_info::unicode_info(),
         ]);
     }
