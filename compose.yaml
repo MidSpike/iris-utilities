@@ -22,9 +22,10 @@ services:
       - iris-utilities
 
   # https://hub.docker.com/r/mongodb/mongodb-community-server/tags?page=1&ordering=last_updated
+  # Newer MongoDB has compatibility issues with linux kernel >=6.19.
   mongodb:
     container_name: iris-utilities-mongodb
-    image: mongodb/mongodb-community-server:8.0-ubi8-slim
+    image: mongodb/mongodb-community-server:8.0.4-ubi9
     command: --quiet
     restart: unless-stopped
     env_file:
