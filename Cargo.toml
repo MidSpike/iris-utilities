@@ -60,8 +60,8 @@ version = "0.13.4"
 features = ["json"]
 
 [dependencies.async-openai]
-version = "0.41.3"
-features = ["responses"]
+version = "0.42.0"
+features = ["moderation", "responses"]
 
 [dependencies.songbird]
 git = "https://github.com/serenity-rs/songbird/"
