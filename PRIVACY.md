@@ -11,9 +11,9 @@
 - [snowflake](https://discord.com/developers/docs/reference#snowflakes) = a unique identifier.
 - id = a snowflake (or other unique identifier) used for identification and classification.
 - name = the (global/guild)(user/nick/display)name of an individual.
-- guild(s) = Discord guild(s) (also known as "Server(s)") that this bot has access to.
+- guild(s) = Discord guild(s) (also known as "server(s)") that this bot has access to.
 - user(s) = users residing in a guild that use this bot and/or other users that use this bot.
-- bot(s) = an [application](https://discord.com/developers/docs/intro) on the Discord platform.
+- bot(s) = an [application](https://docs.discord.com/developers/platform/bots) on the Discord platform.
 - command(s) = a trigger for this bot to complete a user-requested action.
 
 ---
@@ -34,8 +34,12 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 #### This bot collects, processes, and stores the following information known as `interaction_history`:
 
-- messages including an `@mention` of this bot.
-- direct messages sent to this bot.
+- all messages including an `@mention` of this bot.
+- private-messages or commands sent directly to this bot.
+- group-messages or commands sent directly to this bot.
+- guild / user commands sent directly to this bot.
+- messages in channels with channel features enabled (such as ai chat).
+- messages in any channel with guild features enabled (such as ai moderation).
 - `interaction_history` includes the following information:
     - application command context (command, content, embeds, attachments, etc).
     - user information attached: id, name.
@@ -52,16 +56,16 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 <summary>User Configuration</summary>
 
-#### This bot collects, processes, and stores the following information known as user_config:
+#### This bot collects, processes, and stores the following information known as `user_config`:
 
-- user_config includes the following information:
+- `user_config` includes the following information:
     - user information attached: id.
     - various settings used to customize the bot's behavior for the user.
 
-#### If you wish to have your user_config removed then you can do the following:
+#### If you wish to have your `user_config` removed then you can do the following:
 
 1. Contact this bot's support staff (using appropriate methods).
-2. Request for your user_config be removed.
+2. Request for your `user_config` be removed.
 
 </details>
 
@@ -73,21 +77,20 @@ Certain aspects of this document are broadened to address potential privacy conc
 
 <summary>Guild Configuration</summary>
 
-#### This bot collects, processes, and stores the following information known as a guild_config:
+#### This bot collects, processes, and stores the following information known as a `guild_config`:
 
-- the last known connection timestamp of this bot to a guild.
-- the last known modification timestamp of guild_config.
-- other various information related to the functionality of this bot in the guild.
+- guild information attached: id.
+- various settings used to customize the bot's behavior for the guild.
 
-#### A guild owner may request their guild_config by:
-
-1. Contact this bot's support staff (using appropriate methods).
-2. Request for their guild_config to be sent to them.
-
-#### A guild owner may request for their guild_config to be removed by:
+#### A guild owner may request their `guild_config` by:
 
 1. Contact this bot's support staff (using appropriate methods).
-2. Request for their guild_config to be removed.
+2. Request for their `guild_config` to be sent to them.
+
+#### A guild owner may request for their `guild_config` to be removed by:
+
+1. Contact this bot's support staff (using appropriate methods).
+2. Request for their `guild_config` to be removed.
 
 </details>
 
@@ -98,19 +101,19 @@ Certain aspects of this document are broadened to address potential privacy conc
 Usage of collected data is **not** intended for any of the following:
 
 - selling to third parties
-- sharing with third parties
+- unsolicited sharing with third parties
 - any other purpose not related to this bot's functionality
 
 ---
 
 Certain data submitted to this bot may be sent to external services for processing.
 
-For example, the `weather_info` command sends anonymized data to third parties for processing.
+For example, the `ip_info` command sends anonymized data to third parties for processing.
 
 This anonymized data includes (but is not limited to):
-- The location entered by the user (example: "New York").
+- The information entered by the user (example: "1.1.1.1").
 
-In return for this data, user-requested weather information is returned to this bot to be displayed to the user.
+In return for this data, user-requested information is fetched by this bot to be displayed to the user.
 
 ---
 
@@ -122,11 +125,12 @@ In return for this data, user-requested weather information is returned to this 
 
 #### Who has access to non-anonymous stored data?
 
-- Only the owner of this bot shall have full access to stored (non-)anonymous data.
+- Only the owner of this bot shall have access to stored (non-)anonymous data.
 
 #### Who has access to anonymous stored data?
 
-- Only the admins of this bot (also known as "super people") shall have read access to stored anonymous data.
+- The owner of this bot shall have access to stored anonymous data.
+- Administrators of this bot granted access by this bot's owner.
 
 #### How do I request for my non-anonymized data to be deleted?
 
