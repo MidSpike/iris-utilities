@@ -141,7 +141,7 @@ fn create_member_leave_embed(
 
 //------------------------------------------------------------//
 
-pub async fn guild_logging_channels_member_join_handler(
+pub async fn guild_log_channels_member_join_handler(
     ctx: &serenity::Context,
     new_member: &serenity::Member,
 ) -> Result<(), Error> {
@@ -173,7 +173,7 @@ pub async fn guild_logging_channels_member_join_handler(
     Ok(())
 }
 
-pub async fn guild_logging_channels_member_leave_handler(
+pub async fn guild_log_channels_member_leave_handler(
     ctx: &serenity::Context,
     guild_id: serenity::GuildId,
     user: &serenity::User,

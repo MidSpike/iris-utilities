@@ -182,6 +182,6 @@ pub async fn telemetry_guild_retention(
     let result = telemetry_channel.send_message(&ctx.http(), message).await;
 
     if let Err(why) = result {
-        eprintln!("Failed to send the telemetry message: {:?}", why);
+        eprintln!("telemetry_guild_retention(): Failed send retention message; {:?}", why);
     }
 }

@@ -3,14 +3,23 @@
 //------------------------------------------------------------//
 
 use async_openai::{
-    Client, types::responses::{
-        CreateResponseArgs,
-        ResponseTextParam,
-        TextResponseFormatConfiguration,
-        Tool,
-        Verbosity,
-        WebSearchTool
-    }
+    Client, types::{
+        moderations::{
+            CreateModerationRequest,
+            ModerationContentPart,
+            ModerationImageURLInput,
+            ModerationInput,
+            ModerationTextInput,
+        },
+        responses::{
+            CreateResponseArgs,
+            ResponseTextParam,
+            TextResponseFormatConfiguration,
+            Tool,
+            Verbosity,
+            WebSearchTool,
+        }
+    },
 };
 
 //------------------------------------------------------------//
@@ -124,7 +133,7 @@ pub async fn prompt(
     let response =
         client.responses()
         .create(request).await
-        .map_err(|e| Error::from(format!("OpenAI API error: {}", e)))?;
+        .map_err(|e| Error::from(format!("OpenAI API error: {:?}", e)))?;
 
     let content =
         response.output_text()
@@ -140,6 +149,156 @@ pub async fn prompt(
         PromptResponse {
             content: content,
             tokens_used: total_tokens,
+        }
+    )
+}
+
+//------------------------------------------------------------//
+
+#[derive(Debug)]
+pub struct ModerationCheckResponseCategory {
+    pub label: String,
+    pub score: f32,
+    pub flagged: bool,
+}
+
+pub struct ModerationCheckResponse {
+    pub flagged: bool,
+    pub categories: Vec<ModerationCheckResponseCategory>,
+}
+
+pub async fn moderation_check(
+    input_text: String,
+    input_image_urls: Vec<String>,
+) -> Result<ModerationCheckResponse, Error> {
+    if input_text.is_empty() {
+        return Err("No input was provided to moderation check".into());
+    }
+
+    let client = Client::new();
+
+    let mut moderation_input: Vec<ModerationContentPart> = vec![
+        ModerationContentPart::Text(
+            ModerationTextInput {
+                text: input_text.clone()
+            }
+        ),
+    ];
+
+    for input_image_url in input_image_urls {
+        moderation_input.push(
+            ModerationContentPart::ImageUrl(
+                ModerationImageURLInput {
+                    image_url: input_image_url
+                }
+            )
+        );
+    }
+
+    let response =
+        client.moderations()
+        .create(
+            CreateModerationRequest {
+                model: Some("omni-moderation-latest".into()),
+                input: ModerationInput::MultiModal(moderation_input),
+            }
+        ).await
+        .map_err(|e| Error::from(format!("OpenAI API error: {:?}", e)))?;
+
+    let first_result = response.results.first().ok_or_else(|| Error::from("No moderation results returned from OpenAI API"))?;
+
+    let mut first_result_categories: Vec<ModerationCheckResponseCategory> = Vec::new();
+    {
+        let category_scores = &first_result.category_scores;
+
+        // Hate / Threats
+
+        let hate_threats_score = category_scores.hate.max(category_scores.hate_threatening);
+        let hate_threats_flagged = first_result.categories.hate || first_result.categories.hate_threatening;
+
+        first_result_categories.push(
+            ModerationCheckResponseCategory {
+                label: "Hate / Threats".into(),
+                score: hate_threats_score,
+                flagged: hate_threats_flagged,
+            }
+        );
+
+        // Harassment
+
+        let harassment_score = category_scores.harassment.max(category_scores.harassment_threatening);
+        let harassment_flagged = first_result.categories.harassment || first_result.categories.harassment_threatening;
+
+        first_result_categories.push(
+            ModerationCheckResponseCategory {
+                label: "Harassment".into(),
+                score: harassment_score,
+                flagged: harassment_flagged,
+            }
+        );
+
+        // Illicit / Weapons
+
+        let illicit_score = category_scores.illicit.max(category_scores.illicit_violent);
+        let illicit_flagged = first_result.categories.illicit || first_result.categories.illicit_violent;
+
+        first_result_categories.push(
+            ModerationCheckResponseCategory {
+                label: "Illicit / Weapons".into(),
+                score: illicit_score,
+                flagged: illicit_flagged,
+            }
+        );
+
+        // Self-Harm
+
+        let self_harm_score =
+            category_scores.self_harm.max(category_scores.self_harm_intent)
+            .max(category_scores.self_harm_instructions);
+        let self_harm_flagged =
+            first_result.categories.self_harm
+            || first_result.categories.self_harm_intent
+            || first_result.categories.self_harm_instructions;
+
+        first_result_categories.push(
+            ModerationCheckResponseCategory {
+                label: "Self-Harm".into(),
+                score: self_harm_score,
+                flagged: self_harm_flagged,
+            }
+        );
+
+        // Sexual / Inappropriate
+
+        let sexual_score = category_scores.sexual.max(category_scores.sexual_minors);
+        let sexual_flagged = first_result.categories.sexual || first_result.categories.sexual_minors;
+
+        first_result_categories.push(
+            ModerationCheckResponseCategory {
+                label: "Sexual / Inappropriate".into(),
+                score: sexual_score,
+                flagged: sexual_flagged,
+            }
+        );
+
+        // Violent / Graphic
+
+        let violent_score = category_scores.violence.max(category_scores.violence_graphic);
+        let violent_flagged = first_result.categories.violence || first_result.categories.violence_graphic;
+
+        first_result_categories.push(
+            ModerationCheckResponseCategory {
+                label: "Violent / Graphic".into(),
+                score: violent_score,
+                flagged: violent_flagged,
+            }
+        );
+    }
+
+    Ok(
+        ModerationCheckResponse {
+            flagged: first_result.flagged,
+            categories: first_result_categories,
         }
     )
 }

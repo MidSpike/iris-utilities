@@ -20,29 +20,6 @@ use crate::common::database::adapter::CollectionHelper;
 
 //------------------------------------------------------------//
 
-#[derive(Default, Debug, Deserialize, Serialize)]
-pub enum GuildConfigModerationMode {
-    #[default]
-    #[serde(rename = "0")]
-    DenyDiscordOverrides,
-
-    #[serde(rename = "1")]
-    AllowDiscordOverrides,
-}
-
-impl GuildConfigModerationMode {
-    pub async fn are_discord_overrides_allowed(
-        &self,
-    ) -> bool {
-        match self {
-            GuildConfigModerationMode::DenyDiscordOverrides => false,
-            GuildConfigModerationMode::AllowDiscordOverrides => true,
-        }
-    }
-}
-
-//------------------------------------------------------------//
-
 #[derive(Default, Debug, Deserialize, Serialize, Clone)]
 pub enum GuildConfigAiChatMode {
     #[default]
@@ -82,12 +59,87 @@ type GuildConfigAiChatChannels = Vec<serenity::GenericChannelId>;
 //------------------------------------------------------------//
 
 #[derive(Default, Debug, Deserialize, Serialize, Clone)]
+pub enum GuildConfigAiModerationMode {
+    #[default]
+    #[serde(rename = "0")]
+    Disabled,
+
+    #[serde(rename = "1")]
+    EnabledLoggingOnly,
+
+    #[serde(rename = "2")]
+    EnabledLoggingAndRemoval,
+}
+
+impl GuildConfigAiModerationMode {
+    pub fn is_enabled(
+        &self,
+    ) -> bool {
+        match self {
+            GuildConfigAiModerationMode::Disabled => false,
+            GuildConfigAiModerationMode::EnabledLoggingOnly => true,
+            GuildConfigAiModerationMode::EnabledLoggingAndRemoval => true,
+        }
+    }
+
+    pub fn is_auto_moderation_enabled(
+        &self,
+    ) -> bool {
+        match self {
+            GuildConfigAiModerationMode::Disabled => false,
+            GuildConfigAiModerationMode::EnabledLoggingOnly => false,
+            GuildConfigAiModerationMode::EnabledLoggingAndRemoval => true,
+        }
+    }
+}
+
+#[derive(Default, Debug, Deserialize, Serialize, Clone)]
+pub enum GuildConfigAiModerationSensitivity {
+    #[default]
+    #[serde(rename = "0")]
+    Iris,
+
+    #[serde(rename = "1")]
+    Rick,
+
+    #[serde(rename = "2")]
+    Ivan,
+
+    #[serde(rename = "3")]
+    Soul,
+}
+
+impl GuildConfigAiModerationSensitivity {
+    pub fn should_trigger_for(
+        &self,
+        input: f32
+    ) -> bool {
+        let threshold = match &self {
+            Self::Iris => 0.90,
+
+            Self::Rick => 0.80,
+
+            Self::Ivan => 0.70,
+
+            Self::Soul => 0.60,
+        };
+
+        input >= threshold
+    }
+}
+
+//------------------------------------------------------------//
+
+#[derive(Default, Debug, Deserialize, Serialize, Clone)]
 pub struct GuildConfigLoggingChannels {
     #[serde(default)]
     pub guild_member_join: Option<serenity::GenericChannelId>,
 
     #[serde(default)]
     pub guild_member_leave: Option<serenity::GenericChannelId>,
+
+    #[serde(default)]
+    pub ai_moderation_events: Option<serenity::GenericChannelId>,
 }
 
 //------------------------------------------------------------//
@@ -97,13 +149,16 @@ pub struct GuildConfig {
     discord_guild_id: serenity::GuildId,
 
     #[serde(default)]
-    moderation_mode: GuildConfigModerationMode,
-
-    #[serde(default)]
     ai_chat_mode: GuildConfigAiChatMode,
 
     #[serde(default)]
     ai_chat_channels: GuildConfigAiChatChannels,
+
+    #[serde(default)]
+    ai_moderation_mode: GuildConfigAiModerationMode,
+
+    #[serde(default)]
+    ai_moderation_sensitivity: GuildConfigAiModerationSensitivity,
 
     #[serde(default)]
     logging_channels: GuildConfigLoggingChannels,
@@ -136,9 +191,10 @@ impl GuildConfig {
         let guild_config = collection_helper.set(
             GuildConfig {
                 discord_guild_id: discord_guild_id,
-                moderation_mode: GuildConfigModerationMode::default(),
                 ai_chat_mode: GuildConfigAiChatMode::default(),
                 ai_chat_channels: GuildConfigAiChatChannels::default(),
+                ai_moderation_mode: GuildConfigAiModerationMode::default(),
+                ai_moderation_sensitivity: GuildConfigAiModerationSensitivity::default(),
                 logging_channels: GuildConfigLoggingChannels::default(),
             }
         ).await?;
@@ -231,6 +287,48 @@ impl GuildConfig {
             mongodb::bson::doc! {
                 "$set": {
                     "ai_chat_channels": to_bson(&ai_chat_channels)?,
+                },
+            }
+        ).await?;
+
+        Ok(())
+    }
+
+    pub async fn get_ai_moderation_mode(
+        &self,
+    ) -> GuildConfigAiModerationMode {
+        self.ai_moderation_mode.clone()
+    }
+
+    pub async fn set_ai_moderation_mode(
+        &self,
+        ai_moderation_mode: GuildConfigAiModerationMode,
+    ) -> Result<(), Error> {
+        self.update(
+            mongodb::bson::doc! {
+                "$set": {
+                    "ai_moderation_mode": to_bson(&ai_moderation_mode)?,
+                },
+            }
+        ).await?;
+
+        Ok(())
+    }
+
+    pub async fn get_ai_moderation_sensitivity(
+        &self,
+    ) -> GuildConfigAiModerationSensitivity {
+        self.ai_moderation_sensitivity.clone()
+    }
+
+    pub async fn set_ai_moderation_sensitivity(
+        &self,
+        ai_moderation_sensitivity: GuildConfigAiModerationSensitivity,
+    ) -> Result<(), Error> {
+        self.update(
+            mongodb::bson::doc! {
+                "$set": {
+                    "ai_moderation_sensitivity": to_bson(&ai_moderation_sensitivity)?,
                 },
             }
         ).await?;

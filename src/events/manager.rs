@@ -18,8 +18,10 @@ use crate::commands::create_commands;
 
 use crate::events::handlers::guild_ai_chat_handler::guild_ai_chat_handler;
 
-use crate::events::handlers::guild_logging_channels_handler::guild_logging_channels_member_join_handler;
-use crate::events::handlers::guild_logging_channels_handler::guild_logging_channels_member_leave_handler;
+use crate::events::handlers::guild_ai_moderation_handler::guild_ai_moderation_handler;
+
+use crate::events::handlers::guild_log_channels_handler::guild_log_channels_member_join_handler;
+use crate::events::handlers::guild_log_channels_handler::guild_log_channels_member_leave_handler;
 
 //------------------------------------------------------------//
 
@@ -55,17 +57,29 @@ async fn event_handler(
             if let serenity::Interaction::Component(component_interaction) = interaction {
                 if let Err(why) = component_interaction_handler(component_interaction).await {
                     eprintln!("Error handling component interaction: {:?}", why);
-
-                    return Ok(()); // Graceful
                 }
             }
         },
 
         serenity::FullEvent::Message { new_message, .. } => {
-            if let Err(why) = guild_ai_chat_handler(&ctx, new_message).await {
-                eprintln!("Error handling guild AI chat: {:?}", why);
+            match guild_ai_moderation_handler(&ctx, new_message).await {
+                Ok(false) => {
+                    // Automatic moderation was not invoked, proceed.
+                },
 
-                return Ok(()); // Graceful
+                Ok(true) => {
+                    // Automatic moderation was invoked, gracefully return.
+
+                    return Ok(());
+                },
+
+                Err(why) => {
+                    eprintln!("Error handling guild ai moderation: {:?}", why);
+                }
+            }
+
+            if let Err(why) = guild_ai_chat_handler(&ctx, new_message).await {
+                eprintln!("Error handling guild ai chat: {:?}", why);
             }
         },
 
@@ -87,18 +101,14 @@ async fn event_handler(
         },
 
         serenity::FullEvent::GuildMemberAddition { new_member, .. } => {
-            if let Err(why) = guild_logging_channels_member_join_handler(&ctx, new_member).await {
+            if let Err(why) = guild_log_channels_member_join_handler(&ctx, new_member).await {
                 eprintln!("Error handling guild logging channels member join: {:?}", why);
-
-                return Ok(()); // Graceful
             }
         },
 
         serenity::FullEvent::GuildMemberRemoval { guild_id, user, .. } => {
-            if let Err(why) = guild_logging_channels_member_leave_handler(&ctx, *guild_id, &user).await {
+            if let Err(why) = guild_log_channels_member_leave_handler(&ctx, *guild_id, &user).await {
                 eprintln!("Error handling guild logging channels member leave: {:?}", why);
-
-                return Ok(()); // Graceful
             }
         },
 

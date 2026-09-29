@@ -4,6 +4,8 @@
 
 pub mod ai_chat;
 
+pub mod ai_moderation;
+
 pub mod logging_channels;
 
 //------------------------------------------------------------//
@@ -14,6 +16,8 @@ use crate::Error;
 
 use ai_chat::{ai_chat_mode, ai_chat_channels};
 
+use ai_moderation::{ai_moderation};
+
 use logging_channels::{logging_channels};
 
 //------------------------------------------------------------//
@@ -23,7 +27,7 @@ use logging_channels::{logging_channels};
     poise::command(
         slash_command,
         guild_only,
-        subcommands("ai_chat_mode", "ai_chat_channels", "logging_channels"),
+        subcommands("ai_chat_mode", "ai_chat_channels", "ai_moderation", "logging_channels"),
         category = "Configuration",
         install_context = "Guild",
         interaction_context = "Guild",
