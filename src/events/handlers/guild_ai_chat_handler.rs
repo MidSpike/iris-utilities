@@ -32,16 +32,16 @@ pub async fn guild_ai_chat_handler(
         return Ok(());
     }
 
-    // only listen to messages in guilds
+    // only continue if the message was sent in a guild
     let Some(guild_id) = message.guild_id else {
         return Ok(());
     };
 
-    // println!("guild_ai_chat_handler(): [{}]: {}", message.author.name, message.content);
+    let Ok(guild_channel) = message.guild_channel(&ctx).await else {
+        return Ok(());
+    };
 
-    let guild_channel =
-        message.channel(&ctx).await?
-        .guild().expect("guild channel should be present");
+    // println!("guild_ai_chat_handler(): [{}]: {}", message.author.name, message.content);
 
     // only listen to channels with slowmode enabled (to prevent spam)
     match guild_channel.base.rate_limit_per_user {

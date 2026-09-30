@@ -34,16 +34,16 @@ pub async fn guild_ai_moderation_handler(
         return Ok(false);
     }
 
-    // require origin to be a guild
+    // only continue if the message was sent in a guild
     let Some(guild_id) = message.guild_id else {
         return Ok(false);
     };
 
-    // println!("guild_ai_moderation_handler(): [{}]: {}", message.author.name, message.content);
+    let Ok(guild_channel) = message.guild_channel(&ctx).await else {
+        return Ok(false);
+    };
 
-    let guild_channel =
-        message.channel(&ctx).await?
-        .guild().expect("guild channel should be present");
+    // println!("guild_ai_moderation_handler(): [{}]: {}", message.author.name, message.content);
 
     // require slowmode to be enabled
     match guild_channel.base.rate_limit_per_user {
