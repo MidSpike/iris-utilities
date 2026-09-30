@@ -17,7 +17,7 @@ use crate::common::ai::gpt::{self, ModerationCheckResponseCategory};
 
 use crate::common::helpers::bot::create_escaped_code_block;
 
-use crate::common::database::interfaces::guild_config::GuildConfig;
+use crate::common::database::interfaces::guild_config::{GuildConfig, GuildConfigAiModerationMode};
 
 //------------------------------------------------------------//
 
@@ -140,6 +140,12 @@ pub async fn guild_ai_moderation_handler(
         .color(0xFFFF00)
         .description(
             {
+                let action_taken = match guild_ai_moderation_mode {
+                    GuildConfigAiModerationMode::EnabledLoggingOnly => "Flagged",
+                    GuildConfigAiModerationMode::EnabledLoggingAndRemoval => "Removed",
+                    GuildConfigAiModerationMode::Disabled => panic!(), // Should be impossible
+                };
+
                 let categories = {
                     filtered_categories.iter()
                     .sorted_by(|a, b| b.score.total_cmp(&a.score))
@@ -172,10 +178,10 @@ pub async fn guild_ai_moderation_handler(
                 };
 
                 [
-                    format!("Flagged [message]({}) (`{}`)", flagged_message_link, flagged_message.id),
+                    format!("{} [message]({}) (`{}`)", action_taken, flagged_message_link, flagged_message.id),
                     format!("sent by {} (`{}`)", member.mention(), member.user.id.to_string()),
                     "".to_string(),
-                    "Categories:".to_string(),
+                    "Flagged Categories:".to_string(),
                     format!("{}", categories),
                     "".to_string(),
                     "Start of message:".to_string(),
