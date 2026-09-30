@@ -205,6 +205,7 @@ pub async fn someone(
 
 //------------------------------------------------------------//
 
+/// Yeets a user from their voice channel.
 #[
     poise::command(
         slash_command,

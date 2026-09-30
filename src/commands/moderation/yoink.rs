@@ -45,12 +45,12 @@ async fn relocate_member_in_voice_channel(
 
 //------------------------------------------------------------//
 
-/// Yeets a user from their voice channel.
+/// Yoinks a user to your voice channel.
 #[poise::command(slash_command)]
 pub async fn someone(
     ctx: Context<'_>,
 
-    #[description = "The member to yeet"]
+    #[description = "The member to yoink"]
     member: serenity::Member,
 
     #[description = "Why this action was performed"]
@@ -169,6 +169,7 @@ pub async fn someone(
 
 //------------------------------------------------------------//
 
+/// Yoinks a user to your voice channel.
 #[
     poise::command(
         slash_command,
